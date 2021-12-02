@@ -1,0 +1,55 @@
+[data-md-color-scheme='light'] {
+  --md-default-fg-color: #1d1a23;
+  --md-default-fg-color--light: #1d1a23ee;
+  --md-default-fg-color--lighter: #1d1a2355;
+  --md-default-fg-color--lightest: #ebebeb33;
+  --md-default-bg-color: #ebebeb;
+  --md-default-bg-color--light: #ebebeb;
+  --md-default-bg-color--lighter: #ebebeb;
+  --md-default-bg-color--lightest: #ebebeb;
+
+  --md-primary-fg-color: #ec9832;
+  --md-primary-fg-color--light: #ec9832;
+  --md-primary-fg-color--dark: #ec9832;
+  --md-primary-bg-color: #ebebeb;
+  --md-primary-bg-color--light: #ebebeb;
+
+  --md-accent-fg-color: #b3cbb9;
+  --md-accent-fg-color--transparent: #b3cbb966;
+  --md-accent-bg-color: #ebebeb;
+  --md-accent-bg-color--light: #b3cbb9;
+
+  --md-code-fg-color: #1d1a23;
+  --md-code-bg-color: #ebebeb;
+
+  --md-admonition-fg-color: #1d1a23;
+  --md-admonition-bg-color: #f5f5f5;
+}
+
+[data-md-color-scheme='dark'] {
+  --md-default-fg-color: #ebebeb;
+  --md-default-fg-color--light: #ebebeb;
+  --md-default-fg-color--lighter: #ebebeb;
+  --md-default-fg-color--lightest: #1d1a23;
+  --md-default-bg-color: #1d1a23;
+  --md-default-bg-color--light: #1d1a23;
+  --md-default-bg-color--lighter: #1d1a23;
+  --md-default-bg-color--lightest: #1d1a23;
+
+  --md-primary-fg-color: #ba5b4f;
+  --md-primary-fg-color--light: #ba5b4f;
+  --md-primary-fg-color--dark: #ba5b4f;
+  --md-primary-bg-color: #1d1a23;
+  --md-primary-bg-color--light: #ebebeb;
+
+  --md-accent-fg-color: #b3cbb9;
+  --md-accent-fg-color--transparent: #b3cbb966;
+  --md-accent-bg-color: #1d1a23;
+  --md-accent-bg-color--light: #b3cbb9;
+
+  --md-code-fg-color: #ebebeb;
+  --md-code-bg-color: #1d1a23;
+
+  --md-admonition-fg-color: #ebebeb;
+  --md-admonition-bg-color: #221e29;
+}

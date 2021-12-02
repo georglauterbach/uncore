@@ -1,0 +1,47 @@
+---
+name: Linting
+
+on: [push, pull_request] # yamllint disable-line rule:truthy
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  setup:
+    name: Setup All Dependencies
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Installing Rustup
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      - name: Installing Toolchain
+        run: rustup toolchain install $(<rust-toolchain)
+      - name: Install Cargo Components
+        run: cargo install cargo-xbuild bootimage
+
+  check-formatting:
+    name: Run Formatting-Tests
+    runs-on: ubuntu-20.04
+    needs: dependency_setup
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setting up Toolchain
+        run: rustup override set ${{ env.TOOLCHAIN }}
+      - name: Installing Rustup Components
+        run: rustup component add rustfmt rls
+      - name: Running Formatting Check
+        run: cargo fmt -- --check
+
+  check-clippy:
+    name: Run Clippy-Tests
+    runs-on: ubuntu-20.04
+    needs: dependency_setup
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setting up Toolchain
+        run: rustup override set ${{ env.TOOLCHAIN }}
+      - name: Installing Rustup Components
+        run: rustup component add clippy rls
+      - name: Running Clippy Check
+        run: cargo clippy --all-targets --all-features -- -D warnings

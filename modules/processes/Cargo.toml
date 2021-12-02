@@ -1,0 +1,41 @@
+[package]
+name = "processes"
+version = "0.1.0"
+edition = "2021"
+
+workspace = "../"
+
+authors = [
+  "The unCORE Kernel Community",
+]
+
+description = "The unCORE OS Kernel Process Abstractions [core]"
+documentation = "../../documentation/"
+
+readme = "../../README.md"
+
+homepage = "https://uncore-kernel.io"
+repository = "https://github.com/georglauterbach/uncore"
+
+license = "GPL-3.0"
+
+keywords = [
+  "operating-system",
+  "no-std",
+  "processes",
+  "threads"
+]
+
+categories = [
+  "no-std",
+  "config",
+]
+
+publish = false
+
+autobenches = true
+autobins = true
+autoexamples = true
+autotests = true
+
+[dependencies]

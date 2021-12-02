@@ -1,0 +1,42 @@
+[package]
+edition = "2021"
+name = "hardware"
+version = "0.1.0"
+
+workspace = "../"
+
+authors = [
+  "The unCORE Kernel Community",
+]
+
+description = "The unCORE OS Kernel Hardware Abstraction Layer"
+documentation = "../../documentation/"
+
+readme = "../../README.md"
+
+homepage = "https://uncore-kernel.io"
+repository = "https://github.com/georglauterbach/uncore"
+
+license = "GPL-3.0"
+
+keywords = [
+  "operating-system",
+  "no-std",
+  "hardware",
+  "abstraction",
+  "hal",
+]
+
+categories = [
+  "no-std",
+  "config",
+]
+
+publish = false
+
+autobenches = true
+autobins = true
+autoexamples = true
+autotests = true
+
+[dependencies]
