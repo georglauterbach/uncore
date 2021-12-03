@@ -7,6 +7,10 @@
 
 # unCORE
 
+[![License][badge::license]][badge::licence::link] [![Documentation][badge::documentation]][badge::documentation::link]
+
+[![CI Linting][badge::ci::linting]][badge::ci::link]
+
 ## About
 
 **_unCORE_** is an [operating system] [micro-kernel] completely written in pure, idiomatic [Rust]. **_unCORE_** makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant.
@@ -45,6 +49,19 @@ A dedicated [Modules][docs-modules] section in the documentation covers the cont
 The documentation is written in Markdown, built with [MkDocs] and can be found under `documentation/`. You may build and serve the documentation locally with a container runtime (like [Docker] or [Podman]) by running `./scripts/documentation.sh`, serving it under <http://127.0.0.1:8080>.
 
 This project is licensed under the [GNU General Public License v3], except for those parts (lines of code from libraries used in this project) already licensed under other licenses. Moreover, code taken from [_Phillip Oppermann_'s _BlogOS_ project][blog-os] is not covered by the license of this project as well.
+
+[//]: # (Badges)
+
+[badge::license]: https://img.shields.io/github/license/georglauterbach/uncore.svg?label=LICENSE&color=informational&style=for-the-badge
+[badge::licence::link]: https://github.com/georglauterbach/uncore/blob/master/LICENSE
+[badge::documentation]: https://img.shields.io/badge/DOCUMENTATION-MKDOCS-informational?style=for-the-badge
+[badge::documentation::link]: https://github.com/georglauterbach/uncore/tree/master/documentation
+
+[badge::ci::link]: https://github.com/docker-mailserver/docker-mailserver/actions
+[badge::ci::linting]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Linting?label=CI%20-%20Linting&logo=github&logoColor=white&style=for-the-badge
+
+
+https://img.shields.io/badge/LICENSE-GPLv3-blue?&logo=license&logoColor=white&style=for-the-badge
 
 [//]: # (Links)
 

@@ -26,10 +26,12 @@ function lint
     --rm \
     --cap-drop=ALL \
     --user=999 \
-    --volume "${ROOT_DIRECTORY}:/data" \
+    --volume "${ROOT_DIRECTORY}/.github:/data/.github" \
+    --volume "${ROOT_DIRECTORY}/documentation:/data/documentation" \
+    --volume "${ROOT_DIRECTORY}/scripts:/data/scripts" \
     "${IMAGE}" \
       --strict \
-      --config-file "scripts/lint/yamllint.yml" \
+      --config-file "/data/scripts/lint/yamllint.yml" \
       -- .
   then
     notify 'suc' 'No errors detected'

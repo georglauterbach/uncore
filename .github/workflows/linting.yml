@@ -8,40 +8,72 @@ defaults:
     shell: bash
 
 jobs:
-  setup:
-    name: Setup All Dependencies
+  shellcheck:
+    name: Run ShellCheck
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - name: Installing Rustup
-        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-      - name: Installing Toolchain
-        run: rustup toolchain install $(<rust-toolchain)
-      - name: Install Cargo Components
-        run: cargo install cargo-xbuild bootimage
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@1.1.0
+        with:
+          scandir: ./scripts
+          version: v0.7.2
+          severity: style
+        env:
+          SHELLCHECK_OPTS: >
+            --enable=all
+            --severity=style
+            --color=auto
+            --wiki-link-count=50
+            --exclude=SC2154
+            --check-sourced
+            --external-sources
+            --source-path=SCRIPTDIR
 
-  check-formatting:
-    name: Run Formatting-Tests
+  yamllint:
+    name: Run YAMLLint
     runs-on: ubuntu-20.04
-    needs: dependency_setup
     steps:
-      - uses: actions/checkout@v2
-      - name: Setting up Toolchain
-        run: rustup override set ${{ env.TOOLCHAIN }}
-      - name: Installing Rustup Components
-        run: rustup component add rustfmt rls
-      - name: Running Formatting Check
-        run: cargo fmt -- --check
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run YAMLLint
+        uses: ibiqlik/action-yamllint@v3.1.0
+        with:
+          config_file: ./scripts/lint/yamllint.yml
+          strict: true
+          format: github
+          file_or_dir: .github/**/* documentation/**/* scripts/**/*
 
-  check-clippy:
-    name: Run Clippy-Tests
+  superlinter:
+    name: Lint whole codebase
     runs-on: ubuntu-20.04
-    needs: dependency_setup
     steps:
-      - uses: actions/checkout@v2
-      - name: Setting up Toolchain
-        run: rustup override set ${{ env.TOOLCHAIN }}
-      - name: Installing Rustup Components
-        run: rustup component add clippy rls
-      - name: Running Clippy Check
-        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Lint code base
+        uses: github/super-linter@v4.8.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: master
+          VALIDATE_ALL_CODEBASE: true
+
+          LOG_LEVEL: NOTICE
+
+          YAML_CONFIG_FILE: ./scripts/lint/yamllint.yml
+          MARKDOWN_CONFIG_FILE: ./scripts/lint/markdownlint.yml
+          EDITORCONFIG_FILE_NAME: ./scripts/lint/editorconfig.json
+
+          ERROR_ON_MISSING_EXEC_BIT: true
+
+          VALIDATE_BASH: true
+          VALIDATE_BASH_EXEC: true
+          VALIDATE_EDITORCONFIG: true
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_MARKDOWN: true
+          VALIDATE_RUST_2018: true
+          VALIDATE_RUST_CLIPPY: true
+          VALIDATE_YAML: true

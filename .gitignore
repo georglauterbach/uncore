@@ -9,7 +9,13 @@
 # ----  Documentation  --------------------------
 # -----------------------------------------------
 
-documentation/.log
 documentation/site
-documentation/target
-documentation/Cargo.lock
+
+# -----------------------------------------------
+# ----  Rust  -----------------------------------
+# -----------------------------------------------
+
+modules/**/target/
+
+modules/**/Cargo.lock
+modules/**/*.rs.bk

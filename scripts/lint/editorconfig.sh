@@ -29,7 +29,7 @@ function lint
     --volume "${ROOT_DIRECTORY}:/ci:ro" \
     --workdir "/ci" \
     "${IMAGE}" ec \
-      -config "/ci/scripts/editorconfig.json"
+      -config "/ci/scripts/lint/editorconfig.json"
   then
     notify 'suc' 'No errors detected'
   else

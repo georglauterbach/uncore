@@ -22,37 +22,37 @@ notify()
 {
   __log_trace()
   {
-    printf "%-10s \e[94mTRACE\e[0m   %s\n" \
+    printf "%-12s \e[94mTRACE\e[0m   %s\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
   __log_info()
   {
-    printf "%-10s \e[34mINFO   \e[0m %s\n" \
+    printf "%-12s \e[34mINFO   \e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
   __log_success()
   {
-    printf "%-10s \e[32mSUCCESS\e[0m %s\n" \
+    printf "%-12s \e[32mSUCCESS\e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
   __log_warning()
   {
-    printf "%-10s \e[93mWARNING\e[0m %s\n" \
+    printf "%-12s \e[93mWARNING\e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
   __log_error()
   {
-    printf "%-10s \e[91mERROR  \e[0m %s\n" \
+    printf "%-12s \e[91mERROR  \e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}" >&2
   }
 
   __log_abort()
   {
-    printf "%-10s \e[31mABORT  \e[0m %s\n" \
+    printf "%-12s \e[31mABORT  \e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}" >&2
   }
 

@@ -7,7 +7,7 @@ set shell              := [ "bash", "-eu", "-o", "pipefail", "-c" ]
 set dotenv-load        := false
 
 export ROOT_DIRECTORY  := justfile_directory()
-export TOOLCHAIN       := `tr -d '\n' < rust-toolchain`
+export TOOLCHAIN       := `tr -d '\n' < modules/rust-toolchain`
 
 BUILD_TOOL             := "cargo"
 DATE                   := `date +'%Y-%m-%d'`

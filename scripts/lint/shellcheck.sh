@@ -30,6 +30,7 @@ function lint
     --check-sourced
     --external-sources
     --source-path=SCRIPTDIR
+    --format=tty
   )
 
   notify 'inf' "version ${VERSION}"
@@ -38,7 +39,7 @@ function lint
     --rm \
     --cap-drop=ALL \
     --user=999 \
-    --volume "${ROOT_DIRECTORY}:/ci:ro" \
+    --volume "${ROOT_DIRECTORY}/scripts:/ci/scripts:ro" \
     --workdir "/ci" \
     "${IMAGE}" shellcheck \
       "${ARGUMENTS[@]}" \

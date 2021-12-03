@@ -55,7 +55,7 @@ rules:
   key-duplicates: enable
   key-ordering: disable
   line-length:
-    max: 95
+    max: 100
     allow-non-breakable-inline-mappings: true
   new-line-at-end-of-file: enable
   new-lines:
