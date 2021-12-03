@@ -4,6 +4,10 @@
 
 We support the latest version of our kernel modules and the kernel with security updates. That is to say that we do **not** backport security updates to older versions as of now.
 
+## Checks
+
+For every pull requests, and on schedule (every Saturday), a GitHub workflow under [`.github/workflows/security.yml`](.github/workflows/security.yml) called "Security Audit" is run. This workflow will check for any security vulnerabilities introduced by crates used in this project.
+
 ## Reporting a Vulnerability
 
 **_unCORE_** takes security very seriously. We will follow the rule of [responsible disclosure] in the future. **As of now**, please just open an issue. As there is no centralized domain / mail service, opening an issue is the easiest way for now.
