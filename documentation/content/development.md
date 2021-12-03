@@ -6,7 +6,7 @@ hide:
 # Development
 
 !!! quote "Why Rust?"
-    Rust is **very performant** and **abstract**. And we know that
+    Rust is **very performant** and **abstract**. And
 
     _Abstraction is not about vagueness, it is about being precise on a new semantic level._ –– **Edsger W. Dijkstra**
 

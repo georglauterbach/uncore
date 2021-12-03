@@ -10,16 +10,6 @@ Welcome to the official **_unCORE_** operating system kernel documentation. **_u
 !!! danger "Developer Instructions"
     Make sure you read the [**Development Guidelines**][docs-development] _carefully_. Adhering to a consistent style and conventions allows everyone to work efficiently.
 
-## Goals
-
-**_unCORE_** makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and fast. The five main goals are
-
-1. Robustness
-2. Safety
-3. Performance
-4. Correctness
-5. Simplicity
-
 ## Getting Started
 
 ### Overview
@@ -40,6 +30,20 @@ You may execute the `tools.sh` scripts if you're on Linux. This script can be in
 The script will also check whether you have [Docker] or [Podman] installed. These tools are needed to lint the code and to work the rendered version of the documentation. The script will _not_ install the container runtimes for you. Also, make sure you have [QEMU] for your OS installed.
 
 If you're on Windows or macOS, you will need to install these tools yourself.
+
+## Goals
+
+**_unCORE_** makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and fast. The five main goals are
+
+1. Robustness - TODO.
+2. Safety - TODO.
+3. Performance - TODO.
+4. Correctness - TODO.
+5. Simplicity - TODO.
+
+## Vision
+
+TODO.
 
 ## Architecture
 

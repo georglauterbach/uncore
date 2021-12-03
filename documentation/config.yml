@@ -2,7 +2,7 @@
 site_name: unCORE
 site_description: unCORE Kernel Documentation
 site_author: The unCORE Kernel Community
-site_url: https://uncore-kernel.io
+site_url: https://uncore-kernel.org
 
 copyright: >
   <p>&copy <em>The unCORE Kernel Community</em><br/><span>
@@ -39,7 +39,9 @@ theme:
     - navigation.top
     - navigation.expand
     - navigation.instant
+    - navigation.tracking
     - toc.integrate
+    - content.code.annotate
   palette:
     # light mode
     - media: '(prefers-color-scheme: light)'
@@ -78,6 +80,8 @@ markdown_extensions:
   - pymdownx.magiclink
   - pymdownx.keys
   - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
   - toc:
       toc_depth: 2
       permalink: ⚓︎
