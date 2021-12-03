@@ -12,7 +12,7 @@ documentation = "../../documentation/"
 
 readme = "../../README.md"
 
-homepage = "https://uncore-kernel.io"
+homepage = "https://uncore-kernel.org"
 repository = "https://github.com/georglauterbach/uncore"
 
 license = "GPL-3.0"
