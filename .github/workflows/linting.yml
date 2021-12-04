@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@1.1.0
+        uses: ludeeus/action-shellcheck@master
         with:
           scandir: ./scripts
           shellcheck_version: v0.8.0
@@ -73,11 +73,7 @@ jobs:
 
           ERROR_ON_MISSING_EXEC_BIT: true
 
-          VALIDATE_BASH: true
           VALIDATE_BASH_EXEC: true
           VALIDATE_EDITORCONFIG: true
           VALIDATE_GITHUB_ACTIONS: true
           VALIDATE_MARKDOWN: true
-          VALIDATE_RUST_2018: true
-          VALIDATE_RUST_CLIPPY: true
-          VALIDATE_YAML: true

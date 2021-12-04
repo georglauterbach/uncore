@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use pic8259_simple::ChainedPics;
+use pic8259::ChainedPics;
 use spin::Mutex;
 use x86_64::{
 	instructions,

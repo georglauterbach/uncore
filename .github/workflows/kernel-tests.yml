@@ -15,7 +15,6 @@ jobs:
   lint-clippy-and-rusfmt:
     name: Lint against Clippy and rustfmt
     runs-on: ubuntu-20.04
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -32,13 +31,13 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --all --message-format human -- --check
+          args: --manifest-path modules/Cargo.toml --all --message-format human -- --check
 
       - name: Run `cargo clippy`
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-targets --all-features -- -D warnings
+          args: --manifest-path modules/Cargo.toml --all-targets --all-features -- -D warnings
 
   test:
     name: Check all modules
@@ -55,7 +54,6 @@ jobs:
           profile: minimal
           toolchain: nightly-2021-12-02
           override: true
-          components: rustfmt, clippy
 
       - name: List changed files
         id: changed-files
@@ -91,8 +89,8 @@ jobs:
 
           for MODULE in "${CHANGED_MODULES[@]}"
           do
-            {{BUILD_TOOL}} check --package "${MODULE}"
-            {{BUILD_TOOL}} test --package "${MODULE}"
+            cargo check --package "${MODULE}"
+            cargo test --package "${MODULE}"
           done
 
-          cargo test --package kernel --test '*'
+          # cargo test --package kernel --test '*'
