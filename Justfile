@@ -75,14 +75,16 @@ test package='""':
     if [[ {{package}} == 'kernel' ]]
     then
         cd {{ROOT_DIRECTORY}}/modules/kernel/
-        {{BUILD_TOOL}} test --package {{package}} --bin kernel
-        {{BUILD_TOOL}} test --package {{package}} --lib
-        {{BUILD_TOOL}} test --package {{package}} --test '*'
+        {{BUILD_TOOL}} test --bin kernel
+        {{BUILD_TOOL}} test --lib
+        {{BUILD_TOOL}} test --test '*'
     elif [[ -n {{package}} ]]
     then
         cd {{package}}
+        {{BUILD_TOOL}} check --package {{package}}
         {{BUILD_TOOL}} test --package {{package}}
     else
+        {{BUILD_TOOL}} check
         {{BUILD_TOOL}} test
     fi
 
@@ -113,11 +115,11 @@ check-format package='""':
     cd {{ROOT_DIRECTORY}}/modules/
     if [[ -z {{package}} ]]
     then
-        {{BUILD_TOOL}} fmt --message-format human -- --check
+        {{BUILD_TOOL}} fmt --all --message-format human -- --check
         {{BUILD_TOOL}} clippy \
             --all-targets --all-features -- -D warnings
     else
-        {{BUILD_TOOL}} fmt --package {{package}} \
+        {{BUILD_TOOL}} fmt --all --package {{package}} \
             --message-format human -- --check
         {{BUILD_TOOL}} clippy --package {{package}} \
             --all-targets --all-features -- -D warnings

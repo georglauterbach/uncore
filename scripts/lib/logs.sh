@@ -1,5 +1,7 @@
 #! /bin/sh
 
+# shellcheck disable=SC2292
+
 # version       0.3.1-stable
 # sourced by    shell scripts under scripts/
 # task          provides logging functionality

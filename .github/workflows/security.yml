@@ -10,6 +10,11 @@ on: # yamllint disable-line rule:truthy
   schedule:
     - cron: '* * * * 6'
 
+defaults:
+  run:
+    shell: bash
+    working-directory: modules
+
 jobs:
   cargo-audit:
     name: Cargo audit
@@ -17,6 +22,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: actions-rs/audit-check@v1.2.0
+
+      - name: Run Cargo audit
+        uses: actions-rs/audit-check@v1.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

@@ -3,7 +3,6 @@ name: Linting
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
-  push:
   pull_request:
 
 defaults:
@@ -12,7 +11,7 @@ defaults:
 
 jobs:
   shellcheck:
-    name: Run ShellCheck
+    name: ShellCheck
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -21,7 +20,7 @@ jobs:
         uses: ludeeus/action-shellcheck@1.1.0
         with:
           scandir: ./scripts
-          version: v0.7.2
+          version: v0.0.8
           severity: style
         env:
           SHELLCHECK_OPTS: >
@@ -29,13 +28,13 @@ jobs:
             --severity=style
             --color=auto
             --wiki-link-count=50
-            --exclude=SC2154
             --check-sourced
             --external-sources
             --source-path=SCRIPTDIR
+            --exclude=SC2312,SC2154
 
   yamllint:
-    name: Run YAMLLint
+    name: YAMLLint
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -43,13 +42,13 @@ jobs:
       - name: Run YAMLLint
         uses: ibiqlik/action-yamllint@v3.1.0
         with:
-          config_file: ./scripts/lint/yamllint.yml
+          config_file: scripts/lint/yamllint.yml
           strict: true
-          format: github
-          file_or_dir: .github/**/* documentation/**/* scripts/**/*
+          format: colored
+          file_or_dir: .github/**/*.yml documentation/**/*.yml scripts/**/*.yml
 
-  superlinter:
-    name: Lint whole codebase
+  super-linter:
+    name: GitHub Super-Linter
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -61,14 +60,15 @@ jobs:
         uses: github/super-linter@v4.8.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LINTER_RULES_PATH: ${{ github.workspace }}
           DEFAULT_BRANCH: master
           VALIDATE_ALL_CODEBASE: true
 
           LOG_LEVEL: NOTICE
 
-          YAML_CONFIG_FILE: ./scripts/lint/yamllint.yml
-          MARKDOWN_CONFIG_FILE: ./scripts/lint/markdownlint.yml
-          EDITORCONFIG_FILE_NAME: ./scripts/lint/editorconfig.json
+          YAML_CONFIG_FILE: scripts/lint/yamllint.yml
+          MARKDOWN_CONFIG_FILE: scripts/lint/markdownlint.yml
+          EDITORCONFIG_FILE_NAME: scripts/lint/editorconfig.json
 
           ERROR_ON_MISSING_EXEC_BIT: true
 

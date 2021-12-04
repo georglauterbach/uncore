@@ -1,0 +1,89 @@
+---
+name: Kernel Code Tests
+
+on: # yamllint disable-line rule:truthy
+  workflow_dispatch:
+  pull_request:
+    paths: [modules/**]
+
+defaults:
+  run:
+    shell: bash
+    working-directory: modules
+
+jobs:
+  lint-clippy-and-rusfmt:
+    name: Lint against Clippy and rustfmt
+    runs-on: ubuntu-20.04
+    continue-on-error: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          profile: minimal
+          toolchain: nightly-2021-12-02
+          override: true
+          components: rustfmt, clippy
+
+      - name: Run `cargo fmt`
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: fmt --all --message-format human -- --check
+
+      - name: Run `cargo clippy`
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets --all-features -- -D warnings
+
+  test:
+    name: Check all modules
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: List changed files
+        id: changed-files
+        run: |
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }}| xargs)"
+      
+      - name: Work with the changed files
+        run: |
+          local MODULE
+          declare -a MODULES CHANGED_MODULES
+
+          while read -r FILE
+          do
+            MODULE="${FILE#./}"
+            [[ -n  ${MODULE} ]] && MODULES+=("${MODULE}")
+          done < <(find ./ -maxdepth 1 -type d)
+
+          for FILE in ${{ steps.changed-files.outputs.files }}
+          do
+              echo "Changed: ${FILE}"
+              for MODULE in "${MODULES[@]}"
+              do
+                if grep -q "${MODULE}" "${FILE}"
+                then
+                  if [[ ! " ${CHANGED_MODULES[*]} " =~ " ${MODULES} "  ]]
+                  then
+                    CHANGED_MODULES+=("${MODULE}")
+                  fi
+                fi
+              done
+          done
+
+          for MODULE in "${CHANGED_MODULES[@]}"
+          do
+            {{BUILD_TOOL}} check --package "${MODULE}"
+            {{BUILD_TOOL}} test --package "${MODULE}"
+          done
+
+          cargo test --package kernel --test '*'

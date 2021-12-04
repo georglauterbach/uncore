@@ -32,6 +32,7 @@ function lint
     "${IMAGE}" \
       --strict \
       --config-file "/data/scripts/lint/yamllint.yml" \
+      --format colored \
       -- .
   then
     notify 'suc' 'No errors detected'
