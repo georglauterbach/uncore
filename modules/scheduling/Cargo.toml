@@ -33,9 +33,4 @@ categories = [
 
 publish = false
 
-autobenches = true
-autobins = true
-autoexamples = true
-autotests = true
-
 [dependencies]

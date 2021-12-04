@@ -20,7 +20,7 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: ./scripts
-          shellcheck_version: v0.8.0
+          version: v0.8.0
           severity: style
         env:
           SHELLCHECK_OPTS: >

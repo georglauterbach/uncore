@@ -54,12 +54,20 @@ jobs:
           profile: minimal
           toolchain: nightly-2021-12-02
           override: true
+      
+      - name: Run `cargo clippy`
+        run:
+          cargo fmt --all --message-format human -- --check
+      
+      - name: Run `cargo fmt`
+        run:
+          cargo clippy --all-targets --all-features -- -D warnings
 
       - name: List changed files
+        uses: jitterbit/get-changed-files@v1
         id: changed-files
-        # yamllint disable rule:line-length
-        run: |
-          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | xargs)"
+        with:
+          format: space-delimited
 
       # yamllint enable rule:line-length
       - name: Work with the changed files
@@ -72,7 +80,7 @@ jobs:
             [[ -n  ${MODULE} ]] && MODULES+=("${MODULE}")
           done < <(find ./ -maxdepth 1 -type d)
 
-          for FILE in ${{ steps.changed-files.outputs.files }}
+          for FILE in ${{ steps.files.outputs.all }}
           do
               echo "Changed: ${FILE}"
               for MODULE in "${MODULES[@]}"

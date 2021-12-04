@@ -57,7 +57,7 @@ pub fn init()
 	GDT.0.load();
 
 	unsafe {
-		instructions::segmentation::set_cs(GDT.1.code_selector);
+		// instructions::segmentation::set_cs(GDT.1.code_selector);
 		instructions::tables::load_tss(GDT.1.tss_selector);
 	}
 }

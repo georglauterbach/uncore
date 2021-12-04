@@ -161,7 +161,7 @@ macro_rules! print {
 	($($arg:tt)*) => (
 		$crate::core_lib::hw::io::write::_print_write_args(
 			format_args!($($arg)*)
-		);
+		)
 	);
 }
 
