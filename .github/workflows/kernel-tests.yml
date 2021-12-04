@@ -32,7 +32,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: fmt --all --message-format human -- --check
+          args: --all --message-format human -- --check
 
       - name: Run `cargo clippy`
         uses: actions-rs/cargo@v1
@@ -49,14 +49,23 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          profile: minimal
+          toolchain: nightly-2021-12-02
+          override: true
+          components: rustfmt, clippy
+
       - name: List changed files
         id: changed-files
+        # yamllint disable rule:line-length
         run: |
-          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }}| xargs)"
-      
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | xargs)"
+
+      # yamllint enable rule:line-length
       - name: Work with the changed files
         run: |
-          local MODULE
           declare -a MODULES CHANGED_MODULES
 
           while read -r FILE

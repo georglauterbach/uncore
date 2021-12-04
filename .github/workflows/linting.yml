@@ -20,7 +20,7 @@ jobs:
         uses: ludeeus/action-shellcheck@1.1.0
         with:
           scandir: ./scripts
-          version: v0.0.8
+          shellcheck_version: v0.8.0
           severity: style
         env:
           SHELLCHECK_OPTS: >
@@ -31,7 +31,8 @@ jobs:
             --check-sourced
             --external-sources
             --source-path=SCRIPTDIR
-            --exclude=SC2312,SC2154
+            --exclude SC2312
+            --exclude SC2154
 
   yamllint:
     name: YAMLLint
@@ -60,7 +61,7 @@ jobs:
         uses: github/super-linter@v4.8.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LINTER_RULES_PATH: ${{ github.workspace }}
+          LINTER_RULES_PATH: /
           DEFAULT_BRANCH: master
           VALIDATE_ALL_CODEBASE: true
 
