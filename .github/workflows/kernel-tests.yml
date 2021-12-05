@@ -65,17 +65,21 @@ jobs:
         run: |
           declare -a MODULES CHANGED_MODULES
 
+          echo 'Enumerating all changed files in the kernel.''
+
           while read -r FILE
           do
             MODULE="${FILE#./}"
             [[ -n  ${MODULE} ]] && MODULES+=("${MODULE}")
           done < <(find ./ -maxdepth 1 -type d)
 
+          echo "All found kernel modules: ${MODULES[*]}"
+
           # shellcheck disable=SC2043
           for FILE in ${{ steps.changed-files.outputs.all }}
           do
+              grep -qv 'modules' <<< "${FILE}" && continue
               echo "Changed: ${FILE}"
-              grep -v 'modules' <<< "${FILE}" && continue
 
               for MODULE in "${MODULES[@]}"
               do
@@ -88,6 +92,8 @@ jobs:
                 fi
               done
           done
+
+          echo "Modules changed by this PR: ${CHANGED_MODULES[*]}"
 
           for MODULE in "${CHANGED_MODULES[@]}"
           do
