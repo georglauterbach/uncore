@@ -4,7 +4,7 @@
 #![deny(clippy::nursery)]
 #![deny(clippy::pedantic)]
 #![feature(custom_test_frameworks)]
-#![test_runner(uncore::core_lib::tests::testing::test_runner)]
+#![test_runner(kernel::core_lib::tests::testing::test_runner)]
 #![reexport_test_harness_main = "__start_tests"]
 
 /// # Important Information
@@ -48,7 +48,7 @@
 ///
 /// ``` RUST
 /// #![feature(custom_test_frameworks)]
-/// #![test_runner(uncore::core_lib::tests::test_runner)]
+/// #![test_runner(kernel::core_lib::tests::test_runner)]
 /// #![reexport_test_harness_main = "__start_tests"]
 /// ```
 ///
@@ -64,13 +64,13 @@
 
 /// # Imports
 ///
-/// The `uncore::core_lib` is used here explicitly with the
+/// The `kernel::core_lib` is used here explicitly with the
 /// `use` statement, and not with the `mod` statement. As
-/// `uncore::core_lib` is already used in `lib.rs`, we do not
+/// `kernel::core_lib` is already used in `lib.rs`, we do not
 /// want to re-import it here and possibly confuse Cargo.
 ///
 /// The only exceptions so far is the `init()` function called
-/// at the beginning of `_start`. It is called vi a`uncore::init()`
+/// at the beginning of `_start`. It is called vi a`kernel::init()`
 /// which is perfectly fine.
 ///
 /// ## Macros
@@ -81,7 +81,7 @@
 ///
 /// Make sure to **always** use `core_lib::` instead of `crate::lib::` or
 /// `lib::` or something else.
-use uncore::core_lib;
+use kernel::core_lib;
 
 /// # Entrypoint
 ///
@@ -91,7 +91,7 @@ use uncore::core_lib;
 #[no_mangle]
 pub extern "C" fn _start() -> !
 {
-	uncore::init();
+	kernel::init();
 
 	#[cfg(test)]
 	__start_tests();

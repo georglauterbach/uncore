@@ -2,23 +2,13 @@
 
 ## Introduction
 
-Welcome to the official **_unCORE_** operating system kernel documentation. **_unCORE_** is an [operating system] [micro-kernel] completely written in pure, idiomatic [Rust]. **_unCORE_** makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs-getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs-development]. The [Modules][docs-modules] section contains all the information about the kernel modules in **_unCORE_**. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
+Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs-getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs-development]. The [Modules][docs-modules] section contains all the information about the kernel modules in _unCORE_. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
 
 !!! check "Code of Conduct and Contributing Guidelines"
     By working on this projects and with other participants, you agree to the **code of conduct** and the **contributing guidelines** set by this project.
 
 !!! danger "Developer Instructions"
     Make sure you read the [**Development Guidelines**][docs-development] _carefully_. Adhering to a consistent style and conventions allows everyone to work efficiently.
-
-## Goals
-
-**_unCORE_** makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and fast. The five main goals are
-
-1. Robustness
-2. Safety
-3. Performance
-4. Correctness
-5. Simplicity
 
 ## Getting Started
 
@@ -41,9 +31,26 @@ The script will also check whether you have [Docker] or [Podman] installed. Thes
 
 If you're on Windows or macOS, you will need to install these tools yourself.
 
+## Goals
+
+_unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and fast. The main goals are
+
+1. Robustness - [Rust] provides a stable foundation with strong compile-time guarantees.
+2. Safety - The code in _unCORE_ especially focuses on being safe in the sense of not allowing exploitation.
+
+_unCORE_ has set itself some more goals, of course:
+
+1. Performance - [Rust] provides C++ / C performance.
+2. Correctness - _unCORE_ has high test standards, see [the documentation and testing advise](./development.md#code-documentation-testing).
+3. Simplicity - We want to make use of [Rust]'s high level of abstraction to write clean and concise code.
+
+## Vision
+
+_unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in UNIX / GNU-Linux.
+
 ## Architecture
 
-**_unCORE_** aspires to be cleanly separated into **loosely coupled modules with high cohesion**. Loose coupling ensures that it is possible to change modules themselves or for one another without major code changes in other modules. High cohesion ensures that a single module does not integrate functionality that does fall under the area of responsibility of another modules.
+_unCORE_ aspires to be cleanly separated into **loosely coupled modules with high cohesion**. Loose coupling ensures that it is possible to change modules themselves or for one another without major code changes in other modules. High cohesion ensures that a single module does not integrate functionality that does fall under the area of responsibility of another modules.
 
 The architectural overview in a "lateral view" is depicted in the following illustration where `─` depicts the component separation and `┃` information and control flow:
 
@@ -57,10 +64,9 @@ The architectural overview in a "lateral view" is depicted in the following illu
   │                                SYSTEM CALL INTERFACE [SCI]                                 │
   │                                                                                            │
   └───────────┰─────────────────────┰───────────────────────┰──────────────────────┰───────────┘
-              ┃                     ┃                       ┃                      ┃
   ┌───────────┸─────────────────────┸───────────────────────┸──────────────────────┸───────────┐
   │                                                                                            │
-  │ KERNEL                                                                                     │
+  │ KERNEL CORE COMPONENTS                                                                     │
   │                                                                                            │
   │ ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐ │
   │ │                   │  │                   │  │                   │  │                   │ │
@@ -70,7 +76,6 @@ The architectural overview in a "lateral view" is depicted in the following illu
   │ └───────────────────┘  └───────────────────┘  └───────────────────┘  └───────────────────┘ │
   │                                                                                            │
   └───────────┰──────────────────────┰──────────────────────┰──────────────────────┰───────────┘
-              ┃                      ┃                      ┃                      ┃
   ┌───────────┸──────────────────────┸──────────────────────┸──────────────────────┸───────────┐
   │                                                                                            │
   │                             HARDWARE ABSTRACTION LAYER [HAL]                               │
@@ -84,7 +89,7 @@ The architectural overview in a "lateral view" is depicted in the following illu
 
 ## Disclaimers
 
-This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-os] project. The purpose of **_unCORE_** is to explore Rust's capabilities, get a better understanding of how Rust and operating system kernels work, and to provide a kernel implementation.
+This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-os] project. The purpose of _unCORE_ is to explore Rust's capabilities, get a better understanding of how Rust and operating system kernels work, and to provide a kernel implementation.
 
 !!! info "Licensing"
     This project is licensed under the [GNU General Public License v3], except for those parts (lines of code from used libraries) already licensed under other licenses. Moreover, code taken from [_Phillip Oppermann_'s _BlogOS_ project][blog-os] is not covered by the license of this project as well.
@@ -96,7 +101,7 @@ This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-o
 [docs-modules]: ./modules/modules.md
 
 [operating system]: https://en.wikipedia.org/wiki/Operating_system
-[micro-kernel]: https://en.wikipedia.org/wiki/Microkernel
+[kernel]: https://en.wikipedia.org/wiki/Kernel_(operating_system)
 [Rust]: https://www.rust-lang.org/
 [official Rust book]: https://doc.rust-lang.org/book/
 

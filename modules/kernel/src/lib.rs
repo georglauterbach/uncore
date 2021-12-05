@@ -1,5 +1,5 @@
 #![no_std]
-#![cfg_attr(test, no_main)]
+#![cfg_attr(test,no_main)]
 #![deny(clippy::all)]
 #![deny(clippy::nursery)]
 #![deny(clippy::pedantic)]

@@ -12,6 +12,8 @@ newline_style                = "Native"
 hex_literal_case             = "Upper"
 binop_separator              = "Front"
 
+
+hard_tabs                    = true
 combine_control_expr         = false
 reorder_imports              = false
 reorder_modules              = false
@@ -24,7 +26,6 @@ format_code_in_doc_comments  = true
 format_macro_bodies          = true
 format_macro_matchers        = true
 format_strings               = true
-hard_tabs                    = true
 match_block_trailing_comma   = true
 normalize_comments           = true
 normalize_doc_attributes     = true
@@ -34,6 +35,7 @@ wrap_comments                = true
 
 inline_attribute_width       = 0
 blank_lines_upper_bound      = 1
+tab_spaces                   = 8
 enum_discrim_align_threshold = 45
 struct_field_align_threshold = 45
 comment_width                = 99

@@ -7,9 +7,13 @@
 
 # unCORE
 
+[![License][badge::license]][badge::licence::link] [![Documentation][badge::documentation]][badge::documentation::link]
+
+[![CI Linting][badge::ci::linting]][badge::ci::link]
+
 ## About
 
-**_unCORE_** is an [operating system] [micro-kernel] completely written in pure, idiomatic [Rust]. **_unCORE_** makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant.
+_unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant.
 
 ## Getting Started
 
@@ -46,13 +50,23 @@ The documentation is written in Markdown, built with [MkDocs] and can be found u
 
 This project is licensed under the [GNU General Public License v3], except for those parts (lines of code from libraries used in this project) already licensed under other licenses. Moreover, code taken from [_Phillip Oppermann_'s _BlogOS_ project][blog-os] is not covered by the license of this project as well.
 
+[//]: # (Badges)
+
+[badge::license]: https://img.shields.io/github/license/georglauterbach/uncore.svg?label=LICENSE&color=informational&style=for-the-badge
+[badge::licence::link]: https://github.com/georglauterbach/uncore/blob/master/LICENSE
+[badge::documentation]: https://img.shields.io/badge/DOCUMENTATION-MKDOCS-informational?style=for-the-badge
+[badge::documentation::link]: https://github.com/georglauterbach/uncore/tree/master/documentation
+
+[badge::ci::link]: https://github.com/docker-mailserver/docker-mailserver/actions
+[badge::ci::linting]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Linting?label=CI%20-%20Linting&logo=github&logoColor=white&style=for-the-badge
+
 [//]: # (Links)
 
 [docs-getting-started]: ./documentation/content/index.md#getting-started
 [docs-modules]: ./documentation/content/modules/modules.md
 
 [operating system]: https://en.wikipedia.org/wiki/Operating_system
-[micro-kernel]: https://en.wikipedia.org/wiki/Microkernel
+[kernel]: https://en.wikipedia.org/wiki/Kernel_(operating_system)
 [Rust]: https://www.rust-lang.org/
 
 [Just]: https://github.com/casey/just

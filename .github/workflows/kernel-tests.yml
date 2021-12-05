@@ -1,0 +1,105 @@
+---
+name: Kernel Code Tests
+
+on: # yamllint disable-line rule:truthy
+  workflow_dispatch:
+  pull_request:
+    paths: [modules/**]
+
+defaults:
+  run:
+    shell: bash
+    working-directory: modules
+
+jobs:
+  linting:
+    name: Lint the kernel code
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          profile: minimal
+          toolchain: nightly-2021-12-02
+          override: true
+          components: rustfmt, clippy
+
+      - name: Run `cargo clippy`
+        run: cargo fmt --all --message-format human -- --check
+        continue-on-error: true
+
+      - name: Run `cargo fmt`
+        run: cargo clippy --all-targets --all-features -- -D warnings
+        continue-on-error: true
+
+  unit-and-integration-tests:
+    name: Run all unit- and integration-tests
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          profile: minimal
+          toolchain: nightly-2021-12-02
+          override: true
+
+      - name: List changed files
+        uses: jitterbit/get-changed-files@v1
+        id: changed-files
+        with:
+          format: space-delimited
+
+      # yamllint enable rule:line-length
+      - name: Work with the changed files
+        continue-on-error: true
+        run: |
+          declare -a MODULES CHANGED_MODULES
+
+          echo 'Enumerating all changed files in the kernel.'
+
+          while read -r FILE
+          do
+            MODULE="${FILE#./}"
+            [[ -n  ${MODULE} ]] && MODULES+=("${MODULE}")
+          done < <(find ./ -maxdepth 1 -type d)
+
+          echo "All found kernel modules: ${MODULES[*]}"
+
+          # shellcheck disable=SC2043
+          for FILE in ${{ steps.changed-files.outputs.all }}
+          do
+              grep -qv 'modules' <<< "${FILE}" && continue
+              echo "Changed: ${FILE}"
+
+              for MODULE in "${MODULES[@]}"
+              do
+                if grep -q "${MODULE}" <<< "${FILE}"
+                then
+                  if [[ ! " ${CHANGED_MODULES[*]} " =~ ${MODULE}  ]]
+                  then
+                    CHANGED_MODULES+=("${MODULE}")
+                  fi
+                fi
+              done
+          done
+
+          echo "Modules changed by this PR: ${CHANGED_MODULES[*]}"
+
+          for MODULE in "${CHANGED_MODULES[@]}"
+          do
+            # cargo check --package "${MODULE}"
+            # cargo test --package "${MODULE}"
+            :
+          done
+
+          # cargo test --package kernel --test '*'

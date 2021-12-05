@@ -17,19 +17,20 @@ function lint
   setup_container_runtime
   
   local VERSION IMAGE FILES ARGUMENTS
-  VERSION=0.7.2
-  IMAGE="docker.io/koalaman/shellcheck-alpine:v${VERSION}"
+
+  VERSION=0.8.0
+  IMAGE="docker.io/koalaman/shellcheck:v${VERSION}"
   readarray -d '' FILES < <(find . -type f -iname "*.sh" -print0)
 
   ARGUMENTS=(
-    --enable=all
-    --severity=style
-    --color=auto
-    --wiki-link-count=50
-    --exclude=SC2154
-    --check-sourced
-    --external-sources
-    --source-path=SCRIPTDIR
+    '--enable=all'
+    '--severity=style'
+    '--color=auto'
+    '--wiki-link-count=50'
+    '--check-sourced'
+    '--external-sources'
+    '--exclude=SC2312,SC2154'
+    '--source-path=SCRIPTDIR'
   )
 
   notify 'inf' "version ${VERSION}"
@@ -38,9 +39,9 @@ function lint
     --rm \
     --cap-drop=ALL \
     --user=999 \
-    --volume "${ROOT_DIRECTORY}:/ci:ro" \
+    --volume "${ROOT_DIRECTORY}/scripts:/ci/scripts:ro" \
     --workdir "/ci" \
-    "${IMAGE}" shellcheck \
+    "${IMAGE}" \
       "${ARGUMENTS[@]}" \
       "${FILES[@]}"
   then

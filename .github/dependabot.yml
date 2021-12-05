@@ -1,0 +1,14 @@
+---
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    reviewers:
+      - georglauterbach
+    labels:
+      - area/ci
+      - priority/low
+      - meta/needs-triage

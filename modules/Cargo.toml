@@ -1,5 +1,8 @@
 [workspace]
 
+# Rust toolchain releases can be found under
+# https://github.com/rust-lang/rust/blob/master/RELEASES.md
+
 members = [
   "communication",
   "hardware",

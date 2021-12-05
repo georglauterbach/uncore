@@ -14,7 +14,7 @@ set +e
 export SCRIPT='tools'
 __BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
 
-TOOLCHAIN=${TOOLCHAIN:-$(tr -d '\n' < rust-toolchain)}
+TOOLCHAIN=${TOOLCHAIN:-$(tr -d '\n' < modules/rust-toolchain)}
 
 # -->                   -->                   --> START
 

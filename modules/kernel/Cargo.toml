@@ -12,12 +12,12 @@ documentation = "../../documentation/"
 
 readme = "../../README.md"
 
-homepage = "https://uncore-kernel.io"
+homepage = "https://uncore-kernel.org"
 repository = "https://github.com/georglauterbach/uncore"
 
 license = "GPL-3.0"
 
-keywords = ["operating-system", "os", "kernel", "micro-kernel", "no-std"]
+keywords = ["operating-system", "os", "kernel", "no-std"]
 
 categories = ["no-std", "config"]
 
@@ -32,7 +32,7 @@ autotests = true
 bootloader = "0.10.9"
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 pc-keyboard = "0.5.1"
-pic8259_simple = "0.2.0"
+pic8259 = "0.10.0"
 spin = "0.9.2"
 uart_16550 = "0.2.10"
 volatile = "0.4.4"
@@ -50,6 +50,6 @@ test-args = [
 test-success-exit-code = 33 # (0x10 << 1) | 1
 test-timeout = 100 # in seconds
 
-[[test]]
-harness = false
-name = "stack_overflow"
+# [[test]]
+# harness = false
+# name = "stack_overflow"
