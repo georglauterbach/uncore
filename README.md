@@ -60,9 +60,6 @@ This project is licensed under the [GNU General Public License v3], except for t
 [badge::ci::link]: https://github.com/docker-mailserver/docker-mailserver/actions
 [badge::ci::linting]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Linting?label=CI%20-%20Linting&logo=github&logoColor=white&style=for-the-badge
 
-
-https://img.shields.io/badge/LICENSE-GPLv3-blue?&logo=license&logoColor=white&style=for-the-badge
-
 [//]: # (Links)
 
 [docs-getting-started]: ./documentation/content/index.md#getting-started

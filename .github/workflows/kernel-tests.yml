@@ -54,11 +54,11 @@ jobs:
           profile: minimal
           toolchain: nightly-2021-12-02
           override: true
-      
+
       - name: Run `cargo clippy`
         run:
           cargo fmt --all --message-format human -- --check
-      
+
       - name: Run `cargo fmt`
         run:
           cargo clippy --all-targets --all-features -- -D warnings
@@ -80,14 +80,14 @@ jobs:
             [[ -n  ${MODULE} ]] && MODULES+=("${MODULE}")
           done < <(find ./ -maxdepth 1 -type d)
 
-          for FILE in ${{ steps.files.outputs.all }}
+          for FILE in ${{ steps.changed-files.outputs.all }}
           do
               echo "Changed: ${FILE}"
               for MODULE in "${MODULES[@]}"
               do
                 if grep -q "${MODULE}" "${FILE}"
                 then
-                  if [[ ! " ${CHANGED_MODULES[*]} " =~ " ${MODULES} "  ]]
+                  if [[ ! " ${CHANGED_MODULES[*]} " =~ ${MODULE}  ]]
                   then
                     CHANGED_MODULES+=("${MODULE}")
                   fi

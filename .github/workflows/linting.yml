@@ -19,20 +19,11 @@ jobs:
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
-          scandir: ./scripts
+          scandir: scripts
           version: v0.8.0
-          severity: style
         env:
-          SHELLCHECK_OPTS: >
-            --enable=all
-            --severity=style
-            --color=auto
-            --wiki-link-count=50
-            --check-sourced
-            --external-sources
-            --source-path=SCRIPTDIR
-            --exclude SC2312
-            --exclude SC2154
+          # yamllint disable-line rule:line-length
+          SHELLCHECK_OPTS: --exclude=SC2312 --exclude=SC2154 --enable=all --severity=style --color=auto --wiki-link-count=50 --check-sourced --external-sources --source-path=SCRIPTDIR
 
   yamllint:
     name: YAMLLint
@@ -60,14 +51,12 @@ jobs:
       - name: Lint code base
         uses: github/super-linter@v4.8.4
         env:
+          LOG_LEVEL: NOTICE
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LINTER_RULES_PATH: /
           DEFAULT_BRANCH: master
+          LINTER_RULES_PATH: /
           VALIDATE_ALL_CODEBASE: true
 
-          LOG_LEVEL: NOTICE
-
-          YAML_CONFIG_FILE: scripts/lint/yamllint.yml
           MARKDOWN_CONFIG_FILE: scripts/lint/markdownlint.yml
           EDITORCONFIG_FILE_NAME: scripts/lint/editorconfig.json
 
