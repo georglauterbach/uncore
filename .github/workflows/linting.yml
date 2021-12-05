@@ -11,7 +11,7 @@ defaults:
 
 jobs:
   shellcheck:
-    name: ShellCheck
+    name: Lint against ShellCheck
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -26,7 +26,7 @@ jobs:
           SHELLCHECK_OPTS: --exclude=SC2312 --exclude=SC2154 --enable=all --severity=style --color=auto --wiki-link-count=50 --check-sourced --external-sources --source-path=SCRIPTDIR
 
   yamllint:
-    name: YAMLLint
+    name: Lint against YAMLLint
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -40,7 +40,7 @@ jobs:
           file_or_dir: .github/**/*.yml documentation/**/*.yml scripts/**/*.yml
 
   super-linter:
-    name: GitHub Super-Linter
+    name: Lint against GitHub's Super-Linter
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code

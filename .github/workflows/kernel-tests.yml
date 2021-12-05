@@ -12,35 +12,8 @@ defaults:
     working-directory: modules
 
 jobs:
-  lint-clippy-and-rusfmt:
-    name: Lint against Clippy and rustfmt
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Install nightly toolchain
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          profile: minimal
-          toolchain: nightly-2021-12-02
-          override: true
-          components: rustfmt, clippy
-
-      - name: Run `cargo fmt`
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --manifest-path modules/Cargo.toml --all --message-format human -- --check
-
-      - name: Run `cargo clippy`
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --manifest-path modules/Cargo.toml --all-targets --all-features -- -D warnings
-
-  test:
-    name: Check all modules
+  linting:
+    name: Lint the kernel code
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -54,14 +27,32 @@ jobs:
           profile: minimal
           toolchain: nightly-2021-12-02
           override: true
+          components: rustfmt, clippy
 
       - name: Run `cargo clippy`
-        run:
-          cargo fmt --all --message-format human -- --check
+        run: cargo fmt --all --message-format human -- --check
+        continue-on-error: true
 
       - name: Run `cargo fmt`
-        run:
-          cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
+        continue-on-error: true
+
+
+  unit-and-integration-tests:
+    name: Run all unit- and integration-tests
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          profile: minimal
+          toolchain: nightly-2021-12-02
+          override: true
 
       - name: List changed files
         uses: jitterbit/get-changed-files@v1
@@ -80,6 +71,7 @@ jobs:
             [[ -n  ${MODULE} ]] && MODULES+=("${MODULE}")
           done < <(find ./ -maxdepth 1 -type d)
 
+          # shellcheck disable=SC2043
           for FILE in ${{ steps.changed-files.outputs.all }}
           do
               echo "Changed: ${FILE}"

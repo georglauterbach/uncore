@@ -29,8 +29,8 @@ function lint
     '--wiki-link-count=50'
     '--check-sourced'
     '--external-sources'
-    '--source-path=SCRIPTDIR'
     '--exclude=SC2312,SC2154'
+    '--source-path=SCRIPTDIR'
   )
 
   notify 'inf' "version ${VERSION}"
