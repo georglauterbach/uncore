@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install nightly toolchain
-        uses: actions-rs/toolchain@v1.0.6
+        uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
           toolchain: nightly-2021-12-02
