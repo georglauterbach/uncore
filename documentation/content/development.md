@@ -13,7 +13,7 @@ There are various tests in place to check your code, not the least of which are 
 
 ## Git Flow
 
-The `master` branch contains the current stable code base. The `development` branch contains the latest changes, which may not be as stable as `master`. For every new version, there is a `version/X.Y.Z` branch, that is first merged into `development`, and then into `master`. The `X.Y.Z` follows the semantic versioning guidelines strictly! New features are being added through `feature/name-of-the-feature` branches. Hotfixes can be merged either into a `version/` branch or into `development`, but not into `master`. The following illustration shows the order of merging a feature.
+Please sign your commits with `GPG` / `PGP` so GitHub can verify them. The `master` branch contains the current stable code base. The `development` branch contains the latest changes, which may not be as stable as `master`. For every new version, there is a `version/X.Y.Z` branch, that is first merged into `development`, and then into `master`. The `X.Y.Z` follows the semantic versioning guidelines strictly! New features are being added through `feature/name-of-the-feature` branches. Hotfixes can be merged either into a `version/` branch or into `development`, but not into `master`. The following illustration shows the order of merging a feature.
 
 ``` TXT
 feature/name-of-the-feature   ─── >   version/X.Y.Z   ─── >   development   ─── >   master
@@ -21,7 +21,7 @@ feature/name-of-the-feature   ─── >   version/X.Y.Z   ─── >   develo
 hotfix                    >   ────────┘           >   ────────┘
 ```
 
-Please sign your commits with `GPG` / `PGP` so GitHub can verify them.
+One can then rebase onto `development` if something has been merged into development (e.g. a new version).
 
 ## Coding Style
 

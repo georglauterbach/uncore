@@ -31,6 +31,10 @@ The script will also check whether you have [Docker] or [Podman] installed. Thes
 
 If you're on Windows or macOS, you will need to install these tools yourself.
 
+## Vision
+
+_unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in _UNIX_ / _GNU-Linux_. But, we acknowledge that modern software development is heavily benefitting of CI pipelines, GIT platforms (such as _GitHub_) and collaboration in the form of issues, pull requests, projects and other actions. While we know that mailing lists work, we belief that modern software development can do better. One aspect we heavily focus on is code quality (in the same way that _Linus Torvalds_ has ensured the code quality in the _Linux_ kernel). We are using  automated CI to achieve this goal too. You will, when you start out, notice that CI is very restrictive. This may get on your nerves, but ensures all code in this project is as clean as possible. The motto here is: **We either do it right or not at all**.
+
 ## Goals
 
 _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and fast. The main goals are
@@ -43,10 +47,6 @@ _unCORE_ has set itself some more goals, of course:
 1. Performance - [Rust] provides C++ / C performance.
 2. Correctness - _unCORE_ has high test standards, see [the documentation and testing advise](./development.md#code-documentation-testing).
 3. Simplicity - We want to make use of [Rust]'s high level of abstraction to write clean and concise code.
-
-## Vision
-
-_unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in UNIX / GNU-Linux.
 
 ## Architecture
 

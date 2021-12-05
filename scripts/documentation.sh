@@ -24,13 +24,12 @@ CRI='docker'
 
 function build_documentation
 {
-  "${CRI}" run \
-    --rm -it \
+
+  "${CRI}" run --rm \
+    --name "build-documentation" \
     --user "$(id -u):$(id -g)" \
     -v "${DOCUMENTATION_DIRECTORY}:/docs" \
-    "${MKDOCS_MATERIAL_IMAGE}" build \
-      --config-file config.yml \
-      --strict
+    "${MKDOCS_MATERIAL_IMAGE}" build  --config-file config.yml --strict
 }
 
 function cleanup_documentation_files

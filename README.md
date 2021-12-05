@@ -9,7 +9,7 @@
 
 [![License][badge::license]][badge::licence::link] [![Documentation][badge::documentation]][badge::documentation::link]
 
-[![CI Linting][badge::ci::linting]][badge::ci::link]
+[![CI][badge::ci::kernel-code-tests]][badge::ci::kernel-code-tests::link] [![CI Linting][badge::ci::security]][badge::ci::security::link] [![CI Linting][badge::ci::linting]][badge::ci::linting::link]
 
 ## About
 
@@ -55,10 +55,16 @@ This project is licensed under the [GNU General Public License v3], except for t
 [badge::license]: https://img.shields.io/github/license/georglauterbach/uncore.svg?label=LICENSE&color=informational&style=for-the-badge
 [badge::licence::link]: https://github.com/georglauterbach/uncore/blob/master/LICENSE
 [badge::documentation]: https://img.shields.io/badge/DOCUMENTATION-MKDOCS-informational?style=for-the-badge
-[badge::documentation::link]: https://github.com/georglauterbach/uncore/tree/master/documentation
+[badge::documentation::link]: https://georglauterbach.github.io/uncore/
 
-[badge::ci::link]: https://github.com/docker-mailserver/docker-mailserver/actions
 [badge::ci::linting]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Linting?label=CI%20-%20Linting&logo=github&logoColor=white&style=for-the-badge
+[badge::ci::linting::link]: https://github.com/georglauterbach/uncore/actions/workflows/linting.yml
+
+[badge::ci::security]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Security%20Audit?label=CI%20-%20Security%20Audit&logo=github&logoColor=white&style=for-the-badge
+[badge::ci::security::link]: https://github.com/georglauterbach/uncore/actions/workflows/security.yml
+
+[badge::ci::kernel-code-tests]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Kernel%20Code%20Tests?label=CI%20-%20Kernel%20Code%20Tests&logo=github&logoColor=white&style=for-the-badge
+[badge::ci::kernel-code-tests::link]: https://github.com/georglauterbach/uncore/actions/workflows/kernel-tests.yml
 
 [//]: # (Links)
 
