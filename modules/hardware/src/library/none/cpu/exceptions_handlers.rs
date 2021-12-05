@@ -3,8 +3,9 @@ use x86_64::structures::idt::InterruptStackFrame;
 
 /// # Printing Exception Information
 ///
-/// This function provides an interface for all CPU exception handlers to
-/// uniformly print information about the exception that happened.
+/// This function provides an interface for all CPU
+/// exception handlers to uniformly print information about
+/// the exception that happened.
 fn print_information(
 	exception_type: &str,
 	abort_through_panic: bool,
@@ -25,8 +26,9 @@ fn print_information(
 /// ## Trivia
 ///
 /// One difference to the breakpoint handler is that the
-/// double fault handler is diverging. The reason is that the `x86_64`
-/// architecture does not permit returning from a double fault exception.
+/// double fault handler is diverging. The reason is that
+/// the `x86_64` architecture does not permit returning from
+/// a double fault exception.
 pub extern "x86-interrupt" fn double_fault_handler(
 	stack_frame: &mut InterruptStackFrame,
 	_error_code: u64,

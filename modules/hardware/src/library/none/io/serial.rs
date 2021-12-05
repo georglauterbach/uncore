@@ -25,13 +25,14 @@ pub fn _print_serial_args(args: core::fmt::Arguments)
 macro_rules! serial_print
 {
 	($($arg:tt)*) => {
-		$crate::core_lib::hw::io::serial::_print_serial_args(
+		$crate::library::hw::io::serial::_print_serial_args(
 			format_args!($($arg)*)
 		);
 	};
 }
 
-/// Prints to the host through the serial interface, appending a newline.
+/// Prints to the host through the serial interface,
+/// appending a newline.
 #[macro_export]
 macro_rules! serial_println
 {

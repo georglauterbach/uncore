@@ -74,6 +74,7 @@ extra:
   # however we have a basic setup that only matches `version` to a subdirectory.
   version:
     provider: mike
+    default: edge
 
 markdown_extensions:
   - abbr

@@ -47,7 +47,8 @@ lazy_static! {
 ///
 /// ## Registered Hardware (I/O) Interrupt Handlers
 ///
-/// Currently, these hardware (I/O) interrupt handlers are registered:
+/// Currently, these hardware (I/O) interrupt handlers are
+/// registered:
 ///
 /// -
 pub fn init() { IDT.load(); }

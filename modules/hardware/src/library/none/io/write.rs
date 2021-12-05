@@ -3,7 +3,7 @@ use lazy_static::lazy_static;
 use spin::Mutex;
 use volatile::Volatile;
 
-use crate::core_lib::VERSION;
+// use crate::library::VERSION;
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
@@ -79,8 +79,8 @@ impl Writer
 				let col = self.column_position;
 
 				let color_code = self.color_code;
-				// self.buffer.chars[row][col].write(ScreenChar {
-				// 	ascii_character: byte,
+				// self.buffer.chars[row][col].write(ScreenChar
+				// { 	ascii_character: byte,
 				// 	color_code,
 				// });
 				self.column_position += 1;
@@ -143,7 +143,8 @@ lazy_static! {
 
 pub fn print_init()
 {
-	crate::println!("unCore\n\nversion :: {}", VERSION);
+	// crate::println!("unCORE\n\nversion :: {}",
+	// VERSION.unwrap_or("testing"));
 }
 
 #[doc(hidden)]
@@ -159,7 +160,7 @@ pub fn _print_write_args(args: fmt::Arguments)
 #[macro_export]
 macro_rules! print {
 	($($arg:tt)*) => (
-		$crate::core_lib::hw::io::write::_print_write_args(
+		$crate::library::none::io::write::_print_write_args(
 			format_args!($($arg)*)
 		)
 	);
@@ -197,8 +198,9 @@ fn test_println_output()
 		let mut writer = WRITER.lock();
 		writeln!(writer, "\n{}", s).expect("writeln failed");
 		// for (i, c) in s.chars().enumerate() {
-		// 	let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();
-		// 	assert_eq!(char::from(screen_char.ascii_character), c);
-		// }
+		// 	let screen_char =
+		// writer.buffer.chars[BUFFER_HEIGHT -
+		// 2][i].read(); 	assert_eq!(char::
+		// from(screen_char.ascii_character), c); }
 	});
 }

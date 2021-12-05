@@ -33,4 +33,10 @@ categories = [
 
 publish = false
 
+autobenches = true
+autobins = true
+autoexamples = true
+autotests = true
+
 [dependencies]
+helper   = { version = "0.1.0", path = "../helper" }

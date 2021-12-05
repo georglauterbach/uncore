@@ -38,8 +38,9 @@ lazy_static! {
 
 /// # GDT Selectors
 ///
-/// This struct holds the necessary selectors which need to be loaded. This
-/// makes sure the correct GDT and TSS are used.
+/// This struct holds the necessary selectors which need to
+/// be loaded. This makes sure the correct GDT and TSS are
+/// used.
 struct Selectors
 {
 	/// The Code Segment (`cs`) register selector
@@ -50,8 +51,9 @@ struct Selectors
 
 /// # Loading the GDT
 ///
-/// The Global Descriptor Table (GDT) is loaded here. Furthermore, the Code
-/// Segment register (`cs`) is (re-)loaded and the correct TSS is selected.
+/// The Global Descriptor Table (GDT) is loaded here.
+/// Furthermore, the Code Segment register (`cs`) is
+/// (re-)loaded and the correct TSS is selected.
 pub fn init()
 {
 	GDT.0.load();

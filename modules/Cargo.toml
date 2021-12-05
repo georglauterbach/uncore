@@ -6,11 +6,12 @@
 members = [
   "communication",
   "hardware",
+  "helper",
   "kernel",
   "memory",
   "processes",
   "scheduling",
-  "syscalls"
+  "syscalls",
 ]
 
 [profile.release]

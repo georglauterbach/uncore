@@ -12,7 +12,6 @@ newline_style                = "Native"
 hex_literal_case             = "Upper"
 binop_separator              = "Front"
 
-
 hard_tabs                    = true
 combine_control_expr         = false
 reorder_imports              = false
@@ -33,10 +32,10 @@ reorder_impl_items           = true
 use_field_init_shorthand     = true
 wrap_comments                = true
 
-inline_attribute_width       = 0
 blank_lines_upper_bound      = 1
 tab_spaces                   = 8
 enum_discrim_align_threshold = 45
 struct_field_align_threshold = 45
-comment_width                = 99
+inline_attribute_width       = 70
+comment_width                = 70
 max_width                    = 99

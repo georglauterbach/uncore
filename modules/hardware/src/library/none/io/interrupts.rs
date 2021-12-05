@@ -24,8 +24,9 @@ pub enum InterruptIndex
 
 /// # Loading Programmable Interrupt Controllers
 ///
-/// Two Programmable Interrupt Controllers (PICs) are loaded here.
-/// Furthermore, the CPU is instructed to listen for interrupts.
+/// Two Programmable Interrupt Controllers (PICs) are loaded
+/// here. Furthermore, the CPU is instructed to listen for
+/// interrupts.
 pub fn init_pics()
 {
 	unsafe {
@@ -37,11 +38,12 @@ pub fn init_pics()
 
 /// # End of Interrupt Signalization
 ///
-/// Every hardware (I/O) interrupt handler must issue an "end of interrupt"
-/// (EOI) signal at the end to signal that we're finished with processing the
-/// interrupt.
+/// Every hardware (I/O) interrupt handler must issue an
+/// "end of interrupt" (EOI) signal at the end to signal
+/// that we're finished with processing the interrupt.
 ///
-/// This function provides a safe wrapper around the unsafe method.
+/// This function provides a safe wrapper around the unsafe
+/// method.
 fn notify_end_of_interrupt(interrupt_index: InterruptIndex)
 {
 	unsafe {
@@ -60,8 +62,9 @@ pub extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: &mut Interru
 
 /// # Hardware Interrupt - Keyboard
 ///
-/// This is the handler function which reacts to keyboard input. Currently,
-/// every keystroke is printed directly on the screen.
+/// This is the handler function which reacts to keyboard
+/// input. Currently, every keystroke is printed directly on
+/// the screen.
 pub extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: &mut InterruptStackFrame)
 {
 	use pc_keyboard::{
@@ -84,7 +87,9 @@ pub extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: &mut Inte
 	if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
 		if let Some(key) = keyboard.process_keyevent(key_event) {
 			match key {
-				DecodedKey::Unicode(character) => print!("{}", character),
+				DecodedKey::Unicode(character) => {
+					print!("{}", character);
+				},
 				DecodedKey::RawKey(key) => print!("{:?}", key),
 			}
 		}

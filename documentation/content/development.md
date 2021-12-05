@@ -27,9 +27,13 @@ One can then rebase onto `development` if something has been merged into develop
 
 When writing code, adhere to the style provided in the miscellaneous configuration files and to what is already written in all the files, even if this is not your preferred style. When altering files, look how it has been written and stay true to these design decisions. Make sure your IDE uses the provided `.editorconfig`.
 
+When writing YAML, code is formatted with [Prettier]. When writing Bash scripts, make sure, especially with Bash, that you stick to the already present style!
+
+### Rust Conventions
+
 Rust if formatted using `rustfmt`, which is installed with [Rust] itself. You can format your code using `just format` or `cargo fmt` in the repository modules containing [Rust] code. The style definition is found under `modules/.rustfmt.toml`. Make sure to adjust your style to the already present style.
 
-When writing YAML, code is formatted with [Prettier]. When writing Bash scripts, make sure, especially with Bash, that you stick to the already present style!
+The Rust naming convention found under <https://doc.rust-lang.org/1.0.0/style/style/naming/README.html> is strictly adhered to. The only exception are functions which serve a very special purpose, such as `__never_return`. They are prefixed with two underscores.
 
 ## Miscellaneous
 
