@@ -21,7 +21,7 @@ modules/
 6. [The `scheduling` module][docs-scheduling-module] provides scheduling functionality. It is a kernel core component.
 7. [The `hardware` module][docs-hardware-module] provides the mechanisms to isolate the actual kernel code from the underlying hardware. It provides a unified interface for the kernel to work with, see [the kernel architecture][docs-architecture].
 
-This directory contains all kernel code (and therefore the complete [Rust] code of **_unCORE_**). The `modules/` directory is a Cargo workspace that contains all of the above mentioned modules as workspace members. The final kernel binary is built from the source in `modules/kernel/`.
+This directory contains all kernel code (and therefore the complete [Rust] code of _unCORE_). The `modules/` directory is a Cargo workspace that contains all of the above mentioned modules as workspace members. The final kernel binary is built from the source in `modules/kernel/`.
 
 [//]: # (Links)
 

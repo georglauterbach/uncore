@@ -10,11 +10,11 @@ For every pull requests, and on schedule (every Saturday), a GitHub workflow und
 
 ## Reporting a Vulnerability
 
-**_unCORE_** takes security very seriously. We will follow the rule of [responsible disclosure] in the future. **As of now**, please just open an issue. As there is no centralized domain / mail service, opening an issue is the easiest way for now.
+_unCORE_ takes security very seriously. We will follow the rule of [responsible disclosure] in the future. **As of now**, please just open an issue. As there is no centralized domain / mail service, opening an issue is the easiest way for now.
 
 ### Responsible Disclosure
 
-If you discover a vulnerability in **_unCORE_**, please first contact one of the maintainers privately. Users who report bugs will optionally be credited for the discovery.
+If you discover a vulnerability in _unCORE_, please first contact one of the maintainers privately. Users who report bugs will optionally be credited for the discovery.
 
 We urge you not to disclose the bug publicly at least until we've had a reasonable chance to fix it, and to clearly communicate any public disclosure timeline in your initial contact with us. If you do not have a particular public disclosure timeline, we will clearly communicate ours as we publish security advisories.
 

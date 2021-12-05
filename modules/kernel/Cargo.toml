@@ -17,7 +17,7 @@ repository = "https://github.com/georglauterbach/uncore"
 
 license = "GPL-3.0"
 
-keywords = ["operating-system", "os", "kernel", "micro-kernel", "no-std"]
+keywords = ["operating-system", "os", "kernel", "no-std"]
 
 categories = ["no-std", "config"]
 

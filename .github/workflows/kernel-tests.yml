@@ -37,7 +37,6 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
         continue-on-error: true
 
-
   unit-and-integration-tests:
     name: Run all unit- and integration-tests
     runs-on: ubuntu-20.04
@@ -62,6 +61,7 @@ jobs:
 
       # yamllint enable rule:line-length
       - name: Work with the changed files
+        continue-on-error: true
         run: |
           declare -a MODULES CHANGED_MODULES
 
@@ -75,9 +75,11 @@ jobs:
           for FILE in ${{ steps.changed-files.outputs.all }}
           do
               echo "Changed: ${FILE}"
+              grep -v 'modules' <<< "${FILE}" && continue
+
               for MODULE in "${MODULES[@]}"
               do
-                if grep -q "${MODULE}" "${FILE}"
+                if grep -q "${MODULE}" <<< "${FILE}"
                 then
                   if [[ ! " ${CHANGED_MODULES[*]} " =~ ${MODULE}  ]]
                   then

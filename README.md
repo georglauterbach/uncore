@@ -13,7 +13,7 @@
 
 ## About
 
-**_unCORE_** is an [operating system] [micro-kernel] completely written in pure, idiomatic [Rust]. **_unCORE_** makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant.
+_unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant.
 
 ## Getting Started
 
@@ -66,7 +66,7 @@ This project is licensed under the [GNU General Public License v3], except for t
 [docs-modules]: ./documentation/content/modules/modules.md
 
 [operating system]: https://en.wikipedia.org/wiki/Operating_system
-[micro-kernel]: https://en.wikipedia.org/wiki/Microkernel
+[kernel]: https://en.wikipedia.org/wiki/Kernel_(operating_system)
 [Rust]: https://www.rust-lang.org/
 
 [Just]: https://github.com/casey/just
