@@ -37,7 +37,7 @@ The Rust naming convention found under <https://doc.rust-lang.org/1.0.0/style/st
 
 ## Miscellaneous
 
-You may run any IDE you like, of course. We recommend [Visual Studio Code] or [NeoVIM].
+You may run any IDE you like, of course. We recommend [Visual Studio Code] or [NeoVIM]. We do not make any assumptions about the style of working that you prefer most - use what suits you best.
 
 [//]: # (Links)
 

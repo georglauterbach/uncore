@@ -32,6 +32,7 @@ reorder_impl_items           = true
 use_field_init_shorthand     = true
 wrap_comments                = true
 
+blank_lines_lower_bound      = 0
 blank_lines_upper_bound      = 1
 tab_spaces                   = 8
 enum_discrim_align_threshold = 45

@@ -4,8 +4,8 @@
 #![deny(clippy::nursery)]
 #![deny(clippy::pedantic)]
 #![feature(custom_test_frameworks)]
-#![test_runner(helper::test::test_runner)]
-#![reexport_test_harness_main = "__start_tests"]
+#![test_runner(helper::test_runner)]
+#![reexport_test_harness_main = "__start_tests"] // TODO what is this?
 
 /// # The Library
 ///

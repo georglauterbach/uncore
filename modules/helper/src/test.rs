@@ -1,10 +1,4 @@
-// use crate::{
-// 	serial_print,
-// 	serial_println,
-// };
-use crate::qemu;
-
-/// # A Simple Test Runner Implementation
+/// ### A (Very) Simple Test Runner Implementation
 ///
 /// This function is registered as the tests runner when executing
 /// Cargo test's unit tests.
@@ -13,13 +7,11 @@ use crate::qemu;
 /// by one.
 pub fn test_runner(tests: &[&dyn Testable])
 {
-	// serial_println!("Running {} tests.\n", tests.len());
-
 	for test in tests {
 		test.run();
 	}
 
-	qemu::exit(qemu::ExitCode::Success);
+	crate::miscellaneous::qemu::exit_with_success();
 }
 
 /// # Streamlining Testing
@@ -29,6 +21,11 @@ pub fn test_runner(tests: &[&dyn Testable])
 /// can be "parsed" to reduce boilerplate code.
 pub trait Testable
 {
+	/// ### Run Tests
+	///
+	/// The `run` function will literally just execute the
+	/// function it contains, as `Testable` is implemented for all
+	/// generics that implement `Fn()`.
 	fn run(&self);
 }
 
@@ -42,10 +39,11 @@ where
 		// serial_print!("{}  ", type_name::<Self>());
 
 		self();
-		// serial_println!("[ok]");
 	}
 }
 
+/// ### Sanity Check
+///
 /// This tests is just here for sanity's sake to make
 /// sure tests behave correctly at the most basic level.
 #[test_case]

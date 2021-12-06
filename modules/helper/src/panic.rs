@@ -1,31 +1,30 @@
-#![allow(unused_imports)]
-
 use core::panic::PanicInfo;
-use crate::{
-	never_return,
-	qemu,
-};
 
-/// # Panic Handler when Running Tests
+/// ### Panic Handler when Running Tests
 ///
 /// This function is marked for conditional compilation, and
 /// is used when running the custom tests suite.
 #[cfg(test)]
-pub fn __panic(_panic_info: &PanicInfo) -> !
+#[inline]
+fn __panic(_panic_info: &PanicInfo) -> !
 {
-	// crate::serial_println!("[PANIC]\n{}\n", panic_info);
-	qemu::exit(qemu::ExitCode::Failed);
-	never_return()
+	crate::miscellaneous::qemu::exit_with_failure();
+	crate::never_return()
 }
 
-/// # Panic Handler when not Running Tests
+/// ### Panic Handler when not Running Tests
 ///
 /// This function is marked for conditional compilation, and
 /// is used when running the binary natively, i.e. not the
 /// tests.
 #[cfg(not(test))]
-pub fn __panic(_panic_info: &PanicInfo) -> !
-{
-	// crate::serial_println!("[PANIC]\n{}\n", panic_info);
-	never_return()
-}
+#[inline]
+fn __panic(_panic_info: &PanicInfo) -> ! { crate::never_return() }
+
+/// ### Default Panic Handler
+///
+/// This function provides a very basic panic handler, that, depending
+/// on whether you are running tests or not, writes an exit code and
+/// does not return afterwards. Note that we do not unwind the stack.
+#[panic_handler]
+pub fn panic(panic_info: &core::panic::PanicInfo) -> ! { __panic(panic_info); }

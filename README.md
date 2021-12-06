@@ -30,30 +30,30 @@ tools INFO    Setting Rust toolchain and ...
 
 from this repository's root directory.
 
-## Repository Structure
-
-This repository is structured into different modules:
-
-``` TXT
-/
-├── .github/        # GitHub's issue and pull request templates
-├── documentation/  # documentation resides here
-├── modules/        # kernel modules and Rust code
-└── scripts/        # holds all Bash scripts for administration
-```
-
-A dedicated [Modules][docs-modules] section in the documentation covers the contents of the modules in which [Rust] code resides.
-
 ## Documentation and Licensing
 
 The documentation is written in Markdown, built with [MkDocs] and can be found under `documentation/`. You may build and serve the documentation locally with a container runtime (like [Docker] or [Podman]) by running `./scripts/documentation.sh`, serving it under <http://127.0.0.1:8080>.
 
 This project is licensed under the [GNU General Public License v3], except for those parts (lines of code from libraries used in this project) already licensed under other licenses. Moreover, code taken from [_Phillip Oppermann_'s _BlogOS_ project][blog-os] is not covered by the license of this project as well.
 
+## Repository Structure
+
+This repository is structured into different modules:
+
+``` TXT
+/
+├── .github/        # GitHub's templates and CI workflows
+├── documentation/  # full kernel documentation
+├── modules/        # kernel modules with Rust code
+└── scripts/        # holds all Bash scripts for administration
+```
+
+A dedicated [Modules][docs-modules] section in the documentation covers the contents of the modules in which [Rust] code resides.
+
 [//]: # (Badges)
 
 [badge::license]: https://img.shields.io/github/license/georglauterbach/uncore.svg?label=LICENSE&color=informational&style=for-the-badge
-[badge::licence::link]: https://github.com/georglauterbach/uncore/blob/master/LICENSE
+[badge::licence::link]: ./LICENSE
 [badge::documentation]: https://img.shields.io/badge/DOCUMENTATION-MKDOCS-informational?style=for-the-badge
 [badge::documentation::link]: https://georglauterbach.github.io/uncore/
 
