@@ -1,4 +1,4 @@
-// ? ATTRIBUTES & GLOBAL CRATE DOCUMENTATION
+// ? GLOBAL CRATE ATTRIBUTES AND DOCUMENTATION
 // ? ---------------------------------------------------------------------
 
 // This crate does not and cannot use the standard library.
@@ -6,13 +6,14 @@
 // Clippy lint target one. Enables all lints that are on by
 // default (correctness, suspicious, style, complexity, perf) .
 #![deny(clippy::all)]
-// Clippy lint target two. Enables lints which are rather
-// strict or have occasional false positives.
+// Clippy lint target two. Enables lints which are rather strict
+// or have occasional false positives.
 #![deny(clippy::nursery)]
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
-// Clippy lint target four. Enable lints for the cargo manifest.
+// Clippy lint target four. Enable lints for the cargo manifest
+// file, a.k.a. Cargo.toml.
 #![deny(clippy::cargo)]
 // Lint target for code documentation. This lint enforces code
 // documentation on every code item.
@@ -27,7 +28,7 @@
 // runs our tests.
 #![test_runner(crate::test_runner)]
 
-//! # The unCORE OS Kernel Helper Function Collection
+//! # The unCORE Operating System Kernel Helper Function Collection
 //!
 //! This crate provides functions all other workspace members use for
 //! general purpose tasks and requirements, such as not returning or
@@ -39,14 +40,13 @@
 //!
 //! Only the most generic functions shall reside in this crate.
 
-// ? MODULES & GLOBAL CRATE-LEVEL FUNCTIONS
+// ? MODULES AND EXPORTS
 // ? ---------------------------------------------------------------------
 
 /// ## Miscellaneous Helpers
 ///
-/// Provides the most generic helper functions, such as
-/// `__never_return()`. These are explicitly re-exported
-/// and renamed in the process.
+/// Provides various of the most generic helper functions, such as
+/// `never_return()`.
 mod miscellaneous;
 
 /// ## Provides the API for Panicking
@@ -61,10 +61,10 @@ mod panic;
 /// includes unit-tests as well as integration tests.
 mod test;
 
-// ? EXPORTS
-// ? ---------------------------------------------------------------------
-
 pub use miscellaneous::never_return;
 pub use panic::panic;
 pub use test::test_runner;
 pub use test::Testable;
+
+// ? GLOBAL / CRATE-LEVEL FUNCTIONS
+// ? ---------------------------------------------------------------------

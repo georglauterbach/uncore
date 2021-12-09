@@ -8,7 +8,7 @@ brace_style                  = "AlwaysNextLine"
 imports_layout               = "Vertical"
 indent_style                 = "Block"
 imports_granularity          = "Crate"
-newline_style                = "Native"
+newline_style                = "Auto"
 hex_literal_case             = "Upper"
 binop_separator              = "Front"
 

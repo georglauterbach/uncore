@@ -18,8 +18,4 @@ pub mod serial;
 /// documentation is not of good quality.
 pub mod write;
 
-/// # Hardware Interrupts
-///
-/// This module handles hardware interrupts and abstracts
-/// over the hardware interrupt controller.
-pub mod interrupts;
+pub fn init() {}

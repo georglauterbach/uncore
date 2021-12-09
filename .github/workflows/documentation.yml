@@ -5,7 +5,9 @@ name: Documentation
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
   push:
-    branches: [master, development]
+    branches:
+      - master,
+      - development
     paths:
       - .github/workflows/documentation.yml
       - documentation/**

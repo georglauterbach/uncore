@@ -160,7 +160,7 @@ pub fn _print_write_args(args: fmt::Arguments)
 #[macro_export]
 macro_rules! print {
 	($($arg:tt)*) => (
-		$crate::library::none::io::write::_print_write_args(
+		$crate::library::io::write::_print_write_args(
 			format_args!($($arg)*)
 		)
 	);

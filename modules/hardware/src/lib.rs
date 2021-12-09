@@ -35,4 +35,8 @@ mod library;
 /// 2. Interrupt Descriptor Table (IDT)
 /// 3. Process Interrupt Controllers (PIC)
 #[inline]
-pub fn init() { library::init(); }
+pub fn init()
+{
+	library::architectures::init();
+	library::io::init();
+}

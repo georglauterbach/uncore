@@ -31,9 +31,9 @@ When writing YAML, code is formatted with [Prettier]. When writing Bash scripts,
 
 ### Rust Conventions
 
-Rust if formatted using `rustfmt`, which is installed with [Rust] itself. You can format your code using `just format` or `cargo fmt` in the repository modules containing [Rust] code. The style definition is found under `modules/.rustfmt.toml`. Make sure to adjust your style to the already present style.
+Rust if formatted using `rustfmt`, which is installed with [Rust] itself. You can format your code using `just format` or `cargo fmt` in the repository modules containing [Rust] code. The style definition is found under `modules/.rustfmt.toml`. Make sure to adjust your style to the already present style. The Rust naming convention found under <https://doc.rust-lang.org/1.0.0/style/style/naming/README.html> is strictly adhered to.
 
-The Rust naming convention found under <https://doc.rust-lang.org/1.0.0/style/style/naming/README.html> is strictly adhered to. The only exception are functions which serve a very special purpose, such as `__never_return`. They are prefixed with two underscores.
+Crate-level / global `lib.rs` (or in case of the kernel, also `main.rs`) are formatted in a special way. We start by declaring crate-level attributes and crate-level documentation, then modules and exports and last but not least, global functions. You may want to have a look at the `helper/` module's `lib.rs` for a concise example.
 
 ## Miscellaneous
 
