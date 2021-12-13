@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install nightly toolchain
-        uses: actions-rs/toolchain@v1.0.6
+        uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
           toolchain: nightly-2021-12-02
@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install nightly toolchain
-        uses: actions-rs/toolchain@v1.0.6
+        uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
           toolchain: nightly-2021-12-02
