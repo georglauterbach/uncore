@@ -9,14 +9,17 @@ pub mod log;
 /// `never_return()`.
 mod miscellaneous;
 
-pub use miscellaneous::never_return;
 pub(super) use miscellaneous::display_initial_information;
+pub use miscellaneous::never_return;
+pub use miscellaneous::qemu;
 
 /// ## Provides the API for Panicking
 ///
 /// This module provides the implementation for the panic macro and
 /// panic behavior.
 mod panic;
+
+pub use panic::panic_callback;
 
 /// ## Providing Support for Tests
 ///

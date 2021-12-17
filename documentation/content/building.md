@@ -9,7 +9,10 @@ We **highly recommend using [Just]** for working with _unCORE_. The following st
 
 ## Compiling the Kernel
 
-The kernel is compiled against a special target. This target is located under `kernel/x64_64-uncore.json`. This target does not provide a standard library, as it is a custom target. Note that **we do not use a `kernel/.cargo/config.toml` file**. **This is intentional!** Using this file messes with the defaults for build targets and this may lead to very unpleasant outputs. We rather write the target for each compilation explicitly when writing the command -- or we let [Just] do this for us.
+The kernel is compiled against a special target. This target is located under `kernel/x64_64-uncore.json`. This target does not provide a standard library, as it is a custom target.
+
+??? danger "`.cargo/config.toml` And Its Fallacies"
+    Note that we do not actually want to use a `kernel/.cargo/config.toml` file. Using this file can mess with the defaults for build / run targets and this may lead to very unpleasant outputs. We rather write the target for each compilation explicitly when writing the command -- or we let [Just] do this for us. **But** we currently cannot circumvent using because of the way tests are executed. When `cargo test ...` runs tests, we need to tell `cargo` every time which runner to use. We (currently) cannot do this explicitly on the command line.
 
 First of all, if you're using [Just] (which is recommended, remember), make yourself familiar with all recipes by running `#!bash just help`. The kernel itself is compiled by running
 
@@ -30,7 +33,7 @@ We specify the target and on top of that, which built-in function (that is, into
 The equivalent for this step with [Just] is
 
 ``` BASH
-just build_kernel
+just build
 ```
 
 ## Creating a Bootable Image
@@ -52,10 +55,10 @@ $ cargo run --package boot \
   target/x86_64-uncore/<DEBUG or RELEASE>/kernel [--no-run]
 
 Creating disk image...   [ok]
-Created disk image at    '/kernel/target/x86_64-uncore/debug/boot-uefi-kernel.img'
+Created disk image at    '/kernel/target/x86_64-uncore/debug/boot-bios-kernel.img'
 ```
 
-Here, [Just] will try to find your default target and use it. On Linux, this is most likely `x86_64-unknown-linux-gnu`. After this process has finished, we have an image located at `/kernel/target/x86_64-uncore/debug/boot-uefi-kernel.img`.
+Here, [Just] will try to find your default target and use it. On Linux, this is most likely `x86_64-unknown-linux-gnu`. After this process has finished, we have an image located at `kernel/target/x86_64-uncore/debug/boot-bios-kernel.img`.
 
 The equivalent for this step with [Just] is
 
@@ -71,7 +74,7 @@ We can now run the image created in the step above:
 $ pwd
 /uncore/kernel
 $ qemu-system-x86_64 \
-  --no-reboot -s     \
+  --no-reboot -s \
   -drive format=raw,file=/kernel/target/x86_64-uncore/debug/boot-uefi-kernel.img
 ```
 

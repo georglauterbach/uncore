@@ -73,3 +73,12 @@ pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) ->
 	__test_runner();
 	library::never_return()
 }
+
+/// ### Default Panic Handler
+///
+/// This function provides a very basic panic handler, that, depending
+/// on whether you are running tests or not, writes an exit code and
+/// does not return afterwards. Note that we do not unwind the stack.
+#[cfg(test)]
+#[panic_handler]
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::panic_callback(false, panic_info) }

@@ -89,14 +89,27 @@ _use_bootimage release='' no_run='':
     cd {{ROOT_DIRECTORY}}/kernel/ && {{BUILD_TOOL}} clean
 
 # run tests workspace members
-test:
+test test='':
     #! /bin/bash
 
     cd {{ROOT_DIRECTORY}}/kernel/
 
-    {{BUILD_TOOL}} test --lib                       \
-        --target {{KERNEL_BUILD_TARGET_PATH}} \
-        {{KERNEL_BUILD_FLAGS}}
+    # --tests runs all tests, i.e. the kernel library (`lib.rs`)
+    # effectivly running all unit-tests, the kernel main binary
+    # (`main.rs`) and all integration tests (under `tests/`)
+
+    if [[ -z "{{test}}" ]]
+    then
+        {{BUILD_TOOL}} test --tests               \
+            --target {{KERNEL_BUILD_TARGET_PATH}} \
+            {{KERNEL_BUILD_FLAGS}}
+    else
+        {{BUILD_TOOL}} test --test {{test}}       \
+            --target {{KERNEL_BUILD_TARGET_PATH}} \
+            {{KERNEL_BUILD_FLAGS}}
+    fi
+
+    printf '\nTests passed.\n'
 
 # -----------------------------------------------
 # ----  Format and Lint  ------------------------

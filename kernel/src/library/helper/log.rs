@@ -6,7 +6,7 @@ use ::core::fmt;
 /// All messaged with an equal or higher priority are logged when not
 /// running tests. When running tests, all messages with a severity of
 /// `Level::Warning` or higher are logged.
-const LOG_LEVEL: Level = if super::test::IS_TEST {
+static mut LOG_LEVEL: Level = if super::test::IS_TEST {
 	Level::Trace
 } else {
 	Level::Info
@@ -49,6 +49,17 @@ impl fmt::Display for Level
 	}
 }
 
+/// ### Set the Kernel Log Level
+///
+/// This function adjusts the kernel log level. Only call this
+/// function once and at the very start if necessary.
+pub fn set_log_level(new_log_level: Level)
+{
+	unsafe {
+		LOG_LEVEL = new_log_level;
+	}
+}
+
 /// ### Log Indirection
 ///
 /// An indirection that is used in order to make it easy to switch to
@@ -58,7 +69,7 @@ impl fmt::Display for Level
 #[doc(hidden)]
 pub fn __log(log_level: Level, arguments: fmt::Arguments)
 {
-	if log_level < LOG_LEVEL {
+	if log_level < unsafe { LOG_LEVEL } {
 		return;
 	}
 

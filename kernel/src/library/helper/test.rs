@@ -54,7 +54,7 @@ where
 	{
 		crate::log_test!("Testing {}", ::core::any::type_name::<Self>());
 		self();
-		crate::log_test!("Last test finished successfully");
+		crate::log_test!("Last test finished. SUCCESS.");
 	}
 }
 

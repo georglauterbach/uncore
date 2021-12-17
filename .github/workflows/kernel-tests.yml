@@ -18,10 +18,10 @@ defaults:
     working-directory: kernel
 
 env:
-  KERNEL_BUILD_FLAGS: >
+  BUILD_FLAGS: >
     -Z build-std=core,compiler_builtins,alloc
     -Z build-std-features=compiler-builtins-mem
-  KERNEL_BUILD_TARGET_PATH: targets/x86_64-unknown-none.json
+  BUILD_TARGET_PATH: --target targets/x86_64-unknown-none.json
 
 jobs:
   linting:
@@ -45,20 +45,16 @@ jobs:
         run: rustup component add rust-src llvm-tools-preview
 
       - name: Run `cargo check`
-        run: cargo check --target ${{ env.KERNEL_BUILD_TARGET_PATH }} ${{ env.KERNEL_BUILD_FLAGS }}
-        continue-on-error: true
+        run: cargo check {{ env.BUILD_TARGET_PATH }} ${{ env.BUILD_FLAGS }}
 
       - name: Run `cargo fmt`
         run: cargo fmt --all --message-format human -- --check
-        continue-on-error: true
 
       - name: Run `cargo clippy` for `boot` module
         run: cargo clippy --package boot --all-features -- -D warnings
-        continue-on-error: true
 
       - name: Run `cargo clippy` for kernel
-        run: cargo clippy --all-features -- -D warnings
-        continue-on-error: true
+        run: cargo clippy --lib --all-features -- -D warnings
 
   unit-and-integration-tests:
     name: Run all unit- and integration-tests
@@ -86,8 +82,4 @@ jobs:
         run: qemu-system-x86_64 --version
 
       - name: Run `cargo test`
-        run: >
-          cargo test --lib
-            --target ${{ env.KERNEL_BUILD_TARGET_PATH }}
-            ${{ env.KERNEL_BUILD_FLAGS }}
-        continue-on-error: true
+        run: cargo test --tests ${{ env.BUILD_TARGET_PATH }} ${{ env.BUILD_FLAGS }}

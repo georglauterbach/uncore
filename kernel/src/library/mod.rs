@@ -17,10 +17,11 @@ mod hardware;
 ///
 /// It also provides the test runners and the kernel version
 /// information.
-mod helper;
+pub mod helper;
 
-pub use helper::test_runner;
 pub use helper::never_return;
+pub use helper::panic_callback;
+pub use helper::test_runner;
 
 /// ### Global Initialization
 ///

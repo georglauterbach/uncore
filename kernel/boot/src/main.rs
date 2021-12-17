@@ -274,14 +274,14 @@ fn run_tests(bios_image: &path::Path)
 			Some(33) => {},
 			Some(other_exit_code) => {
 				eprintln!(
-					"ERROR   | Test failed. Exit code was {}.",
+					"ERROR   | Tests failed. Exit code was {}.",
 					other_exit_code
 				);
 
 				std::process::exit(other_exit_code)
 			},
 			None => {
-				eprintln!("ERROR   | Test failed. Exit code unknown.");
+				eprintln!("ERROR   | Tests failed. Exit code unknown.");
 				std::process::exit(-42)
 			},
 		}
