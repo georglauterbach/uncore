@@ -9,7 +9,7 @@
 - major refactoring of kernel source code
   - revised kernel code structure
   - no individual kernel modules anymore
-  - sorted our compiler errors 
+  - sorted our compiler errors
   - removed all compiler warnings
   - `cargo clippy` now works without errors
   - completed code documentation
@@ -19,7 +19,6 @@
 - heavily extended and refactored documentation
   - adjusted to new kernel structure
   - added major sections
-- 
 
 ### v0.2
 
