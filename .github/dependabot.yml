@@ -5,6 +5,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     target-branch: development
+    rebase-strategy: auto
     schedule:
       interval: weekly
     reviewers:

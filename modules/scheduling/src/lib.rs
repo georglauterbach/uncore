@@ -1,8 +1,0 @@
-#![no_std]
-#![no_main]
-#![deny(clippy::all)]
-#![deny(clippy::nursery)]
-#![deny(clippy::pedantic)]
-#![feature(custom_test_frameworks)]
-#![test_runner(helper::test_runner)]
-#![reexport_test_harness_main = "__start_tests"]

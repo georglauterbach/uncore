@@ -1,0 +1,6 @@
+- adjust GitHub workflows
+- write the "Building" documentation
+- re-write the new "Structure" documentation
+
+- write the "Testing" page (documentation) and mention how linting is an important part of the tests
+- have a look here for testing: https://github.com/rust-osdev/bootloader/tree/main/examples/test_framework

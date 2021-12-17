@@ -6,16 +6,20 @@ on: # yamllint disable-line rule:truthy
   pull_request:
     paths:
       - .github/workflows/kernel-tests.yml
-      - modules/**
+      - kernel/**
     branches: ['*']
   push:
-    paths: [modules/**]
+    paths: [kernel/**]
     branches: [master]
 
 defaults:
   run:
     shell: bash
-    working-directory: modules
+    working-directory: kernel
+
+env:
+  KERNEL_BUILD_FLAGS: -Z build-std=core,compiler_builtins,alloc -Z build-std-features=compiler-builtins-mem
+  KERNEL_BUILD_TARGET_PATH: targets/x86_64-unknown-none.json
 
 jobs:
   linting:
@@ -31,16 +35,24 @@ jobs:
         uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
-          toolchain: nightly-2021-12-02
+          toolchain: nightly-2021-12-10
           override: true
           components: rustfmt, clippy
 
-      - name: Run `cargo clippy`
-        run: cargo fmt --all --message-format human -- --check
+      - name: Run `cargo check`
+        run: cargo check --target ${{ env.KERNEL_BUILD_TARGET_PATH }} ${{ env.KERNEL_BUILD_FLAGS }}
         continue-on-error: true
 
       - name: Run `cargo fmt`
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo fmt --all --message-format human -- --check
+        continue-on-error: true
+
+      - name: Run `cargo clippy` for `boot` module
+        run: cargo clippy --package boot --all-features -- -D warnings
+        continue-on-error: true
+      
+      - name: Run `cargo clippy` for kernel
+        run: cargo clippy --all-features -- -D warnings
         continue-on-error: true
 
   unit-and-integration-tests:
@@ -56,56 +68,20 @@ jobs:
         uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
-          toolchain: nightly-2021-12-02
+          toolchain: nightly-2021-12-10
           override: true
 
-      - name: List changed files
-        uses: jitterbit/get-changed-files@v1
-        id: changed-files
+      - name: Install Rustup Components
+        run: rustup component add rust-src llvm-tools-preview
+
+      - name: Install QEMU
+        run: sudo apt update && sudo apt install qemu-system-x86
+
+      - name: Print QEMU version
+        run: qemu-system-x86_64 --version
+
+      - name: Run `cargo test`
+        uses: actions-rs/cargo@v1.0.1
         with:
-          format: space-delimited
-
-      # yamllint enable rule:line-length
-      - name: Work with the changed files
-        continue-on-error: true
-        run: |
-          declare -a MODULES CHANGED_MODULES
-
-          echo 'Enumerating all changed files in the kernel.'
-
-          while read -r FILE
-          do
-            MODULE="${FILE#./}"
-            [[ -n  ${MODULE} ]] && [[ ! ${MODULE} =~ (\.|target).* ]] && MODULES+=("${MODULE}")
-          done < <(find ./ -maxdepth 1 -type d)
-
-          echo "All found kernel modules: ${MODULES[*]}"
-
-          # shellcheck disable=SC2043
-          for FILE in ${{ steps.changed-files.outputs.all }}
-          do
-              grep -qv 'modules' <<< "${FILE}" && continue
-              echo "Changed: ${FILE}"
-
-              for MODULE in "${MODULES[@]}"
-              do
-                if grep -q "${MODULE}" <<< "${FILE}"
-                then
-                  if [[ ! " ${CHANGED_MODULES[*]} " =~ ${MODULE}  ]]
-                  then
-                    CHANGED_MODULES+=("${MODULE}")
-                  fi
-                fi
-              done
-          done
-
-          echo "Modules changed by this PR: ${CHANGED_MODULES[*]}"
-
-          for MODULE in "${CHANGED_MODULES[@]}"
-          do
-            # cargo check --package "${MODULE}"
-            # cargo test --package "${MODULE}"
-            :
-          done
-
-          # cargo test --package kernel --test '*'
+          command: test
+          args: --lib --target ${{ env.KERNEL_BUILD_TARGET_PATH }} ${{ env.KERNEL_BUILD_FLAGS }}

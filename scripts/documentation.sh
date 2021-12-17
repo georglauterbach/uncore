@@ -10,7 +10,7 @@ __BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
 IMAGE_NAME='uncore/documentation:latest'
 DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY:-$(realpath -e -L .)}/documentation"
 
-MKDOCS_MATERIAL_TAG='8.0.3'
+MKDOCS_MATERIAL_TAG='8.1.2'
 MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
 
 CRI='docker'
