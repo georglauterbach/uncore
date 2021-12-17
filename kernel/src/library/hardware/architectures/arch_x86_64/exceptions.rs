@@ -57,11 +57,16 @@ pub(super) mod handlers
 	/// CPU exception.
 	pub extern "x86-interrupt" fn page_fault(
 		_stack_frame: InterruptStackFrame,
-		_error_code: PageFaultErrorCode,
+		error_code: PageFaultErrorCode,
 	)
 	{
 		crate::log_warning!("CPU exception occurred (page fault, no abort)");
-		crate::library::never_return();
+		crate::log_info!(
+			"page fault information: accessed address = {:?} | error code = {:?}\n",
+			x86_64::registers::control::Cr2::read(),
+			error_code
+		);
+		// crate::library::never_return();
 	}
 
 	#[test_case]

@@ -60,6 +60,11 @@ pub(in super::super) fn display_initial_information(boot_information: &bootloade
 		boot_information.version_minor,
 		boot_information.version_patch
 	);
+
+	crate::log_trace!(
+		"Printing boot information structure \n\n{:#?}\n\n",
+		boot_information
+	);
 }
 
 /// ## QEMU Abstractions

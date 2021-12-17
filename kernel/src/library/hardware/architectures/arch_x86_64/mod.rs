@@ -32,6 +32,4 @@ pub fn init()
 
 	general::gdt::init();
 	interrupts::init();
-
-	crate::log_trace!("Architecture specific initialization finished");
 }

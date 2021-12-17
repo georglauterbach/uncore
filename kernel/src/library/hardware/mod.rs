@@ -5,8 +5,9 @@
 mod architectures;
 
 /// ## Virtual Memory Implementation
-/// 
-/// Generic virtual memory implementation that bases upon the architecture-specific implementation.
+///
+/// Generic virtual memory implementation that bases upon the
+/// architecture-specific implementation.
 mod memory;
 
 /// ### Hardware Initialization

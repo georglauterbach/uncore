@@ -29,7 +29,7 @@ pub use helper::test_runner;
 ///
 /// - printing important initial information
 /// - calling the hardware initialization subroutine
-pub fn init(boot_information: &bootloader::BootInfo)
+pub fn init(boot_information: &'static bootloader::BootInfo)
 {
 	helper::log::set_log_level(helper::log::Level::Trace);
 	helper::display_initial_information(boot_information);
