@@ -31,6 +31,8 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 			.unwrap_or(&format_args!("no message provided"))
 	);
 
+	// #[cfg(target_abi = "none")]
+	super::miscellaneous::qemu::exit_with_failure();
 	super::miscellaneous::never_return()
 }
 
@@ -43,6 +45,7 @@ fn __should_panic(_panic_info: &PanicInfo) -> !
 {
 	crate::log_test!("Received panic. SUCCESS.");
 
+	#[cfg(target_abi = "none")]
 	super::miscellaneous::qemu::exit_with_success();
 	super::miscellaneous::never_return()
 }

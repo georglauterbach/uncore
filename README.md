@@ -53,7 +53,7 @@ This repository is structured into different subdirectories:
 [badge::license]: https://img.shields.io/github/license/georglauterbach/uncore.svg?label=LICENSE&color=informational&style=for-the-badge
 [badge::licence::link]: ./LICENSE
 [badge::documentation]: https://img.shields.io/badge/DOCUMENTATION-MKDOCS-informational?style=for-the-badge
-[badge::documentation::link]: https://georglauterbach.github.io/uncore/
+[badge::documentation::link]: https://georglauterbach.github.io/uncore/edge/
 
 [badge::ci::linting]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Linting?label=CI%20-%20Linting&logo=github&logoColor=white&style=for-the-badge
 [badge::ci::linting::link]: https://github.com/georglauterbach/uncore/actions/workflows/linting.yml

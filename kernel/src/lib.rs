@@ -41,6 +41,9 @@
 // Since retrieving the message during a call to `panic!` is
 // still unstable, we have to opt-in.
 #![feature(panic_info_message)]
+// Checking the target ABI is still experimental
+// and subject to change.
+#![feature(cfg_target_abi)]
 
 //! # The `unCORE` Operating System Kernel
 //!

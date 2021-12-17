@@ -25,13 +25,13 @@
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
 
+// ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
+// ? ---------------------------------------------------------------------
+
 use kernel::library::{
 	self,
 	helper::log,
 };
-
-// ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
-// ? ---------------------------------------------------------------------
 
 #[no_mangle]
 pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !

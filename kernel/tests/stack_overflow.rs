@@ -15,15 +15,9 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
-// Use custom test runners. Since we cannot use the standard
-// library, we have to use our own test framework.
-#![feature(custom_test_frameworks)]
-// With our own test framework, we have to define which function
-// runs our tests.
-#![test_runner(library::test_runner)]
-// We will have to re-export the actual test runner above with
-// a new name so cargo is not confused.
-#![reexport_test_harness_main = "__test_runner"]
+// Since the `x86-interrupt` calling convention is still unstable, we
+// have to opt-in.
+#![feature(abi_x86_interrupt)]
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
@@ -33,23 +27,54 @@ use kernel::library::{
 	helper::log,
 };
 
+use x86_64::structures::idt::{
+	InterruptDescriptorTable,
+	InterruptStackFrame,
+};
+
+lazy_static::lazy_static! {
+    static ref TEST_IDT: InterruptDescriptorTable = {
+	let mut idt = InterruptDescriptorTable::new();
+
+	unsafe {
+	    idt.double_fault
+		.set_handler_fn(test_double_fault_handler)
+		.set_stack_index(0);
+	}
+
+	idt
+    };
+}
+
+pub extern "x86-interrupt" fn test_double_fault_handler(_: InterruptStackFrame, _: u64) -> !
+{
+	kernel::log_info!("Received double fault. SUCCESS.");
+	kernel::library::helper::qemu::exit_with_success();
+	library::never_return()
+}
+
 #[no_mangle]
 pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
 {
 	log::set_log_level(log::Level::Trace);
 	kernel::log!("Running an integration test.");
+
 	library::init(boot_information);
+	TEST_IDT.load();
+	kernel::log_info!("Initialized new (test) IDT.");
 
-	__test_runner();
+	stack_overflow();
 
-	library::never_return()
+	kernel::log_error!("Execution continued after kernel stack overflow");
+	panic!()
+}
+
+#[allow(unconditional_recursion)]
+fn stack_overflow()
+{
+	stack_overflow();
+	volatile::Volatile::new(0).read();
 }
 
 #[panic_handler]
 fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::panic_callback(false, panic_info) }
-
-#[test_case]
-fn test_println()
-{
-	kernel::log_info!("Test log output. Does not panic.");
-}

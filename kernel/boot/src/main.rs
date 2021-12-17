@@ -278,7 +278,7 @@ fn run_tests(bios_image: &path::Path)
 					other_exit_code
 				);
 
-				std::process::exit(other_exit_code)
+				std::process::exit(-1)
 			},
 			None => {
 				eprintln!("ERROR   | Tests failed. Exit code unknown.");
