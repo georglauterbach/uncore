@@ -31,10 +31,12 @@ pub use helper::test_runner;
 /// - calling the hardware initialization subroutine
 pub fn init(boot_information: &bootloader::BootInfo)
 {
+	helper::log::set_log_level(helper::log::Level::Trace);
 	helper::display_initial_information(boot_information);
-	crate::log_info!("Initialization started");
 
-	hardware::init();
+	crate::log_info!("Kernel initialization started");
 
-	crate::log_info!("Initialization finished");
+	hardware::init(boot_information);
+
+	crate::log_info!("Kernel initialization finished");
 }

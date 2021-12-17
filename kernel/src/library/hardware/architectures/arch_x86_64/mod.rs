@@ -16,6 +16,12 @@ mod general;
 /// interrupts arrive.
 mod interrupts;
 
+/// ## Virtual Memory Implementation
+///
+/// This module contains the virtual memory / paging abstractions for
+/// `x86_64`.
+pub mod memory;
+
 /// ### `x86_64` Setup
 ///
 /// The `x86_64`-specific setup is handled by this function.

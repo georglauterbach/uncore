@@ -45,11 +45,6 @@ function cleanup_documentation_files
     "${DOCUMENTATION_DIRECTORY}/site/assets/javascripts/lunr"
 }
 
-function build_container_image
-{
-  "${CRI}" build -t "${IMAGE_NAME}" "${DOCUMENTATION_DIRECTORY}"
-}
-
 function serve_documentation
 {
   notify 'inf' 'Serving on 127.0.0.1:8080'
@@ -64,6 +59,7 @@ function serve_documentation
       --dev-addr 0.0.0.0:8080
 }
 
+# gratefully copied and adjusted from docker-mailserver/docker-mailserver
 # CI ENV `GITHUB_REF` from Github Actions CI provides the tag or branch
 # that triggered the build. See `github.ref`:
 # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#github-context
