@@ -45,7 +45,7 @@ jobs:
         run: rustup component add rust-src llvm-tools-preview
 
       - name: Run `cargo check`
-        run: cargo check {{ env.BUILD_TARGET_PATH }} ${{ env.BUILD_FLAGS }}
+        run: cargo check ${{ env.BUILD_TARGET_PATH }} ${{ env.BUILD_FLAGS }}
 
       - name: Run `cargo fmt`
         run: cargo fmt --all --message-format human -- --check
