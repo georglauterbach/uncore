@@ -4,11 +4,16 @@ version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
+    target-branch: development
+    rebase-strategy: auto
     schedule:
       interval: weekly
     reviewers:
       - georglauterbach
+    assignees:
+      - georglauterbach
     labels:
       - area/ci
+      - kind/update
       - priority/low
       - meta/needs-triage

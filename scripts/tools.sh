@@ -9,12 +9,10 @@
 # shellcheck source=./lib/logs.sh
 . scripts/lib/logs.sh
 
-set +e
-
 export SCRIPT='tools'
 __BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
 
-TOOLCHAIN=${TOOLCHAIN:-$(tr -d '\n' < modules/rust-toolchain)}
+TOOLCHAIN=${TOOLCHAIN:-$(tr -d '\n' < kernel/rust-toolchain)}
 
 # -->                   -->                   --> START
 
@@ -50,7 +48,8 @@ function check_rust
     return 0
   else
     notify 'inf' "Installing additonal packages with 'cargo'"
-    cargo --quiet install cargo-xbuild bootimage just
+    cargo --quiet install cargo-xbuild bootimage
+    cargo --quiet install just --version 0.10.4
   fi
 
   notify 'suc' 'Your Rust installation is complete'

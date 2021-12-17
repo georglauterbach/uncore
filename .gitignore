@@ -15,7 +15,7 @@ documentation/site
 # ----  Rust  -----------------------------------
 # -----------------------------------------------
 
-modules/**/target/
+kernel/target/
 
-modules/**/Cargo.lock
-modules/**/*.rs.bk
+kernel/**/Cargo.lock
+kernel/**/*.rs.bk

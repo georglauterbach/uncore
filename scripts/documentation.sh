@@ -10,7 +10,7 @@ __BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
 IMAGE_NAME='uncore/documentation:latest'
 DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY:-$(realpath -e -L .)}/documentation"
 
-MKDOCS_MATERIAL_TAG='8.0.3'
+MKDOCS_MATERIAL_TAG='8.1.2'
 MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
 
 CRI='docker'
@@ -24,13 +24,12 @@ CRI='docker'
 
 function build_documentation
 {
-  "${CRI}" run \
-    --rm -it \
+
+  "${CRI}" run --rm \
+    --name "build-documentation" \
     --user "$(id -u):$(id -g)" \
     -v "${DOCUMENTATION_DIRECTORY}:/docs" \
-    "${MKDOCS_MATERIAL_IMAGE}" build \
-      --config-file config.yml \
-      --strict
+    "${MKDOCS_MATERIAL_IMAGE}" build  --config-file config.yml --strict
 }
 
 function cleanup_documentation_files

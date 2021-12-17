@@ -6,15 +6,22 @@
 set shell              := [ "bash", "-eu", "-o", "pipefail", "-c" ]
 set dotenv-load        := false
 
-export ROOT_DIRECTORY  := justfile_directory()
-export TOOLCHAIN       := `tr -d '\n' < modules/rust-toolchain`
-
-BUILD_TOOL             := "cargo"
 DATE                   := `date +'%Y-%m-%d'`
 GIT_REVISION_HEAD      := `git rev-parse --short HEAD`
-KERNEL_VERSION         := `grep -m 1 'version*' modules/kernel/Cargo.toml | cut -d '"' -f 2`
+KERNEL_VERSION         := `grep -m 1 'version*' kernel/Cargo.toml | cut -d '"' -f 2`
 
+export ROOT_DIRECTORY  := justfile_directory()
+export TOOLCHAIN       := `tr -d '\n' < kernel/rust-toolchain`
 export VERSION         := KERNEL_VERSION + ' (' + GIT_REVISION_HEAD + ' ' + DATE + ')'
+
+BUILD_TOOL             := 'cargo'
+BOOTIMAGE_BUILD_TARGET := `rustc -Vv | grep 'host:' | cut -d ' ' -f 2`
+KERNEL_BUILD_FLAGS_1   := ' -Z build-std=core,compiler_builtins,alloc'
+KERNEL_BUILD_FLAGS_2   := ' -Z build-std-features=compiler-builtins-mem'
+KERNEL_BUILD_FLAGS     := KERNEL_BUILD_FLAGS_1 + KERNEL_BUILD_FLAGS_2
+
+export KERNEL_BUILD_TARGET := `printf "${TARGET:-x86_64-unknown-none}"`
+KERNEL_BUILD_TARGET_PATH   := ROOT_DIRECTORY + '/kernel/targets/' + KERNEL_BUILD_TARGET + '.json'
 
 # show this help message
 help:
@@ -41,89 +48,93 @@ help:
 # ----  Build and Test  -------------------------
 # -----------------------------------------------
 
-# build all (or a dedicated) package members
-build package='""':
+# compile the kernel
+@build release='':
+    RELEASE="{{release}}" && \
+    just -- _build_kernel "${RELEASE:+--release}"
+
+# create a bootable image
+@build_image release='':
+    RELEASE="{{release}}" && \
+    just -- _use_bootimage "${RELEASE:+release}" --no-run
+
+# run the kernel in QEMU
+run: _use_bootimage
+
+# compile the kernel
+@_build_kernel release='':
+    cd {{ROOT_DIRECTORY}}/kernel/ &&     \
+    {{BUILD_TOOL}} build {{release}}     \
+        --target {{KERNEL_BUILD_TARGET_PATH}} \
+        {{KERNEL_BUILD_FLAGS}}
+
+# use the bootloader tool to build or run the kernel
+_use_bootimage release='' no_run='':
     #! /bin/bash
 
-    cd {{ROOT_DIRECTORY}}/modules/
-    if [[ -z {{package}} ]]
-    then
-        {{BUILD_TOOL}} build
-    else
-        {{BUILD_TOOL}} build --package {{package}}
-    fi
+    RELEASE="{{release}}"
 
-# build the kernel with optimizations
-release:
-    #! /bin/bash
+    just -- _build_kernel ${RELEASE:+--release} || exit ${?}
+    cd {{ROOT_DIRECTORY}}/kernel/
 
-    cd {{ROOT_DIRECTORY}}/modules
-    RUSTFLAGS="-C target-cpu=native" cargo build \
-        --package kernel                         \
-        --bin kernel                             \
-        --release
+    {{BUILD_TOOL}} run                      \
+        --package boot                      \
+        --target {{BOOTIMAGE_BUILD_TARGET}} \
+        ${RELEASE:+--release}               \
+        --                                  \
+        target/{{KERNEL_BUILD_TARGET}}/${RELEASE:-debug}/kernel {{no_run}}
 
-# clean output produced during building and tetsing
+# remove the kernel/target/ directory
 @clean:
-    cd {{ROOT_DIRECTORY}}/modules/ && {{BUILD_TOOL}} clean
+    cd {{ROOT_DIRECTORY}}/kernel/ && {{BUILD_TOOL}} clean
 
-# run all tests for all package members
-test package='""':
+# run tests workspace members
+test test='':
     #! /bin/bash
 
-    cd {{ROOT_DIRECTORY}}/modules/
-    if [[ {{package}} == 'kernel' ]]
+    cd {{ROOT_DIRECTORY}}/kernel/
+
+    # --tests runs all tests, i.e. the kernel library (`lib.rs`)
+    # effectivly running all unit-tests, the kernel main binary
+    # (`main.rs`) and all integration tests (under `tests/`)
+
+    if [[ -z "{{test}}" ]]
     then
-        cd {{ROOT_DIRECTORY}}/modules/kernel/
-        {{BUILD_TOOL}} test --bin kernel
-        {{BUILD_TOOL}} test --lib
-        {{BUILD_TOOL}} test --test '*'
-    elif [[ -n {{package}} ]]
-    then
-        cd {{package}}
-        {{BUILD_TOOL}} check --package {{package}}
-        {{BUILD_TOOL}} test --package {{package}}
+        {{BUILD_TOOL}} test --tests               \
+            --target {{KERNEL_BUILD_TARGET_PATH}} \
+            {{KERNEL_BUILD_FLAGS}}
     else
-        {{BUILD_TOOL}} check
-        {{BUILD_TOOL}} test
+        {{BUILD_TOOL}} test --test {{test}}       \
+            --target {{KERNEL_BUILD_TARGET_PATH}} \
+            {{KERNEL_BUILD_FLAGS}}
     fi
 
-# create the complete QEMU boot image
-@bootimage:
-    cd {{ROOT_DIRECTORY}}/modules/kernel/ && {{BUILD_TOOL}} bootimage
+    printf '\nTests passed.\n'
 
 # -----------------------------------------------
 # ----  Format and Lint  ------------------------
 # -----------------------------------------------
 
-# format all package members
-format package='""':
+# format the Rust code with rustfmt
+@format:
+    cd {{ROOT_DIRECTORY}}/kernel/ \
+        && {{BUILD_TOOL}} fmt --message-format human
+
+alias fmt := format
+
+# lint against rustfmt and Clippy
+check:
     #! /bin/bash
 
-    cd {{ROOT_DIRECTORY}}/modules/
-    if [[ -z {{package}} ]]
-    then
-        {{BUILD_TOOL}} fmt --message-format human
-    else
-        {{BUILD_TOOL}} fmt --message-format human --package {{package}}
-    fi
+    cd {{ROOT_DIRECTORY}}/kernel/
 
-# lint against rustfmt and Clippy everwhere
-check-format package='""':
-    #! /bin/bash
+    {{BUILD_TOOL}} check                      \
+        --target {{KERNEL_BUILD_TARGET_PATH}} \
+        {{KERNEL_BUILD_FLAGS}}
 
-    cd {{ROOT_DIRECTORY}}/modules/
-    if [[ -z {{package}} ]]
-    then
-        {{BUILD_TOOL}} fmt --all --message-format human -- --check
-        {{BUILD_TOOL}} clippy \
-            --all-targets --all-features -- -D warnings
-    else
-        {{BUILD_TOOL}} fmt --all --package {{package}} \
-            --message-format human -- --check
-        {{BUILD_TOOL}} clippy --package {{package}} \
-            --all-targets --all-features -- -D warnings
-    fi
+    {{BUILD_TOOL}} fmt --all --message-format human -- --check
+    {{BUILD_TOOL}} clippy --lib --all-features -- -D warnings
+    {{BUILD_TOOL}} clippy --package boot --all-features -- -D warnings
 
 # lint against EditorConfig, ShellCheck and YAMLLint
 @lint:

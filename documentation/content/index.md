@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs-getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs-development]. The [Modules][docs-modules] section contains all the information about the kernel modules in _unCORE_. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
+Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs-getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs-development]. The [Building][docs-building] site contains information on how to build and run (with QEMU) the kernel. The [Structure][docs-structure] section contains all the information about the kernel's internal structure and composition. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
 
 !!! check "Code of Conduct and Contributing Guidelines"
     By working on this projects and with other participants, you agree to the **code of conduct** and the **contributing guidelines** set by this project.
@@ -31,6 +31,10 @@ The script will also check whether you have [Docker] or [Podman] installed. Thes
 
 If you're on Windows or macOS, you will need to install these tools yourself.
 
+## Vision
+
+_unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in _UNIX_ / _GNU-Linux_. But, we acknowledge that modern software development is heavily benefitting of CI pipelines, GIT platforms (such as _GitHub_) and collaboration in the form of issues, pull requests, projects and other actions. While we know that mailing lists work, we belief that modern software development can do better. One aspect we heavily focus on is code quality (in the same way that _Linus Torvalds_ has ensured the code quality in the _Linux_ kernel). We are using  automated CI to achieve this goal too. You will, when you start out, notice that CI is very restrictive. This may get on your nerves, but ensures all code in this project is as clean as possible. The motto here is: **We either do it right or not at all**. Please also read the [conventions set in this project](development.md#miscellaneous) to ensure you're up-to-date when it comes to writing real code.
+
 ## Goals
 
 _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and fast. The main goals are
@@ -44,11 +48,9 @@ _unCORE_ has set itself some more goals, of course:
 2. Correctness - _unCORE_ has high test standards, see [the documentation and testing advise](./development.md#code-documentation-testing).
 3. Simplicity - We want to make use of [Rust]'s high level of abstraction to write clean and concise code.
 
-## Vision
-
-_unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in UNIX / GNU-Linux.
-
 ## Architecture
+
+_unCORE_ is neither a microkernel -- in the sense that there is no policy in the kernel -- not a complete monolithic kernel. This has several reasons: Firstly, we think that some of the ideas of microkernels are worthwhile using, such as concepts like POLA (Principle of Least Authority). On the other hand, there is currently not enough development power to make _unCORE_ a monolithic kernel.
 
 _unCORE_ aspires to be cleanly separated into **loosely coupled modules with high cohesion**. Loose coupling ensures that it is possible to change modules themselves or for one another without major code changes in other modules. High cohesion ensures that a single module does not integrate functionality that does fall under the area of responsibility of another modules.
 
@@ -98,7 +100,8 @@ This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-o
 
 [docs-getting-started]: #getting-started
 [docs-development]: ./development.md
-[docs-modules]: ./modules/modules.md
+[docs-building]: ./building.md
+[docs-structure]: ./kernel_structure.md
 
 [operating system]: https://en.wikipedia.org/wiki/Operating_system
 [kernel]: https://en.wikipedia.org/wiki/Kernel_(operating_system)

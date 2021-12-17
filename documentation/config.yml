@@ -16,15 +16,18 @@ docs_dir: content/
 nav:
   - Home: index.md
   - Development: development.md
-  - Modules:
-      - Overview: modules/modules.md
+  - Building: building.md
+  - Kernel Structure:
+      - Overview: kernel_structure.md
       - System Call Interface: modules/syscalls.md
       - Kernel: modules/kernel.md
+      - Helper: modules/helper.md
       - Communication: modules/communication.md
       - Memory: modules/memory.md
       - Processes: modules/processes.md
       - Scheduling: modules/scheduling.md
       - Hardware Abstraction Layer: modules/hardware.md
+  - Testing: testing.md
 
 theme:
   name: material
@@ -74,6 +77,7 @@ extra:
   # however we have a basic setup that only matches `version` to a subdirectory.
   version:
     provider: mike
+    default: edge
 
 markdown_extensions:
   - abbr
