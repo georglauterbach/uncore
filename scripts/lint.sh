@@ -17,8 +17,8 @@ function lint_shellcheck
 {  
   local TAG IMAGE FILES ARGUMENTS
 
-  TAG=0.8.0
-  IMAGE=docker.io/koalaman/shellcheck:v${TAG}
+  TAG='0.8.0'
+  IMAGE="docker.io/koalaman/shellcheck:v${TAG}"
   readarray -d '' FILES < <(find . -type f -iname "*.sh" -print0)
 
   ARGUMENTS=(
@@ -60,7 +60,7 @@ function lint_github_super_linter
 
   TAG='slim-v4.8.4'
   # TAG='slim-latest'
-  IMAGE="github/super-linter:${TAG}"
+  IMAGE="ghcr.io/github/super-linter:${TAG}"
 
   notify 'inf' "Running GitHub Super Linter (${TAG})"
 
