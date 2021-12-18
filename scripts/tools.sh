@@ -4,10 +4,8 @@
 # executed by   just or manually
 # task          installs needed dependencies
 
-# shellcheck source=./lib/errors.sh
-. scripts/lib/errors.sh
-# shellcheck source=./lib/logs.sh
-. scripts/lib/logs.sh
+source scripts/lib/errors.sh
+source scripts/lib/logs.sh
 
 export SCRIPT='tools'
 __BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}

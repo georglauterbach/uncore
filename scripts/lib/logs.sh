@@ -1,8 +1,6 @@
-#! /bin/sh
+#! /bin/bash
 
-# shellcheck disable=SC2292
-
-# version       0.3.1-stable
+# version       0.4.0
 # sourced by    shell scripts under scripts/
 # task          provides logging functionality
 
@@ -20,39 +18,39 @@
 # where a higher level includes the level below.
 __BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-warning}
 
-notify()
+function notify
 {
-  __log_trace()
+  function __log_trace
   {
     printf "%-12s \e[94mTRACE\e[0m   %s\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
-  __log_info()
+  function __log_info
   {
     printf "%-12s \e[34mINFO   \e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
-  __log_success()
+  function __log_success
   {
     printf "%-12s \e[32mSUCCESS\e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
-  __log_warning()
+  function __log_warning
   {
     printf "%-12s \e[93mWARNING\e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
-  __log_error()
+  function __log_error
   {
     printf "%-12s \e[91mERROR  \e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}" >&2
   }
 
-  __log_abort()
+  function __log_abort
   {
     printf "%-12s \e[31mABORT  \e[0m %s\n" \
       "${SCRIPT:-${0}}" "${*}" >&2
@@ -69,25 +67,25 @@ notify()
 
   case "${1:-}" in
     ( 'tra' )
-      [ "${LOG_LEVEL}" -lt 3 ] && return 0
+      [[ "${LOG_LEVEL}" -lt 3 ]] && return 0
       shift
       __log_trace "${*}"
       ;;
 
     ( 'inf' )
-      [ "${LOG_LEVEL}" -lt 2 ] && return 0
+      [[ "${LOG_LEVEL}" -lt 2 ]] && return 0
       shift
       __log_info "${*}"
       ;;
 
     ( 'suc' )
-      [ "${LOG_LEVEL}" -lt 2 ] && return 0
+      [[ "${LOG_LEVEL}" -lt 2 ]] && return 0
       shift
       __log_success "${*}"
       ;;
 
     ( 'war' )
-      [ "${LOG_LEVEL}" -lt 1 ] && return 0
+      [[ "${LOG_LEVEL}" -lt 1 ]] && return 0
       shift
       __log_warning "${*}"
       ;;
@@ -96,7 +94,7 @@ notify()
     ( 'abo' ) shift ; __log_abort "${*}" ;;
 
     ( * )
-      [ "${LOG_LEVEL}" -lt 1 ] && return 0
+      [[ "${LOG_LEVEL}" -lt 1 ]] && return 0
       shift
       __log_error "${*}"
       ;;

@@ -136,11 +136,9 @@ check:
     {{BUILD_TOOL}} clippy --lib --all-features -- -D warnings
     {{BUILD_TOOL}} clippy --package boot --all-features -- -D warnings
 
-# lint against EditorConfig, ShellCheck and YAMLLint
+# generically lint the whole code base
 @lint:
-    - bash {{ROOT_DIRECTORY}}/scripts/lint/editorconfig.sh
-    - bash {{ROOT_DIRECTORY}}/scripts/lint/shellcheck.sh
-    - bash {{ROOT_DIRECTORY}}/scripts/lint/yamllint.sh
+    - bash {{ROOT_DIRECTORY}}/scripts/lint.sh
 
 # -----------------------------------------------
 # ----  Documentation  --------------------------

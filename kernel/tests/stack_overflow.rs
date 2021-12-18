@@ -33,17 +33,17 @@ use x86_64::structures::idt::{
 };
 
 lazy_static::lazy_static! {
-    static ref TEST_IDT: InterruptDescriptorTable = {
-	let mut idt = InterruptDescriptorTable::new();
+	static ref TEST_IDT: InterruptDescriptorTable = {
+		let mut idt = InterruptDescriptorTable::new();
 
-	unsafe {
-	    idt.double_fault
-		.set_handler_fn(test_double_fault_handler)
-		.set_stack_index(0);
-	}
+		unsafe {
+			idt.double_fault
+				.set_handler_fn(test_double_fault_handler)
+				.set_stack_index(0);
+		}
 
-	idt
-    };
+		idt
+	};
 }
 
 pub extern "x86-interrupt" fn test_double_fault_handler(_: InterruptStackFrame, _: u64) -> !

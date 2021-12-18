@@ -2,12 +2,14 @@
 
 use x86_64::{
 	structures::paging::{
-		PageTable,
+		// PageTable,
 		OffsetPageTable,
-		Translate,
+		// Translate,
 		FrameAllocator,
 		Size4KiB,
-		PhysFrame, Mapper, Page,
+		PhysFrame,
+		Mapper,
+		Page,
 	},
 	PhysAddr,
 	VirtAddr,
@@ -63,7 +65,7 @@ unsafe fn create_offset_page_table(
 
 // https://os.phil-opp.com/paging-implementation/#creating-a-new-mapping
 
-pub fn create_example_mapping(
+pub fn _create_example_mapping(
 	page: Page,
 	mapper: &mut OffsetPageTable,
 	frame_allocator: &mut impl FrameAllocator<Size4KiB>,
