@@ -28,6 +28,7 @@ pub fn test_runner(tests: &[&dyn Testable])
 		test.run();
 	}
 
+	crate::log_test!("Last test finished. SUCCESS.");
 	super::miscellaneous::qemu::exit_with_success();
 }
 
@@ -54,7 +55,7 @@ where
 	{
 		crate::log_test!("Testing {}", ::core::any::type_name::<Self>());
 		self();
-		crate::log_test!("Last test finished. SUCCESS.");
+		crate::log_test!("Most recent test PASSED");
 	}
 }
 

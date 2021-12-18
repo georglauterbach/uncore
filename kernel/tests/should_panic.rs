@@ -36,7 +36,7 @@ use kernel::library::{
 #[no_mangle]
 pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	log::set_log_level(log::Level::Trace);
+	log::set_log_level(log::Level::Info);
 	kernel::log!("Running an integration test.");
 	library::init(boot_information);
 

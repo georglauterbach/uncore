@@ -265,30 +265,38 @@ fn run_tests(bios_image: &path::Path)
 		.arg(format!("format=raw,file={}", bios_image.display()))
 		.args(QEMU_ARGUMENTS);
 
-	if let Ok(exit_code) =
-		runner_utils::run_with_timeout(&mut run_command, Duration::from_secs(TIMEOUT))
-	{
-		match exit_code.code() {
-			// we specifically configured QEMU to
-			// exit with exit code 33 on success
-			Some(33) => {},
-			Some(other_exit_code) => {
-				eprintln!(
-					"ERROR   | Tests failed. Exit code was {}.",
-					other_exit_code
-				);
+	match runner_utils::run_with_timeout(&mut run_command, Duration::from_secs(TIMEOUT)) {
+		Ok(exit_code) => {
+			match exit_code.code() {
+				// we specifically configured QEMU to
+				// exit with exit code 33 on success
+				Some(33) => {},
+				Some(other_exit_code) => {
+					eprintln!(
+						"\nERROR   | Tests failed. Exit code was {}.",
+						other_exit_code
+					);
 
-				std::process::exit(-1)
-			},
-			None => {
-				eprintln!("ERROR   | Tests failed. Exit code unknown.");
-				std::process::exit(-42)
-			},
-		}
-	} else {
-		eprintln!("Could not run tests with QEMU in the first place.");
-		std::process::exit(-42)
-	};
+					std::process::exit(-1)
+				},
+				None => {
+					eprintln!("\nERROR   | Tests failed. Exit code unknown.");
+					std::process::exit(-42)
+				},
+			}
+		},
+		Err(runner_utils::RunError::TimedOut) => {
+			eprintln!("\nERROR   | Test timed out.");
+			std::process::exit(-42)
+		},
+		Err(runner_utils::RunError::Io { context, error }) => {
+			eprintln!(
+				"\nERROR   | I/O error occurred. (context = {:?}, error = {:?}",
+				context, error
+			);
+			std::process::exit(-42)
+		},
+	}
 }
 
 /// ### Print Abort Message and Exot

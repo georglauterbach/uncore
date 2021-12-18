@@ -15,6 +15,10 @@ use x86_64::{
 	VirtAddr,
 };
 
+/// ### Initialize Memory for `x86_64`
+///
+/// This function initialized the memory for the `x86_64` target
+/// platform.
 pub fn init(boot_information: &bootloader::BootInfo)
 {
 	let _offset_page_table = unsafe { create_offset_page_table(boot_information) };
@@ -37,14 +41,18 @@ unsafe fn create_offset_page_table(
 	boot_information: &bootloader::BootInfo,
 ) -> OffsetPageTable<'static>
 {
-	let physical_memory_mapping_offset = if let Some(offset) =
-		boot_information.physical_memory_offset.into_option()
-	{
-		VirtAddr::new(offset)
-	} else {
-		crate::log_warning!("Physical memory offset is non-existent (defaulting to 0)");
-		VirtAddr::new(0)
-	};
+	let physical_memory_mapping_offset = boot_information
+		.physical_memory_offset
+		.into_option()
+		.map_or_else(
+			|| {
+				crate::log_warning!(
+					"Physical memory offset is non-existent (defaulting to 0)"
+				);
+				VirtAddr::new(0)
+			},
+			VirtAddr::new,
+		);
 
 	let (level_4_page_table_frame, _) = x86_64::registers::control::Cr3::read();
 	let level_4_page_table_frame_physical_address = level_4_page_table_frame.start_address();
@@ -63,8 +71,11 @@ unsafe fn create_offset_page_table(
 
 // ! ---------------------------------------------------------------------
 
+// TODO
+
 // https://os.phil-opp.com/paging-implementation/#creating-a-new-mapping
 
+/// Just some doc
 pub fn _create_example_mapping(
 	page: Page,
 	mapper: &mut OffsetPageTable,

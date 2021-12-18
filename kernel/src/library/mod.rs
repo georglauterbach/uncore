@@ -23,6 +23,12 @@ pub use helper::never_return;
 pub use helper::panic_callback;
 pub use helper::test_runner;
 
+/// ## Virtual Memory Implementation
+///
+/// Generic virtual memory implementation that bases upon the
+/// architecture-specific implementation.
+mod memory;
+
 /// ### Global Initialization
 ///
 /// This function initializes the whole kernel. It takes care of
@@ -36,7 +42,8 @@ pub fn init(boot_information: &'static bootloader::BootInfo)
 
 	crate::log_info!("Kernel initialization started");
 
-	hardware::init(boot_information);
+	hardware::init();
+	memory::init(boot_information);
 
 	crate::log_info!("Kernel initialization finished");
 }

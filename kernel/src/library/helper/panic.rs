@@ -45,7 +45,10 @@ fn __should_panic(_panic_info: &PanicInfo) -> !
 {
 	crate::log_test!("Received panic. SUCCESS.");
 
-	#[cfg(target_abi = "none")]
+	// just write the success code for QEMU
+	// when we are actually using QEMU
+	#[cfg(target_abi = "")]
+	#[cfg(target_os = "none")]
 	super::miscellaneous::qemu::exit_with_success();
 	super::miscellaneous::never_return()
 }

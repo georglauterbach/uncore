@@ -109,7 +109,7 @@ test test='':
             {{KERNEL_BUILD_FLAGS}}
     fi
 
-    printf '\nTests passed.\n'
+    printf '\nINFO    | Tests passed.\n'
 
 # -----------------------------------------------
 # ----  Format and Lint  ------------------------
