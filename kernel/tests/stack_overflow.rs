@@ -24,7 +24,7 @@
 
 use kernel::library::{
 	self,
-	helper::log,
+	log,
 };
 
 use x86_64::structures::idt::{
@@ -49,17 +49,16 @@ lazy_static::lazy_static! {
 pub extern "x86-interrupt" fn test_double_fault_handler(_: InterruptStackFrame, _: u64) -> !
 {
 	kernel::log_info!("Received double fault. SUCCESS.");
-	kernel::library::helper::qemu::exit_with_success();
-	library::never_return()
+	library::miscellaneous::qemu::exit_with_success();
+	library::miscellaneous::never_return()
 }
 
 #[no_mangle]
 pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
 {
 	log::set_log_level(log::Level::Trace);
-	kernel::log!("Running an integration test.");
+	library::test::main(&boot_information.into());
 
-	library::init(boot_information);
 	TEST_IDT.load();
 	kernel::log_info!("Initialized new (test) IDT.");
 

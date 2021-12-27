@@ -46,7 +46,7 @@ function check_rust
     return 0
   else
     notify 'inf' "Installing additonal packages with 'cargo'"
-    cargo --quiet install cargo-xbuild bootimage
+    cargo --quiet install cargo-xbuild
     cargo --quiet install just --version 0.10.4
   fi
 

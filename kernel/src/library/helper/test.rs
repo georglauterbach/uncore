@@ -12,26 +12,6 @@ pub const IS_TEST: bool = true;
 #[cfg(not(test))]
 pub const IS_TEST: bool = false;
 
-/// ### A (Very) Simple Test Runner Implementation
-///
-/// This function is registered as the tests runner when executing
-/// Cargo test's unit tests.
-///
-/// It will just execute all functions marked with `#[test_case]` one
-/// by one.
-#[allow(clippy::module_name_repetitions)]
-pub fn test_runner(tests: &[&dyn Testable])
-{
-	crate::log_test!("Starting tests");
-
-	for test in tests {
-		test.run();
-	}
-
-	crate::log_test!("Last test finished. SUCCESS.");
-	super::miscellaneous::qemu::exit_with_success();
-}
-
 /// ### Streamlining Testing
 ///
 /// This trait provides the tests runner with the ability to `.run`
@@ -57,6 +37,59 @@ where
 		self();
 		crate::log_test!("Most recent test PASSED");
 	}
+}
+
+/// ### A (Very) Simple Test Runner Implementation
+///
+/// This function is registered as the tests runner when executing
+/// Cargo test's unit tests.
+///
+/// It will just execute all functions marked with `#[test_case]` one
+/// by one.
+#[allow(clippy::module_name_repetitions)]
+pub fn runner(tests: &[&dyn Testable])
+{
+	crate::log_test!("Starting tests");
+
+	for test in tests {
+		test.run();
+	}
+
+	crate::log_test!("Last test finished. SUCCESS.");
+	super::miscellaneous::qemu::exit_with_success();
+}
+
+/// ### Kernel `main()` Function
+///
+/// This function is the architecture independent entrypoint for the
+/// kernel.
+///
+/// This function initializes the whole kernel. It takes care of
+///
+/// - printing important initial information
+/// - calling the hardware initialization subroutine
+pub fn main(boot_information: &super::BootInformation)
+{
+	use super::{
+		miscellaneous,
+		super::{
+			hardware,
+			log,
+			memory,
+		},
+	};
+
+	log::set_log_level(log::Level::Trace);
+	crate::log!("Running an integration test.");
+
+	miscellaneous::display_initial_information(boot_information);
+
+	crate::log_info!("Kernel initialization for tests started");
+
+	hardware::init();
+	memory::init(boot_information);
+
+	crate::log_info!("Kernel initialization for tests finished");
 }
 
 /// ### Sanity Check

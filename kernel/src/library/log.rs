@@ -86,8 +86,8 @@ pub fn __log(log_level: Level, arguments: fmt::Arguments)
 #[macro_export]
 macro_rules! log {
 	($($arg:tt)*) => {
-		$crate::library::helper::log::__log(
-			$crate::library::helper::log::Level::None,
+		$crate::library::log::__log(
+			$crate::library::log::Level::None,
 			format_args!($($arg)*)
 		)
 	};
@@ -99,8 +99,8 @@ macro_rules! log {
 #[macro_export]
 macro_rules! log_trace {
 	($($arg:tt)*) => {
-		$crate::library::helper::log::__log(
-			$crate::library::helper::log::Level::Trace,
+		$crate::library::log::__log(
+			$crate::library::log::Level::Trace,
 			format_args!($($arg)*)
 		)
 	};
@@ -112,8 +112,8 @@ macro_rules! log_trace {
 #[macro_export]
 macro_rules! log_debug {
 	($($arg:tt)*) => {
-		$crate::library::helper::log::__log(
-			$crate::library::helper::log::Level::Debug,
+		$crate::library::log::__log(
+			$crate::library::log::Level::Debug,
 			format_args!($($arg)*)
 		)
 	};
@@ -125,8 +125,8 @@ macro_rules! log_debug {
 #[macro_export]
 macro_rules! log_info {
 	($($arg:tt)*) => {
-		$crate::library::helper::log::__log(
-			$crate::library::helper::log::Level::Info,
+		$crate::library::log::__log(
+			$crate::library::log::Level::Info,
 			format_args!($($arg)*)
 		)
 	};
@@ -139,8 +139,8 @@ macro_rules! log_info {
 #[macro_export]
 macro_rules! log_warning {
 	($($arg:tt)*) => {
-		$crate::library::helper::log::__log(
-			$crate::library::helper::log::Level::Warning,
+		$crate::library::log::__log(
+			$crate::library::log::Level::Warning,
 			format_args!($($arg)*)
 		)
 	};
@@ -153,8 +153,8 @@ macro_rules! log_warning {
 #[macro_export]
 macro_rules! log_error {
 	($($arg:tt)*) => {
-		$crate::library::helper::log::__log(
-			$crate::library::helper::log::Level::Error,
+		$crate::library::log::__log(
+			$crate::library::log::Level::Error,
 			format_args!($($arg)*)
 		)
 	};
@@ -167,8 +167,8 @@ macro_rules! log_error {
 #[macro_export]
 macro_rules! log_fatal {
 	($($arg:tt)*) => {
-		$crate::library::helper::log::__log(
-			$crate::library::helper::log::Level::Fatal,
+		$crate::library::log::__log(
+			$crate::library::log::Level::Fatal,
 			format_args!($($arg)*)
 		)
 	};
@@ -180,8 +180,8 @@ macro_rules! log_fatal {
 #[macro_export]
 macro_rules! log_test {
 	($($arg:tt)*) => {
-		$crate::library::helper::log::__log(
-			$crate::library::helper::log::Level::Test,
+		$crate::library::log::__log(
+			$crate::library::log::Level::Test,
 			format_args!($($arg)*)
 		)
 	};

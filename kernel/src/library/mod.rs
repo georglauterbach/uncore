@@ -17,33 +17,23 @@ mod hardware;
 ///
 /// It also provides the test runners and the kernel version
 /// information.
-pub mod helper;
+mod helper;
 
-pub use helper::never_return;
+pub use helper::miscellaneous;
+pub use helper::test;
+
+pub use helper::main;
 pub use helper::panic_callback;
-pub use helper::test_runner;
+
+pub use helper::BootInformation;
+
+/// ## Uniform Logging
+///
+/// This module exports the `log_!` macros with different log levels.
+pub mod log;
 
 /// ## Virtual Memory Implementation
 ///
 /// Generic virtual memory implementation that bases upon the
 /// architecture-specific implementation.
 mod memory;
-
-/// ### Global Initialization
-///
-/// This function initializes the whole kernel. It takes care of
-///
-/// - printing important initial information
-/// - calling the hardware initialization subroutine
-pub fn init(boot_information: &'static bootloader::BootInfo)
-{
-	helper::log::set_log_level(helper::log::Level::Trace);
-	helper::display_initial_information(boot_information);
-
-	crate::log_info!("Kernel initialization started");
-
-	hardware::init();
-	memory::init(boot_information);
-
-	crate::log_info!("Kernel initialization finished");
-}

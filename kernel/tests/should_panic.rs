@@ -20,7 +20,7 @@
 #![feature(custom_test_frameworks)]
 // With our own test framework, we have to define which function
 // runs our tests.
-#![test_runner(library::test_runner)]
+#![test_runner(library::test::runner)]
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
@@ -30,22 +30,21 @@
 
 use kernel::library::{
 	self,
-	helper::log,
+	log,
 };
 
 #[no_mangle]
 pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
 {
 	log::set_log_level(log::Level::Info);
-	kernel::log!("Running an integration test.");
-	library::init(boot_information);
+	library::test::main(&boot_information.into());
 
 	__test_runner();
 
 	kernel::log_error!("Test did not panic but was expected to. FAILURE.");
-	kernel::library::helper::qemu::exit_with_failure();
+	library::miscellaneous::qemu::exit_with_failure();
 
-	library::never_return()
+	library::miscellaneous::never_return()
 }
 
 #[test_case]

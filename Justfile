@@ -48,6 +48,10 @@ help:
 # ----  Build and Test  -------------------------
 # -----------------------------------------------
 
+# set the correct Rust toolchain
+@set_toolchain:
+    rustup override set {{TOOLCHAIN}}
+
 # compile the kernel
 @build release='':
     RELEASE="{{release}}" && \
@@ -96,7 +100,8 @@ test test='':
 
     # --tests runs all tests, i.e. the kernel library (`lib.rs`)
     # effectivly running all unit-tests, the kernel main binary
-    # (`main.rs`) and all integration tests (under `tests/`)
+    # (`main.rs`) effectively running zero unit tests and all
+    # integration tests (under `tests/`)
 
     if [[ -z "{{test}}" ]]
     then
@@ -147,3 +152,5 @@ check:
 # build or serve the documentation
 @docs action='':
     bash {{ROOT_DIRECTORY}}/scripts/documentation.sh {{action}}
+
+alias doc := docs

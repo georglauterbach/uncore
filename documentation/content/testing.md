@@ -22,7 +22,29 @@ _unCORE_ provides unit- and integration-tests. All unit-test are located "inside
 
 ## Unit Tests
 
+All unit tests for the kernel are associated with `lib.rs` and not with `main.rs`. Therefore, zero tests run when testing `main.rs`. `main.rs` is tested because it is easier to just use `cargo test --tests` to run all tests instead of running each tests individually.
+
+Unit tests run via the `#!rust #[test_case]` directive above the test:
+
+``` RUST
+/// ### Sanity Check
+///
+/// This tests is just here for sanity's sake to make
+/// sure tests behave correctly at the most basic level.
+#[test_case]
+fn trivial_assertion()
+{
+        const ONE: u8 = 1;
+        assert_eq!(1, ONE);
+        assert_eq!(ONE, 1);
+}
+```
+
+A simple test runner implementation (remember, we are in a `#!rust #[no_std]` environment), will just execute all tests one after another.
+
 ## Integration Tests
+
+Integration tests reside under `kernel/tests/`.
 
 ## Running Tests
 

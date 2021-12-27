@@ -18,14 +18,14 @@ Please read the full [`README`](https://github.com/georglauterbach/uncore/blob/m
 
 ### Tooling
 
-You may execute the `tools.sh` scripts if you're on Linux. This script can be invoked by running `./scripts/tools.sh` from the repository root. It will install
+You may execute the `tools.sh` scripts if you're on Linux. This script is invoked by running `./scripts/tools.sh` from the repository root. It will install
 
-1. A complete [Rust] installation including
+1. a complete [Rust] installation including
     - [`rustup`](https://rustup.rs/) - the [Rust] toolchain installer
     - [`rustc`](https://doc.rust-lang.org/rustc/what-is-rustc.html) - the [Rust] compiler
     - [`cargo`](https://doc.rust-lang.org/cargo/) - the [Rust] package manager
-2. [`bootimage`](https://github.com/rust-osdev/bootimage), a binary installed via [`cargo`](https://doc.rust-lang.org/cargo/) to work easily with [QEMU]
-3. [`just`](https://github.com/casey/just), a command runner installed via [`cargo`](https://doc.rust-lang.org/cargo/) as well
+2. the [Rust] components `rust-src` and `llvm-tools-preview` via [`rustup`](https://rustup.rs/)
+3. additional packages like [`just`](https://github.com/casey/just), a command runner, and `cargo-xbuild`, via [`cargo`](https://doc.rust-lang.org/cargo/)
 
 The script will also check whether you have [Docker] or [Podman] installed. These tools are needed to lint the code and to work the rendered version of the documentation. The script will _not_ install the container runtimes for you. Also, make sure you have [QEMU] for your OS installed.
 

@@ -1,17 +1,19 @@
-/// ## Uniform Logging
+/// ## Generic Bootloader Information
 ///
-/// This module exports the `log_!` macros with different log levels.
-pub mod log;
+/// This module contains the (architecture independent) information
+/// about the boot process and memory layout.
+mod boot;
+
+pub use boot::BootInformation;
 
 /// ## Miscellaneous Helpers
 ///
 /// Provides various of the most generic helper functions, such as
 /// `never_return()`.
-mod miscellaneous;
+pub mod miscellaneous;
 
-pub(super) use miscellaneous::display_initial_information;
+pub use miscellaneous::main;
 pub use miscellaneous::never_return;
-pub use miscellaneous::qemu;
 
 /// ## Provides the API for Panicking
 ///
@@ -25,5 +27,4 @@ pub use panic::panic_callback;
 ///
 /// This module provides the implementation to run tests. This
 /// includes unit-tests as well as integration tests.
-mod test;
-pub use test::test_runner;
+pub mod test;

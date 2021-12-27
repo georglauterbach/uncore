@@ -31,7 +31,7 @@
 #![feature(custom_test_frameworks)]
 // With our own test framework, we have to define which function
 // runs our tests.
-#![test_runner(library::test_runner)]
+#![test_runner(kernel::library::test::runner)]
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
@@ -47,7 +47,7 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-/// # Imports
+/// ### Imports
 ///
 /// The `kernel::library` is used here explicitly with the `use`
 /// statement, and not with the `mod` statement. As `kernel::library`
@@ -68,20 +68,29 @@
 /// or `lib::` or something else.
 use kernel::library;
 
-/// # Kernel Binary Entrypoint
+/// ### Kernel Binary Entrypoint for `x86_64`
 ///
 /// This is the kernel's entry point called after the bootloader has
 /// finished its setup. It is kept short on purpose. The
 /// `library::init()` function takes care of initialization.
+#[cfg(target_arch = "x86_64")]
 #[no_mangle]
 pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	library::init(boot_information);
-
+	// Since for main.rs, there are no unit tests (because they are all
+	// associated with `lib.rs` because `lib.rs` uses the `library` with
+	// `mod library` and not with `use library` as `main.rs` does), it is
+	// fine to run zero tests here effectively and exit. This way, we can
+	// run tests with `cargo test --tests` to run all tests instead of
+	// providing every tests on its own, even if this means that we run
+	// `main.rs` with zero unit tests.
+	//
+	// When this run, the `library::main()` function does not run and vice
+	// versa.
 	#[cfg(test)]
 	__test_runner();
 
-	library::never_return()
+	library::main(&boot_information.into())
 }
 
 /// ### Default Panic Handler

@@ -31,7 +31,7 @@
 #![feature(custom_test_frameworks)]
 // With our own test framework, we have to define which function
 // runs our tests.
-#![test_runner(crate::library::test_runner)]
+#![test_runner(crate::library::test::runner)]
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
@@ -55,7 +55,7 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-/// # The Core Library Path
+/// ### The Core Library Path
 ///
 /// This module has been created to give the kernel source code a
 /// well-defined structure and layout. The `library` module is used as
@@ -63,18 +63,17 @@
 /// is important, and we are not allowed to mix them up.
 pub mod library;
 
-/// # Kernel Library Testing Entrypoint
+/// ### Kernel Library Testing Entrypoint
 ///
 /// This is the kernel's entry point called after the bootloader has
 /// finished its setup. It is kept short on purpose. The
-/// `library::init()` function takes care of initialization.
-#[cfg(test)]
+/// `library::init()` function takes care of initialization. This
+/// function is effectively run only during unit tests.
+#[cfg(target_arch = "x86_64")]
 #[no_mangle]
 pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	library::init(boot_information);
-	__test_runner();
-	library::never_return()
+	library::main(&boot_information.into())
 }
 
 /// ### Default Panic Handler

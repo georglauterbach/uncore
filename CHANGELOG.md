@@ -6,6 +6,7 @@
 
 - (WIP) paging and virtual memory
 - major linting enhancements
+- refactored boot information handling
 
 #### v0.3.0
 
