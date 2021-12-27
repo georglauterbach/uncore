@@ -6,5 +6,5 @@
 *.tom       text       diff=toml
 Cargo.lock  text
 
-*.png		    -text
-*.ico		    -text
+*.png       -text
+*.ico       -text
