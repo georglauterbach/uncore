@@ -20,7 +20,7 @@
 #![feature(custom_test_frameworks)]
 // With our own test framework, we have to define which function
 // runs our tests.
-#![test_runner(library::test::runner)]
+#![test_runner(test::runner)]
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
@@ -28,24 +28,22 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::library::{
-	self,
-	log,
-};
+use kernel::prelude::*;
+
+use bootloader as x86_64_bootloader;
 
 #[no_mangle]
-pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
+pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootInfo) -> !
 {
-	log::set_log_level(log::Level::Trace);
-	library::test::main(&boot_information.into());
+	test::main(None, boot_information);
 
 	__test_runner();
 
-	library::miscellaneous::never_return()
+	miscellaneous::never_return()
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
 
 #[test_case]
 fn test_println()

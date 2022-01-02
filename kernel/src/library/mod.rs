@@ -19,14 +19,6 @@ pub mod hardware;
 /// information.
 mod helper;
 
-pub use helper::miscellaneous;
-pub use helper::test;
-
-pub use helper::main;
-pub use helper::panic_callback;
-
-pub use helper::BootInformation;
-
 /// ## Uniform Logging
 ///
 /// This module exports the `log_!` macros with different log levels.
@@ -37,3 +29,8 @@ pub mod log;
 /// Generic virtual memory implementation that bases upon the
 /// architecture-specific implementation.
 mod memory;
+
+/// ## The Kernel Prelude
+///
+/// This module holds functions needed everywhere in the kernel.
+pub mod prelude;

@@ -31,7 +31,7 @@
 #![feature(custom_test_frameworks)]
 // With our own test framework, we have to define which function
 // runs our tests.
-#![test_runner(kernel::library::test::runner)]
+#![test_runner(test::runner)]
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
@@ -66,7 +66,26 @@
 ///
 /// Make sure to **always** use `library::` instead of `crate::lib::`
 /// or `lib::` or something else.
-use kernel::library;
+use kernel::{
+	library::{
+		hardware,
+		log,
+	},
+	prelude::*,
+};
+
+/// ### Default Panic Handler
+///
+/// This function provides a very basic panic handler, that, depending
+/// on whether you are running tests or not, writes an exit code and
+/// does not return afterwards. Note that we do not unwind the stack.
+#[panic_handler]
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+
+// * x86_64
+// * -----------------------------
+
+use bootloader as x86_64_bootloader;
 
 /// ### Kernel Binary Entrypoint for `x86_64`
 ///
@@ -90,13 +109,14 @@ pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootI
 	#[cfg(test)]
 	__test_runner();
 
-	library::main(&boot_information.into())
-}
+	log::init(Some(log::Level::Trace), boot_information);
 
-/// ### Default Panic Handler
-///
-/// This function provides a very basic panic handler, that, depending
-/// on whether you are running tests or not, writes an exit code and
-/// does not return afterwards. Note that we do not unwind the stack.
-#[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::panic_callback(false, panic_info) }
+	kernel::log_info!("Kernel initialization started");
+
+	hardware::init();
+	hardware::memory::init(boot_information);
+
+	kernel::log_info!("Kernel initialization finished");
+
+	never_return()
+}

@@ -1,12 +1,14 @@
 use ::core::fmt;
 
+use crate::prelude::*;
+
 /// ### The Logging Severity Level
 ///
 /// The `LOG_LEVEL` is used to define which messages are being logged.
 /// All messaged with an equal or higher priority are logged when not
 /// running tests. When running tests, all messages with a severity of
 /// `Level::Warning` or higher are logged.
-static mut LOG_LEVEL: Level = if super::test::IS_TEST {
+static mut LOG_LEVEL: Level = if test::IS_TEST {
 	Level::Trace
 } else {
 	Level::Info
@@ -47,6 +49,25 @@ impl fmt::Display for Level
 			Self::None => write!(f, ""),
 		}
 	}
+}
+
+impl core::default::Default for Level
+{
+	fn default() -> Self { Self::Trace }
+}
+
+/// ### Show Initial Information
+///
+/// This function sets the log level and displays version and
+/// bootloader information.
+pub fn init<B>(log_level: Option<Level>, boot_information: &B)
+where
+	B: core::fmt::Debug,
+{
+	set_log_level(log_level.unwrap_or_default());
+
+	super::helper::miscellaneous::display_initial_information(boot_information);
+	crate::log_info!("Kernel initialization started");
 }
 
 /// ### Set the Kernel Log Level

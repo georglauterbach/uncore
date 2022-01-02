@@ -31,7 +31,7 @@
 #![feature(custom_test_frameworks)]
 // With our own test framework, we have to define which function
 // runs our tests.
-#![test_runner(crate::library::test::runner)]
+#![test_runner(crate::library::prelude::test::runner)]
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
@@ -62,8 +62,29 @@
 /// the child of the `src/lib.rs` "crate", not of `src/main.rs`. This
 /// is important, and we are not allowed to mix them up.
 pub mod library;
+pub use library::prelude;
 
-/// ### Kernel Library Testing Entrypoint
+use library::{
+	hardware,
+	log,
+	prelude::*,
+};
+
+/// ### Default Panic Handler
+///
+/// This function provides a very basic panic handler, that, depending
+/// on whether you are running tests or not, writes an exit code and
+/// does not return afterwards. Note that we do not unwind the stack.
+#[cfg(test)]
+#[panic_handler]
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+
+// * x86_64
+// * -----------------------------
+
+use bootloader as x86_64_bootloader;
+
+/// ### Kernel Library Testing Entrypoint (`x86_64`)
 ///
 /// This is the kernel's entry point called after the bootloader has
 /// finished its setup. It is kept short on purpose. The

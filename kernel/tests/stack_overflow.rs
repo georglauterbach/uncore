@@ -22,10 +22,9 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::library::{
-	self,
-	log,
-};
+use kernel::prelude::*;
+
+use bootloader as x86_64_bootloader;
 
 use x86_64::structures::idt::{
 	InterruptDescriptorTable,
@@ -49,15 +48,14 @@ lazy_static::lazy_static! {
 pub extern "x86-interrupt" fn test_double_fault_handler(_: InterruptStackFrame, _: u64) -> !
 {
 	kernel::log_info!("Received double fault. SUCCESS.");
-	library::miscellaneous::qemu::exit_with_success();
-	library::miscellaneous::never_return()
+	miscellaneous::qemu::exit_with_success();
+	miscellaneous::never_return()
 }
 
 #[no_mangle]
-pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
+pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootInfo) -> !
 {
-	log::set_log_level(log::Level::Trace);
-	library::test::main(&boot_information.into());
+	test::main(None, boot_information);
 
 	TEST_IDT.load();
 	kernel::log_info!("Initialized new (test) IDT.");
@@ -76,4 +74,4 @@ fn stack_overflow()
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
