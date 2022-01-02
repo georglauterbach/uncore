@@ -3,7 +3,7 @@
 /// This module contains all hardware-specific code. Moreover,
 /// architecture-specific code is also located here. This module is
 /// initialized first after booting and starting the kernel.
-mod hardware;
+pub mod hardware;
 
 /// ## Generic Helper Function
 ///

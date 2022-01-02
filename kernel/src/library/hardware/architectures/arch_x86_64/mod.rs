@@ -1,10 +1,3 @@
-/// ## Conversions and More
-///
-/// This module handles the conversion of the `x86_64` specific
-/// bootloader information into the abstract
-/// `library::BootInformation` structure.
-mod boot;
-
 /// ## CPU Exception Callbacks
 ///
 /// This module contains the callback functions executed when a CPU

@@ -75,7 +75,7 @@ use kernel::library;
 /// `library::init()` function takes care of initialization.
 #[cfg(target_arch = "x86_64")]
 #[no_mangle]
-pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
+pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootInfo) -> !
 {
 	// Since for main.rs, there are no unit tests (because they are all
 	// associated with `lib.rs` because `lib.rs` uses the `library` with

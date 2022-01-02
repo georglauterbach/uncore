@@ -1,3 +1,5 @@
+use bootloader as x86_64_bootloader;
+
 /// ### Are We Running Tests?
 ///
 /// Can be used to get information about whether tests are run or not.
@@ -59,35 +61,33 @@ pub fn runner(tests: &[&dyn Testable])
 	super::miscellaneous::qemu::exit_with_success();
 }
 
-/// ### Kernel `main()` Function
+/// ### `x86_64` Test Wrapper
 ///
-/// This function is the architecture independent entrypoint for the
-/// kernel.
+/// This `main()` function exists to provide a uniform setup for
+/// integration tests running on `x86_64`.
 ///
-/// This function initializes the whole kernel. It takes care of
+/// This function initializes the kernel. It takes care of
 ///
 /// - printing important initial information
 /// - calling the hardware initialization subroutine
-pub fn main(boot_information: &super::BootInformation)
+pub fn main(
+	log_level: Option<super::super::log::Level>,
+	boot_information: &'static x86_64_bootloader::BootInfo,
+)
 {
-	use super::{
-		miscellaneous,
-		super::{
-			hardware,
-			log,
-			memory,
-		},
+	use super::super::{
+		hardware,
+		log,
 	};
 
-	log::set_log_level(log::Level::Trace);
 	crate::log!("Running an integration test.");
 
-	miscellaneous::display_initial_information(boot_information);
+	log::init(log_level, boot_information);
 
 	crate::log_info!("Kernel initialization for tests started");
 
 	hardware::init();
-	memory::init(boot_information);
+	hardware::memory::init(boot_information);
 
 	crate::log_info!("Kernel initialization for tests finished");
 }

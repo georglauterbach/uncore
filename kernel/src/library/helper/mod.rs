@@ -1,18 +1,9 @@
-/// ## Generic Bootloader Information
-///
-/// This module contains the (architecture independent) information
-/// about the boot process and memory layout.
-mod boot;
-
-pub use boot::BootInformation;
-
 /// ## Miscellaneous Helpers
 ///
 /// Provides various of the most generic helper functions, such as
 /// `never_return()`.
 pub mod miscellaneous;
 
-pub use miscellaneous::main;
 pub use miscellaneous::never_return;
 
 /// ## Provides the API for Panicking

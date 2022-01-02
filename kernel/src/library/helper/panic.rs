@@ -25,7 +25,7 @@ fn __default_panic(_panic_info: &PanicInfo) -> !
 fn __default_panic(panic_info: &PanicInfo) -> !
 {
 	crate::log_fatal!(
-		"Received panic (message = {:?})",
+		"Received panic (message = \"{:?}\")",
 		panic_info
 			.message()
 			.unwrap_or(&format_args!("no message provided"))

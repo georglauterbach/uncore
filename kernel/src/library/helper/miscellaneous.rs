@@ -23,43 +23,6 @@ const VERSION: Option<&str> = option_env!("VERSION");
 /// format, i.e. firmware, kernels, etc.
 const TARGET: Option<&str> = option_env!("KERNEL_BUILD_TARGET");
 
-/// ### Kernel `main()` Function
-///
-/// This function is the architecture independent entrypoint for the
-/// kernel.
-///
-/// This function initializes the whole kernel. It takes care of
-///
-/// - printing important initial information
-/// - calling the hardware initialization subroutine
-pub fn main(boot_information: &super::BootInformation) -> !
-{
-	use super::super::{
-		hardware,
-		log,
-		memory,
-	};
-
-	log::set_log_level(log::Level::Trace);
-	display_initial_information(boot_information);
-
-	crate::log_info!("Kernel initialization started");
-
-	hardware::init();
-	memory::init(boot_information);
-
-	crate::log_info!("Kernel initialization finished");
-
-	// It is fine to have this here. If unit tests are run for `lib.rs`,
-	// this will make sure all is initialized beforehand. This does not
-	// affect `main.rs` since we use `crate::` which refers to `lib.rs`
-	// and is therefore not called when running unit tests for `main.rs`.
-	#[cfg(test)]
-	crate::__test_runner();
-
-	never_return()
-}
-
 /// ### The Event Horizon
 ///
 /// This function is just a nice abstraction of the call to `loop
@@ -85,7 +48,9 @@ pub fn never_return() -> !
 /// - the bootloader
 ///
 /// on the serial interface with this function.
-pub(super) fn display_initial_information(boot_information: &super::BootInformation)
+pub fn display_initial_information<D>(boot_information: &D)
+where
+	D: core::fmt::Debug,
 {
 	crate::log!("This is unCORE {}\n", VERSION.unwrap_or("testing"));
 	crate::log_info!(

@@ -71,16 +71,19 @@ pub mod library;
 /// function is effectively run only during unit tests.
 #[cfg(target_arch = "x86_64")]
 #[no_mangle]
-pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
+pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootInfo) -> !
 {
-	library::main(&boot_information.into())
-}
+	log::init(Some(log::Level::Trace), boot_information);
 
-/// ### Default Panic Handler
-///
-/// This function provides a very basic panic handler, that, depending
-/// on whether you are running tests or not, writes an exit code and
-/// does not return afterwards. Note that we do not unwind the stack.
-#[cfg(test)]
-#[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::panic_callback(false, panic_info) }
+	crate::log_info!("Kernel initialization started");
+
+	hardware::init();
+	hardware::memory::init(boot_information);
+
+	crate::log_info!("Kernel initialization finished");
+
+	#[cfg(test)]
+	crate::__test_runner();
+
+	never_return()
+}
