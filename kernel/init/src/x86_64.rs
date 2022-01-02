@@ -10,7 +10,7 @@ use crate::helper::print_abort_message_and_exit;
 /// This function compiles the kernel, creates the bootable image and
 /// it can additionally run the kernel in QEMU - all for the `x86_64`
 /// architecture.
-pub(crate) fn main<I>(mut arguments: I)
+pub fn main<I>(mut arguments: I)
 where
 	I: Iterator<Item = String>,
 {

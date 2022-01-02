@@ -38,7 +38,7 @@ pub fn init(boot_information: &'static bootloader::BootInfo)
 /// complete physical memory is mapped by the bootloader, we cam just
 /// use an offset to calculate the first level 4 page table.
 ///
-/// #### `unsafe`
+/// #### Safety
 ///
 /// This function is unsafe because the caller must guarantee that the
 /// complete physical memory is mapped to virtual memory at the passed
@@ -49,18 +49,13 @@ unsafe fn create_offset_page_table(
 	boot_information: &bootloader::BootInfo,
 ) -> OffsetPageTable<'static>
 {
-	let physical_memory_mapping_offset = boot_information
-		.physical_memory_offset
-		.into_option()
-		.map_or_else(
-			|| {
-				crate::log_warning!(
-					"Physical memory offset is non-existent (defaulting to 0)"
-				);
-				VirtAddr::new(0)
-			},
-			VirtAddr::new,
-		);
+	let physical_memory_mapping_offset =
+		if let Some(address) = boot_information.physical_memory_offset.into_option() {
+			VirtAddr::new(address)
+		} else {
+			crate::log_fatal!("Physical memory offset non-existent");
+			panic!("Memory offset should not be non-existent");
+		};
 
 	let (level_4_page_table_frame, _) = x86_64::registers::control::Cr3::read();
 	let level_4_page_table_frame_physical_address = level_4_page_table_frame.start_address();
