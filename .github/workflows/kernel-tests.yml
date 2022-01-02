@@ -51,7 +51,7 @@ jobs:
         run: cargo fmt --all --message-format human -- --check
 
       - name: Run `cargo clippy` for `boot` module
-        run: cargo clippy --package boot --all-features -- -D warnings
+        run: cargo clippy --package init --all-features -- -D warnings
 
       - name: Run `cargo clippy` for kernel
         run: cargo clippy --lib --all-features -- -D warnings

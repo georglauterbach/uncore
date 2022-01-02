@@ -1,2 +1,2 @@
 [target.'cfg(target_os = "none")']
-runner = "cargo run --package boot --"
+runner = "cargo run --package init --"

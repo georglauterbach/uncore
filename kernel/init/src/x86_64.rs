@@ -1,50 +1,19 @@
-// ? GLOBAL CRATE ATTRIBUTES AND DOCUMENTATION
-// ? ---------------------------------------------------------------------
-
-// Clippy lint target one. Enables all lints that are on by
-// default (correctness, suspicious, style, complexity, perf) .
-#![deny(clippy::all)]
-// Clippy lint target two. Enables lints which are rather strict
-// or have occasional false positives.
-#![deny(clippy::nursery)]
-// Clippy lint target three. Enables new lints that are still
-// under development
-#![deny(clippy::pedantic)]
-// Clippy lint target four. Enable lints for the cargo manifest
-// file, a.k.a. Cargo.toml.
-#![deny(clippy::cargo)]
-// Lint target for code documentation. This lint enforces code
-// documentation on every code item.
-#![deny(missing_docs)]
-#![deny(clippy::missing_docs_in_private_items)]
-// Lint target for code documentation. When running `rustdoc`,
-// show an error when using broken links.
-#![deny(rustdoc::broken_intra_doc_links)]
-
-//! # The `unCORE` Bootimage Creation
-//!
-//! This small application builds the bootimage for `unCORE`, and if
-//! demanded, runs it with QEMU too.
-
-// ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
-// ? ---------------------------------------------------------------------
-
 use std::{
 	path,
 	process,
 };
 
-/// # Entrypoint
+use crate::helper::print_abort_message_and_exit;
+
+/// ### Compile and Run on `x86_64`
 ///
-/// Parses arguments, runs the bootimage creation subroutine and runs
-/// QEMU if demanded.
-fn main()
+/// This function compiles the kernel, creates the bootable image and
+/// it can additionally run the kernel in QEMU - all for the `x86_64`
+/// architecture.
+pub(crate) fn main<I>(mut arguments: I)
+where
+	I: Iterator<Item = String>,
 {
-	println!("\nINFO    | Starting to build the unCORE kernel image. This may take some time.");
-
-	// skip executable name
-	let mut arguments = std::env::args().skip(1);
-
 	let kernel_path = if let Some(path) = arguments.next() {
 		path::PathBuf::from(path)
 	} else {
@@ -89,7 +58,7 @@ fn main()
 
 /// ### Create the Bootable Image
 ///
-/// Actually runs the bootimage creation process. Returns the path to
+/// Actually runs the boot-image creation process. Returns the path to
 /// the bootable image.
 #[must_use]
 pub fn create_disk_images(kernel_binary_path: &path::Path) -> path::PathBuf
@@ -297,17 +266,4 @@ fn run_tests(bios_image: &path::Path)
 			std::process::exit(-42)
 		},
 	}
-}
-
-/// ### Print Abort Message and Exot
-///
-/// If there was an error, print the given message that describes the
-/// error and exit the whole process.
-fn print_abort_message_and_exit<F>(message: F) -> !
-where
-	F: std::fmt::Display,
-{
-	println!("[not ok]");
-	eprintln!("ERROR   | {}", message);
-	std::process::exit(1)
 }

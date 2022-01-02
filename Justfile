@@ -82,7 +82,7 @@ _use_bootimage release='' no_run='':
     cd {{ROOT_DIRECTORY}}/kernel/
 
     {{BUILD_TOOL}} run                      \
-        --package boot                      \
+        --package init                      \
         --target {{BOOTIMAGE_BUILD_TARGET}} \
         ${RELEASE:+--release}               \
         --                                  \
@@ -139,7 +139,7 @@ check:
 
     {{BUILD_TOOL}} fmt --all --message-format human -- --check
     {{BUILD_TOOL}} clippy --lib --all-features -- -D warnings
-    {{BUILD_TOOL}} clippy --package boot --all-features -- -D warnings
+    {{BUILD_TOOL}} clippy --package init --all-features -- -D warnings
 
 # generically lint the whole code base
 @lint:

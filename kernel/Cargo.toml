@@ -87,7 +87,7 @@ map-physical-memory = true
 [workspace]
 
 members = [
-  "boot",
+  "init",
 ]
 
 # -----------------------------------------------

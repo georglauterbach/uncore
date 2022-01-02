@@ -49,7 +49,7 @@ This is where it gets just a little bit more complicated. The `boot` workspace m
 ``` CONSOLE
 $ pwd
 /uncore/kernel
-$ cargo run --package boot \
+$ cargo run --package init \
   --target <YOUR DEFAULT STABLE TARGET WITH STD> \
   -- \
   target/x86_64-uncore/<DEBUG or RELEASE>/kernel [--no-run]
