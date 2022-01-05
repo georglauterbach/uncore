@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
 /// ## CPU Exception Callbacks
 ///
 /// This module contains the callback functions executed when a CPU

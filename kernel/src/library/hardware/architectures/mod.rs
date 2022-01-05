@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
 /// ## The `x86_64` Architecture
 ///
 /// This module contains `x86_64` specific initialization and setup

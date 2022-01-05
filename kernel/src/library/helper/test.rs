@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
 use bootloader as x86_64_bootloader;
 
 /// ### Are We Running Tests?

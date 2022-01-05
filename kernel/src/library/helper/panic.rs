@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
 use ::core::panic::PanicInfo;
 
 /// ### Panic Handler when Running Tests that Should Not Panic

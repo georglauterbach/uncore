@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
+mod boot;
+
 /// ## Hardware Abstractions
 ///
 /// This module contains all hardware-specific code. Moreover,

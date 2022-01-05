@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
 /// ## Global Descriptor Table Setup
 ///
 /// This module handles the setup of the Global Descriptor Table (GDT)
