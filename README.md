@@ -30,11 +30,13 @@ tools INFO    Setting Rust toolchain and ...
 
 from this repository's root directory.
 
-## Documentation and Licensing
+## Documentation, Licensing and Acknowledgements
 
 The documentation is written in Markdown, built with [MkDocs] and can be found under `documentation/`. You may build and serve the documentation locally with a container runtime (like [Docker] or [Podman]) by running `./scripts/documentation.sh`, serving it under <http://127.0.0.1:8080>.
 
 This project is licensed under the [GNU General Public License v3], except for those parts (lines of code from libraries used in this project) already licensed under other licenses. Moreover, code taken from [_Phillip Oppermann_'s _BlogOS_ project][blog-os] is not covered by the license of this project as well.
+
+A big thank you to _Phillip Oppermann_ and his [_BlogOS_ project][blog-os]. Moreover, _Philipp Schuster_ has helped in integrating UEFI support with his repository [`phip1611/multiboot2-binary-rust`][phip1611-multiboot2-binary-rust].
 
 ## Repository Structure
 
@@ -79,3 +81,5 @@ This repository is structured into different subdirectories:
 [Podman]: https://podman.io/
 [GNU General Public License v3]: https://www.gnu.org/licenses/gpl-3.0.txt
 [blog-os]: https://github.com/phil-opp/blog_os#license
+
+[phip1611-multiboot2-binary-rust]: https://github.com/phip1611/multiboot2-binary-rust

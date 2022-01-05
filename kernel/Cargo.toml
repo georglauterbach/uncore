@@ -1,6 +1,3 @@
-# Rust toolchain releases can be found under
-# https://rust-lang.github.io/rustup-components-history/
-
 # -----------------------------------------------
 # ----  Package  --------------------------------
 # -----------------------------------------------
@@ -68,6 +65,7 @@ lto = false
 # -----------------------------------------------
 
 [dependencies]
+multiboot2 = "0.12.2"
 bootloader = { version = "0.10.9", features = ["default"] } 
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 pic8259 = "0.10.1"
@@ -86,9 +84,7 @@ map-physical-memory = true
 
 [workspace]
 
-members = [
-  "init",
-]
+members = []
 
 # -----------------------------------------------
 # ----  Tests  ----------------------------------

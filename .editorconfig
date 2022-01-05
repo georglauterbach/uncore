@@ -16,7 +16,11 @@ indent_size          = 2
 # ----  Rust  -------------------------------------
 # -------------------------------------------------
 
-[*.rs]
+[*.{rs,S,ld}]
+indent_style = tab
+indent_size = 8
+
+[Makefile]
 indent_style = tab
 indent_size = 8
 

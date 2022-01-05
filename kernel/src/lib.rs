@@ -44,6 +44,7 @@
 // Checking the target ABI is still experimental
 // and subject to change.
 #![feature(cfg_target_abi)]
+#![feature(global_asm)]
 
 //! # The `unCORE` Operating System Kernel
 //!
@@ -55,6 +56,10 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
+// global_asm!(include_str!("library/boot/arch/x86_64/boot.S"),
+// options(att_syntax)); global_asm!(include_str!("library/boot/arch/
+// x86_64/multiboot2.S"), options(att_syntax));
+
 /// ### The Core Library Path
 ///
 /// This module has been created to give the kernel source code a
@@ -65,9 +70,9 @@ pub mod library;
 pub use library::prelude;
 
 use library::{
-	hardware,
-	log,
-	prelude::*,
+	// hardware,
+	// log,
+	prelude::panic_callback,
 };
 
 /// ### Default Panic Handler
@@ -82,29 +87,27 @@ fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, pan
 // * x86_64
 // * -----------------------------
 
-use bootloader as x86_64_bootloader;
+// use bootloader as x86_64_bootloader;
 
-/// ### Kernel Library Testing Entrypoint (`x86_64`)
-///
-/// This is the kernel's entry point called after the bootloader has
-/// finished its setup. It is kept short on purpose. The
-/// `library::init()` function takes care of initialization. This
-/// function is effectively run only during unit tests.
-#[cfg(target_arch = "x86_64")]
-#[no_mangle]
-pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootInfo) -> !
-{
-	log::init(Some(log::Level::Trace), boot_information);
+// /// ### Kernel Library Testing Entrypoint (`x86_64`)
+// ///
+// /// This is the kernel's entry point called after the bootloader
+// has /// finished its setup. It is kept short on purpose. The
+// /// `library::init()` function takes care of initialization. This
+// /// function is effectively run only during unit tests.
+// #[cfg(target_arch = "x86_64")]
+// #[no_mangle]
+// pub extern "C" fn _start(boot_information: &'static mut
+// x86_64_bootloader::BootInfo) -> ! {
+// 	log::init(Some(log::Level::Trace), boot_information);
 
-	crate::log_info!("Kernel initialization started");
+// 	hardware::init();
+// 	hardware::memory::init(boot_information);
 
-	hardware::init();
-	hardware::memory::init(boot_information);
+// 	log_info!("Kernel initialization finished");
 
-	crate::log_info!("Kernel initialization finished");
+// 	#[cfg(test)]
+// 	crate::__test_runner();
 
-	#[cfg(test)]
-	crate::__test_runner();
-
-	never_return()
-}
+// 	never_return()
+// }

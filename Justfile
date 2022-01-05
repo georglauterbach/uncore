@@ -3,27 +3,25 @@
 # ----  https://github.com/casey/just  ----------
 # -----------------------------------------------
 
-set shell              := [ "bash", "-eu", "-o", "pipefail", "-c" ]
-set dotenv-load        := false
+set shell         := [ "bash", "-eu", "-o", "pipefail", "-c" ]
+set dotenv-load   := false
 
-DATE                   := `date +'%Y-%m-%d'`
-GIT_REVISION_HEAD      := `git rev-parse --short HEAD`
-KERNEL_VERSION         := `grep -m 1 'version*' kernel/Cargo.toml | cut -d '"' -f 2`
+DATE              := `date +'%Y-%m-%d'`
+GIT_REVISION_HEAD := `git rev-parse --short HEAD`
+DEFAULT_TARGET    := `rustc -Vv | grep 'host:' | cut -d ' ' -f 2`
+BUILD_TOOL        := 'cargo'
 
-export ROOT_DIRECTORY  := justfile_directory()
-export TOOLCHAIN       := `tr -d '\n' < kernel/rust-toolchain`
-export VERSION         := KERNEL_VERSION + ' (' + GIT_REVISION_HEAD + ' ' + DATE + ')'
+export ROOT_DIRECTORY := justfile_directory()
+export KERNEL_VERSION := `grep -m 1 'version*' kernel/Cargo.toml | cut -d '"' -f 2`
+export VERSION        := KERNEL_VERSION + ' (' + GIT_REVISION_HEAD + ' ' + DATE + ')'
 
-BUILD_TOOL             := 'cargo'
-BOOTIMAGE_BUILD_TARGET := `rustc -Vv | grep 'host:' | cut -d ' ' -f 2`
-KERNEL_BUILD_FLAGS_1   := ' -Z build-std=core,compiler_builtins,alloc'
-KERNEL_BUILD_FLAGS_2   := ' -Z build-std-features=compiler-builtins-mem'
-KERNEL_BUILD_FLAGS     := KERNEL_BUILD_FLAGS_1 + KERNEL_BUILD_FLAGS_2
+KERNEL_DEFAULT_TARGET_PATH := 'build/targets/x86_64-unknown-none.json'
+KERNEL_BUILD_FLAGS_1       := ' -Z build-std=core,compiler_builtins,alloc'
+KERNEL_BUILD_FLAGS_2       := ' -Z build-std-features=compiler-builtins-mem'
+KERNEL_BUILD_FLAGS         := KERNEL_BUILD_FLAGS_1 + KERNEL_BUILD_FLAGS_2
+KERNEL_DIRECTORY           := ROOT_DIRECTORY + '/kernel'
 
-export KERNEL_BUILD_TARGET := `printf "${TARGET:-x86_64-unknown-none}"`
-KERNEL_BUILD_TARGET_PATH   := ROOT_DIRECTORY + '/kernel/targets/' + KERNEL_BUILD_TARGET + '.json'
-
-# show this help message
+# show a dedicated help message
 help:
     #! /bin/bash
 
@@ -37,9 +35,12 @@ help:
     else printf "├── 'cargo' not installed or in \$PATH\n"
     fi
 
+    TOOLCHAIN=$(cd {{KERNEL_DIRECTORY}} && rustup toolchain list | grep 'override')
+    [[ -z ${TOOLCHAIN} ]] && TOOLCHAIN='not properly set in the kernel directory'
+
     printf '└── just  %s\n' "$(cut -d ' ' -f 2 < <(just --version))"  
     printf "\nkernel\n├── toolchain %s\n└── version   %s\n\n" \
-        "{{TOOLCHAIN}}" "{{VERSION}}"
+        "${TOOLCHAIN}" "{{VERSION}}"
 
     just --list
     printf '\n'
@@ -48,55 +49,27 @@ help:
 # ----  Build and Test  -------------------------
 # -----------------------------------------------
 
-# set the correct Rust toolchain
-@set_toolchain:
-    rustup override set {{TOOLCHAIN}}
-
 # compile the kernel
-@build release='':
-    RELEASE="{{release}}" && \
-    just -- _build_kernel "${RELEASE:+--release}"
+@build target='':
+    bash "{{ROOT_DIRECTORY}}/scripts/build.sh" {{target}}
 
-# create a bootable image
-@build_image release='':
-    RELEASE="{{release}}" && \
-    just -- _use_bootimage "${RELEASE:+release}" --no-run
-
-# run the kernel in QEMU
-run: _use_bootimage
-
-# compile the kernel
-@_build_kernel release='':
-    cd {{ROOT_DIRECTORY}}/kernel/ &&     \
-    {{BUILD_TOOL}} build {{release}}     \
-        --target {{KERNEL_BUILD_TARGET_PATH}} \
-        {{KERNEL_BUILD_FLAGS}}
-
-# use the bootloader tool to build or run the kernel
-_use_bootimage release='' no_run='':
-    #! /bin/bash
-
-    RELEASE="{{release}}"
-
-    just -- _build_kernel ${RELEASE:+--release} || exit ${?}
-    cd {{ROOT_DIRECTORY}}/kernel/
-
-    {{BUILD_TOOL}} run                      \
-        --package init                      \
-        --target {{BOOTIMAGE_BUILD_TARGET}} \
-        ${RELEASE:+--release}               \
-        --                                  \
-        target/{{KERNEL_BUILD_TARGET}}/${RELEASE:-debug}/kernel {{no_run}}
+# run the kernel for x86_64 in QEMU
+@run target='': (build target)
+    bash "{{ROOT_DIRECTORY}}/scripts/run_in_qemu.sh"
 
 # remove the kernel/target/ directory
 @clean:
-    cd {{ROOT_DIRECTORY}}/kernel/ && {{BUILD_TOOL}} clean
+    cd {{KERNEL_DIRECTORY}} && {{BUILD_TOOL}} clean
 
+# FIXME tests do not currently run
 # run tests workspace members
 test test='':
     #! /bin/bash
 
-    cd {{ROOT_DIRECTORY}}/kernel/
+    echo "CURRENTLY TEST DO NOT WORK BECAUSE WE NEED TO RUN THEM IN QEMU" >&2
+    exit 1
+
+    cd {{KERNEL_DIRECTORY}}
 
     # --tests runs all tests, i.e. the kernel library (`lib.rs`)
     # effectivly running all unit-tests, the kernel main binary
@@ -106,11 +79,11 @@ test test='':
     if [[ -z "{{test}}" ]]
     then
         {{BUILD_TOOL}} test --tests               \
-            --target {{KERNEL_BUILD_TARGET_PATH}} \
+            --target {{KERNEL_DEFAULT_TARGET_PATH}} \
             {{KERNEL_BUILD_FLAGS}}
     else
         {{BUILD_TOOL}} test --test {{test}}       \
-            --target {{KERNEL_BUILD_TARGET_PATH}} \
+            --target {{KERNEL_DEFAULT_TARGET_PATH}} \
             {{KERNEL_BUILD_FLAGS}}
     fi
 
@@ -122,8 +95,7 @@ test test='':
 
 # format the Rust code with rustfmt
 @format:
-    cd {{ROOT_DIRECTORY}}/kernel/ \
-        && {{BUILD_TOOL}} fmt --message-format human
+    cd {{KERNEL_DIRECTORY}} && {{BUILD_TOOL}} fmt --message-format human
 
 alias fmt := format
 
@@ -131,10 +103,10 @@ alias fmt := format
 check:
     #! /bin/bash
 
-    cd {{ROOT_DIRECTORY}}/kernel/
+    cd {{KERNEL_DIRECTORY}}
 
-    {{BUILD_TOOL}} check                      \
-        --target {{KERNEL_BUILD_TARGET_PATH}} \
+    {{BUILD_TOOL}} check                                \
+        --target {{KERNEL_DEFAULT_TARGET_PATH}} \
         {{KERNEL_BUILD_FLAGS}}
 
     {{BUILD_TOOL}} fmt --all --message-format human -- --check

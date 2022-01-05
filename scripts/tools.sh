@@ -10,8 +10,6 @@ source scripts/lib/logs.sh
 export SCRIPT='tools'
 __BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
 
-TOOLCHAIN=${TOOLCHAIN:-$(tr -d '\n' < kernel/rust-toolchain)}
-
 # -->                   -->                   --> START
 
 function check_rust
@@ -26,11 +24,6 @@ function check_rust
     notify 'inf' "'rustup' is installed"
   fi
 
-  notify 'inf' "Setting Rust toolchain and installing additional components with 'rustup'"
-  rustup --quiet override set "${TOOLCHAIN}"
-  rustup --quiet component add --toolchain "${TOOLCHAIN}" \
-    llvm-tools-preview rust-src
-  
   if [[ ! ${PATH} == *.cargo/bin* ]] && [[ -e "${HOME}/.cargo/env" ]]
   then
     # shellcheck source=/dev/null

@@ -69,6 +69,7 @@ function lint_github_super_linter
     -e LOG_LEVEL=ERROR \
     -e SUPPRESS_POSSUM=true \
     -e VALIDATE_ALL_CODEBASE=true \
+    -e IGNORE_GITIGNORED_FILES=true \
     -e ERROR_ON_MISSING_EXEC_BIT=true \
     -e VALIDATE_JSCPD_ALL_CODEBASE=false \
     -e VALIDATE_BASH=true \
