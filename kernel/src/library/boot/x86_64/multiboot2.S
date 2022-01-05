@@ -1,9 +1,10 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright 2022 The unCORE Kernel Organization */
 
 /*
  * Multiboot 2 assembly headers
  *   written in GNU Assembly (GAS) syntax / dialect
- *   compiled with `as --64 -o multiboot2.o multiboot2.S`
+ *   compiled, assembled and linked by Rust
  * 
  * The multiboot 2 specification can be found under
  * https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html

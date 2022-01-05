@@ -68,63 +68,60 @@ function prepare_qemu
 
   notify 'inf' "Creating 'BOOTX64.EFI' file"
 
-  grub-mkstandalone                                    \
+  if ! grub-mkstandalone                               \
     -O x86_64-efi                                      \
     -o "${QEMU_VOLUME_DIRECTORY}/EFI/BOOT/BOOTX64.EFI" \
     "/boot/grub/grub.cfg=${QEMU_DIRECTORY}/grub.cfg"   \
     "/boot/kernel.bin=${KERNEL_BINARY}"
+  then
+    notify 'err' "Could not create 'BOOTX64.EFI' file"
+    exit 1
+  fi
 }
 
 function run_in_qemu
 {
   declare -a QEMU_ARGUMENTS
 
-  QEMU_ARGUMENTS=(
-    "-nodefaults"
+  QEMU_ARGUMENTS+=('-nodefaults')
 
-    # use standard VGA for graphics
-    "-vga"
-    "std"
+  QEMU_ARGUMENTS+=('-nodefaults')
 
-    # breaks "runs_inside_qemu()"-detection, changes CPUID
-    # "-cpu"
-    # "host"
+  QEMU_ARGUMENTS+=('-vga')
+  QEMU_ARGUMENTS+=('std')
+  
+  QEMU_ARGUMENTS+=('-machine')
+  QEMU_ARGUMENTS+=('q35,accel=kvm:tcg')
 
-    # use a modern machine, with acceleration if possible
-    "-machine"
-    "q35,accel=kvm:tcg"
+  QEMU_ARGUMENTS+=('-m')
+  QEMU_ARGUMENTS+=('128M')
 
-    # allocate some memory
-    "-m"
-    "128M"
+  # set up OVMF
+  QEMU_ARGUMENTS+=('-drive')
+  QEMU_ARGUMENTS+=("if=pflash,format=raw,readonly=on,file=${OVMF_FW_PATH}")
+  QEMU_ARGUMENTS+=('-drive')
+  QEMU_ARGUMENTS+=("format=raw,file=fat:rw:${QEMU_VOLUME_DIRECTORY}")
 
-    # set up OVMF
-    "-drive"
-    "if=pflash,format=raw,readonly=on,file=${OVMF_FW_PATH}"
-    "-drive"
-    "if=pflash,format=raw,file=${OVMF_VARS_PATH}"
+  QEMU_ARGUMENTS+=('-debugcon')
+  QEMU_ARGUMENTS+=('file:build/qemu/debugcon.txt') # or "/dev/stdout"
 
-    # mount a local directory as a FAT partition
-    "-drive"
-    "format=raw,file=fat:rw:${QEMU_VOLUME_DIRECTORY}"
+  # output
+  QEMU_ARGUMENTS+=('-serial')
+  QEMU_ARGUMENTS+=('stdio')
 
-    # connect the serial port to the host. OVMF is kind enough to connect
-    # the UEFI stdout and stdin to that port too.
-    "-serial"
-    "stdio"
-
-    "-debugcon"
-    "file:build/qemu/debugcon.txt"
-    # or "/dev/stdout"
-
-    "-monitor"
-    "vc:1024x768"
-  )
-
+  if [[ ${1:-} == 'graphical' ]]
+  then
+    QEMU_ARGUMENTS+=('-monitor')
+    QEMU_ARGUMENTS+=('vc:1024x768')
+  else
+    QEMU_ARGUMENTS+=('-display')
+    QEMU_ARGUMENTS+=('none')
+  fi
+  
   notify 'inf' 'Now running in QEMU'
   notify 'tra' "Arguments are '${QEMU_ARGUMENTS[*]}'"
   qemu-system-x86_64 "${QEMU_ARGUMENTS[@]}"
 }
 
 prepare_qemu
-run_in_qemu
+run_in_qemu "${1:-}"

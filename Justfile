@@ -54,8 +54,8 @@ help:
     bash "{{ROOT_DIRECTORY}}/scripts/build.sh" {{target}}
 
 # run the kernel for x86_64 in QEMU
-@run target='': (build target)
-    bash "{{ROOT_DIRECTORY}}/scripts/run_in_qemu.sh"
+@run graphical='': build
+    bash "{{ROOT_DIRECTORY}}/scripts/run_in_qemu.sh" {{graphical}}
 
 # remove the kernel/target/ directory
 @clean:
@@ -66,7 +66,7 @@ help:
 test test='':
     #! /bin/bash
 
-    echo "CURRENTLY TEST DO NOT WORK BECAUSE WE NEED TO RUN THEM IN QEMU" >&2
+    echo "Currently test do not work because of the transition to multiboot2" >&2
     exit 1
 
     cd {{KERNEL_DIRECTORY}}
@@ -105,13 +105,12 @@ check:
 
     cd {{KERNEL_DIRECTORY}}
 
-    {{BUILD_TOOL}} check                                \
+    {{BUILD_TOOL}} check                        \
         --target {{KERNEL_DEFAULT_TARGET_PATH}} \
         {{KERNEL_BUILD_FLAGS}}
 
     {{BUILD_TOOL}} fmt --all --message-format human -- --check
     {{BUILD_TOOL}} clippy --lib --all-features -- -D warnings
-    {{BUILD_TOOL}} clippy --package init --all-features -- -D warnings
 
 # generically lint the whole code base
 @lint:

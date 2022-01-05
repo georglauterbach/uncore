@@ -43,6 +43,15 @@ function build_kernel
     exit 1
   fi
 
+  notify 'tra' 'Checking for multiboot2 compatibility'
+
+  if ! grub-file --is-x86-multiboot2 build/qemu/kernel.bin
+  then
+    notify 'war' 'Kernel binary is not multiboot2-compatible'
+  else
+    notify 'inf' 'Kernel is multiboot2-compatible'
+  fi
+
   notify 'tra' "Copying kernel binary to 'build/qemu/kernel.bin'"
 
   if ! cp "${KERNEL_BINARY}" build/qemu/kernel.bin
@@ -50,6 +59,8 @@ function build_kernel
     notify 'err' "Could not copy kernel binary '${KERNEL_BINARY}'"
     exit 1
   fi
+
+  notify 'suc' 'Finished building the kernel'
 }
 
 build_kernel "${@}"

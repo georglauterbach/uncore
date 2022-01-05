@@ -1,7 +1,7 @@
 # Development
 
 !!! quote "Why Rust?"
-    Rust is **very performant** and **abstract**. And
+    Rust is **very performant** and **abstract**. It does not suffer from legacy problems that C or C++ bring with them. Of course, C and C++ are much older languages, but this is more or less a bad justification.
 
     _Abstraction is not about vagueness, it is about being precise on a new semantic level._ –– **Edsger W. Dijkstra**
 

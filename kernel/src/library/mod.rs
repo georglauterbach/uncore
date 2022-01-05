@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
+/// ## Boot Code
+///
+/// This module holds the initialization boot code for different
+/// architectures. These are written in assembly and includes in the
+/// `mod.rs` file via conditional compilation and the `global_asm!`
+/// macro.
 mod boot;
 
 /// ## Hardware Abstractions

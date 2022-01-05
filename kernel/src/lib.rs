@@ -72,11 +72,7 @@
 pub mod library;
 pub use library::prelude;
 
-use library::{
-	// hardware,
-	// log,
-	prelude::panic_callback,
-};
+use library::prelude::*;
 
 /// ### Default Panic Handler
 ///
@@ -90,27 +86,21 @@ fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, pan
 // * x86_64
 // * -----------------------------
 
-// use bootloader as x86_64_bootloader;
+/// ### Kernel Library Testing Entrypoint (`x86_64`)
+///
+/// This is the kernel's entry point called after the bootloader has
+/// finished its setup. It is kept short on purpose. The
+/// `library::init()` function takes care of initialization. This
+/// function is effectively run only during unit tests.
+#[cfg(target_arch = "x86_64")]
+#[no_mangle]
+pub extern "C" fn kernel_main(
+	_multiboot2_magic_value: u32,
+	_multiboot2_boot_information_pointer: u32,
+) -> !
+{
+	#[cfg(test)]
+	crate::__test_runner();
 
-// /// ### Kernel Library Testing Entrypoint (`x86_64`)
-// ///
-// /// This is the kernel's entry point called after the bootloader
-// has /// finished its setup. It is kept short on purpose. The
-// /// `library::init()` function takes care of initialization. This
-// /// function is effectively run only during unit tests.
-// #[cfg(target_arch = "x86_64")]
-// #[no_mangle]
-// pub extern "C" fn _start(boot_information: &'static mut
-// x86_64_bootloader::BootInfo) -> ! {
-// 	log::init(Some(log::Level::Trace), boot_information);
-
-// 	hardware::init();
-// 	hardware::memory::init(boot_information);
-
-// 	log_info!("Kernel initialization finished");
-
-// 	#[cfg(test)]
-// 	crate::__test_runner();
-
-// 	never_return()
-// }
+	never_return()
+}
