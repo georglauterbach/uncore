@@ -58,7 +58,7 @@ function lint_github_super_linter
 {
   local TAG IMAGE
 
-  TAG='slim-v4.8.4'
+  TAG='slim-v4.8.5'
   # TAG='slim-latest'
   IMAGE="ghcr.io/github/super-linter:${TAG}"
 

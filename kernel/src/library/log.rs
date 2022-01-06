@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
+// TODO implement the `log` (crate) facade
+
 use ::core::fmt;
 
 use crate::prelude::*;
@@ -63,14 +65,12 @@ impl core::default::Default for Level
 ///
 /// This function sets the log level and displays version and
 /// bootloader information.
-pub fn init<B>(log_level: Option<Level>, boot_information: &B)
-where
-	B: core::fmt::Debug,
+pub fn init(log_level: Option<Level>)
 {
 	set_log_level(log_level.unwrap_or_default());
 
-	super::helper::miscellaneous::display_initial_information(boot_information);
-	crate::log_info!("Kernel initialization started");
+	display_initial_information();
+	log_info!("Post-UEFI initialization started");
 }
 
 /// ### Set the Kernel Log Level
@@ -91,13 +91,14 @@ pub fn set_log_level(new_log_level: Level)
 /// is nice because now we do not need to make the different output
 /// modules (such as `serial`) in this module public.
 #[doc(hidden)]
-pub fn __log(log_level: Level, arguments: fmt::Arguments)
+pub const fn __log(_log_level: Level, _arguments: fmt::Arguments)
 {
-	if log_level < unsafe { LOG_LEVEL } {
-		return;
-	}
+	// if log_level < unsafe { LOG_LEVEL } {
+	// 	return;
+	// }
 
-	serial::print(format_args!("{}{}\n", log_level, arguments));
+	// serial::print(format_args!("{}{}\n", log_level,
+	// arguments));
 }
 
 /// ### Print Welcome
@@ -211,41 +212,28 @@ macro_rules! log_test {
 	};
 }
 
-/// ## A Serial Device Interface
+/// ### Print Initial Information
 ///
-/// The `write` module makes heavy use of this module
-/// as it `serial` provides the ability to write to
-/// a serial device which is "forwarded" to `stdout`
-/// via QEMU.
-mod serial
+/// We print out information about the kernel, for example
+///
+/// - its version
+/// - its (LLVM) target triple
+/// - the compiler version
+/// - Rust toolchain information
+pub fn display_initial_information()
 {
-	use spin::{
-		Lazy,
-		Mutex,
-	};
-	use uart_16550::SerialPort;
+	log!("This is unCORE {}\n", KernelInformation::get_version());
 
-	/// ### Serial Writer
-	///
-	/// With this port, we can write to the serial output.
-	static SERIAL0: Lazy<Mutex<SerialPort>> = Lazy::new(|| {
-		let mut serial_port = unsafe { SerialPort::new(0x3F8) };
-		serial_port.init();
-		Mutex::new(serial_port)
-	});
-
-	/// ### Write to Serial Output
-	///
-	/// This function prints its arguments to the serial output.
-	pub(super) fn print(arguments: ::core::fmt::Arguments)
-	{
-		use core::fmt::Write;
-		use x86_64::instructions::interrupts;
-
-		interrupts::without_interrupts(|| {
-			SERIAL0.lock()
-				.write_fmt(arguments)
-				.expect("Printing to serial failed");
-		});
-	}
+	log_trace!(
+		"Target triple reads '{}'",
+		KernelInformation::get_build_target()
+	);
+	log_trace!(
+		"This version of unCORE was compiled with rustc version '{}'",
+		KernelInformation::get_rustc_version()
+	);
+	log_trace!(
+		"This version of unCORE was using the toolchain '{}'",
+		KernelInformation::get_rust_toolchain()
+	);
 }

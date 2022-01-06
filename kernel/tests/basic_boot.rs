@@ -33,16 +33,14 @@
 
 use kernel::prelude::*;
 
-use bootloader as x86_64_bootloader;
-
 #[no_mangle]
-pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootInfo) -> !
+pub extern "C" fn _start(__todo: u32) -> !
 {
-	test::main(None, boot_information);
+	// test::main(None, boot_information);
 
 	__test_runner();
 
-	miscellaneous::never_return()
+	never_return()
 }
 
 #[panic_handler]
@@ -51,5 +49,5 @@ fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, pan
 #[test_case]
 fn test_println()
 {
-	kernel::log_info!("Test log output. Does not panic.");
+	log_info!("Test log output. Does not panic.");
 }

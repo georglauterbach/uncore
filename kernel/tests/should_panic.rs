@@ -31,22 +31,17 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::{
-	library::log,
-	prelude::*,
-};
-
-use bootloader as x86_64_bootloader;
+use kernel::prelude::*;
 
 #[no_mangle]
-pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootInfo) -> !
+pub extern "C" fn _start(__todo: u32) -> !
 {
-	test::main(Some(log::Level::Info), boot_information);
+	// test::main(Some(log::Level::Info), boot_information);
 
 	__test_runner();
 
-	kernel::log_error!("Test did not panic but was expected to. FAILURE.");
-	miscellaneous::qemu::exit_with_failure();
+	log_error!("Test did not panic but was expected to. FAILURE.");
+	// qemu::exit_with_failure();
 
 	never_return()
 }

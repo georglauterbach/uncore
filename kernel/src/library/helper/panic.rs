@@ -3,6 +3,8 @@
 
 use ::core::panic::PanicInfo;
 
+use crate::prelude::*;
+
 /// ### Panic Handler when Running Tests that Should Not Panic
 ///
 /// This function is marked for conditional compilation, and
@@ -11,11 +13,10 @@ use ::core::panic::PanicInfo;
 #[inline]
 fn __default_panic(_panic_info: &PanicInfo) -> !
 {
-	crate::log_error!("Last test did not finish. FAILURE.");
-	crate::log_fatal!("Received panic");
+	log_error!("Last test did not finish. FAILURE.");
+	log_fatal!("Received panic");
 
-	super::miscellaneous::qemu::exit_with_failure();
-	super::miscellaneous::never_return()
+	never_return()
 }
 
 /// ### Panic Handler when not Running Tests
@@ -35,8 +36,9 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 	);
 
 	// #[cfg(target_abi = "none")]
-	super::miscellaneous::qemu::exit_with_failure();
-	super::miscellaneous::never_return()
+	// qemu::exit_with_failure();
+
+	never_return()
 }
 
 /// ### Panic Handler that Should Panic
@@ -50,10 +52,11 @@ fn __should_panic(_panic_info: &PanicInfo) -> !
 
 	// just write the success code for QEMU
 	// when we are actually using QEMU
-	#[cfg(target_abi = "")]
-	#[cfg(target_os = "none")]
-	super::miscellaneous::qemu::exit_with_success();
-	super::miscellaneous::never_return()
+	// #[cfg(target_abi = "")]
+	// #[cfg(target_os = "none")]
+	// qemu::exit_with_success();
+
+	never_return()
 }
 
 /// ### Callback Panic Handler

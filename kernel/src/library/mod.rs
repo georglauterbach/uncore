@@ -9,39 +9,43 @@
 /// macro.
 mod boot;
 
-/// ## Hardware Abstractions
-///
-/// This module contains all hardware-specific code. Moreover,
-/// architecture-specific code is also located here. This module is
-/// initialized first after booting and starting the kernel.
-pub mod hardware;
-
 /// ## Generic Helper Function
 ///
-/// This module provides generic function used by other modules, such
-/// as
-///
-/// - logging
-/// - not returning
-/// - panicking
-/// - testing
-///
-/// It also provides the test runners and the kernel version
-/// information.
+/// Holds many of the generic functions re-exported in the `prelude`
+/// module. These include panic callbacks, test infrastructure or
+/// information about the kernel.
 mod helper;
 
 /// ## Uniform Logging
 ///
 /// This module exports the `log_!` macros with different log levels.
+/// It implements the `log` crate's logging facade.
 pub mod log;
-
-/// ## Virtual Memory Implementation
-///
-/// Generic virtual memory implementation that bases upon the
-/// architecture-specific implementation.
-mod memory;
 
 /// ## The Kernel Prelude
 ///
-/// This module holds functions needed everywhere in the kernel.
+/// This module provides
+///
+/// - modules
+/// - structures
+/// - macros
+/// - function
+///
+/// used by many other modules. It should be imported via
+///
+/// ``` rust
+/// use library::prelude::*;
+/// ```
 pub mod prelude;
+
+/// ## Handle UEFI
+///
+/// Handles UEFI related matters. After entry into
+/// `crate::kernel_main(...)`, UEFI boot services are still active and
+/// we need to handle and exit them.
+///
+/// ### Trivia
+///
+/// The module name was chosen in order to not conflict with the
+/// `uefi` crate.
+mod __uefi;

@@ -47,6 +47,12 @@
 // Checking the target ABI is still experimental
 // and subject to change.
 #![feature(cfg_target_abi)]
+// Enable inline assembly as this feature has not been stabilized
+// yet.
+#![feature(asm)]
+// Enable the `global_asm!` macro. This becomes obsolete with
+// Rust 1.59 (which is currently incompatible with the x86_64
+// crate).
 #![feature(global_asm)]
 
 //! # The `unCORE` Operating System Kernel
@@ -58,10 +64,6 @@
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
-
-// global_asm!(include_str!("library/boot/arch/x86_64/boot.S"),
-// options(att_syntax)); global_asm!(include_str!("library/boot/arch/
-// x86_64/multiboot2.S"), options(att_syntax));
 
 /// ### The Core Library Path
 ///
@@ -82,9 +84,6 @@ use library::prelude::*;
 #[cfg(test)]
 #[panic_handler]
 fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
-
-// * x86_64
-// * -----------------------------
 
 /// ### Kernel Library Testing Entrypoint (`x86_64`)
 ///

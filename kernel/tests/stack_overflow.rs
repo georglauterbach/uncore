@@ -27,8 +27,6 @@
 
 use kernel::prelude::*;
 
-use bootloader as x86_64_bootloader;
-
 use x86_64::structures::idt::{
 	InterruptDescriptorTable,
 	InterruptStackFrame,
@@ -50,22 +48,22 @@ lazy_static::lazy_static! {
 
 pub extern "x86-interrupt" fn test_double_fault_handler(_: InterruptStackFrame, _: u64) -> !
 {
-	kernel::log_info!("Received double fault. SUCCESS.");
-	miscellaneous::qemu::exit_with_success();
-	miscellaneous::never_return()
+	log_info!("Received double fault. SUCCESS.");
+	// qemu::exit_with_success();
+	never_return()
 }
 
 #[no_mangle]
-pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootInfo) -> !
+pub extern "C" fn _start(__todo: u32) -> !
 {
-	test::main(None, boot_information);
+	// test::main(None, boot_information);
 
 	TEST_IDT.load();
-	kernel::log_info!("Initialized new (test) IDT.");
+	log_info!("Initialized new (test) IDT.");
 
 	stack_overflow();
 
-	kernel::log_error!("Execution continued after kernel stack overflow");
+	log_error!("Execution continued after kernel stack overflow");
 	panic!()
 }
 
@@ -73,7 +71,7 @@ pub extern "C" fn _start(boot_information: &'static mut x86_64_bootloader::BootI
 fn stack_overflow()
 {
 	stack_overflow();
-	volatile::Volatile::new(0).read();
+	volatile::Volatile::new(&0).read();
 }
 
 #[panic_handler]

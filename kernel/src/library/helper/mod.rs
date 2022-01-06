@@ -7,15 +7,11 @@
 /// `never_return()`.
 pub mod miscellaneous;
 
-pub use miscellaneous::never_return;
-
 /// ## Provides the API for Panicking
 ///
 /// This module provides the implementation for the panic macro and
 /// panic behavior.
-mod panic;
-
-pub use panic::panic_callback;
+pub mod panic;
 
 /// ## Providing Support for Tests
 ///

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use bootloader as x86_64_bootloader;
-
 /// ### Are We Running Tests?
 ///
 /// Can be used to get information about whether tests are run or not.
@@ -61,38 +59,7 @@ pub fn runner(tests: &[&dyn Testable])
 	}
 
 	crate::log_test!("Last test finished. SUCCESS.");
-	super::miscellaneous::qemu::exit_with_success();
-}
-
-/// ### `x86_64` Test Wrapper
-///
-/// This `main()` function exists to provide a uniform setup for
-/// integration tests running on `x86_64`.
-///
-/// This function initializes the kernel. It takes care of
-///
-/// - printing important initial information
-/// - calling the hardware initialization subroutine
-pub fn main(
-	log_level: Option<super::super::log::Level>,
-	boot_information: &'static x86_64_bootloader::BootInfo,
-)
-{
-	use super::super::{
-		hardware,
-		log,
-	};
-
-	crate::log!("Running an integration test.");
-
-	log::init(log_level, boot_information);
-
-	crate::log_info!("Kernel initialization for tests started");
-
-	hardware::init();
-	hardware::memory::init(boot_information);
-
-	crate::log_info!("Kernel initialization for tests finished");
+	// qemu::exit_with_success();
 }
 
 /// ### Sanity Check

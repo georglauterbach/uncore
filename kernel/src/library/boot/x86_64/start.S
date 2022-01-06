@@ -21,11 +21,11 @@
 .extern kernel_main
 
 start:
-        # We call `kernel_main` with two parameters:
+	# We call `kernel_main` with two parameters:
 	#   1. multiboot2 magic value
 	#   2. pointer to multiboot2 information structure
 	#
-        # Remember the SYSTEM V x86_64 calling convention:
+	# Remember the SYSTEM V x86_64 calling convention:
 	#   he first argument is stored in %edi, the second
 	#   one is stored in %esi, etc.
 	xor %rdi, %rdi

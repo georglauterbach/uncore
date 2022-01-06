@@ -38,10 +38,6 @@
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
-// Enable the `global_asm!` macro. This becomes obsolete with
-// Rust 1.59 (which is currently incompatible with the x86_64
-// crate).
-#![feature(global_asm)]
 
 //! # The `unCORE` Operating System Kernel
 //!

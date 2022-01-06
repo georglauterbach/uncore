@@ -10,35 +10,35 @@ ENTRY(start)
 
 SECTIONS {
 
-    /*
-    	FIXME, see
-    	https://github.com/phip1611/multiboot2-binary-rust/blob/main/src/rust/rust-kernel/link.ld
-    */
-    . = 8M;
+	/*
+		FIXME, see
+		https://github.com/phip1611/multiboot2-binary-rust/blob/main/src/rust/rust-kernel/link.ld
+	*/
+	. = 8M;
 
-    . = ALIGN(8);
+	. = ALIGN(8);
 
-    .text . :
-    {
-        /* see https://stackoverflow.com/questions/68475415/ */
-        *(.multiboot2_header)
-        *(.text .text.*)
-    }
+	.text . :
+	{
+		/* see https://stackoverflow.com/questions/68475415/ */
+		*(.multiboot2_header)
+		*(.text .text.*)
+	}
 
-    .rodata :
-    {
-      *(.rodata .rodata.*)
-    }
+	.rodata :
+	{
+		*(.rodata .rodata.*)
+	}
 
-    .data :
-    {
-      *(.data .data.*)
-    }
+	.data :
+	{
+		*(.data .data.*)
+	}
 
-    .bss :
-    {
-      *(COMMON)
-      *(.bss .bss.*)
-    }
+	.bss :
+	{
+		*(COMMON)
+		*(.bss .bss.*)
+	}
 
 }

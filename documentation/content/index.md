@@ -24,8 +24,7 @@ You may execute the `tools.sh` scripts if you're on Linux. This script is invoke
     - [`rustup`](https://rustup.rs/) - the [Rust] toolchain installer
     - [`rustc`](https://doc.rust-lang.org/rustc/what-is-rustc.html) - the [Rust] compiler
     - [`cargo`](https://doc.rust-lang.org/cargo/) - the [Rust] package manager
-2. the [Rust] components `rust-src` and `llvm-tools-preview` via [`rustup`](https://rustup.rs/)
-3. additional packages like [`just`](https://github.com/casey/just), a command runner, and `cargo-xbuild`, via [`cargo`](https://doc.rust-lang.org/cargo/)
+2. additional packages like [`just`](https://github.com/casey/just), a command runner, and `cargo-xbuild`, via [`cargo`](https://doc.rust-lang.org/cargo/)
 
 The script will also check whether you have [Docker] or [Podman] installed. These tools are needed to lint the code and to work the rendered version of the documentation. The script will _not_ install the container runtimes for you. Also, make sure you have [QEMU] for your OS installed.
 
