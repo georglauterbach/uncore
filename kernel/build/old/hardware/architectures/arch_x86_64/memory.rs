@@ -56,7 +56,7 @@ unsafe fn create_offset_page_table(
 		if let Some(address) = boot_information.physical_memory_offset.into_option() {
 			VirtAddr::new(address)
 		} else {
-			crate::log_fatal!("Physical memory offset non-existent");
+			log_error!("Physical memory offset non-existent");
 			panic!("Memory offset should not be non-existent");
 		};
 

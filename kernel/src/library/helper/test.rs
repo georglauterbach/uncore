@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
+use crate::prelude::*;
+
 /// ### Are We Running Tests?
 ///
 /// Can be used to get information about whether tests are run or not.
@@ -36,9 +38,9 @@ where
 {
 	fn run(&self)
 	{
-		crate::log_test!("Testing {}", ::core::any::type_name::<Self>());
+		log_info!("Testing {}", ::core::any::type_name::<Self>());
 		self();
-		crate::log_test!("Most recent test PASSED");
+		log_info!("Most recent test PASSED");
 	}
 }
 
@@ -52,13 +54,13 @@ where
 #[allow(clippy::module_name_repetitions)]
 pub fn runner(tests: &[&dyn Testable])
 {
-	crate::log_test!("Starting tests");
+	log_info!("Starting tests");
 
 	for test in tests {
 		test.run();
 	}
 
-	crate::log_test!("Last test finished. SUCCESS.");
+	log_info!("Last test finished. SUCCESS.");
 	// qemu::exit_with_success();
 }
 

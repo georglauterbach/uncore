@@ -93,8 +93,16 @@ pub extern "C" fn kernel_main(
 	#[cfg(test)]
 	__test_runner();
 
-	// hardware::init();
-	// hardware::memory::init(boot_information);
+	// ! IN PROGRESS START
+
+	log_debug!("MORJEN");
+
+	// uefi::table::SystemTable::exit_boot_services(self, image, mmap_buf)
+
+	// uefi::prelude::BootServices::exit(&self, image_handle, exit_status,
+	// exit_data_size, exit_data)
+
+	// ! IN PROGRESS END
 
 	never_return()
 }

@@ -65,10 +65,14 @@ lto = false
 # -----------------------------------------------
 
 [dependencies]
+ansi_rgb = "0.2.0"
 multiboot2 = "0.12.2"
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 log = "0.4.14"
+rgb = "0.8.31"
 spin = { version = "0.9.2", features = ["lazy"] }
+uart_16550 = "0.2.15"
+uefi = "0.13.0"
 volatile = "0.4.4"
 x86_64 = "0.14.7"
 

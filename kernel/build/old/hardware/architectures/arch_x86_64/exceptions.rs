@@ -47,7 +47,7 @@ pub(super) mod handlers
 		_error_code: u64,
 	) -> !
 	{
-		crate::log_fatal!(
+		log_error!(
 			"Fatal CPU exception occurred (double fault, abort through panic)\n{:#?}\n",
 			stack_frame
 		);

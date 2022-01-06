@@ -1,215 +1,110 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-// TODO implement the `log` (crate) facade
-
-use ::core::fmt;
-
+use ::core::{
+	cell,
+	fmt,
+};
 use crate::prelude::*;
 
-/// ### The Logging Severity Level
-///
-/// The `LOG_LEVEL` is used to define which messages are being logged.
-/// All messaged with an equal or higher priority are logged when not
-/// running tests. When running tests, all messages with a severity of
-/// `Level::Warning` or higher are logged.
-static mut LOG_LEVEL: Level = if test::IS_TEST {
-	Level::Trace
-} else {
-	Level::Info
-};
+lazy_static::lazy_static! {
 
-/// ### Log Level
-///
-/// This struct holds the five well-known log levels `Trace`, `Debug`,
-/// `info`, `Warning`, `Error` and `Fatal` as well as the `Test` log
-/// level which is for logging during tests.
-#[doc(hidden)]
-#[allow(dead_code)]
-#[derive(Debug, Eq, PartialEq, Clone, Copy, PartialOrd, Ord)]
-pub enum Level
-{
-	Trace,
-	Debug,
-	Info,
-	Warning,
-	Error,
-	Fatal,
-	Test,
-	None,
+	/// ### The Logging Severity Level
+	///
+	/// The `LOG_LEVEL` is used to define which messages are being logged.
+	/// All messaged with an equal or higher priority are logged when not
+	/// running tests. When running tests, all messages with a severity of
+	/// `Level::Warning` or higher are logged.
+	static ref LOG_LEVEL: spin::Mutex<cell::RefCell<log::Level>> =
+		spin::Mutex::new(cell::RefCell::new(log::Level::Trace));
 }
 
-impl fmt::Display for Level
+static LOGGER: KernelLog = KernelLog {};
+
+/// ### The Main Kernel Logger
+///
+/// This structure holds associated function that provide logging. The
+/// `log::Log` trait is implemented for this structure.
+pub struct KernelLog;
+
+impl KernelLog
 {
-	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
+	/// ### Pretty Logs
+	///
+	/// This function takes care of formatting and formatting
+	/// only. It introduces colors abd sets the log format.
+	fn format_arguments(level: log::Level, target: &str, message: &fmt::Arguments)
 	{
-		match &self {
-			Self::Trace => write!(f, "TRACE   | "),
-			Self::Debug => write!(f, "DEBUG   | "),
-			Self::Info => write!(f, "INFO    | "),
-			Self::Warning => write!(f, "WARNING | "),
-			Self::Error => write!(f, "ERROR   | "),
-			Self::Fatal => write!(f, "FATAL   | "),
-			Self::Test => write!(f, "TEST    | "),
-			Self::None => write!(f, ""),
+		use ansi_rgb::Foreground;
+		use log::Level;
+		use rgb::RGB8;
+
+		// https://coolors.co/da3e52-f2e94e-a3d9ff-96e6b3-4e5356
+		let red = RGB8::new(218, 62, 82);
+		let yellow = RGB8::new(242, 233, 78);
+		let blue = RGB8::new(163, 217, 255);
+		let green = RGB8::new(150, 230, 179);
+		let grey = RGB8::new(78, 83, 86);
+
+		let level = match level {
+			Level::Error => level.fg(red),
+			Level::Warn => level.fg(yellow),
+			Level::Info => level.fg(blue),
+			Level::Debug => level.fg(green),
+			Level::Trace => level.fg(grey),
+		};
+
+		Self::write(&format_args!("{} - {}  | {}", level, target, message));
+	}
+
+	/// ### Show Initial Information
+	///
+	/// This function sets the log level and displays version and
+	/// bootloader information.
+	pub fn init(log_level: Option<log::Level>)
+	{
+		if let Some(level) = log_level {
+			Self::set_log_level(level);
+		};
+
+		log::set_logger(&LOGGER).unwrap();
+
+		display_initial_information();
+		log_info!("Post-UEFI initialization started");
+	}
+
+	/// ### Set the Kernel Log Level
+	///
+	/// This function adjusts the kernel log level. Only call this
+	/// function once and at the very start if necessary.
+	fn set_log_level(new_log_level: log::Level)
+	{
+		*LOG_LEVEL.lock().borrow_mut() = new_log_level;
+	}
+
+	/// ### Write the Log to All Outputs
+	///
+	/// This function just forwards the arguments to all loggers.
+	fn write(arguments: &fmt::Arguments) { serial::write(arguments); }
+}
+
+impl log::Log for KernelLog
+{
+	fn enabled(&self, metadata: &log::Metadata) -> bool
+	{
+		metadata.level() <= *LOG_LEVEL.lock().borrow()
+	}
+
+	fn log(&self, record: &log::Record)
+	{
+		if !self.enabled(record.metadata()) {
+			return;
 		}
+
+		Self::format_arguments(record.level(), record.target(), record.args());
 	}
-}
 
-impl core::default::Default for Level
-{
-	fn default() -> Self { Self::Trace }
-}
-
-/// ### Show Initial Information
-///
-/// This function sets the log level and displays version and
-/// bootloader information.
-pub fn init(log_level: Option<Level>)
-{
-	set_log_level(log_level.unwrap_or_default());
-
-	display_initial_information();
-	log_info!("Post-UEFI initialization started");
-}
-
-/// ### Set the Kernel Log Level
-///
-/// This function adjusts the kernel log level. Only call this
-/// function once and at the very start if necessary.
-pub fn set_log_level(new_log_level: Level)
-{
-	unsafe {
-		LOG_LEVEL = new_log_level;
-	}
-}
-
-/// ### Log Indirection
-///
-/// An indirection that is used in order to make it easy to switch to
-/// different loggers or log to multiple interfaces. The indirection
-/// is nice because now we do not need to make the different output
-/// modules (such as `serial`) in this module public.
-#[doc(hidden)]
-pub const fn __log(_log_level: Level, _arguments: fmt::Arguments)
-{
-	// if log_level < unsafe { LOG_LEVEL } {
-	// 	return;
-	// }
-
-	// serial::print(format_args!("{}{}\n", log_level,
-	// arguments));
-}
-
-/// ### Print Welcome
-///
-/// This function is just here to log an unmodified line. It exists to
-/// print the welcome message of the kernel and should not be used
-/// somewhere else. Please use the log macros provided below that
-/// designate a certain log level. It is used for tests to show the
-/// `[ok]` message after a test has finished successfully.
-#[macro_export]
-macro_rules! log {
-	($($arg:tt)*) => {
-		$crate::library::log::__log(
-			$crate::library::log::Level::None,
-			format_args!($($arg)*)
-		)
-	};
-}
-
-/// ### Log with `Level::TRACE`
-///
-/// The highest log level here for very, very detailed output.
-#[macro_export]
-macro_rules! log_trace {
-	($($arg:tt)*) => {
-		$crate::library::log::__log(
-			$crate::library::log::Level::Trace,
-			format_args!($($arg)*)
-		)
-	};
-}
-
-/// ### Log with `Level::DEBUG`
-///
-/// For debugging purposes and very detailed output.
-#[macro_export]
-macro_rules! log_debug {
-	($($arg:tt)*) => {
-		$crate::library::log::__log(
-			$crate::library::log::Level::Debug,
-			format_args!($($arg)*)
-		)
-	};
-}
-
-/// ### Log with `Level::INFO`
-///
-/// Log informational output with this macro.
-#[macro_export]
-macro_rules! log_info {
-	($($arg:tt)*) => {
-		$crate::library::log::__log(
-			$crate::library::log::Level::Info,
-			format_args!($($arg)*)
-		)
-	};
-}
-
-/// ### Log with `Level::WARNING`
-///
-/// This log level makes the reader aware something may not be
-/// correct.
-#[macro_export]
-macro_rules! log_warning {
-	($($arg:tt)*) => {
-		$crate::library::log::__log(
-			$crate::library::log::Level::Warning,
-			format_args!($($arg)*)
-		)
-	};
-}
-
-/// ### Log with `Level::ERROR`
-///
-/// Show that something definitely is incorrect, but not
-/// unrecoverable.
-#[macro_export]
-macro_rules! log_error {
-	($($arg:tt)*) => {
-		$crate::library::log::__log(
-			$crate::library::log::Level::Error,
-			format_args!($($arg)*)
-		)
-	};
-}
-
-/// ### Log with `Level::FATAL`
-///
-/// Show that something went very wrong. This indicates a
-/// unrecoverable situation, such as a double fault.
-#[macro_export]
-macro_rules! log_fatal {
-	($($arg:tt)*) => {
-		$crate::library::log::__log(
-			$crate::library::log::Level::Fatal,
-			format_args!($($arg)*)
-		)
-	};
-}
-
-/// ### Log with `Level::TEST`
-///
-/// This log level shall be used when running tests.
-#[macro_export]
-macro_rules! log_test {
-	($($arg:tt)*) => {
-		$crate::library::log::__log(
-			$crate::library::log::Level::Test,
-			format_args!($($arg)*)
-		)
-	};
+	fn flush(&self) {}
 }
 
 /// ### Print Initial Information
@@ -222,7 +117,7 @@ macro_rules! log_test {
 /// - Rust toolchain information
 pub fn display_initial_information()
 {
-	log!("This is unCORE {}\n", KernelInformation::get_version());
+	log_info!("This is unCORE {}\n", KernelInformation::get_version());
 
 	log_trace!(
 		"Target triple reads '{}'",
@@ -236,4 +131,49 @@ pub fn display_initial_information()
 		"This version of unCORE was using the toolchain '{}'",
 		KernelInformation::get_rust_toolchain()
 	);
+}
+
+/// ## A Serial Device Interface
+///
+/// The `write` module makes heavy use of this module
+/// as it `serial` provides the ability to write to
+/// a serial device which is "forwarded" to `stdout`
+/// via QEMU.
+mod serial
+{
+	use spin::{
+		Lazy,
+		Mutex,
+	};
+	use uart_16550::SerialPort;
+
+	/// ### I/O Port
+	///
+	/// On the x86 architecture, there is a UART controller chip
+	/// behind this I/O port.
+	const SERIAL_IO_PORT: u16 = 0x3F8;
+
+	/// ### Serial Writer
+	///
+	/// With this port, we can write to the serial output.
+	static SERIAL0: Lazy<Mutex<SerialPort>> = Lazy::new(|| {
+		let mut serial_port = unsafe { SerialPort::new(SERIAL_IO_PORT) };
+		serial_port.init();
+		Mutex::new(serial_port)
+	});
+
+	/// ### Write to Serial Output
+	///
+	/// This function prints its arguments to the serial output.
+	pub(super) fn write(arguments: &::core::fmt::Arguments)
+	{
+		use core::fmt::Write;
+		use x86_64::instructions::interrupts;
+
+		interrupts::without_interrupts(|| {
+			SERIAL0.lock()
+				.write_fmt(*arguments)
+				.expect("Printing to serial failed");
+		});
+	}
 }

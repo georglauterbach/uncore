@@ -14,13 +14,11 @@ pub use super::helper::miscellaneous::KernelInformation;
 // * MACROS
 // * ---------------------------------------------------------------------
 
-pub use crate::log_trace;
-pub use crate::log_debug;
-pub use crate::log_info;
-pub use crate::log_warning;
-pub use crate::log_error;
-pub use crate::log_fatal;
-pub use crate::log_test;
+pub use log::trace as log_trace;
+pub use log::debug as log_debug;
+pub use log::info as log_info;
+pub use log::warn as log_warning;
+pub use log::error as log_error;
 
 // * FUNCTIONS
 // * ---------------------------------------------------------------------

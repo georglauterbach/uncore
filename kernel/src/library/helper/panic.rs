@@ -14,7 +14,7 @@ use crate::prelude::*;
 fn __default_panic(_panic_info: &PanicInfo) -> !
 {
 	log_error!("Last test did not finish. FAILURE.");
-	log_fatal!("Received panic");
+	log_error!("Received panic");
 
 	never_return()
 }
@@ -28,7 +28,7 @@ fn __default_panic(_panic_info: &PanicInfo) -> !
 #[inline]
 fn __default_panic(panic_info: &PanicInfo) -> !
 {
-	crate::log_fatal!(
+	log_error!(
 		"Received panic (message = \"{:?}\")",
 		panic_info
 			.message()
@@ -48,7 +48,7 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 #[inline]
 fn __should_panic(_panic_info: &PanicInfo) -> !
 {
-	crate::log_test!("Received panic. SUCCESS.");
+	log_info!("Received panic. SUCCESS.");
 
 	// just write the success code for QEMU
 	// when we are actually using QEMU
