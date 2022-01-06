@@ -70,7 +70,7 @@ lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 log = "0.4.14"
 spin = { version = "0.9.2", features = ["lazy"] }
 volatile = "0.4.4"
-x86_64 = "0.14.6"
+x86_64 = "0.14.7"
 
 # -----------------------------------------------
 # ----  Workspace  ------------------------------

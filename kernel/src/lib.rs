@@ -47,13 +47,6 @@
 // Checking the target ABI is still experimental
 // and subject to change.
 #![feature(cfg_target_abi)]
-// Enable inline assembly as this feature has not been stabilized
-// yet.
-#![feature(asm)]
-// Enable the `global_asm!` macro. This becomes obsolete with
-// Rust 1.59 (which is currently incompatible with the x86_64
-// crate).
-#![feature(global_asm)]
 
 //! # The `unCORE` Operating System Kernel
 //!

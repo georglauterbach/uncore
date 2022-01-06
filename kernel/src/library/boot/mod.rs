@@ -4,6 +4,8 @@
 // Include order possibly matters for the linker. Make sure to
 // pick the correct sequence.
 
+use core::arch::global_asm;
+
 // * x86_64
 // * ---------------------------------------------------------------------
 
