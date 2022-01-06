@@ -7,19 +7,7 @@ use ::core::{
 };
 use crate::prelude::*;
 
-lazy_static::lazy_static! {
-
-	/// ### The Logging Severity Level
-	///
-	/// The `LOG_LEVEL` is used to define which messages are being logged.
-	/// All messaged with an equal or higher priority are logged when not
-	/// running tests. When running tests, all messages with a severity of
-	/// `Level::Warning` or higher are logged.
-	static ref LOG_LEVEL: spin::Mutex<cell::RefCell<log::Level>> =
-		spin::Mutex::new(cell::RefCell::new(log::Level::Trace));
-}
-
-static LOGGER: KernelLog = KernelLog {};
+static LOGGER: qemu::QemuDebugLogger = qemu::QemuDebugLogger::new();
 
 /// ### The Main Kernel Logger
 ///
@@ -33,7 +21,7 @@ impl KernelLog
 	///
 	/// This function takes care of formatting and formatting
 	/// only. It introduces colors abd sets the log format.
-	fn format_arguments(level: log::Level, target: &str, message: &fmt::Arguments)
+	fn format_arguments(record: &log::Record)
 	{
 		use ansi_rgb::Foreground;
 		use log::Level;
@@ -46,6 +34,7 @@ impl KernelLog
 		let green = RGB8::new(150, 230, 179);
 		let grey = RGB8::new(78, 83, 86);
 
+		let level = record.level();
 		let level = match level {
 			Level::Error => level.fg(red),
 			Level::Warn => level.fg(yellow),
@@ -54,7 +43,13 @@ impl KernelLog
 			Level::Trace => level.fg(grey),
 		};
 
-		Self::write(&format_args!("{} - {}  | {}", level, target, message));
+		Self::write(&format_args!(
+			"{:>7} {:>15}@{:<4} | {}",
+			level,
+			record.file().unwrap_or("unknown"),
+			record.line().unwrap_or(0),
+			record.args()
+		));
 	}
 
 	/// ### Show Initial Information
@@ -64,22 +59,13 @@ impl KernelLog
 	pub fn init(log_level: Option<log::Level>)
 	{
 		if let Some(level) = log_level {
-			Self::set_log_level(level);
+			log::set_max_level(level.to_level_filter())
 		};
 
 		log::set_logger(&LOGGER).unwrap();
 
 		display_initial_information();
 		log_info!("Post-UEFI initialization started");
-	}
-
-	/// ### Set the Kernel Log Level
-	///
-	/// This function adjusts the kernel log level. Only call this
-	/// function once and at the very start if necessary.
-	fn set_log_level(new_log_level: log::Level)
-	{
-		*LOG_LEVEL.lock().borrow_mut() = new_log_level;
 	}
 
 	/// ### Write the Log to All Outputs
@@ -92,7 +78,8 @@ impl log::Log for KernelLog
 {
 	fn enabled(&self, metadata: &log::Metadata) -> bool
 	{
-		metadata.level() <= *LOG_LEVEL.lock().borrow()
+		// metadata.level() <= *LOG_LEVEL.lock().borrow()
+		true
 	}
 
 	fn log(&self, record: &log::Record)
@@ -101,7 +88,7 @@ impl log::Log for KernelLog
 			return;
 		}
 
-		Self::format_arguments(record.level(), record.target(), record.args());
+		Self::format_arguments(record);
 	}
 
 	fn flush(&self) {}
@@ -175,5 +162,88 @@ mod serial
 				.write_fmt(*arguments)
 				.expect("Printing to serial failed");
 		});
+	}
+}
+
+mod qemu
+{
+
+	use core::fmt::Write;
+	use log::{Metadata, Record};
+	use uefi::{CStr16, Char16};
+
+	/// Implementation of a logger for the [`log`] crate, that
+	/// writes everything to QEMUs "debugcon" feature, i.e. x86
+	/// i/o-port 0xe9.
+	pub struct QemuDebugLogger {}
+
+	impl QemuDebugLogger
+	{
+		pub const fn new() -> Self { Self {} }
+	}
+
+	impl log::Log for QemuDebugLogger
+	{
+		fn enabled(&self, _metadata: &Metadata) -> bool { true }
+
+		fn log(&self, record: &Record)
+		{
+			let mut buf = arrayvec::ArrayString::<16384>::new();
+
+			let res = writeln!(
+				&mut buf,
+				"[{:>5}] {:>15}@{}: {}",
+				record.level(),
+				record.file().unwrap_or("<unknown file>"),
+				record.line().unwrap_or(0),
+				record.args()
+			);
+			if let Err(e) = res {
+				let mut buf = arrayvec::ArrayString::<256>::new();
+				let _ = write!(
+					buf,
+					"QemuDebugLoggerError({})",
+					e
+				);
+				qemu_debug_stdout_str("QemuDebugLogger: ");
+				qemu_debug_stdout_str(buf.as_str());
+				qemu_debug_stdout_str("\n");
+				// panic_error!(BootError::
+				// PanicStackArrayTooSmall, "");
+			}
+
+			// in any way, write the string as far as it was formatted (even if it
+			// failed in the middle)
+			qemu_debug_stdout_str(buf.as_str());
+		}
+
+		fn flush(&self) {}
+	}
+
+	pub fn qemu_debug_stdout_str(msg: &str) { qemu_debug_stdout_u8_arr(msg.as_bytes()); }
+
+	#[allow(unused)]
+	pub fn qemu_debug_stdout_c16str(msg: &CStr16)
+	{
+		msg.iter().for_each(|c: &Char16| {
+			let val: u16 = (*c).into();
+			qemu_debug_stdout_u8_arr(&val.to_be_bytes());
+		});
+	}
+
+	/// Assumes that the output is valid ASCII.
+	/// Data is not transformed to ASCII.
+	pub fn qemu_debug_stdout_u8_arr(bytes: &[u8])
+	{
+		for byte in bytes {
+			unsafe { x86::io::outb(0xE9, *byte) };
+		}
+	}
+	#[allow(unused)]
+	pub fn qemu_debug_stdout_char_arr(chars: &[char])
+	{
+		for char in chars {
+			unsafe { x86::io::outb(0xE9, *char as u8) };
+		}
 	}
 }

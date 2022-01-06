@@ -11,6 +11,8 @@ use core::arch::global_asm;
 
 #[cfg(target_arch = "x86_64")]
 global_asm!(include_str!("x86_64/start.S"), options(att_syntax));
+// global_asm!(include_str!("x86_64/s.S"));
 
 #[cfg(target_arch = "x86_64")]
 global_asm!(include_str!("x86_64/multiboot2.S"), options(att_syntax));
+// global_asm!(include_str!("x86_64/mb2.S"));

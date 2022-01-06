@@ -87,15 +87,33 @@ fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, pan
 #[no_mangle]
 pub extern "C" fn kernel_main(
 	_multiboot2_magic_value: u32,
-	_multiboot2_boot_information_pointer: u32,
+	multiboot2_boot_information_pointer: u32,
 ) -> !
 {
-	#[cfg(test)]
-	__test_runner();
+	// #[cfg(test)]
+	// __test_runner();
 
 	// ! IN PROGRESS START
 
+	let a = 5;
+	let b = 4;
+	let _c = add_numbers(a, b);
+
+	kernel::library::log::KernelLog::init(None);
+
 	log_debug!("MORJEN");
+
+	use uefi::prelude::{Boot, SystemTable};
+
+	let mb2_boot_info: multiboot2::BootInformation =
+		unsafe { multiboot2::load(multiboot2_boot_information_pointer as usize) }.expect("Couldn't load MBI");
+	let uefi_system_table = mb2_boot_info.efi_sdt_64_tag();
+	let uefi_system_table = uefi_system_table.unwrap();
+	let uefi_system_table: SystemTable<Boot> =
+		unsafe { core::mem::transmute(uefi_system_table.sdt_address()) };
+	
+	uefi_system_table.stdout().clear().unwrap().unwrap();
+	// uefi_system_table.exit_boot_services(image, mmap_buf)
 
 	// uefi::table::SystemTable::exit_boot_services(self, image, mmap_buf)
 
@@ -105,4 +123,9 @@ pub extern "C" fn kernel_main(
 	// ! IN PROGRESS END
 
 	never_return()
+}
+
+#[no_mangle]
+fn add_numbers(a: i32, b: i32) -> i32 {
+    a + b
 }

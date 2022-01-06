@@ -13,11 +13,11 @@ kernel/src/library/
 └── hardware
 ```
 
-Some of these modules are so-called kernel core components. This is just a fancy way of saying that they are very important to the kernel's main functionality, and without them, the kernel would not work. Core components include (non-exhaustivly) `helper`, `processes`, `scheduling`, ... There are dedicated pages for every module: Each module is listed to the right of this text in a navigation menu. The interplay of all modules is somewhat obvious, and all modules have a rather concise name so everyone knows what their purpose is.
+Some of these modules are so-called kernel core components. This is just a fancy way of saying that they are very important to the kernel's main functionality, and without them, the kernel would not work. Core components include (non-exhaustively) `helper`, `processes`, `scheduling`, ... There are dedicated pages for every module: Each module is listed to the right of this text in a navigation menu. The interplay of all modules is somewhat obvious, and all modules have a rather concise name so everyone knows what their purpose is.
 
 ## The Boot Process
 
-_unCORE_ uses [multiboot2] and GRUP to easily circumvent the hassle of tediously writing our own lengthy boot code.
+_unCORE_ uses [multiboot2] and GRUB to easily circumvent the hassle of tediously writing our own lengthy boot code.
 
 [//]: # (Links)
 

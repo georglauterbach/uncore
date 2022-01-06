@@ -56,22 +56,22 @@ multiboot_2_header_start:
 
 	# optional multiboot tags (3.1.12 EFI boot services)
 	# see 2.1
-	.align 8
-	.EFI_boot_services_tags_start:
-	.word 0x7
-	.word 0x0
-	.long .EFI_boot_services_tags_end - .EFI_boot_services_tags_start
-	.EFI_boot_services_tags_end:
+	// .align 8
+	// .EFI_boot_services_tags_start:
+	// .word 0x7
+	// .word 0x0
+	// .long .EFI_boot_services_tags_end - .EFI_boot_services_tags_start
+	// .EFI_boot_services_tags_end:
 
 	# optional multiboot tags (3.1.8 EFI amd64 entry address)
 	# see 2.2
-	.EFI_amd64_entry_address_tags_start:
-	.align 8
-	.word 0x9
-	.word 0x0
-	.long .EFI_amd64_entry_address_tags_end - .EFI_amd64_entry_address_tags_start
-	.long start
-	.EFI_amd64_entry_address_tags_end:
+	// .EFI_amd64_entry_address_tags_start:
+	// .align 8
+	// .word 0x9
+	// .word 0x0
+	// .long .EFI_amd64_entry_address_tags_end - .EFI_amd64_entry_address_tags_start
+	// .long start
+	// .EFI_amd64_entry_address_tags_end:
 
 	# required end tags
 	.align 8

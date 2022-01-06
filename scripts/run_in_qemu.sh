@@ -103,7 +103,7 @@ function run_in_qemu
   QEMU_ARGUMENTS+=("format=raw,file=fat:rw:${QEMU_VOLUME_DIRECTORY}")
 
   QEMU_ARGUMENTS+=('-debugcon')
-  QEMU_ARGUMENTS+=('file:build/qemu/debugcon.txt') # or "/dev/stdout"
+  QEMU_ARGUMENTS+=('file:build/qemu/debugcon.txt') # file:build/qemu/debugcon.txt or file:/dev/stdout
 
   # output
   QEMU_ARGUMENTS+=('-serial')

@@ -42,8 +42,10 @@ start:
 	#   own stack.
 	xor %rsp, %rsp
 	xor %rbp, %rbp
-	mov $initial_stack_top, %rsp
-	mov $initial_stack_top, %rbp
+	mov $initial_stack_top, %rbx
+	lea -0x8(%rbx), %rsp
+	lea -0x8(%rbx), %rbp
+	xor %rbx, %rbx
 
 	jmp kernel_main
 
