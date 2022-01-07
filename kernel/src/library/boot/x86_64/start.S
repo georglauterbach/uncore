@@ -20,41 +20,44 @@
 .global start
 .extern kernel_main
 
-start:
-	# We call `kernel_main` with two parameters:
-	#   1. multiboot2 magic value
-	#   2. pointer to multiboot2 information structure
-	#
-	# Remember the SYSTEM V x86_64 calling convention:
-	#   he first argument is stored in %edi, the second
-	#   one is stored in %esi, etc.
-	xor %rdi, %rdi
-	mov %esi, %esi
-	mov %eax, %edi
-	mov %ebx, %esi
+.section .text
 
-	# Stack setup happens here (stack grows downwards,
-	#   from high to low addresses)
-	#
-	# GRUB already used the stack provided by the UEFI
-	#   firmware and the multiboot2 specification also
-	#   says that our application needs to set up its
-	#   own stack.
-	xor %rsp, %rsp
-	xor %rbp, %rbp
-	mov $initial_stack_top, %rbx
-	lea -0x8(%rbx), %rsp
-	lea -0x8(%rbx), %rbp
-	xor %rbx, %rbx
+	start:
+		# We call `kernel_main` with two parameters:
+		#   1. multiboot2 magic value
+		#   2. pointer to multiboot2 information structure
+		#
+		# Remember the SYSTEM V x86_64 calling convention:
+		#   he first argument is stored in %edi, the second
+		#   one is stored in %esi, etc.
+		xorq %rdi, %rdi
+		xorq %rSi, %rsi
+		
+		movl %eax, %edi
+		movl %ebx, %esi
 
-	jmp kernel_main
+		# Stack setup happens here (stack grows downwards,
+		#   from high to low addresses)
+		#
+		# GRUB already used the stack provided by the UEFI
+		#   firmware and the multiboot2 specification also
+		#   says that our application needs to set up its
+		#   own stack.
+		xorq %rsp, %rsp
+		xorq %rbp, %rbp
 
-	.stop:
-		cli
-		hlt
+		movl $initial_stack_top - 8, %esp
+		movl $initial_stack_top - 8, %ebp
+
+		jmp kernel_main
+
+		.stop:
+			cli
+			hlt
 
 .section .bss
-.align 16
-initial_stack_bottom:
-	.zero 0x2000
-initial_stack_top:
+
+	.align 16
+	initial_stack_bottom:
+		.fill 0x20000
+	initial_stack_top:
