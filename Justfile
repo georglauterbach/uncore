@@ -6,14 +6,13 @@
 set shell         := [ "bash", "-eu", "-o", "pipefail", "-c" ]
 set dotenv-load   := false
 
-DATE              := `date +'%Y-%m-%d'`
 GIT_REVISION_HEAD := `git rev-parse --short HEAD`
 DEFAULT_TARGET    := `rustc -Vv | grep 'host:' | cut -d ' ' -f 2`
 BUILD_TOOL        := 'cargo'
 
 export ROOT_DIRECTORY := justfile_directory()
 export KERNEL_VERSION := `grep -m 1 'version*' kernel/Cargo.toml | cut -d '"' -f 2`
-export VERSION        := KERNEL_VERSION + ' (' + GIT_REVISION_HEAD + ' ' + DATE + ')'
+export VERSION        := KERNEL_VERSION + ' (' + GIT_REVISION_HEAD + ')'
 
 KERNEL_DEFAULT_TARGET_PATH := 'build/targets/x86_64-unknown-none.json'
 KERNEL_BUILD_FLAGS_1       := ' -Z build-std=core,compiler_builtins,alloc'

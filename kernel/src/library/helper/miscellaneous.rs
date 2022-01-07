@@ -18,6 +18,12 @@
 /// format, i.e. firmware, kernels, etc.
 const BUILD_TARGET: Option<&str> = option_env!("BUILD_TARGET");
 
+/// ### Compilation Date and Time
+///
+/// Contains the output of `date +'%H:%M, %d %b %Y'` right before the
+/// kernel was compiled.
+const COMPILATION_DATE_AND_TIME: Option<&str> = option_env!("COMPILATION_DATE_AND_TIME");
+
 /// ### Rust Toolchain
 ///
 /// Holds the toolchain information that this version of the kernel
@@ -64,6 +70,17 @@ impl KernelInformation
 		let target_triple: &str = "unknown";
 
 		BUILD_TARGET.unwrap_or(target_triple)
+	}
+
+	/// ### Kernel Compilation Date and Time
+	///
+	/// Returns the kernel's build date and time, if the
+	/// corresponding environment variable was present, otherwise
+	/// returns "unknown".
+	#[must_use]
+	pub fn get_compilation_date_and_time() -> &'static str
+	{
+		COMPILATION_DATE_AND_TIME.unwrap_or("unknown")
 	}
 
 	/// ### Kernel Rust Toolchain Information

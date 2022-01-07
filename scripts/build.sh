@@ -27,24 +27,26 @@ fi
 
 function build_kernel
 {
-  local KERNEL_BUILD_TARGET KERNEL_BINARY RUSTC_VERSION RUST_TOOLCHAIN
-  local QEMU_KERNEL_BINARY
+  local KERNEL_BINARY RUSTC_VERSION RUST_TOOLCHAIN COMPILATION_DATE_AND_TIME
+  local KERNEL_BUILD_TARGET QEMU_KERNEL_BINARY
 
   QEMU_KERNEL_BINARY='build/qemu/kernel.bin'
   KERNEL_BUILD_TARGET="${1:-x86_64-unknown-none}"
   KERNEL_BINARY="target/${KERNEL_BUILD_TARGET}/debug/kernel"
   RUSTC_VERSION="$(rustc --version)"
   RUST_TOOLCHAIN="$(rustup toolchain list | grep -E '(override)' | cut -d ' ' -f 1)"
+  COMPILATION_DATE_AND_TIME="$(date +'%H:%M, %d %b %Y')"
 
   notify 'inf' "Compiling kernel for target '${KERNEL_BUILD_TARGET}'"
 
-  if ! VERSION="${VERSION:-testing}"                     \
-    BUILD_TARGET="${KERNEL_BUILD_TARGET}"                \
-    RUSTC_VERSION="${RUSTC_VERSION}"                     \
-    RUST_TOOLCHAIN="${RUST_TOOLCHAIN}"                   \
-    cargo build                                          \
-    --target "build/targets/${KERNEL_BUILD_TARGET}.json" \
-    -Z build-std=core,compiler_builtins,alloc            \
+  if ! VERSION="${VERSION:-testing}"                         \
+    BUILD_TARGET="${KERNEL_BUILD_TARGET}"                    \
+    RUSTC_VERSION="${RUSTC_VERSION}"                         \
+    RUST_TOOLCHAIN="${RUST_TOOLCHAIN}"                       \
+    COMPILATION_DATE_AND_TIME="${COMPILATION_DATE_AND_TIME}" \
+    cargo build                                              \
+    --target "build/targets/${KERNEL_BUILD_TARGET}.json"     \
+    -Z build-std=core,compiler_builtins,alloc                \
     -Z build-std-features=compiler-builtins-mem
   then
     notify 'err' 'Could not compile kernel'

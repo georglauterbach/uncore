@@ -103,12 +103,21 @@ pub fn display_initial_information()
 		"Target triple reads '{}'",
 		KernelInformation::get_build_target()
 	);
+
+	let common_string = "This version of unCORE was ";
 	log_trace!(
-		"This version of unCORE was compiled with rustc version '{}'",
+		"{}compiled at '{}'",
+		common_string,
+		KernelInformation::get_compilation_date_and_time()
+	);
+	log_trace!(
+		"{}compiled with rustc version '{}'",
+		common_string,
 		KernelInformation::get_rustc_version()
 	);
 	log_trace!(
-		"This version of unCORE was using the toolchain '{}'",
+		"{}using the toolchain '{}'",
+		common_string,
 		KernelInformation::get_rust_toolchain()
 	);
 }
@@ -163,85 +172,79 @@ mod serial
 /// a [`log`]-conform structure for the global logger to use.
 mod qemu
 {
-	// TODO needs formatting
-	use core::fmt::Write;
-	use log::{
-		Metadata,
-		Record,
-	};
-	use uefi::{
-		CStr16,
-		Char16,
-	};
-
+	/// ### QEMU `debugcon` Logger
+	///
 	/// Implementation of a logger for the [`log`] crate, that
-	/// writes everything to QEMUs "debugcon" feature, i.e. x86
+	/// writes everything to QEMU's "debugcon" feature, i.e. x86
 	/// i/o-port 0xe9.
 	pub struct Logger;
 
 	impl Logger
 	{
+		/// ### Construct a New QEMU Logger
+		///
+		/// This function creates a new instance of the QEMU
+		/// logger structure.
 		pub const fn new() -> Self { Self }
 	}
 
 	impl log::Log for Logger
 	{
-		fn enabled(&self, _metadata: &Metadata) -> bool { true }
-
-		fn log(&self, record: &Record)
+		fn enabled(&self, metadata: &log::Metadata) -> bool
 		{
+			metadata.level() <= log::max_level()
+		}
+
+		fn log(&self, record: &log::Record)
+		{
+			use ::core::fmt::Write;
+			use log::Level;
+
 			let mut buf = arrayvec::ArrayString::<16384>::new();
 
-			let res = writeln!(
+			// https://coolors.co/da3e52-f2e94e-a3d9ff-96e6b3-9fa4a8
+			let log_level = match record.level() {
+				Level::Error => " ERROR ",
+				Level::Warn => "WARNING",
+				Level::Info => "  INF  ",
+				Level::Debug => " DEBUG ",
+				Level::Trace => " TRACE ",
+			};
+
+			let result = writeln!(
 				&mut buf,
-				"[{:>5}] {:>15}@{}: {}",
-				record.level(),
-				record.file().unwrap_or("<unknown file>"),
+				"[ {} ] {:>20.*}@{:<4.*} | {}\n",
+				log_level,
+				20,
+				record.file().unwrap_or("unknown"),
+				4,
 				record.line().unwrap_or(0),
 				record.args()
 			);
-			if let Err(e) = res {
+
+			if let Err(error) = result {
 				let mut buf = arrayvec::ArrayString::<256>::new();
-				let _ = write!(buf, "QemuDebugLoggerError({})", e);
-				qemu_debug_stdout_str("Logger: ");
-				qemu_debug_stdout_str(buf.as_str());
-				qemu_debug_stdout_str("\n");
-				// panic_error!(BootError::
-				// PanicStackArrayTooSmall, "");
+				let _ = write!(buf, "QEMU debugcon error: {}", error);
+				write_to_debugcon_port("(fail-save log) | ");
+				write_to_debugcon_port(buf.as_str());
+				write_to_debugcon_port("\n");
 			}
 
-			// in any way, write the string as far as it was formatted (even if it
-			// failed in the middle)
-			qemu_debug_stdout_str(buf.as_str());
+			write_to_debugcon_port(buf.as_str());
 		}
 
 		fn flush(&self) {}
 	}
 
-	pub fn qemu_debug_stdout_str(msg: &str) { qemu_debug_stdout_u8_arr(msg.as_bytes()); }
-
-	#[allow(unused)]
-	pub fn qemu_debug_stdout_c16str(msg: &CStr16)
+	/// ### Write to the Correct Port
+	///
+	/// This function writes to the `0xE9` port (port-mapped I/O).
+	/// It assumes that the output is valid ASCII. The data is not
+	/// transformed to ASCII.
+	pub fn write_to_debugcon_port(bytes: &str)
 	{
-		msg.iter().for_each(|c: &Char16| {
-			let val: u16 = (*c).into();
-			qemu_debug_stdout_u8_arr(&val.to_be_bytes());
-		});
-	}
-
-	/// Assumes that the output is valid ASCII.
-	/// Data is not transformed to ASCII.
-	pub fn qemu_debug_stdout_u8_arr(bytes: &[u8])
-	{
-		for byte in bytes {
+		for byte in bytes.as_bytes() {
 			unsafe { x86::io::outb(0xE9, *byte) };
-		}
-	}
-	#[allow(unused)]
-	pub fn qemu_debug_stdout_char_arr(chars: &[char])
-	{
-		for char in chars {
-			unsafe { x86::io::outb(0xE9, *char as u8) };
 		}
 	}
 }
