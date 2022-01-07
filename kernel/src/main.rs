@@ -61,13 +61,22 @@ use kernel::{
 /// (written in assembly). We're still in the UEFI boot services are
 /// still enabled: it is our job to disable them now.
 #[no_mangle]
-pub fn kernel_main(_multiboot2_magic_value: u32, _multiboot2_boot_information_pointer: u32) -> !
+pub fn kernel_main(
+	multiboot2_bootloader_magic_value: u32,
+	multiboot2_boot_information_pointer: u32,
+) -> !
 {
 	#[cfg(test)]
 	__test_runner();
 
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
+
+	library::boot::check_and_handle_multiboot2(
+		multiboot2_bootloader_magic_value,
+		multiboot2_boot_information_pointer,
+	);
+	library::boot::exit_uefi_boot_services();
 
 	never_return()
 }

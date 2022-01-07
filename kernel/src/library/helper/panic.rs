@@ -29,11 +29,13 @@ fn __default_panic(_panic_info: &PanicInfo) -> !
 fn __default_panic(panic_info: &PanicInfo) -> !
 {
 	log_error!(
-		"Received panic (message = \"{:?}\")",
+		"Received panic ({:?})",
 		panic_info
 			.message()
 			.unwrap_or(&format_args!("no message provided"))
 	);
+
+	log_error!("Aborting");
 
 	// #[cfg(target_abi = "none")]
 	// qemu::exit_with_failure();

@@ -7,7 +7,7 @@
 /// architectures. These are written in assembly and includes in the
 /// `mod.rs` file via conditional compilation and the `global_asm!`
 /// macro.
-mod boot;
+pub mod boot;
 
 /// ## Generic Helper Function
 ///
@@ -37,15 +37,3 @@ pub mod log;
 /// use library::prelude::*;
 /// ```
 pub mod prelude;
-
-/// ## Handle UEFI
-///
-/// Handles UEFI related matters. After entry into
-/// `crate::kernel_main(...)`, UEFI boot services are still active and
-/// we need to handle and exit them.
-///
-/// ### Trivia
-///
-/// The module name was chosen in order to not conflict with the
-/// `uefi` crate.
-mod __uefi;

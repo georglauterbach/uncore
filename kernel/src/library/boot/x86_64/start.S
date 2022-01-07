@@ -59,5 +59,5 @@
 
 	.align 16
 	initial_stack_bottom:
-		.fill 0x20000
+		.fill 0x40000
 	initial_stack_top:

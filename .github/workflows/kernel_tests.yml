@@ -21,8 +21,7 @@ env:
   BUILD_FLAGS: >
     -Z build-std=core,compiler_builtins,alloc
     -Z build-std-features=compiler-builtins-mem
-  BUILD_TARGET_PATH: >
-    --target build/targets/x86_64-unknown-none.json
+  BUILD_TARGET_PATH: --target build/targets/x86_64-unknown-none.json
 
 jobs:
   linting:
@@ -51,7 +50,7 @@ jobs:
       - name: Run `cargo fmt`
         run: cargo fmt --all --message-format human -- --check
 
-      - name: Run `cargo clippy` for kernel
+      - name: Run `cargo clippy`
         run: cargo clippy --lib --all-features -- -D warnings
 
   unit-and-integration-tests:

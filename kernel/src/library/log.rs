@@ -85,6 +85,8 @@ pub fn init(log_level: Option<log::Level>)
 	}
 
 	log::set_logger(&LOGGER).expect("Log should not have already been set");
+
+	crate::prelude::log_debug!("Enabled global logger");
 }
 
 /// ### Print Initial Information
@@ -203,9 +205,9 @@ mod serial
 			};
 
 			Self::write(format_args!(
-				"[ {} ] {:>20.*}{}{:<4.*} | {}\n",
+				"[ {} ] {:>25.*}{}{:<4.*} | {}\n",
 				log_level.fg(color),
-				20,
+				25,
 				record.file().unwrap_or("unknown"),
 				"@".fg(color),
 				4,
@@ -274,9 +276,9 @@ mod qemu
 
 			let result = writeln!(
 				&mut buf,
-				"[ {} ] {:>20.*}@{:<4.*} | {}\n",
+				"[ {} ] {:>25.*}@{:<4.*} | {}\n",
 				log_level,
-				20,
+				25,
 				record.file().unwrap_or("unknown"),
 				4,
 				record.line().unwrap_or(0),

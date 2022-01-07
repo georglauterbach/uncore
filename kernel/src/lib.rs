@@ -38,15 +38,18 @@
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
-// Since the `x86-interrupt` calling convention is still unstable, we
-// have to opt-in.
+// Since the `x86-interrupt` calling convention is still unstable,
+// we have to opt-in.
 #![feature(abi_x86_interrupt)]
-// Since retrieving the message during a call to `panic!` is
-// still unstable, we have to opt-in.
-#![feature(panic_info_message)]
 // Checking the target ABI is still experimental
 // and subject to change.
 #![feature(cfg_target_abi)]
+// Dereferencing raw mutable pointers in constant functions is still
+// unstable.
+#![feature(const_mut_refs)]
+// Since retrieving the message during a call to `panic!` is
+// still unstable, we have to opt-in.
+#![feature(panic_info_message)]
 
 //! # The `unCORE` Operating System Kernel
 //!
