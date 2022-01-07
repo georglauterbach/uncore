@@ -6,7 +6,10 @@
 /// This static variable is used by the [`log`] crate for
 /// logging kernel-wide.
 pub static LOGGER: KernelLogger = KernelLogger {
-	qemu_debug_logger: qemu::Logger::new(),
+	qemu_debug_logger:         qemu::Logger::new(),
+	qemu_debug_logger_enabled: true,
+	serial_logger:             serial::Logger::new(),
+	serial_logger_enabled:     true,
 };
 
 /// ### The Main Kernel Logger
@@ -17,41 +20,36 @@ pub struct KernelLogger
 {
 	/// We use the QEMU `debugcon` feature to log to a file
 	/// located under `build/qemu/debugcon.txt`.
-	qemu_debug_logger: qemu::Logger,
+	qemu_debug_logger:         qemu::Logger,
+	/// Indicates whether QEMU's `debugcon` feature should be
+	/// enabled.
+	qemu_debug_logger_enabled: bool,
+	/// The serial interface is accessed via port-mapped I/O
+	/// and forwarded by QEMU to standard output on the terminal.
+	serial_logger:             serial::Logger,
+	/// Indicates whether the serial interface should log
+	/// messages.
+	serial_logger_enabled:     bool,
 }
 
 impl KernelLogger
 {
-	/// ### Pretty Logs
+	/// ### Enable or Disable QEMU
 	///
-	/// This function takes care of formatting the log record
-	/// and dispatching it all available loggers. It introduces
-	/// colors and sets the log format for certain logs.
-	fn format_and_write_arguments(record: &log::Record)
+	/// This function enabled or disables the log for QEMU's
+	/// `debugcon` feature.
+	pub fn enable_or_disable_qemu(&mut self, state_as_bool: bool)
 	{
-		use ansi_rgb::Foreground;
-		use log::Level;
-		use rgb::RGB8;
+		self.qemu_debug_logger_enabled = state_as_bool;
+	}
 
-		// https://coolors.co/da3e52-f2e94e-a3d9ff-96e6b3-9fa4a8
-		let (log_level, color) = match record.level() {
-			Level::Error => (" ERROR ", RGB8::new(218, 62, 82)),
-			Level::Warn => ("WARNING", RGB8::new(242, 233, 78)),
-			Level::Info => ("  INF  ", RGB8::new(163, 217, 255)),
-			Level::Debug => (" DEBUG ", RGB8::new(150, 230, 179)),
-			Level::Trace => (" TRACE ", RGB8::new(159, 164, 168)),
-		};
-
-		serial::write(format_args!(
-			"[ {} ] {:>20.*}{}{:<4.*} | {}\n",
-			log_level.fg(color),
-			20,
-			record.file().unwrap_or("unknown"),
-			"@".fg(color),
-			4,
-			record.line().unwrap_or(0),
-			record.args().fg(color)
-		));
+	/// ### Enable or Disable QEMU
+	///
+	/// This function enabled or disables the log for the serial
+	/// interface.
+	pub fn enable_or_disable_serial(&mut self, state_as_bool: bool)
+	{
+		self.serial_logger_enabled = state_as_bool;
 	}
 }
 
@@ -65,8 +63,12 @@ impl log::Log for KernelLogger
 			return;
 		}
 
-		Self::format_and_write_arguments(record);
-		self.qemu_debug_logger.log(record);
+		if self.qemu_debug_logger_enabled {
+			self.qemu_debug_logger.log(record);
+		}
+		if self.serial_logger_enabled {
+			self.serial_logger.log(record);
+		}
 	}
 
 	fn flush(&self) {}
@@ -124,10 +126,8 @@ pub fn display_initial_information()
 
 /// ## A Serial Device Interface
 ///
-/// The `write` module makes heavy use of this module
-/// as it `serial` provides the ability to write to
-/// a serial device which is "forwarded" to `stdout`
-/// via QEMU.
+/// This module abstracts over the serial port (port-mapped I/O) and
+/// provides a [`log`]-conform structure for the global logger to use.
 mod serial
 {
 	use spin::{
@@ -151,18 +151,68 @@ mod serial
 		Mutex::new(serial_port)
 	});
 
-	/// ### Write to Serial Output
+	/// ### A Serial Port Interface
 	///
-	/// This function prints its arguments to the serial output.
-	pub(super) fn write(arguments: ::core::fmt::Arguments)
-	{
-		use ::core::fmt::Write;
+	/// This structure abstracts over the serial port and logs
+	/// messages on this port.
+	pub struct Logger;
 
-		x86_64::instructions::interrupts::without_interrupts(|| {
-			SERIAL0.lock()
-				.write_fmt(arguments)
-				.expect("Printing to serial failed");
-		});
+	impl Logger
+	{
+		/// ### Construct a New Serial Logger
+		///
+		/// This function creates a new instance of the serial
+		/// logger structure.
+		pub const fn new() -> Self { Self }
+
+		/// ### Write to Serial Output
+		///
+		/// This function prints its arguments to the serial
+		/// output.
+		pub(super) fn write(arguments: ::core::fmt::Arguments)
+		{
+			use ::core::fmt::Write;
+
+			x86_64::instructions::interrupts::without_interrupts(|| {
+				SERIAL0.lock()
+					.write_fmt(arguments)
+					.expect("Printing to serial failed");
+			});
+		}
+	}
+
+	impl log::Log for Logger
+	{
+		fn enabled(&self, _: &log::Metadata) -> bool { true }
+
+		fn flush(&self) {}
+
+		fn log(&self, record: &log::Record)
+		{
+			use ansi_rgb::Foreground;
+			use log::Level;
+			use rgb::RGB8;
+
+			// https://coolors.co/da3e52-f2e94e-a3d9ff-96e6b3-9fa4a8
+			let (log_level, color) = match record.level() {
+				Level::Error => (" ERROR ", RGB8::new(218, 62, 82)),
+				Level::Warn => ("WARNING", RGB8::new(242, 233, 78)),
+				Level::Info => ("  INF  ", RGB8::new(163, 217, 255)),
+				Level::Debug => (" DEBUG ", RGB8::new(150, 230, 179)),
+				Level::Trace => (" TRACE ", RGB8::new(159, 164, 168)),
+			};
+
+			Self::write(format_args!(
+				"[ {} ] {:>20.*}{}{:<4.*} | {}\n",
+				log_level.fg(color),
+				20,
+				record.file().unwrap_or("unknown"),
+				"@".fg(color),
+				4,
+				record.line().unwrap_or(0),
+				record.args().fg(color)
+			));
+		}
 	}
 }
 
@@ -186,14 +236,25 @@ mod qemu
 		/// This function creates a new instance of the QEMU
 		/// logger structure.
 		pub const fn new() -> Self { Self }
+
+		/// ### Write to the Correct Port
+		///
+		/// This function writes to the `0xE9` port
+		/// (port-mapped I/O). It assumes that the output is
+		/// valid ASCII. The data is not transformed to ASCII.
+		pub fn write_to_debugcon_port(bytes: &str)
+		{
+			for byte in bytes.as_bytes() {
+				unsafe { x86::io::outb(0xE9, *byte) };
+			}
+		}
 	}
 
 	impl log::Log for Logger
 	{
-		fn enabled(&self, metadata: &log::Metadata) -> bool
-		{
-			metadata.level() <= log::max_level()
-		}
+		fn enabled(&self, _: &log::Metadata) -> bool { true }
+
+		fn flush(&self) {}
 
 		fn log(&self, record: &log::Record)
 		{
@@ -225,26 +286,12 @@ mod qemu
 			if let Err(error) = result {
 				let mut buf = arrayvec::ArrayString::<256>::new();
 				let _ = write!(buf, "QEMU debugcon error: {}", error);
-				write_to_debugcon_port("(fail-save log) | ");
-				write_to_debugcon_port(buf.as_str());
-				write_to_debugcon_port("\n");
+				Self::write_to_debugcon_port("(fail-save log) | ");
+				Self::write_to_debugcon_port(buf.as_str());
+				Self::write_to_debugcon_port("\n");
 			}
 
-			write_to_debugcon_port(buf.as_str());
-		}
-
-		fn flush(&self) {}
-	}
-
-	/// ### Write to the Correct Port
-	///
-	/// This function writes to the `0xE9` port (port-mapped I/O).
-	/// It assumes that the output is valid ASCII. The data is not
-	/// transformed to ASCII.
-	pub fn write_to_debugcon_port(bytes: &str)
-	{
-		for byte in bytes.as_bytes() {
-			unsafe { x86::io::outb(0xE9, *byte) };
+			Self::write_to_debugcon_port(buf.as_str());
 		}
 	}
 }
