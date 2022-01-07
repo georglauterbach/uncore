@@ -1,86 +1,63 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use ::core::{
-	cell,
-	fmt,
+/// ## The Global Kernel Logger
+///
+/// This static variable is used by the [`log`] crate for
+/// logging kernel-wide.
+pub static LOGGER: KernelLogger = KernelLogger {
+	qemu_debug_logger: qemu::Logger::new(),
 };
-use crate::prelude::*;
-
-static LOGGER: qemu::QemuDebugLogger = qemu::QemuDebugLogger::new();
 
 /// ### The Main Kernel Logger
 ///
 /// This structure holds associated function that provide logging. The
-/// `log::Log` trait is implemented for this structure.
-pub struct KernelLog;
+/// [`log::Log`] trait is implemented for this structure.
+pub struct KernelLogger
+{
+	/// We use the QEMU `debugcon` feature to log to a file
+	/// located under `build/qemu/debugcon.txt`.
+	qemu_debug_logger: qemu::Logger,
+}
 
-impl KernelLog
+impl KernelLogger
 {
 	/// ### Pretty Logs
 	///
-	/// This function takes care of formatting and formatting
-	/// only. It introduces colors abd sets the log format.
-	fn format_arguments(record: &log::Record)
+	/// This function takes care of formatting the log record
+	/// and dispatching it all available loggers. It introduces
+	/// colors and sets the log format for certain logs.
+	fn format_and_write_arguments(record: &log::Record)
 	{
 		use ansi_rgb::Foreground;
 		use log::Level;
 		use rgb::RGB8;
 
-		// https://coolors.co/da3e52-f2e94e-a3d9ff-96e6b3-4e5356
-		let red = RGB8::new(218, 62, 82);
-		let yellow = RGB8::new(242, 233, 78);
-		let blue = RGB8::new(163, 217, 255);
-		let green = RGB8::new(150, 230, 179);
-		let grey = RGB8::new(78, 83, 86);
-
-		let level = record.level();
-		let level = match level {
-			Level::Error => level.fg(red),
-			Level::Warn => level.fg(yellow),
-			Level::Info => level.fg(blue),
-			Level::Debug => level.fg(green),
-			Level::Trace => level.fg(grey),
+		// https://coolors.co/da3e52-f2e94e-a3d9ff-96e6b3-9fa4a8
+		let (log_level, color) = match record.level() {
+			Level::Error => (" ERROR ", RGB8::new(218, 62, 82)),
+			Level::Warn => ("WARNING", RGB8::new(242, 233, 78)),
+			Level::Info => ("  INF  ", RGB8::new(163, 217, 255)),
+			Level::Debug => (" DEBUG ", RGB8::new(150, 230, 179)),
+			Level::Trace => (" TRACE ", RGB8::new(159, 164, 168)),
 		};
 
-		Self::write(&format_args!(
-			"{:>7} {:>15}@{:<4} | {}",
-			level,
+		serial::write(format_args!(
+			"[ {} ] {:>20.*}{}{:<4.*} | {}\n",
+			log_level.fg(color),
+			20,
 			record.file().unwrap_or("unknown"),
+			"@".fg(color),
+			4,
 			record.line().unwrap_or(0),
-			record.args()
+			record.args().fg(color)
 		));
 	}
-
-	/// ### Show Initial Information
-	///
-	/// This function sets the log level and displays version and
-	/// bootloader information.
-	pub fn init(log_level: Option<log::Level>)
-	{
-		if let Some(level) = log_level {
-			log::set_max_level(level.to_level_filter())
-		};
-
-		log::set_logger(&LOGGER).unwrap();
-
-		display_initial_information();
-		log_info!("Post-UEFI initialization started");
-	}
-
-	/// ### Write the Log to All Outputs
-	///
-	/// This function just forwards the arguments to all loggers.
-	fn write(arguments: &fmt::Arguments) { serial::write(arguments); }
 }
 
-impl log::Log for KernelLog
+impl log::Log for KernelLogger
 {
-	fn enabled(&self, metadata: &log::Metadata) -> bool
-	{
-		// metadata.level() <= *LOG_LEVEL.lock().borrow()
-		true
-	}
+	fn enabled(&self, metadata: &log::Metadata) -> bool { metadata.level() <= log::max_level() }
 
 	fn log(&self, record: &log::Record)
 	{
@@ -88,10 +65,24 @@ impl log::Log for KernelLog
 			return;
 		}
 
-		Self::format_arguments(record);
+		Self::format_and_write_arguments(record);
+		self.qemu_debug_logger.log(record);
 	}
 
 	fn flush(&self) {}
+}
+
+/// ### Show Initial Information
+///
+/// This function sets the log level and displays version and
+/// bootloader information.
+pub fn init(log_level: Option<log::Level>)
+{
+	if let Some(level) = log_level {
+		log::set_max_level(level.to_level_filter());
+	}
+
+	log::set_logger(&LOGGER).expect("Log should not have already been set");
 }
 
 /// ### Print Initial Information
@@ -104,7 +95,9 @@ impl log::Log for KernelLog
 /// - Rust toolchain information
 pub fn display_initial_information()
 {
-	log_info!("This is unCORE {}\n", KernelInformation::get_version());
+	use crate::prelude::*;
+
+	log_info!("This is unCORE {}", KernelInformation::get_version());
 
 	log_trace!(
 		"Target triple reads '{}'",
@@ -152,37 +145,46 @@ mod serial
 	/// ### Write to Serial Output
 	///
 	/// This function prints its arguments to the serial output.
-	pub(super) fn write(arguments: &::core::fmt::Arguments)
+	pub(super) fn write(arguments: ::core::fmt::Arguments)
 	{
-		use core::fmt::Write;
-		use x86_64::instructions::interrupts;
+		use ::core::fmt::Write;
 
-		interrupts::without_interrupts(|| {
+		x86_64::instructions::interrupts::without_interrupts(|| {
 			SERIAL0.lock()
-				.write_fmt(*arguments)
+				.write_fmt(arguments)
 				.expect("Printing to serial failed");
 		});
 	}
 }
 
+/// ## QEMU's `debugcon` Feature
+///
+/// This module abstracts over QEMU's `debugcon` feature and provides
+/// a [`log`]-conform structure for the global logger to use.
 mod qemu
 {
-
+	// TODO needs formatting
 	use core::fmt::Write;
-	use log::{Metadata, Record};
-	use uefi::{CStr16, Char16};
+	use log::{
+		Metadata,
+		Record,
+	};
+	use uefi::{
+		CStr16,
+		Char16,
+	};
 
 	/// Implementation of a logger for the [`log`] crate, that
 	/// writes everything to QEMUs "debugcon" feature, i.e. x86
 	/// i/o-port 0xe9.
-	pub struct QemuDebugLogger {}
+	pub struct Logger;
 
-	impl QemuDebugLogger
+	impl Logger
 	{
-		pub const fn new() -> Self { Self {} }
+		pub const fn new() -> Self { Self }
 	}
 
-	impl log::Log for QemuDebugLogger
+	impl log::Log for Logger
 	{
 		fn enabled(&self, _metadata: &Metadata) -> bool { true }
 
@@ -200,12 +202,8 @@ mod qemu
 			);
 			if let Err(e) = res {
 				let mut buf = arrayvec::ArrayString::<256>::new();
-				let _ = write!(
-					buf,
-					"QemuDebugLoggerError({})",
-					e
-				);
-				qemu_debug_stdout_str("QemuDebugLogger: ");
+				let _ = write!(buf, "QemuDebugLoggerError({})", e);
+				qemu_debug_stdout_str("Logger: ");
 				qemu_debug_stdout_str(buf.as_str());
 				qemu_debug_stdout_str("\n");
 				// panic_error!(BootError::

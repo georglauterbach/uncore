@@ -58,13 +58,18 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-/// ### The Core Library Path
+/// ### The Core Library
 ///
 /// This module has been created to give the kernel source code a
 /// well-defined structure and layout. The `library` module is used as
 /// the child of the `src/lib.rs` "crate", not of `src/main.rs`. This
 /// is important, and we are not allowed to mix them up.
 pub mod library;
+
+/// ### Re-Exporting the Prelude
+///
+/// The `prelude` module shall be accessible from `crate::` (or
+/// `kernel::` in case of `main.rs`).
 pub use library::prelude;
 
 use library::prelude::*;

@@ -34,7 +34,7 @@
 #![feature(custom_test_frameworks)]
 // With our own test framework, we have to define which function
 // runs our tests.
-#![test_runner(test::runner)]
+#![test_runner(kernel::prelude::test::runner)]
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
@@ -50,26 +50,27 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-/// ### Imports
+use kernel::{
+	library,
+	prelude::*,
+};
+
+/// ### Kernel Binary Entrypoint
 ///
-/// The `kernel::library` is used here explicitly with the `use`
-/// statement, and not with the `mod` statement. As `kernel::library`
-/// is already used in `lib.rs`, we do not want to re-import it here
-/// and possibly confuse Cargo.
-///
-/// The only exceptions so far is the `init()` function called at the
-/// beginning of `_start`. It is called vi a`kernel::init()` which is
-/// perfectly fine.
-///
-/// ## Macros
-///
-/// We will need to re-import all needed macros, as per definition
-/// they reside in `crate`, which to be exact is `lib.rs`'s root and
-/// not `main.rs`'s root.
-///
-/// Make sure to **always** use `library::` instead of `crate::lib::`
-/// or `lib::` or something else.
-use kernel::prelude::*;
+/// This is the kernel's entry point directly called by the boot-code
+/// (written in assembly). We're still in the UEFI boot services are
+/// still enabled: it is our job to disable them now.
+#[no_mangle]
+pub fn kernel_main(_multiboot2_magic_value: u32, _multiboot2_boot_information_pointer: u32) -> !
+{
+	#[cfg(test)]
+	__test_runner();
+
+	library::log::init(Some(log::Level::Trace));
+	library::log::display_initial_information();
+
+	never_return()
+}
 
 /// ### Default Panic Handler
 ///
@@ -78,54 +79,3 @@ use kernel::prelude::*;
 /// does not return afterwards. Note that we do not unwind the stack.
 #[panic_handler]
 fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
-
-/// ### Kernel Binary Entrypoint
-///
-/// This is the kernel's entry point directly called by the boot-code
-/// (written in assembly). We're still in the UEFI boot services are
-/// still enabled: it is our job to disable them now.
-#[no_mangle]
-pub extern "C" fn kernel_main(
-	_multiboot2_magic_value: u32,
-	multiboot2_boot_information_pointer: u32,
-) -> !
-{
-	// #[cfg(test)]
-	// __test_runner();
-
-	// ! IN PROGRESS START
-
-	let a = 5;
-	let b = 4;
-	let _c = add_numbers(a, b);
-
-	kernel::library::log::KernelLog::init(None);
-
-	log_debug!("MORJEN");
-
-	use uefi::prelude::{Boot, SystemTable};
-
-	let mb2_boot_info: multiboot2::BootInformation =
-		unsafe { multiboot2::load(multiboot2_boot_information_pointer as usize) }.expect("Couldn't load MBI");
-	let uefi_system_table = mb2_boot_info.efi_sdt_64_tag();
-	let uefi_system_table = uefi_system_table.unwrap();
-	let uefi_system_table: SystemTable<Boot> =
-		unsafe { core::mem::transmute(uefi_system_table.sdt_address()) };
-	
-	uefi_system_table.stdout().clear().unwrap().unwrap();
-	// uefi_system_table.exit_boot_services(image, mmap_buf)
-
-	// uefi::table::SystemTable::exit_boot_services(self, image, mmap_buf)
-
-	// uefi::prelude::BootServices::exit(&self, image_handle, exit_status,
-	// exit_data_size, exit_data)
-
-	// ! IN PROGRESS END
-
-	never_return()
-}
-
-#[no_mangle]
-fn add_numbers(a: i32, b: i32) -> i32 {
-    a + b
-}
