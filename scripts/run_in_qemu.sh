@@ -4,7 +4,7 @@
 # executed by   Just, manually or in CI
 # task          runs the kernel in QEMU
 
-SCRIPT='run in QEMU'
+SCRIPT='QEMU runner'
 __BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
 
 GUESSES_ROOT_DIRECTORY="$(realpath -e -L "$(dirname "$(realpath -e -L "${0}")")/..")"
@@ -85,8 +85,6 @@ function run_in_qemu
 
   QEMU_ARGUMENTS+=('-nodefaults')
 
-  QEMU_ARGUMENTS+=('-nodefaults')
-
   QEMU_ARGUMENTS+=('-vga')
   QEMU_ARGUMENTS+=('std')
   
@@ -102,6 +100,7 @@ function run_in_qemu
   QEMU_ARGUMENTS+=('-drive')
   QEMU_ARGUMENTS+=("format=raw,file=fat:rw:${QEMU_VOLUME_DIRECTORY}")
 
+  # https://phip1611.de/blog/how-to-use-qemus-debugcon-feature-and-write-to-a-file/
   QEMU_ARGUMENTS+=('-debugcon')
   QEMU_ARGUMENTS+=('file:build/qemu/debugcon.txt') # file:build/qemu/debugcon.txt or file:/dev/stdout
 
@@ -117,6 +116,8 @@ function run_in_qemu
     QEMU_ARGUMENTS+=('-display')
     QEMU_ARGUMENTS+=('none')
   fi
+
+  QEMU_ARGUMENTS+=('-no-reboot')
   
   notify 'inf' 'Now running in QEMU'
   notify 'tra' "Arguments are '${QEMU_ARGUMENTS[*]}'"

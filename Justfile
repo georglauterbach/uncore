@@ -60,6 +60,7 @@ help:
 # remove the kernel/target/ directory
 @clean:
     cd {{KERNEL_DIRECTORY}} && {{BUILD_TOOL}} clean
+    cd {{KERNEL_DIRECTORY}}/build/qemu/ && find . ! -name "grub.cfg" -delete
 
 # FIXME tests do not currently run
 # run tests workspace members

@@ -7,8 +7,8 @@
 SCRIPT='build'
 __BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
 
-GUESSES_ROOT_DIRECTORY="$(realpath -e -L "$(dirname "$(realpath -e -L "${0}")")/..")"
-ROOT_DIRECTORY=${ROOT_DIRECTORY:-${GUESSES_ROOT_DIRECTORY}}
+GUESSED_ROOT_DIRECTORY="$(realpath -e -L "$(dirname "$(realpath -e -L "${0}")")/..")"
+ROOT_DIRECTORY=${ROOT_DIRECTORY:-${GUESSED_ROOT_DIRECTORY}}
 
 if ! cd "${ROOT_DIRECTORY}" &>/dev/null
 then
@@ -28,8 +28,10 @@ fi
 function build_kernel
 {
   local KERNEL_BUILD_TARGET KERNEL_BINARY RUSTC_VERSION RUST_TOOLCHAIN
+  local QEMU_KERNEL_BINARY
 
-  KERNEL_BUILD_TARGET=${1:-x86_64-unknown-none}
+  QEMU_KERNEL_BINARY='build/qemu/kernel.bin'
+  KERNEL_BUILD_TARGET="${1:-x86_64-unknown-none}"
   KERNEL_BINARY="target/${KERNEL_BUILD_TARGET}/debug/kernel"
   RUSTC_VERSION="$(rustc --version)"
   RUST_TOOLCHAIN="$(rustup toolchain list | grep -E '(override)' | cut -d ' ' -f 1)"
@@ -49,21 +51,21 @@ function build_kernel
     exit 1
   fi
 
+  notify 'tra' "Copying kernel binary to '${QEMU_KERNEL_BINARY}'"
+
+  if ! cp "${KERNEL_BINARY}" "${QEMU_KERNEL_BINARY}"
+  then
+    notify 'err' "Could not copy kernel binary '${KERNEL_BINARY}'"
+    exit 1
+  fi
+
   notify 'tra' 'Checking for multiboot2 compatibility'
 
-  if ! grub-file --is-x86-multiboot2 build/qemu/kernel.bin
+  if ! grub-file --is-x86-multiboot2 "${QEMU_KERNEL_BINARY}"
   then
     notify 'war' 'Kernel binary is not multiboot2-compatible'
   else
     notify 'inf' 'Kernel is multiboot2-compatible'
-  fi
-
-  notify 'tra' "Copying kernel binary to 'build/qemu/kernel.bin'"
-
-  if ! cp "${KERNEL_BINARY}" build/qemu/kernel.bin
-  then
-    notify 'err' "Could not copy kernel binary '${KERNEL_BINARY}'"
-    exit 1
   fi
 
   notify 'suc' 'Finished building the kernel'

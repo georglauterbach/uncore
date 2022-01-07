@@ -31,7 +31,7 @@
 		#   he first argument is stored in %edi, the second
 		#   one is stored in %esi, etc.
 		xorq %rdi, %rdi
-		xorq %rSi, %rsi
+		xorq %rsi, %rsi
 		
 		movl %eax, %edi
 		movl %ebx, %esi
