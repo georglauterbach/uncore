@@ -10,8 +10,12 @@ pub mod boot;
 
 /// ## Hardware Specific Code
 ///
-/// First and foremost, holds the CPU initialization routines for
-/// post-boot startup.
+/// Holds **all** _architecture dependent_ code. That includes (but
+/// not exclusively)
+///
+/// - assembly boot code
+/// - CPU initialization code
+/// - virtual memory initialization code
 mod hardware;
 
 /// ## Generic Helper Function
