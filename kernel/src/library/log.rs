@@ -86,7 +86,7 @@ pub fn init(log_level: Option<log::Level>)
 
 	log::set_logger(&LOGGER).expect("Log should not have already been set");
 
-	crate::prelude::log_debug!("Enabled global logger");
+	crate::prelude::log_debug!("Enabled kernel logging");
 }
 
 /// ### Print Initial Information
@@ -108,20 +108,16 @@ pub fn display_initial_information()
 		KernelInformation::get_build_target()
 	);
 
-	let common_string = "This version of unCORE was ";
 	log_trace!(
-		"{}compiled at '{}'",
-		common_string,
+		"Kernel was compiled at '{}'",
 		KernelInformation::get_compilation_date_and_time()
 	);
 	log_trace!(
-		"{}compiled with rustc version '{}'",
-		common_string,
+		"Kernel was compiled with rustc version '{}'",
 		KernelInformation::get_rustc_version()
 	);
 	log_trace!(
-		"{}using the toolchain '{}'",
-		common_string,
+		"Kernel was compiled with toolchain '{}'",
 		KernelInformation::get_rust_toolchain()
 	);
 }
@@ -274,11 +270,11 @@ mod qemu
 				Level::Trace => " TRACE ",
 			};
 
-			let result = writeln!(
+			let result = write!(
 				&mut buf,
-				"[ {} ] {:>25.*}@{:<4.*} | {}\n",
+				"[ {} ] {:>40.*}@{:<4.*} | {}\n",
 				log_level,
-				25,
+				40,
 				record.file().unwrap_or("unknown"),
 				4,
 				record.line().unwrap_or(0),

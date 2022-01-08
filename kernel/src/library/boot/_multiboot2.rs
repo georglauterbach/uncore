@@ -40,9 +40,10 @@ pub fn check_and_handle(
 		"The multiboot2 magic value of QEMU does not match"
 	);
 
-	log_debug!("Acquiring multiboot2 information structure");
 	MULTIBOOT2_INFORMATION.get_mut().replace(
 		unsafe { multiboot2::load(multiboot2_boot_information_pointer as usize) }
 			.expect("Could not load the multiboot2 information structure"),
 	);
+
+	log_debug!("Acquired multiboot2 information")
 }
