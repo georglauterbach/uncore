@@ -75,6 +75,7 @@ pub fn exit_boot_services()
 	// TODO maybe parse memory map into a proper
 	// TODO  structure (from the `uefi` crate)?
 
-	log_debug!("[TODO] Exited UEFI boot services");
+	log_warning!("[TODO FROM HERE] --------------------------------------------------");
+	log_debug!("Exited UEFI boot services");
 	log_info!("Boot phase finished");
 }

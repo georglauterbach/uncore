@@ -18,7 +18,7 @@
 #[cfg(target_arch = "x86_32")]
 mod _x86_32;
 
-#[cfg(target_arch = "x86_32")] pub use _x86_32::initialize;
+#[cfg(target_arch = "x86_32")] pub use _x86_32::cpu;
 
 // * x86_64
 // * ---------------------------------------------------------------------
@@ -30,4 +30,5 @@ mod _x86_32;
 #[cfg(target_arch = "x86_64")]
 mod _x86_64;
 
-#[cfg(target_arch = "x86_64")] pub use _x86_64::initialize;
+#[cfg(target_arch = "x86_64")] pub use _x86_64::cpu;
+#[cfg(target_arch = "x86_64")] pub use _x86_64::memory;

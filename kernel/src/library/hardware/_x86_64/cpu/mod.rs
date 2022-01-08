@@ -22,7 +22,8 @@ mod interrupts;
 /// ### Initialize the CPU
 ///
 /// This function initializes the CPU.
-pub(super) fn initialization()
+#[allow(dead_code)]
+pub(super) fn initialize()
 {
 	general::gdt::init();
 	interrupts::init();

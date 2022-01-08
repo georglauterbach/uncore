@@ -3,9 +3,9 @@
 
 /// ## Boot Code
 ///
-/// This module holds the initialization boot code for the `x86_32`
-/// architecture. The "real" boot code is written in assembly. The
-/// multiboot2 and UEFI wrappers also reside here.
+/// This module holds boot code concerning multiboot2 and UEFI. The
+/// multiboot2 information structure is parsed and the UEFI boot
+/// services are exited.
 pub mod boot;
 
 /// ## Hardware Specific Code
