@@ -21,7 +21,7 @@
     "ld.lld": [
       "-n",
       "-T",
-      "src/library/boot/x86_64/linker.ld"
+      "src/library/hardware/_x86_64/boot/linker.ld"
     ]
   }
 }

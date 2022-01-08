@@ -72,7 +72,7 @@ pub fn kernel_main(
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	library::boot::check_and_handle_multiboot2(
+	library::boot::check_and_parse_multiboot2(
 		multiboot2_bootloader_magic_value,
 		multiboot2_boot_information_pointer,
 	);

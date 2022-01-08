@@ -17,6 +17,9 @@ mod fake_lock;
 /// This module takes care of parsing the multiboot2 information.
 mod _multiboot2;
 
+pub use _multiboot2::MULTIBOOT2_INFORMATION;
+pub use _multiboot2::check_and_parse as check_and_parse_multiboot2;
+
 /// ## Handle UEFI
 ///
 /// Handles UEFI related matters (boot services). After entry into
@@ -24,12 +27,10 @@ mod _multiboot2;
 /// we need to handle and exit them.
 mod _uefi;
 
-pub use _multiboot2::MULTIBOOT2_INFORMATION;
-pub use _multiboot2::check_and_handle as check_and_handle_multiboot2;
+pub use _uefi::UEFI_BOOT_SERVICES_MEMORY_MAP;
+pub use _uefi::exit_boot_services as exit_uefi_boot_services;
 
-pub use _uefi::exit_uefi_boot_services;
-
-// ? ASSEMBLY
+// ? ASSEMBLY BOOT CODE
 // ? ---------------------------------------------------------------------
 
 // Include order possibly matters for the linker. Make sure to
@@ -41,8 +42,13 @@ use core::arch::global_asm;
 // * ---------------------------------------------------------------------
 
 #[cfg(target_arch = "x86_64")]
-global_asm!(include_str!("x86_64/start.S"), options(att_syntax));
-// global_asm!(include_str!("x86_64/s.S"));
+global_asm!(
+	include_str!("../hardware/_x86_64/boot/start.S"),
+	options(att_syntax)
+);
 
 #[cfg(target_arch = "x86_64")]
-global_asm!(include_str!("x86_64/multiboot2.S"), options(att_syntax));
+global_asm!(
+	include_str!("../hardware/_x86_64/boot/multiboot2.S"),
+	options(att_syntax)
+);
