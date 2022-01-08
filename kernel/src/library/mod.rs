@@ -3,11 +3,16 @@
 
 /// ## Boot Code
 ///
-/// This module holds the initialization boot code for different
-/// architectures. These are written in assembly and includes in the
-/// `mod.rs` file via conditional compilation and the `global_asm!`
-/// macro.
+/// This module holds the initialization boot code for the `x86_32`
+/// architecture. The "real" boot code is written in assembly. The
+/// multiboot2 and UEFI wrappers also reside here.
 pub mod boot;
+
+/// ## Hardware Specific Code
+///
+/// First and foremost, holds the CPU initialization routines for
+/// post-boot startup.
+mod hardware;
 
 /// ## Generic Helper Function
 ///
@@ -22,18 +27,24 @@ mod helper;
 /// It implements the `log` crate's logging facade.
 pub mod log;
 
+/// ## Virtual Memory
+///
+/// This module handles virtual memory, that is (demand) paging,
+/// allocations, etc. for the user- and kernel-space.
+mod memory;
+
 /// ## The Kernel Prelude
 ///
-/// This module provides
+/// This module provides common
 ///
 /// - modules
 /// - structures
 /// - macros
-/// - function
+/// - functions
 ///
 /// used by many other modules. It should be imported via
 ///
-/// ``` rust
+/// ``` edition2021
 /// use library::prelude::*;
 /// ```
 pub mod prelude;

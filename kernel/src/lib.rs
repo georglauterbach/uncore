@@ -94,8 +94,8 @@ fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, pan
 /// function is effectively run only during unit tests.
 #[cfg(target_arch = "x86_64")]
 #[no_mangle]
-pub extern "C" fn kernel_main(
-	_multiboot2_magic_value: u32,
+pub fn kernel_main(
+	_multiboot2_bootloader_magic_value: u32,
 	_multiboot2_boot_information_pointer: u32,
 ) -> !
 {

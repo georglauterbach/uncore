@@ -86,7 +86,7 @@ pub fn init(log_level: Option<log::Level>)
 
 	log::set_logger(&LOGGER).expect("Log should not have already been set");
 
-	crate::prelude::log_debug!("Enabled kernel logging");
+	crate::prelude::log_debug!("Kernel logging enabled");
 }
 
 /// ### Print Initial Information
@@ -270,9 +270,9 @@ mod qemu
 				Level::Trace => " TRACE ",
 			};
 
-			let result = write!(
+			let result = writeln!(
 				&mut buf,
-				"[ {} ] {:>40.*}@{:<4.*} | {}\n",
+				"[ {} ] {:>40.*}@{:<4.*} | {}",
 				log_level,
 				40,
 				record.file().unwrap_or("unknown"),
