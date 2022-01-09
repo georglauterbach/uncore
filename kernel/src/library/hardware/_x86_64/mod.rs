@@ -22,5 +22,4 @@ pub mod memory;
 use core::arch::global_asm;
 
 global_asm!(include_str!("boot/start.S"), options(att_syntax));
-
 global_asm!(include_str!("boot/multiboot2.S"), options(att_syntax));

@@ -22,33 +22,19 @@ The documentation has a dedicated [Getting Started][docs-getting-started] sectio
 To check whether you have all needed tools, and install them if you do not already have them installed, run
 
 ``` CONSOLE
+$ pwd
+/uncore
 $ ./scripts/tools.sh
-tools INFO    'rustup' is installed
-tools INFO    Setting Rust toolchain and ...
+tools        INFO    'rustup' is installed
+tools        SUCCESS Your Rust installation is complete
 ...
 ```
 
-from this repository's root directory.
-
-## Documentation, Licensing and Acknowledgements
+## Documentation and Licensing
 
 The documentation is written in Markdown, built with [MkDocs] and can be found under `documentation/`. You may build and serve the documentation locally with a container runtime (like [Docker] or [Podman]) by running `./scripts/documentation.sh`, serving it under <http://127.0.0.1:8080>.
 
-This project is licensed under the [GNU General Public License v3], except for those parts (lines of code from libraries used in this project) already licensed under other licenses. Moreover, code taken from [_Phillip Oppermann_'s _BlogOS_ project][blog-os] is not covered by the license of this project as well.
-
-A big thank you to _Phillip Oppermann_ and his [_BlogOS_ project][blog-os]. Moreover, _Philipp Schuster_ has helped in integrating UEFI support with his repository [`phip1611/multiboot2-binary-rust`][phip1611-multiboot2-binary-rust].
-
-## Repository Structure
-
-This repository is structured into different subdirectories:
-
-``` BASH
-/
-├── .github/        # GitHub's templates and CI workflows
-├── documentation/  # full kernel documentation
-├── kernel/         # kernel files including all Rust code
-└── scripts/        # holds all Bash scripts for administration
-```
+This project is licensed under the [GNU General Public License v3], **except** for those parts (lines of code from libraries used in this project) already licensed under other licenses.
 
 [//]: # (Badges)
 
@@ -80,6 +66,3 @@ This repository is structured into different subdirectories:
 [Docker]: https://www.docker.com/
 [Podman]: https://podman.io/
 [GNU General Public License v3]: https://www.gnu.org/licenses/gpl-3.0.txt
-[blog-os]: https://github.com/phil-opp/blog_os#license
-
-[phip1611-multiboot2-binary-rust]: https://github.com/phip1611/multiboot2-binary-rust

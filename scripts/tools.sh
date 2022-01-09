@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# version       0.2.0
+# version       0.2.2
 # executed by   just or manually
 # task          installs needed dependencies
 
@@ -38,9 +38,12 @@ function check_rust
       '- Please restart this script'
     return 0
   else
-    notify 'inf' "Installing additonal packages with 'cargo'"
-    cargo --quiet install cargo-xbuild
-    cargo --quiet install just --version 0.10.4
+    local JUST_VERSION=0.10.5
+    if ! command -v just &>/dev/null && [[ $(just --version) != "just ${JUST_VERSION}" ]]
+    then
+      notify 'inf' "Installing Just (${JUST_VERSION}) with 'cargo'"
+      cargo --quiet install just --version "${JUST_VERSION}"
+    fi
   fi
 
   notify 'suc' 'Your Rust installation is complete'

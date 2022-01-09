@@ -1,36 +1,43 @@
 # The Internal Kernel Structure
 
+## Architecture
+
+The boot process of _unCORE_ is explained in detail in the [boot documentation page][docs-boot].
+
+## Modules
+
 The kernel is composed of different, so-called "modules". These big building blocks are all found in the source code under `kernel/src/library/`. Here are all modules nicely listed:
 
 ``` BASH
 kernel/src/library/
-├── syscalls
-├── helpers
-├── communication
+├── helper
 ├── memory
-├── processes
-├── scheduling
 └── hardware
 ```
 
-Some of these modules are so-called kernel core components. This is just a fancy way of saying that they are very important to the kernel's main functionality, and without them, the kernel would not work. Core components include (non-exhaustively) `helper`, `processes`, `scheduling`, ... There are dedicated pages for every module: Each module is listed to the right of this text in a navigation menu. The interplay of all modules is somewhat obvious, and all modules have a rather concise name so everyone knows what their purpose is.
+### `boot`
 
-## The Boot Process
+This module contains architecture independent boot code - mostly for [multiboot2] and [UEFI].
 
-_unCORE_ uses [multiboot2] and GRUB to easily circumvent the hassle of tediously writing our own lengthy boot code.
+### `hardware`
+
+The `hardware` module provides **all** the **architecture dependent** code. This includes boot code, CPU setup code or virtual memory support for this platform. Most modules
+
+### `helper`
+
+The `helper` module provides very generic function all other workspace members use, for example test runners, `#!rust panic` functionality and a function that does not return.
+
+### `memory`
+
+The `memory` module provides main memory management functionality. It is a kernel core component.
 
 [//]: # (Links)
 
-[docs-syscalls-module]: ./modules/syscalls.md
-[docs-kernel-module]: ./modules/kernel.md
-[docs-communication-module]: ./modules/communication.md
-[docs-memory-module]: ./modules/memory.md
-[docs-processes-module]: ./modules/processes.md
-[docs-scheduling-module]: ./modules/scheduling.md
-[docs-hardware-module]: ./modules/hardware.md
-[docs-architecture]: ./index.md#architecture
+[docs-boot]: ./architecture/boot.md
 
 [Hardware Abstraction Layer]: https://en.wikipedia.org/wiki/Hardware_abstraction
 [Rust]: https://www.rust-lang.org/
 
 [multiboot2]: https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html
+[GRUB2]: https://en.wikipedia.org/wiki/GNU_GRUB
+[UEFI]: https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface

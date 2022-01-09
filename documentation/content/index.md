@@ -16,6 +16,18 @@ Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_
 
 Please read the full [`README`](https://github.com/georglauterbach/uncore/blob/master/README.md) of this project carefully. We expect you to have _some_ experience with [Rust]. You need not be an expert, but we require you to understand the basics. We highly recommend you to read the [official Rust book].
 
+### Repository Structure
+
+This repository is structured into different subdirectories:
+
+``` BASH
+uncore/
+├── .github/        # GitHub's templates and CI workflows
+├── documentation/  # full kernel documentation
+├── kernel/         # kernel files including all Rust code
+└── scripts/        # holds all Bash scripts (building, running, administration, etc.)
+```
+
 ### Tooling
 
 You may execute the `tools.sh` scripts if you're on Linux. This script is invoked by running `./scripts/tools.sh` from the repository root. It will install
@@ -24,7 +36,7 @@ You may execute the `tools.sh` scripts if you're on Linux. This script is invoke
     - [`rustup`](https://rustup.rs/) - the [Rust] toolchain installer
     - [`rustc`](https://doc.rust-lang.org/rustc/what-is-rustc.html) - the [Rust] compiler
     - [`cargo`](https://doc.rust-lang.org/cargo/) - the [Rust] package manager
-2. additional packages like [`just`](https://github.com/casey/just), a command runner, and `cargo-xbuild`, via [`cargo`](https://doc.rust-lang.org/cargo/)
+2. [`just`](https://github.com/casey/just), a command runner
 
 The script will also check whether you have [Docker] or [Podman] installed. These tools are needed to lint the code and to work the rendered version of the documentation. The script will _not_ install the container runtimes for you. Also, make sure you have [QEMU] for your OS installed.
 
@@ -93,7 +105,7 @@ The architectural overview in a "lateral view" is depicted in the following illu
 This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-os] project. The purpose of _unCORE_ is to explore Rust's capabilities, get a better understanding of how Rust and operating system kernels work, and to provide a kernel implementation.
 
 !!! info "Licensing"
-    This project is licensed under the [GNU General Public License v3], except for those parts (lines of code from used libraries) already licensed under other licenses. Moreover, code taken from [_Phillip Oppermann_'s _BlogOS_ project][blog-os] is not covered by the license of this project as well.
+    This project is licensed under the [GNU General Public License v3], **except** for those parts (lines of code from used libraries) already licensed under other licenses.
 
 [//]: # (Links)
 

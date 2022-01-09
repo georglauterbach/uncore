@@ -1,17 +1,17 @@
-# Building _unCORE_
+# Building and Running _unCORE_
 
 The `kernel/` directory contains all kernel code (and therefore the complete [Rust] code of _unCORE_). It is, at the same time, package and a Cargo workspace. That means, the `kernel/` directory contains a binary -- the kernel with all its source code located under `kernel/src/` -- and **possibly** other workspace members in the future. The final binary is obviously built from the source code located at `kernel/src/`.
 
-We **highly recommend using [Just]** for working with _unCORE_. The following steps will just (no pun intended) explain what [Just] does in the background. With [Just] installed, you do not need to run all these long and tedious and error-prone commands yourself.
+We highly recommend using [Just] when working with _unCORE_. The following steps will just (no pun intended) explain what [Just] does in the background. With [Just] installed, you do not need to run all these long and tedious and error-prone commands yourself.
 
-!!! tip "Getting a Bigger Picture"
-    This operating system kernel bases on and is heavily inspired by _Phillip Opperman_'s _BlogOS_ (version one and two). You can read all about it in [his blog](https://os.phil-opp.com/).
+??? tip "The Bigger Picture"
+    This operating system kernel bases on and is heavily inspired by _Phillip Opperman_'s _BlogOS_ (version one and two). You can read all about it in [his blog](https://os.phil-opp.com/). **However**, due to _unCORE_'s goals of being concise and easy to understand, looking at the code base and the code comments will also help you in understanding how the kernel works and what it does.
 
 ## Compiling the Kernel
 
 The kernel is compiled against special targets. These targets is located under `kernel/build/targets/`. Our custom targets do not provide a standard library - obviously. To get an overview, you may visit [the `rustc` target specification page on GitHub][rustc-target-specification]. To get an overview over all target options, [the Rust documentation on the associated `#!rust struct`][rustc-target-options] has you covered.
 
-??? danger "`.cargo/config.toml` And Its Fallacies"
+!!! danger "`.cargo/config.toml` And Its Fallacies"
     Note that we do not use a `kernel/.cargo/config.toml` file. Using this file can mess with the defaults for build / run targets and this may lead to very unpleasant outputs. We rather write the target for each compilation explicitly when writing the command.
 
 First of all, if you're using [Just], make yourself familiar with all recipes by running `#!bash just help`. The kernel itself is compiled by running

@@ -39,18 +39,73 @@ When writing code, adhere to the style provided in the miscellaneous configurati
 
 Rust if formatted using `rustfmt`, which is installed with [Rust] itself. You can format your code using `just format` or `cargo fmt` in the repository modules containing [Rust] code. The style definition is found under `kernel/.rustfmt.toml`. Make sure to adjust your style to the already present style. The [Rust naming convention] is strictly adhered to.
 
-Crate-level / global `lib.rs` (or in case of the kernel, also `main.rs`) are formatted in a special way. We start by declaring crate-level attributes and crate-level documentation, then modules and exports and last but not least, global functions. You may want to have a look at the `helper/` module's `lib.rs` for a concise example.
+---
+
+#### Goal
 
 We want to ensure, at all cost, that code in this project becomes as unreadable as some Linux kernel code. This has nothing to do with formatting taste, but with problems inherent to C and how programmers are used to writing C.
 
-## Miscellaneous
+---
 
-You may run any IDE you like, of course. We recommend [Visual Studio Code] or [NeoVIM]. We do not make any assumptions about the style of working that you prefer most - use what suits you best.
+#### Imports
+
+When importing modules, do not use a fully-qualified named, but only the module:
+
+``` RUST
+// bad
+use super::some_module::SomeStructure;
+fn foo() -> SomeStructure { ... }
+
+// good
+use super::some_module;
+fn foo() -> some_module::SomeStructure { ... }
+```
+
+The only exception to this rule is the `prelude` module.
+
+---
+
+#### Variable Names
+
+Write variable names in their long form and **do not use abbreviations**. Using abbreviations are unnecessary as their do not impact final binary size and they are clutter the readability. There is simply no reason to write
+
+``` RUST
+// bad
+pub static MB2_INF: ...
+```
+
+when
+
+``` RUST
+// good
+pub static MULTIBOOT2_INFORMATION: ...
+```
+
+is more readable just for the sake of laziness or inappropriate shortness.
+
+---
+
+#### Special Cases
+
+Crate-level / global `lib.rs` (or in case of the kernel, also `main.rs`) are formatted in a special way. We start by declaring crate-level attributes and crate-level documentation, then modules and exports and last but not least, global functions. You may want to have a look at the `helper/` module's `lib.rs` for a concise example.
+
+## CI/CD and Testing
+
+### Praise be Linters
+
+The kernel uses several checks to determine of the code satisfies the high quality standards. GitHub actions test the kernel with unit- and integration tests. Moreover, proper formatting ist checked with `rustfmt`. A linter that is probably going to be very annoying but very essential is [`clippy`][rust-clippy]. You may have noticed the many `#!rust #![deny(clippy::LINT_TARGET)]` lines in `kernel/src/lib.rs`. These lines enable linting targets for clippy for the whole kernel. All dependencies are checked by [`cargo audit`][cargo-audit] for security vulnerabilities. The whole repository is checked by [`shellcheck`][shellcheck] for Bash scripts and we use the [GitHub Super Linter] to check various linting issues.
+
+### A Word of Advice
+
+If you do not want [`clippy`][rust-clippy] to eat you alive during GitHub's CI, _fix the lints locally_. You can run `just check` to check formatting and clippy errors. With `just test`, you run the unit- and integration tests. With `just lint`, you run generic linters, i.e. [`shellcheck`][shellcheck] and the [GitHub Super Linter]. You will need a container runtime to be installed for the generic lints to work. It's also fine to let GitHub's CI check the generic lints for you as the [GitHub Super Linter] is rather slow.
 
 [//]: # (Links)
 
 [Rust]: https://www.rust-lang.org/
 [Prettier]: https://prettier.io/
 [Rust naming convention]: https://doc.rust-lang.org/1.0.0/style/style/naming/README.html
-[Visual Studio Code]: https://code.visualstudio.com/
-[NeoVIM]: https://neovim.io/
+
+[rust-clippy]: https://github.com/rust-lang/rust-clippy
+[cargo-audit]: https://github.com/rustsec/rustsec
+[shellcheck]: https://github.com/koalaman/shellcheck
+[GitHub Super Linter]: https://github.com/github/super-linter
