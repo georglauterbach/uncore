@@ -59,7 +59,7 @@ help:
 
 # run tests workspace members
 @test test='':
-    bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" '' '' {{test}}
+    bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" 'test' {{test}}
 
 # -----------------------------------------------
 # ----  Format and Lint  ------------------------
@@ -73,7 +73,7 @@ alias fmt := format
 
 # lint against rustfmt and Clippy
 @check: format
-    bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" '' 'check'
+    - bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" 'check'
 
 # generically lint the whole code base
 @lint linter='':

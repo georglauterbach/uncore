@@ -30,7 +30,7 @@ uncore/
 
 ### Tooling
 
-You may execute the `tools.sh` scripts if you're on Linux. This script is invoked by running `./scripts/tools.sh` from the repository root. It will install
+You may execute the `tools.sh` scripts if you're on Linux. This script is invoked by running `./scripts/install_tools.sh` from the repository root. It will install
 
 1. a complete [Rust] installation including
     - [`rustup`](https://rustup.rs/) - the [Rust] toolchain installer

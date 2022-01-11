@@ -15,13 +15,6 @@ on: # yamllint disable-line rule:truthy
 defaults:
   run:
     shell: bash
-    working-directory: kernel
-
-env:
-  BUILD_FLAGS: >
-    -Z build-std=core,compiler_builtins,alloc
-    -Z build-std-features=compiler-builtins-mem
-  BUILD_TARGET_PATH: --target build/targets/x86_64-unknown-none.json
 
 jobs:
   linting:
@@ -44,14 +37,8 @@ jobs:
       - name: Install Rustup Components
         run: rustup component add rust-src llvm-tools-preview
 
-      - name: Run `cargo check`
-        run: cargo check ${{ env.BUILD_TARGET_PATH }} ${{ env.BUILD_FLAGS }}
-
-      - name: Run `cargo fmt`
-        run: cargo fmt --all --message-format human -- --check
-
-      - name: Run `cargo clippy`
-        run: cargo clippy --lib --all-features -- -D warnings
+      - name: Run all kernel-related checks
+        run: ./scripts/test_kernel.sh 'is-ci' 'check'
 
   unit-and-integration-tests:
     name: Run all unit- and integration-tests
@@ -80,4 +67,4 @@ jobs:
 
       # TODO adjust this as soon as tests work again with QEMU
       # - name: Run `cargo test`
-      #   run: cargo test --tests ${{ env.BUILD_TARGET_PATH }} ${{ env.BUILD_FLAGS }}
+      #   run: run: ./scripts/test_kernel.sh 'is-ci' 'test'

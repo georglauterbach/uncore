@@ -3,7 +3,6 @@
 # version       0.3.1
 # executed by   just or manually
 # task          lints the codebase against various linters
-# parameters    ${1} - which linter to execute
 
 SCRIPT='linting'
 
@@ -14,7 +13,8 @@ source scripts/lib/cri.sh
 
 function lint_shellcheck
 {  
-  local TAG IMAGE FILES ARGUMENTS
+  declare -a ARGUMENTS
+  local TAG IMAGE FILES
 
   TAG='0.8.0'
   IMAGE="docker.io/koalaman/shellcheck:v${TAG}"
@@ -93,7 +93,7 @@ function lint_github_super_linter
   fi
 }
 
-function __main
+function main
 {
   setup_container_runtime
   local ERROR_OCCURRED=false
@@ -130,4 +130,4 @@ function __main
   fi
 }
 
-__main "${@}" || exit ${?}
+main "${@}" || exit ${?}

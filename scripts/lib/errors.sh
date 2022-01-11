@@ -7,12 +7,12 @@
 set -euEo pipefail
 shopt -s inherit_errexit
 
-trap '__log_uerror "${FUNCNAME[0]:-none / global}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
+trap '__log_uerror "${FUNCNAME[0]:-none (global)}" "${BASH_COMMAND:-?}" "${LINENO:-?}" "${?:-?}"' ERR
 
 function __log_uerror
 {
   local MESSAGE
-  MESSAGE='\n--- \e[1m\e[31mUNCHECKED ERROR\e[0m\n'
+  MESSAGE='\n--- \e[1m\e[31mUNCHECKED SCRIPT ERROR\e[0m\n'
   MESSAGE+="  - script     = ${SCRIPT:-${0}}\n"
   MESSAGE+="  - function   = ${1}\n"
   MESSAGE+="  - command    = ${2}\n"

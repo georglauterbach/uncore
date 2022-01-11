@@ -3,18 +3,10 @@
 # version       0.1.0
 # executed by   manually or in CI
 # task          builds and serves the documentation
-# parameters    ${1} - what to with the documentation
 
 SCRIPT='documentation'
 source scripts/lib/init.sh
 source scripts/lib/cri.sh
-
-DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY}/documentation"
-
-MKDOCS_MATERIAL_TAG='8.1.2'
-MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
-
-CRI='docker'
 
 function build_documentation
 {
@@ -116,8 +108,13 @@ function update_versions_json
 }
 
 
-function __main
+function main
 {
+  DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY}/documentation"
+  MKDOCS_MATERIAL_TAG='8.1.6'
+  MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
+  CRI='docker'
+
   setup_container_runtime
 
   case "${1:-}" in
@@ -136,4 +133,4 @@ function __main
   esac
 }
 
-__main "${@}"
+main "${@}"

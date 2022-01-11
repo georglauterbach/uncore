@@ -3,12 +3,13 @@
 # version       0.1.1
 # executed by   Just, manually or in CI
 # task          builds the kernel
-# parameters    ${1} - kernel build target (optional)
 
 # shellcheck disable=SC2154
 
 SCRIPT='build'
-source scripts/lib/init.sh 'kernel' "${1:-}"
+source scripts/lib/init.sh 'kernel'
+
+[[ -n ${1:-} ]] && set_build_target "${1:-}"
 
 notify 'inf' "Compiling kernel for target '${BUILD_TARGET}'"
 
