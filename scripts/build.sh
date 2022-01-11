@@ -1,47 +1,30 @@
 #! /bin/bash
 
-# version       0.1.0
+# version       0.1.1
 # executed by   Just, manually or in CI
 # task          builds the kernel
 
 SCRIPT='build'
-__BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
-
-GUESSED_ROOT_DIRECTORY="$(realpath -e -L "$(dirname "$(realpath -e -L "${0}")")/..")"
-ROOT_DIRECTORY=${ROOT_DIRECTORY:-${GUESSED_ROOT_DIRECTORY}}
-
-if ! cd "${ROOT_DIRECTORY}" &>/dev/null
-then
-  echo "ABORT Could not change into kernel directory '${ROOT_DIRECTORY}'"
-  exit 1
-fi
-
-source scripts/lib/errors.sh
-source scripts/lib/logs.sh
-
-if ! cd "${ROOT_DIRECTORY}/kernel"
-then
-  notify 'abo' 'Could not change into kernel directory (root directory wrong?)'
-  exit 1
-fi
+source scripts/lib/init.sh 'kernel'
 
 function build_kernel
 {
-  local KERNEL_BUILD_TARGET QEMU_KERNEL_BINARY
-  export KERNEL_BINARY RUSTC_VERSION RUST_TOOLCHAIN COMPILATION_DATE_AND_TIME
+  local QEMU_KERNEL_BINARY
+  export BUILD_TARGET COMPILATION_DATE_AND_TIME
+  export KERNEL_BINARY RUST_TOOLCHAIN RUSTC_VERSION
 
   QEMU_KERNEL_BINARY='build/qemu/kernel.bin'
-  KERNEL_BUILD_TARGET="${1:-x86_64-unknown-none}"
+  BUILD_TARGET="${1:-x86_64-unknown-none}"
 
-  KERNEL_BINARY="target/${KERNEL_BUILD_TARGET}/debug/kernel"
+  KERNEL_BINARY="target/${BUILD_TARGET}/debug/kernel"
   RUSTC_VERSION="$(rustc --version)" ; RUSTC_VERSION=${RUSTC_VERSION#rustc }
   RUST_TOOLCHAIN="$(rustup toolchain list | grep -E '(override)' | cut -d ' ' -f 1)"
   COMPILATION_DATE_AND_TIME="$(date +'%H:%M, %d %b %Y')"
 
-  notify 'inf' "Compiling kernel for target '${KERNEL_BUILD_TARGET}'"
+  notify 'inf' "Compiling kernel for target '${BUILD_TARGET}'"
 
   if ! cargo build                                       \
-    --target "build/targets/${KERNEL_BUILD_TARGET}.json" \
+    --target "build/targets/${BUILD_TARGET}.json" \
     -Z build-std=core,compiler_builtins,alloc            \
     -Z build-std-features=compiler-builtins-mem
   then

@@ -5,18 +5,15 @@
 # task          builds and serves the documentation
 
 SCRIPT='documentation'
-__BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
+source scripts/lib/init.sh
+source scripts/lib/cri.sh
 
-DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY:-$(realpath -e -L .)}/documentation"
+DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY}/documentation"
 
 MKDOCS_MATERIAL_TAG='8.1.2'
 MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
 
 CRI='docker'
-
-source scripts/lib/errors.sh
-source scripts/lib/logs.sh
-source scripts/lib/cri.sh
 
 function build_documentation
 {

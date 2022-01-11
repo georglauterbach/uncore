@@ -1,15 +1,13 @@
 #! /bin/bash
 
-# version       0.3.0
+# version       0.3.1
 # executed by   just or manually
 # task          lints the codebase against various linters
 
-source scripts/lib/errors.sh
-source scripts/lib/logs.sh
-source scripts/lib/cri.sh
+SCRIPT='linting'
 
-export SCRIPT='linting'
-__BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
+source scripts/lib/init.sh
+source scripts/lib/cri.sh
 
 # -->                   -->                   --> START
 
@@ -101,8 +99,25 @@ function __main
 
   notify 'inf' 'Starting the linting process'
 
-  # lint_shellcheck || ERROR_OCCURRED=true
-  lint_github_super_linter || ERROR_OCCURRED=true
+  if [[ -n ${1:-} ]]
+  then
+    case "${1}" in
+      ( 'shellcheck' | 'sc' )
+        lint_shellcheck || ERROR_OCCURRED=true
+        ;;
+      
+      ( 'github-super-linter' | 'gsl' )
+        lint_github_super_linter || ERROR_OCCURRED=true
+        ;;
+      
+      ( * )
+        notify 'err' "'${1}' is not a valid linter ('sh' or 'gsl' are valid)"
+        exit 1
+        ;;
+    esac
+  else
+    lint_github_super_linter || ERROR_OCCURRED=true
+  fi
 
   if ${ERROR_OCCURRED}
   then

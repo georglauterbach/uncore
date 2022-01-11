@@ -100,7 +100,7 @@ test test='':
 alias fmt := format
 
 # lint against rustfmt and Clippy
-check:
+check: format
     #! /bin/bash
 
     cd {{KERNEL_DIRECTORY}}
@@ -113,8 +113,8 @@ check:
     {{BUILD_TOOL}} clippy --lib --all-features -- -D warnings
 
 # generically lint the whole code base
-@lint:
-    - bash {{ROOT_DIRECTORY}}/scripts/lint.sh
+@lint linter='':
+    - bash {{ROOT_DIRECTORY}}/scripts/lint.sh {{linter}}
 
 # -----------------------------------------------
 # ----  Documentation  --------------------------

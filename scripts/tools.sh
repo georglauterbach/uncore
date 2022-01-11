@@ -1,22 +1,21 @@
 #! /bin/bash
 
-# version       0.2.2
+# version       0.2.4
 # executed by   just or manually
 # task          installs needed dependencies
 
-source scripts/lib/errors.sh
-source scripts/lib/logs.sh
-
-export SCRIPT='tools'
-__BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
+SCRIPT='tools'
+source scripts/lib/init.sh 'kernel'
 
 # -->                   -->                   --> START
 
 function check_rust
 {
-  if ! command -v rustup &>/dev/null
+  if ! command -v rustup &>/dev/null \
+  || ! command -v rustc  &>/dev/null \
+  || ! command -v cargo  &>/dev/null
   then
-    notify 'inf' "'rustup' is not installed or not in \${PATH}"
+    notify 'inf' "Rust does not seem to be installed"
     notify 'inf' "Installing 'rustup', 'rustc' and 'cargo'"
 
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -- -y
@@ -38,7 +37,7 @@ function check_rust
       '- Please restart this script'
     return 0
   else
-    local JUST_VERSION=0.10.5
+    local JUST_VERSION='0.10.5'
     if ! command -v just &>/dev/null && [[ $(just --version) != "just ${JUST_VERSION}" ]]
     then
       notify 'inf' "Installing Just (${JUST_VERSION}) with 'cargo'"
@@ -56,7 +55,9 @@ function check_container_runtime
     if ! command -v podman &>/dev/null
     then
       notify 'inf' 'No container runtime detected'
-      notify 'war' 'You will not be able to work with the documentation or lint all the code'
+      notify 'war' \
+        'You will not be able to work' \
+        'with the documentation or lint all the code locally'
       return 0
     else
       notify 'inf' 'Podman detected as container runtime'

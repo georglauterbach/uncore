@@ -1,43 +1,27 @@
 #! /bin/bash
 
-# version       0.1.0
+# version       0.1.2
 # executed by   Just, manually or in CI
 # task          runs the kernel in QEMU
 
 SCRIPT='QEMU runner'
-__BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
-
-GUESSES_ROOT_DIRECTORY="$(realpath -e -L "$(dirname "$(realpath -e -L "${0}")")/..")"
-ROOT_DIRECTORY=${ROOT_DIRECTORY:-${GUESSES_ROOT_DIRECTORY}}
-
-if ! cd "${ROOT_DIRECTORY}" &>/dev/null
-then
-  echo "ABORT Could not change into kernel directory '${ROOT_DIRECTORY}'"
-  exit 1
-fi
-
-source scripts/lib/errors.sh
-source scripts/lib/logs.sh
-
-if ! cd "${ROOT_DIRECTORY}/kernel"
-then
-  notify 'abo' 'Could not change into kernel directory (root directory wrong?)'
-  exit 1
-fi
-
-QEMU_DIRECTORY=build/qemu
-QEMU_VOLUME_DIRECTORY="${QEMU_DIRECTORY}/vm_volume"
-KERNEL_BINARY="${QEMU_DIRECTORY}/kernel.bin"
-
-if [[ ! -f ${KERNEL_BINARY} ]]
-then
-  notify 'err' 'Kernel binary not found - was it built before?'
-  exit 1
-fi
-
+source scripts/lib/init.sh 'kernel'
 
 function prepare_qemu
 {
+  local KERNEL_BINARY QEMU_DIRECTORY
+  export QEMU_VOLUME_DIRECTORY
+  
+  QEMU_DIRECTORY=build/qemu
+  KERNEL_BINARY="${QEMU_DIRECTORY}/kernel.bin"
+  QEMU_VOLUME_DIRECTORY="${QEMU_DIRECTORY}/vm_volume"
+
+  if [[ ! -f ${KERNEL_BINARY} ]]
+  then
+    notify 'err' 'Kernel binary not found - was it built before?'
+    exit 1
+  fi
+
   function prepare_ovmf
   {
     local OVMF_SYSTEM_PATH="/usr/share/OVMF"
@@ -85,9 +69,6 @@ function run_in_qemu
 
   QEMU_ARGUMENTS+=('-nodefaults')
 
-  QEMU_ARGUMENTS+=('-vga')
-  QEMU_ARGUMENTS+=('std')
-  
   QEMU_ARGUMENTS+=('-machine')
   QEMU_ARGUMENTS+=('q35,accel=kvm:tcg')
 
@@ -104,15 +85,19 @@ function run_in_qemu
   QEMU_ARGUMENTS+=('-debugcon')
   QEMU_ARGUMENTS+=('file:build/qemu/debugcon.txt') # file:build/qemu/debugcon.txt or file:/dev/stdout
 
-  # output
   QEMU_ARGUMENTS+=('-serial')
   QEMU_ARGUMENTS+=('stdio')
 
   if [[ ${1:-} == 'graphical' ]]
   then
+    QEMU_ARGUMENTS+=('-vga')
+    QEMU_ARGUMENTS+=('std')
+  
     QEMU_ARGUMENTS+=('-monitor')
     QEMU_ARGUMENTS+=('vc:1024x768')
   else
+    QEMU_ARGUMENTS+=('-nographic')
+
     QEMU_ARGUMENTS+=('-display')
     QEMU_ARGUMENTS+=('none')
   fi
@@ -121,6 +106,7 @@ function run_in_qemu
   
   notify 'inf' 'Now running in QEMU'
   notify 'tra' "Arguments are '${QEMU_ARGUMENTS[*]}'"
+
   qemu-system-x86_64 "${QEMU_ARGUMENTS[@]}"
 }
 
