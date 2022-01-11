@@ -1,24 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-// Each hardware platform has its own, conditionally compiled module
-// that contains an `initialization()` function used in
-// `kernel_main()` to set up the kernel.
-
 // ? HARDWARE PLATFORMS
 // ? ---------------------------------------------------------------------
 
-// * x86_32
+// * RISC V
 // * ---------------------------------------------------------------------
 
-/// ## The `x86_32` Architecture
+/// ## The RISC V 64bit Architecture
 ///
-/// This module contains `x86_32` specific initialization and setup
-/// code. Compiled conditionally.
-#[cfg(target_arch = "x86_32")]
-mod _x86_32;
+/// This module contains RISC V 64bit specific initialization and
+/// setup code. Compiled conditionally.
+#[cfg(target_arch = "riscv64")]
+mod _riscv64;
 
-#[cfg(target_arch = "x86_32")] pub use _x86_32::cpu;
+#[cfg(target_arch = "riscv64")] pub use _riscv64::cpu;
 
 // * x86_64
 // * ---------------------------------------------------------------------

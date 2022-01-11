@@ -63,8 +63,8 @@ multiboot_2_header_start:
 	.long .EFI_boot_services_tags_end - .EFI_boot_services_tags_start
 	.EFI_boot_services_tags_end:
 
-	# optional multiboot tags (3.1.8 EFI amd64 entry address)
-	# see 2.2
+	// # optional multiboot tags (3.1.8 EFI amd64 entry address)
+	// # see 2.2
 	.EFI_amd64_entry_address_tags_start:
 	.align 8
 	.word 0x9

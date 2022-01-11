@@ -1,14 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-/// ## Boot Code
-///
-/// This module holds boot code concerning multiboot2 and UEFI. The
-/// multiboot2 information structure is parsed and the UEFI boot
-/// services are exited.
-pub mod boot;
-
-/// ## Hardware Specific Code
+/// ## Architecture Specific Code
 ///
 /// Holds **all** _architecture dependent_ code. That includes (but
 /// not exclusively)
@@ -16,7 +9,14 @@ pub mod boot;
 /// - assembly boot code
 /// - CPU initialization code
 /// - virtual memory initialization code
-mod hardware;
+mod architectures;
+
+/// ## Boot Code
+///
+/// This module holds boot code concerning multiboot2 and UEFI. The
+/// multiboot2 information structure is parsed and the UEFI boot
+/// services are exited.
+pub mod boot;
 
 /// ## Generic Helper Function
 ///

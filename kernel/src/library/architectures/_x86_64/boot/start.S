@@ -32,7 +32,7 @@
 		#   one is stored in %esi, etc.
 		xorq %rdi, %rdi
 		xorq %rsi, %rsi
-		
+
 		movl %eax, %edi
 		movl %ebx, %esi
 
