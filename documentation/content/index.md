@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs-getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs-development]. The [Building][docs-building] site contains information on how to build and run (with QEMU) the kernel. The [Structure][docs-structure] section contains all the information about the kernel's internal structure and composition. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
+Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs-getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs-development]. The [Building and Running][docs-building-and-running] site contains information on how to build and run the kernel (with QEMU). The [Structure][docs-structure] section contains all the information about the kernel's internal structure and composition. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
 
 !!! check "Code of Conduct and Contributing Guidelines"
     By working on this projects and with other participants, you agree to the **code of conduct** and the **contributing guidelines** set by this project.
@@ -111,7 +111,7 @@ This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-o
 
 [docs-getting-started]: #getting-started
 [docs-development]: ./development.md
-[docs-building]: ./building.md
+[docs-building-and-running]: ./building_and_running.md
 [docs-structure]: ./kernel_structure.md
 
 [operating system]: https://en.wikipedia.org/wiki/Operating_system

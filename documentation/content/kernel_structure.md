@@ -15,13 +15,13 @@ kernel/src/library/
 └── hardware
 ```
 
+### `architectures`
+
+The `architectures` module provides **all** the **architecture dependent** code. This includes boot code, CPU setup code or virtual memory support for this platform. Most modules
+
 ### `boot`
 
 This module contains architecture independent boot code - mostly for [multiboot2] and [UEFI].
-
-### `hardware`
-
-The `hardware` module provides **all** the **architecture dependent** code. This includes boot code, CPU setup code or virtual memory support for this platform. Most modules
 
 ### `helper`
 

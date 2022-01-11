@@ -67,7 +67,7 @@ The only exception to this rule is the `prelude` module.
 
 #### Variable Names
 
-Write variable names in their long form and **do not use abbreviations**. Using abbreviations are unnecessary as their do not impact final binary size and they are clutter the readability. There is simply no reason to write
+Write variable names in their long form and **do not use abbreviations**. Abbreviations are unnecessary as they do not impact final binary size and they clutter the readability of the code. There is simply no reason to write
 
 ``` RUST
 // bad

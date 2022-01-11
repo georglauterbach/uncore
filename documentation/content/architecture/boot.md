@@ -1,4 +1,4 @@
-## The Boot Process
+# The Boot Process
 
 _unCORE_ uses [multiboot2], [GRUB2] and [UEFI] to easily circumvent the hassle of tediously writing our own lengthy boot code.
 
