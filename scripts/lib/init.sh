@@ -3,6 +3,8 @@
 # version       0.1.0
 # executed by   shell scripts under scripts/
 # task          performs script initialization
+# parameters    ${1} - 'kernel' for kernel setup scripts (optional)
+#               ${2} - kernel build target (optional)
 
 export LOG_LEVEL ROOT_DIRECTORY SCRIPT
 
@@ -13,10 +15,10 @@ SCRIPT="${SCRIPT:-${0}}"
 
 if ! cd "${ROOT_DIRECTORY}"
 then
-   printf "%-12s \e[31mABORT  \e[0m %s%s\n"             \
-      "${SCRIPT:-${0}}"                                 \
-      'Could not change into repository root directory' \
-      "${ROOT_DIRECTORY}" >&2
+  printf "%-12s \e[31mABORT  \e[0m %s%s\n"             \
+    "${SCRIPT:-${0}}"                                 \
+    'Could not change into repository root directory' \
+    "${ROOT_DIRECTORY}" >&2
   exit 1
 fi
 
@@ -33,6 +35,32 @@ then
     notify 'abo' 'Could not change into kernel directory'
     exit 1
   fi
+
+  notify 'tra' 'Setting environment variables for the kernel'
+
+  export BUILD_TARGET COMPILATION_DATE_AND_TIME
+  export GIT_REVISION_HEAD
+  export KERNEL_BINARY KERNEL_VERSION
+  export QEMU_KERNEL_BINARY
+  export RUST_DEFAULT_TARGET RUST_TOOLCHAIN RUSTC_VERSION
+
+  declare -g -a KERNEL_BUILD_FLAGS
+
+  BUILD_TARGET="${2:-x86_64-unknown-none}"
+  COMPILATION_DATE_AND_TIME="$(date +'%H:%M, %d %b %Y')"
+  GIT_REVISION_HEAD="$(git rev-parse --short HEAD)"
+  KERNEL_VERSION="$(grep -m 1 'version*' Cargo.toml | cut -d '"' -f 2)"
+  KERNEL_VERSION+=" (${GIT_REVISION_HEAD})"
+  KERNEL_BINARY="target/${BUILD_TARGET}/debug/kernel"
+  KERNEL_BUILD_FLAGS+=('-Z')
+  KERNEL_BUILD_FLAGS+=('build-std=core,compiler_builtins,alloc')
+  KERNEL_BUILD_FLAGS+=('-Z')
+  KERNEL_BUILD_FLAGS+=('build-std-features=compiler-builtins-mem')
+  QEMU_KERNEL_BINARY='build/qemu/kernel.bin'
+  
+  RUST_DEFAULT_TARGET="$(rustc -Vv | grep 'host:' | cut -d ' ' -f 2)"
+  RUSTC_VERSION="$(rustc --version)" ; RUSTC_VERSION=${RUSTC_VERSION#rustc }
+  RUST_TOOLCHAIN="$(rustup toolchain list | grep -E '(override)' | cut -d ' ' -f 1)"
 fi
 
 notify 'tra' 'Finished script intialization'

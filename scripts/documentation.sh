@@ -3,6 +3,7 @@
 # version       0.1.0
 # executed by   manually or in CI
 # task          builds and serves the documentation
+# parameters    ${1} - what to with the documentation
 
 SCRIPT='documentation'
 source scripts/lib/init.sh

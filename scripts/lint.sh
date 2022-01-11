@@ -3,6 +3,7 @@
 # version       0.3.1
 # executed by   just or manually
 # task          lints the codebase against various linters
+# parameters    ${1} - which linter to execute
 
 SCRIPT='linting'
 

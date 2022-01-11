@@ -3,13 +3,14 @@
 # version       0.1.2
 # executed by   Just, manually or in CI
 # task          runs the kernel in QEMU
+# parameters    ${1} - whether to run graphical (optional)
 
 SCRIPT='QEMU runner'
 source scripts/lib/init.sh 'kernel'
 
 function prepare_qemu
 {
-  local KERNEL_BINARY QEMU_DIRECTORY
+  local QEMU_DIRECTORY
   export QEMU_VOLUME_DIRECTORY
   
   QEMU_DIRECTORY=build/qemu
