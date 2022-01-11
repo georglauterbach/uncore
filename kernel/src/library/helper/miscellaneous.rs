@@ -27,22 +27,22 @@ const COMPILATION_DATE_AND_TIME: Option<&str> = option_env!("COMPILATION_DATE_AN
 /// ### Rust Toolchain
 ///
 /// Holds the toolchain information that this version of the kernel
-/// (stored in `VERSION`) was compiled with.
+/// (stored in `KERNEL_VERSION`) was compiled with.
 const RUST_TOOLCHAIN: Option<&str> = option_env!("RUST_TOOLCHAIN");
 
 /// ### Compiler Version
 ///
 /// This variable holds the compiler version that this version of the
-/// kernel (stored in `VERSION`) was compiled with.
+/// kernel (stored in `KERNEL_VERSION`) was compiled with.
 const RUSTC_VERSION: Option<&str> = option_env!("RUSTC_VERSION");
 
 /// ### Kernel Version
 ///
-/// The `VERSION` variable contains the kernel version in the semantic
-/// versioning format, the git commit id the kernel was built with and
-/// the build date. If `VERSION` was not available during build-time,
-/// a default value is provided, namely "testing".
-const VERSION: Option<&str> = option_env!("VERSION");
+/// The `KERNEL_VERSION` variable contains the kernel version in the
+/// semantic versioning format, the git commit id the kernel was built
+/// with and the build date. If `KERNEL_VERSION` was not available
+/// during build-time, a default value is provided, namely "testing".
+const KERNEL_VERSION: Option<&str> = option_env!("KERNEL_VERSION");
 
 /// ### Static Kernel Information
 ///
@@ -63,11 +63,10 @@ impl KernelInformation
 	#[must_use]
 	pub fn get_build_target() -> &'static str
 	{
-		#[cfg(all(target_arch = "x86_64", target_abi = "none"))]
-		let target_triple: &str = "x86_64-unknown-none";
+		let target_triple = "unknown";
 
-		#[cfg(not(all(target_arch = "x86_64", target_abi = "none")))]
-		let target_triple: &str = "unknown";
+		#[cfg(all(target_arch = "x86_64", target_abi = "none"))]
+		let target_triple = "x86_64-unknown-none";
 
 		BUILD_TARGET.unwrap_or(target_triple)
 	}
@@ -82,6 +81,13 @@ impl KernelInformation
 	{
 		COMPILATION_DATE_AND_TIME.unwrap_or("unknown")
 	}
+
+	/// ### Kernel Version
+	///
+	/// Returns the kernel version if provided at built-time,
+	/// otherwise returns "testing".
+	#[must_use]
+	pub fn get_kernel_version() -> &'static str { KERNEL_VERSION.unwrap_or("testing") }
 
 	/// ### Kernel Rust Toolchain Information
 	///
@@ -98,11 +104,4 @@ impl KernelInformation
 	/// provided at built-time, otherwise returns "unknown".
 	#[must_use]
 	pub fn get_rustc_version() -> &'static str { RUSTC_VERSION.unwrap_or("unknown") }
-
-	/// ### Kernel Version
-	///
-	/// Returns the kernel version if provided at built-time,
-	/// otherwise returns "testing".
-	#[must_use]
-	pub fn get_version() -> &'static str { VERSION.unwrap_or("testing") }
 }

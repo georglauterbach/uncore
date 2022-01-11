@@ -2,6 +2,14 @@
 // Copyright 2022 The unCORE Kernel Organization
 
 use crate::prelude::*;
+use super::{
+	fake_lock,
+	MULTIBOOT2_INFORMATION,
+};
+use uefi::{
+	data_types,
+	table,
+};
 
 /// ### UEFI Boot Services Memory Map Size Estimation
 ///
@@ -14,9 +22,15 @@ const UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE: usize = 7000;
 ///
 /// This array holds the memory map obtained after the UEFI boot
 /// services were exited.
-#[allow(dead_code)]
-pub static UEFI_BOOT_SERVICES_MEMORY_MAP: &[u8; UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE] =
-	&[0; UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE];
+pub static mut UEFI_BOOT_SERVICES_MEMORY_MAP: &mut [u8] =
+	&mut [0; UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE];
+
+/// ### UEFI Runtime System Table
+///
+/// Represents the view of the system **after** exiting the UEFI boot
+/// services.
+static UEFI_SYSTEM_TABLE_RUNTIME: fake_lock::Lock<Option<table::SystemTable<table::Runtime>>> =
+	fake_lock::Lock::new(None);
 
 /// ## Exiting Boot Services
 ///
@@ -30,27 +44,32 @@ pub static UEFI_BOOT_SERVICES_MEMORY_MAP: &[u8; UEFI_BOOT_SERVICES_MEMORY_MAP_SI
 ///    [`super::_multiboot2::handle_multiboot2`]) could not be
 ///    acquired
 /// 2. the UEFI system table could not be acquired
-pub fn exit_boot_services()
+/// 3. the statically allocated memory map is too small
+/// 4. the UEFI boot services could not be exited cleanly
+#[must_use]
+pub fn exit_boot_services(
+) -> impl ExactSizeIterator<Item = &'static table::boot::MemoryDescriptor> + Clone
 {
-	let uefi_system_table: uefi::prelude::SystemTable<uefi::prelude::Boot> =
-		super::MULTIBOOT2_INFORMATION._get().as_ref().map_or_else(
+	let multiboot2_information = MULTIBOOT2_INFORMATION
+		.get()
+		.as_ref()
+		.expect("Could not acquire the multiboot2 information structure");
+
+	let uefi_system_table: table::SystemTable<table::Boot> =
+		multiboot2_information.efi_sdt_64_tag().map_or_else(
 			|| {
-				panic!("Could not acquire the multiboot2 information structure");
+				panic!("Could not acquire the UEFI system table from the \
+				        multiboot2 information");
 			},
-			|structure| {
-				structure.efi_sdt_64_tag().map_or_else(
-					|| {
-						panic!("Could not acquire the UEFI system table");
-					},
-					|uefi_system_table| unsafe {
-						core::mem::transmute(
-							uefi_system_table.sdt_address(),
-						)
-					},
-				)
+			|uefi_system_table| {
+				// TODO
+				// table::SystemTable::<table::Boot>::from(
+				// 	uefi_system_table.sdt_address(),
+				// )
+				unsafe { ::core::mem::transmute(uefi_system_table.sdt_address()) }
 			},
 		);
-	log_trace!("UEFI system table acquired");
+	log_trace!("Acquired UEFI system table for boot view (temporarily)");
 
 	let memory_map_size = uefi_system_table.boot_services().memory_map_size();
 	log_trace!(
@@ -63,19 +82,41 @@ pub fn exit_boot_services()
 		UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE
 	);
 
-	// TODO exit UEFI boot services
-	// let x = match uefi_system_table.exit_boot_services(image, &mut arr)
-	// { 	Ok(system_table) => system_table,
-	// 	Err(error) => panic!(
-	// 		"Could not exit UEFI boot services: {:#?}",
-	// 		error
-	// 	),
-	// };
+	let uefi_image_handle_address = multiboot2_information
+		.efi_64_ih()
+		.expect("No UEFI 64bit image handle provided by the multiboot2 information")
+		.image_handle();
 
-	// TODO maybe parse memory map into a proper
-	// TODO  structure (from the `uefi` crate)?
+	// TODO
+	// let uefi_image_handle =
+	// data_types::Handle::from(uefi_image_handle_address);
+	let uefi_image_handle: data_types::Handle =
+		unsafe { ::core::mem::transmute(uefi_image_handle_address) };
 
-	log_warning!("[TODO FROM HERE] --------------------------------------------------");
+	let (uefi_system_table_runtime, uefi_memory_map_iterator) = match uefi_system_table
+		.exit_boot_services(uefi_image_handle, unsafe { UEFI_BOOT_SERVICES_MEMORY_MAP })
+	{
+		Ok(completion) => {
+			if completion.status().is_success() {
+				let (_, result) = completion.split();
+				result
+			} else {
+				panic!(
+					"Exiting UEFI boot services resulted in non-successful \
+					 completion status: {:#?}",
+					completion.status()
+				)
+			}
+		},
+		Err(error) => panic!("Could not exit UEFI boot services: {:#?}", error),
+	};
 	log_debug!("Exited UEFI boot services");
+
+	UEFI_SYSTEM_TABLE_RUNTIME
+		.get_mut()
+		.replace(uefi_system_table_runtime);
+	log_trace!("Acquired UEFI system table for runtime view");
+
 	log_info!("Boot phase finished");
+	uefi_memory_map_iterator
 }

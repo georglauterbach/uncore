@@ -29,11 +29,11 @@ impl<T> Lock<T>
 		}
 	}
 
-	/// ### Get an Alias
+	/// ### Get A Reference to the Inner Data
 	///
-	/// Returns read only reference to the data
-	/// encapsulated.
-	pub const fn _get(&self) -> &T { unsafe { &*self.data.get() } }
+	/// Returns a read only reference to the data
+	/// encapsulated with `as_ref()`.
+	pub const fn get(&self) -> &T { unsafe { &*self.data.get() } }
 
 	/// ### Get a Mutable Reference
 	///

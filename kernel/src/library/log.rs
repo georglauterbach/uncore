@@ -101,7 +101,7 @@ pub fn display_initial_information()
 {
 	use crate::prelude::*;
 
-	log_info!("This is unCORE {}", KernelInformation::get_version());
+	log_info!("This is unCORE {}", KernelInformation::get_kernel_version());
 
 	log_trace!(
 		"Target triple reads '{}'",

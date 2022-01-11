@@ -67,7 +67,7 @@ lto = false
 [dependencies]
 ansi_rgb = "0.2.0"
 arrayvec = { version = "0.7.1", default-features = false }
-multiboot2 = "0.12.2"
+multiboot2 = "0.13.1"
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 log = "0.4.14"
 rgb = "0.8.31"

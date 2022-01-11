@@ -76,7 +76,8 @@ pub fn kernel_main(
 		multiboot2_bootloader_magic_value,
 		multiboot2_boot_information_pointer,
 	);
-	library::boot::exit_uefi_boot_services();
+	// https://github.com/rust-osdev/bootloader/blob/main/src/bin/uefi.rs#L37
+	let _uefi_memory_map = library::boot::exit_uefi_boot_services();
 
 	never_return()
 }
