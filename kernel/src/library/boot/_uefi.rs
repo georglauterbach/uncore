@@ -50,6 +50,8 @@ static UEFI_SYSTEM_TABLE_RUNTIME: fake_lock::Lock<Option<table::SystemTable<tabl
 pub fn exit_boot_services(
 ) -> impl ExactSizeIterator<Item = &'static table::boot::MemoryDescriptor> + Clone
 {
+	use ::core::ffi::c_void;
+
 	let multiboot2_information = MULTIBOOT2_INFORMATION
 		.get()
 		.as_ref()
@@ -62,16 +64,18 @@ pub fn exit_boot_services(
 				        multiboot2 information");
 			},
 			|uefi_system_table| {
-				// TODO
-				// table::SystemTable::<table::Boot>::from(
-				// 	uefi_system_table.sdt_address(),
-				// )
-				unsafe { ::core::mem::transmute(uefi_system_table.sdt_address()) }
+				unsafe {
+					table::SystemTable::from_ptr(
+						uefi_system_table.sdt_address() as *mut c_void,
+					)
+				}
+				.expect("Acquiring the UEFI system table from pointer did not \
+				          succeed")
 			},
 		);
 	log_trace!("Acquired UEFI system table for boot view (temporarily)");
 
-	let memory_map_size = uefi_system_table.boot_services().memory_map_size();
+	let memory_map_size = uefi_system_table.boot_services().memory_map_size().map_size;
 	log_trace!(
 		"UEFI boot services memory map size = {} Byte",
 		memory_map_size
@@ -87,11 +91,12 @@ pub fn exit_boot_services(
 		.expect("No UEFI 64bit image handle provided by the multiboot2 information")
 		.image_handle();
 
-	// TODO
-	// let uefi_image_handle =
-	// data_types::Handle::from(uefi_image_handle_address);
-	let uefi_image_handle: data_types::Handle =
-		unsafe { ::core::mem::transmute(uefi_image_handle_address) };
+	let uefi_image_handle =
+		unsafe { data_types::Handle::from_ptr(uefi_image_handle_address as *mut c_void) }
+			.expect(
+				"Acquiring the UEFI image handle from the handle address did not \
+				 succeed",
+			);
 
 	let (uefi_system_table_runtime, uefi_memory_map_iterator) = match uefi_system_table
 		.exit_boot_services(uefi_image_handle, unsafe { UEFI_BOOT_SERVICES_MEMORY_MAP })
