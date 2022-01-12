@@ -4,9 +4,9 @@
 # executed by   manually or in CI
 # task          builds and serves the documentation
 
-SCRIPT='documentation'
 source scripts/lib/init.sh
 source scripts/lib/cri.sh
+SCRIPT='documentation'
 
 function build_documentation
 {

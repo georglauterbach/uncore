@@ -4,8 +4,8 @@
 # executed by   Just, manually or in CI
 # task          runs the kernel in QEMU
 
-SCRIPT='QEMU runner'
 source scripts/lib/init.sh 'kernel'
+SCRIPT='QEMU runner'
 
 function prepare_qemu
 {
@@ -116,15 +116,15 @@ function usage
 RUN_IN_QEMU.SH(1)
 
 SYNOPSIS
-    ./scripts/run_in_qemu.sh [ OPTION... ] < ACTION... >
-    just run                 [ OPTION... ] < ACTION... >
+    ./scripts/run_in_qemu.sh [ OPTION... ] [ < QEMU_OPTION... > ]
+    just run                 [ OPTION... ] [ < QEMU_OPTION... > ]
 
 OPTIONS
     --help                     Show this help message
+    --target TARGET            Only relevant for build process
 
-ACTIONS
-    shellcheck | sc            Run the ShellCheck linter
-    github-super-linter | gsl  Run the GitHub Super Linter
+QEMU_OPTIONS
+    --graphical                Use a dedicated window and graphics
 
 EOM
 }
@@ -138,8 +138,12 @@ function main
         usage
         exit 0
         ;;
+
+      ( '--target' )
+        shift 2
+        ;;
       
-      ( 'graphical' )
+      ( '--graphical' )
         break
         ;;
 

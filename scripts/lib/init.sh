@@ -90,7 +90,7 @@ function set_build_target
     exit 1
   fi
 
-  notify 'inf' "Set built target to '${BUILD_TARGET}'"
+  notify 'inf' "Set build target to '${BUILD_TARGET}'"
 }
 
 function main

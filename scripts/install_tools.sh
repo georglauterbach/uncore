@@ -4,8 +4,8 @@
 # executed by   just or manually
 # task          installs needed dependencies
 
-SCRIPT='tools'
 source scripts/lib/init.sh 'kernel'
+SCRIPT='tools'
 
 # -->                   -->                   --> START
 

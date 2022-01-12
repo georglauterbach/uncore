@@ -57,7 +57,8 @@ TEST_KERNEL.SH(1)
 
 SYNOPSIS
     ./scripts/test_kernel.sh [ OPTION... ] < ACTION... >
-    just < test | check >    [ OPTION... ] < ACTION... >
+    just check               [ OPTION... ] 
+    just test                [ [ '--help' ] | [ TARGET ] [ TEST ] ]
 
 OPTIONS
     --help           Show this help message

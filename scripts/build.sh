@@ -6,8 +6,8 @@
 
 # shellcheck disable=SC2154
 
-SCRIPT='build'
 source scripts/lib/init.sh 'kernel'
+SCRIPT='build'
 
 function build_kernel
 {
@@ -78,7 +78,7 @@ function main
       # script with the same arguments first to make sure the kernel
       # binary is up to date - these arguments are immediately
       # 'shifted' away
-      ( 'graphical' )
+      ( '--graphical' )
         shift 1
         ;;
 

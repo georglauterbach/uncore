@@ -58,8 +58,19 @@ help:
     cd {{KERNEL_DIRECTORY}}/build/qemu/ && find . ! -name "grub.cfg" -delete
 
 # run tests workspace members
-@test test='':
-    bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" 'test' {{test}}
+test target='' test='':
+    #! /bin/bash
+    if [[ -z '{{target}}' ]]
+    then
+        bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" test {{test}}
+    elif [[ {{target}} == '--help' ]]
+    then
+        bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" --help
+    else
+        bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" \
+            --target {{target}}                          \
+            test {{test}}
+    fi
 
 # -----------------------------------------------
 # ----  Format and Lint  ------------------------
@@ -72,8 +83,8 @@ help:
 alias fmt := format
 
 # lint against rustfmt and Clippy
-@check: format
-    - bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" 'check'
+@check *arguments: format
+    - bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} 'check'
 
 # generically lint the whole code base
 @lint linter='':
