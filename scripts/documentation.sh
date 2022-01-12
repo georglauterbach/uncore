@@ -4,28 +4,13 @@
 # executed by   manually or in CI
 # task          builds and serves the documentation
 
+source scripts/lib/init.sh
+source scripts/lib/cri.sh
 SCRIPT='documentation'
-__BASH_LOG_LEVEL=${__BASH_LOG_LEVEL:-inf}
-
-IMAGE_NAME='uncore/documentation:latest'
-DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY:-$(realpath -e -L .)}/documentation"
-
-MKDOCS_MATERIAL_TAG='8.1.2'
-MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
-
-CRI='docker'
-
-# shellcheck source=lib/errors.sh
-. scripts/lib/errors.sh
-# shellcheck source=lib/logs.sh
-. scripts/lib/logs.sh
-# shellcheck source=lib/cri.sh
-. scripts/lib/cri.sh
 
 function build_documentation
 {
-
-  "${CRI}" run --rm \
+  ${CRI} run --rm \
     --name "build-documentation" \
     --user "$(id -u):$(id -g)" \
     -v "${DOCUMENTATION_DIRECTORY}:/docs" \
@@ -45,16 +30,11 @@ function cleanup_documentation_files
     "${DOCUMENTATION_DIRECTORY}/site/assets/javascripts/lunr"
 }
 
-function build_container_image
-{
-  "${CRI}" build -t "${IMAGE_NAME}" "${DOCUMENTATION_DIRECTORY}"
-}
-
 function serve_documentation
 {
   notify 'inf' 'Serving on 127.0.0.1:8080'
 
-  "${CRI}" run \
+  ${CRI} run \
     --rm -it \
     --user "$(id -u):$(id -g)" \
     -v "${DOCUMENTATION_DIRECTORY}:/docs" \
@@ -64,6 +44,7 @@ function serve_documentation
       --dev-addr 0.0.0.0:8080
 }
 
+# gratefully copied and adjusted from docker-mailserver/docker-mailserver
 # CI ENV `GITHUB_REF` from Github Actions CI provides the tag or branch
 # that triggered the build. See `github.ref`:
 # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#github-context
@@ -72,10 +53,12 @@ function update_versions_json
 {
   # Extract the version tag, truncate `<PATCH>` version and any suffix beyond it.
   local MAJOR_MINOR VERSIONS_JSON IS_VALID VERSION_EXISTS UPDATED_JSON
+  # shellcheck disable=SC2154
   MAJOR_MINOR=$(grep -oE 'v[0-9]+\.[0-9]+' <<< "${GITHUB_REF}")
 
   # Github Actions CI method for exporting ENV vars to share across a jobs steps
   # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#setting-an-environment-variable
+  # shellcheck disable=SC2154
   echo "DOCS_VERSION=${MAJOR_MINOR}" >> "${GITHUB_ENV}"
 
   if [[ -z ${MAJOR_MINOR} ]]
@@ -124,12 +107,47 @@ function update_versions_json
   fi
 }
 
-
-function __main
+function usage
 {
+  cat << "EOM" 
+DOCUMENTATION.SH(1)
+
+SYNOPSIS
+    ./scripts/documentation.sh [ OPTION... ] < ACTION... >
+    just doc[s]                [ OPTION... ] < ACTION... >
+
+OPTIONS
+    --help                   Show this help message
+
+ACTIONS
+    build                 Build the documentation (create HTML/CSS/JS)
+    update_versions_json  (CI only) update a special versioning file
+    serve                 Serve locally under 'http://127.0.0.1:8080'
+
+EOM
+}
+
+function main
+{
+  if [[ -z ${1:-} ]]
+  then
+    notify 'err' 'No action specified'
+    exit 1
+  fi
+
+  DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY}/documentation"
+  MKDOCS_MATERIAL_TAG='8.1.6'
+  MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
+  CRI='docker'
+
   setup_container_runtime
 
   case "${1:-}" in
+    ( '--help' )
+      usage
+      exit 0
+      ;;
+
     ( 'build' )
       build_documentation
       cleanup_documentation_files
@@ -139,10 +157,15 @@ function __main
       update_versions_json
       ;;
 
-    ( * )
+    ( 'serve' )
       serve_documentation
       ;;
+
+    ( * )
+        notify 'err' "'${1}' is invalid (run with --help to get more information)"
+        exit 1
+        ;;
   esac
 }
 
-__main "${@}"
+main "${@}"

@@ -1,0 +1,9 @@
+# For a reference to this file, see
+# https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file
+
+# Rust toolchain releases can be found under
+# https://rust-lang.github.io/rustup-components-history/
+
+[toolchain]
+channel = "nightly-2022-01-01"
+components = [ "rust-src", "rust-std", "rustc", "cargo", "llvm-tools-preview" ]

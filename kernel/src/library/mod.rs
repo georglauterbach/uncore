@@ -1,40 +1,54 @@
-/// ## Hardware Abstractions
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
+/// ## Architecture Specific Code
 ///
-/// This module contains all hardware-specific code. Moreover,
-/// architecture-specific code is also located here. This module is
-/// initialized first after booting and starting the kernel.
-mod hardware;
+/// Holds **all** _architecture dependent_ code. That includes (but
+/// not exclusively)
+///
+/// - assembly boot code
+/// - CPU initialization code
+/// - virtual memory initialization code
+mod architectures;
+
+/// ## Boot Code
+///
+/// This module holds boot code concerning multiboot2 and UEFI. The
+/// multiboot2 information structure is parsed and the UEFI boot
+/// services are exited.
+pub mod boot;
 
 /// ## Generic Helper Function
 ///
-/// This module provides generic function used by other modules, such
-/// as
-///
-/// - logging
-/// - not returning
-/// - panicking
-/// - testing
-///
-/// It also provides the test runners and the kernel version
-/// information.
-pub mod helper;
+/// Holds many of the generic functions re-exported in the `prelude`
+/// module. These include panic callbacks, test infrastructure or
+/// information about the kernel.
+mod helper;
 
-pub use helper::never_return;
-pub use helper::panic_callback;
-pub use helper::test_runner;
-
-/// ### Global Initialization
+/// ## Uniform Logging
 ///
-/// This function initializes the whole kernel. It takes care of
+/// This module exports the `log_!` macros with different log levels.
+/// It implements the `log` crate's logging facade.
+pub mod log;
+
+/// ## Virtual Memory
 ///
-/// - printing important initial information
-/// - calling the hardware initialization subroutine
-pub fn init(boot_information: &bootloader::BootInfo)
-{
-	helper::display_initial_information(boot_information);
-	crate::log_info!("Initialization started");
+/// This module handles virtual memory, that is (demand) paging,
+/// allocations, etc. for the user- and kernel-space.
+mod memory;
 
-	hardware::init();
-
-	crate::log_info!("Initialization finished");
-}
+/// ## The Kernel Prelude
+///
+/// This module provides common
+///
+/// - modules
+/// - structures
+/// - macros
+/// - functions
+///
+/// used by many other modules. It should be imported via
+///
+/// ``` edition2021
+/// use library::prelude::*;
+/// ```
+pub mod prelude;

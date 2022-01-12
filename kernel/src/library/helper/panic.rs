@@ -1,4 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
 use ::core::panic::PanicInfo;
+
+use crate::prelude::*;
 
 /// ### Panic Handler when Running Tests that Should Not Panic
 ///
@@ -8,11 +13,10 @@ use ::core::panic::PanicInfo;
 #[inline]
 fn __default_panic(_panic_info: &PanicInfo) -> !
 {
-	crate::log_error!("Last test did not finish. FAILURE.");
-	crate::log_fatal!("Received panic");
+	log_error!("Last test did not finish. FAILURE.");
+	log_error!("Received panic");
 
-	super::miscellaneous::qemu::exit_with_failure();
-	super::miscellaneous::never_return()
+	never_return()
 }
 
 /// ### Panic Handler when not Running Tests
@@ -24,14 +28,19 @@ fn __default_panic(_panic_info: &PanicInfo) -> !
 #[inline]
 fn __default_panic(panic_info: &PanicInfo) -> !
 {
-	crate::log_fatal!(
-		"Received panic (message = {:?})",
+	log_error!(
+		"Received panic ({:?})",
 		panic_info
 			.message()
 			.unwrap_or(&format_args!("no message provided"))
 	);
 
-	super::miscellaneous::never_return()
+	log_error!("Aborting");
+
+	// #[cfg(target_abi = "none")]
+	// qemu::exit_with_failure();
+
+	never_return()
 }
 
 /// ### Panic Handler that Should Panic
@@ -41,10 +50,15 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 #[inline]
 fn __should_panic(_panic_info: &PanicInfo) -> !
 {
-	crate::log_test!("Received panic. SUCCESS.");
+	log_info!("Received panic. SUCCESS.");
 
-	super::miscellaneous::qemu::exit_with_success();
-	super::miscellaneous::never_return()
+	// just write the success code for QEMU
+	// when we are actually using QEMU
+	// #[cfg(target_abi = "")]
+	// #[cfg(target_os = "none")]
+	// qemu::exit_with_success();
+
+	never_return()
 }
 
 /// ### Callback Panic Handler

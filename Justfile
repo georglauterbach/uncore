@@ -3,33 +3,24 @@
 # ----  https://github.com/casey/just  ----------
 # -----------------------------------------------
 
-set shell              := [ "bash", "-eu", "-o", "pipefail", "-c" ]
-set dotenv-load        := false
+set shell         := [ "bash", "-eu", "-o", "pipefail", "-c" ]
+set dotenv-load   := false
 
-DATE                   := `date +'%Y-%m-%d'`
-GIT_REVISION_HEAD      := `git rev-parse --short HEAD`
-KERNEL_VERSION         := `grep -m 1 'version*' kernel/Cargo.toml | cut -d '"' -f 2`
+export ROOT_DIRECTORY := justfile_directory()
 
-export ROOT_DIRECTORY  := justfile_directory()
-export TOOLCHAIN       := `tr -d '\n' < kernel/rust-toolchain`
-export VERSION         := KERNEL_VERSION + ' (' + GIT_REVISION_HEAD + ' ' + DATE + ')'
+BUILD_TOOL       := 'cargo'
+KERNEL_DIRECTORY := ROOT_DIRECTORY + '/kernel'
 
-BUILD_TOOL             := 'cargo'
-BOOTIMAGE_BUILD_TARGET := `rustc -Vv | grep 'host:' | cut -d ' ' -f 2`
-KERNEL_BUILD_FLAGS_1   := ' -Z build-std=core,compiler_builtins,alloc'
-KERNEL_BUILD_FLAGS_2   := ' -Z build-std-features=compiler-builtins-mem'
-KERNEL_BUILD_FLAGS     := KERNEL_BUILD_FLAGS_1 + KERNEL_BUILD_FLAGS_2
-
-export KERNEL_BUILD_TARGET := `printf "${TARGET:-x86_64-unknown-none}"`
-KERNEL_BUILD_TARGET_PATH   := ROOT_DIRECTORY + '/kernel/targets/' + KERNEL_BUILD_TARGET + '.json'
-
-# show this help message
+# show a dedicated help message
 help:
     #! /bin/bash
+    RUST_INSTALLED=true
 
     if command -v rustc &>/dev/null
     then printf 'tools\n├── ' ; rustc --version
-    else printf "tools\n├── 'rustc' not installed or in \$PATH\n"
+    else
+        printf "tools\n├── 'rustc' not installed or in \$PATH\n"
+        RUST_INSTALLED=false
     fi
 
     if command -v cargo &>/dev/null
@@ -37,9 +28,14 @@ help:
     else printf "├── 'cargo' not installed or in \$PATH\n"
     fi
 
-    printf '└── just  %s\n' "$(cut -d ' ' -f 2 < <(just --version))"  
-    printf "\nkernel\n├── toolchain %s\n└── version   %s\n\n" \
-        "{{TOOLCHAIN}}" "{{VERSION}}"
+    printf '└── just  %s\n\n' "$(cut -d ' ' -f 2 < <(just --version))"  
+
+    if ${RUST_INSTALLED}
+    then
+        source scripts/lib/init.sh 'kernel'
+        printf "kernel\n├── toolchain %s\n└── version   %s\n\n" \
+            "${RUST_TOOLCHAIN}" "${KERNEL_VERSION}"
+    fi
 
     just --list
     printf '\n'
@@ -49,67 +45,21 @@ help:
 # -----------------------------------------------
 
 # compile the kernel
-@build release='':
-    RELEASE="{{release}}" && \
-    just -- _build_kernel "${RELEASE:+--release}"
+@build target='':
+    bash "{{ROOT_DIRECTORY}}/scripts/build.sh" {{target}}
 
-# create a bootable image
-@build_image release='':
-    RELEASE="{{release}}" && \
-    just -- _use_bootimage "${RELEASE:+release}" --no-run
-
-# run the kernel in QEMU
-run: _use_bootimage
-
-# compile the kernel
-@_build_kernel release='':
-    cd {{ROOT_DIRECTORY}}/kernel/ &&     \
-    {{BUILD_TOOL}} build {{release}}     \
-        --target {{KERNEL_BUILD_TARGET_PATH}} \
-        {{KERNEL_BUILD_FLAGS}}
-
-# use the bootloader tool to build or run the kernel
-_use_bootimage release='' no_run='':
-    #! /bin/bash
-
-    RELEASE="{{release}}"
-
-    just -- _build_kernel ${RELEASE:+--release} || exit ${?}
-    cd {{ROOT_DIRECTORY}}/kernel/
-
-    {{BUILD_TOOL}} run                      \
-        --package boot                      \
-        --target {{BOOTIMAGE_BUILD_TARGET}} \
-        ${RELEASE:+--release}               \
-        --                                  \
-        target/{{KERNEL_BUILD_TARGET}}/${RELEASE:-debug}/kernel {{no_run}}
+# run the kernel for x86_64 in QEMU
+@run *arguments: (build arguments)
+    bash "{{ROOT_DIRECTORY}}/scripts/run_in_qemu.sh" {{arguments}}
 
 # remove the kernel/target/ directory
 @clean:
-    cd {{ROOT_DIRECTORY}}/kernel/ && {{BUILD_TOOL}} clean
+    cd {{KERNEL_DIRECTORY}} && {{BUILD_TOOL}} clean
+    cd {{KERNEL_DIRECTORY}}/build/qemu/ && find . ! -name "grub.cfg" -delete
 
 # run tests workspace members
-test test='':
-    #! /bin/bash
-
-    cd {{ROOT_DIRECTORY}}/kernel/
-
-    # --tests runs all tests, i.e. the kernel library (`lib.rs`)
-    # effectivly running all unit-tests, the kernel main binary
-    # (`main.rs`) and all integration tests (under `tests/`)
-
-    if [[ -z "{{test}}" ]]
-    then
-        {{BUILD_TOOL}} test --tests               \
-            --target {{KERNEL_BUILD_TARGET_PATH}} \
-            {{KERNEL_BUILD_FLAGS}}
-    else
-        {{BUILD_TOOL}} test --test {{test}}       \
-            --target {{KERNEL_BUILD_TARGET_PATH}} \
-            {{KERNEL_BUILD_FLAGS}}
-    fi
-
-    printf '\nTests passed.\n'
+@test *arguments:
+    bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} test
 
 # -----------------------------------------------
 # ----  Format and Lint  ------------------------
@@ -117,30 +67,17 @@ test test='':
 
 # format the Rust code with rustfmt
 @format:
-    cd {{ROOT_DIRECTORY}}/kernel/ \
-        && {{BUILD_TOOL}} fmt --message-format human
+    cd {{KERNEL_DIRECTORY}} && {{BUILD_TOOL}} fmt --message-format human
 
 alias fmt := format
 
 # lint against rustfmt and Clippy
-check:
-    #! /bin/bash
+@check *arguments: format
+    - bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} check
 
-    cd {{ROOT_DIRECTORY}}/kernel/
-
-    {{BUILD_TOOL}} check                      \
-        --target {{KERNEL_BUILD_TARGET_PATH}} \
-        {{KERNEL_BUILD_FLAGS}}
-
-    {{BUILD_TOOL}} fmt --all --message-format human -- --check
-    {{BUILD_TOOL}} clippy --lib --all-features -- -D warnings
-    {{BUILD_TOOL}} clippy --package boot --all-features -- -D warnings
-
-# lint against EditorConfig, ShellCheck and YAMLLint
-@lint:
-    - bash {{ROOT_DIRECTORY}}/scripts/lint/editorconfig.sh
-    - bash {{ROOT_DIRECTORY}}/scripts/lint/shellcheck.sh
-    - bash {{ROOT_DIRECTORY}}/scripts/lint/yamllint.sh
+# generically lint the whole code base
+@lint *arguments:
+    - bash "{{ROOT_DIRECTORY}}/scripts/lint.sh" {{arguments}}
 
 # -----------------------------------------------
 # ----  Documentation  --------------------------
@@ -149,3 +86,5 @@ check:
 # build or serve the documentation
 @docs action='':
     bash {{ROOT_DIRECTORY}}/scripts/documentation.sh {{action}}
+
+alias doc := docs

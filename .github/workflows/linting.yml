@@ -13,36 +13,7 @@ defaults:
     shell: bash
 
 jobs:
-  shellcheck:
-    name: Lint against ShellCheck
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2.4.0
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
-        with:
-          scandir: scripts
-          version: v0.8.0
-        env:
-          # yamllint disable-line rule:line-length
-          SHELLCHECK_OPTS: --exclude=SC2312 --exclude=SC2154 --enable=all --severity=style --color=auto --wiki-link-count=50 --check-sourced --external-sources --source-path=SCRIPTDIR
-
-  yamllint:
-    name: Lint against YAMLLint
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2.4.0
-      - name: Run YAMLLint
-        uses: ibiqlik/action-yamllint@v3.1.0
-        with:
-          config_file: scripts/lint/yamllint.yml
-          strict: true
-          format: colored
-          file_or_dir: .github/**/*.yml documentation/**/*.yml scripts/**/*.yml
-
-  super-linter:
+  lint:
     name: Lint against GitHub's Super-Linter
     runs-on: ubuntu-20.04
     steps:
@@ -56,16 +27,16 @@ jobs:
         env:
           LOG_LEVEL: NOTICE
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BRANCH: master
-          LINTER_RULES_PATH: /
+          SUPPRESS_POSSUM: true
           VALIDATE_ALL_CODEBASE: true
 
-          MARKDOWN_CONFIG_FILE: scripts/lint/markdownlint.yml
-          EDITORCONFIG_FILE_NAME: scripts/lint/editorconfig.json
-
           ERROR_ON_MISSING_EXEC_BIT: true
-
+          VALIDATE_JSCPD_ALL_CODEBASE: false
+          VALIDATE_BASH: true
           VALIDATE_BASH_EXEC: true
           VALIDATE_EDITORCONFIG: true
           VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_JSCPD: true
+          VALIDATE_JSON: true
           VALIDATE_MARKDOWN: true
+          VALIDATE_YAML: true

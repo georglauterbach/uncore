@@ -16,17 +16,10 @@ docs_dir: content/
 nav:
   - Home: index.md
   - Development: development.md
-  - Building: building.md
+  - Building & Running: building_and_running.md
   - Kernel Structure:
       - Overview: kernel_structure.md
-      - System Call Interface: modules/syscalls.md
-      - Kernel: modules/kernel.md
-      - Helper: modules/helper.md
-      - Communication: modules/communication.md
-      - Memory: modules/memory.md
-      - Processes: modules/processes.md
-      - Scheduling: modules/scheduling.md
-      - Hardware Abstraction Layer: modules/hardware.md
+      - Boot: architecture/boot.md
   - Testing: testing.md
 
 theme:

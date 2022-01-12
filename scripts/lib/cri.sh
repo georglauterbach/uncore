@@ -1,7 +1,6 @@
 #! /bin/bash
 
-# shellcheck source=scripts/lib/logs.sh
-. scripts/lib/logs.sh
+source scripts/lib/logs.sh
 
 function setup_container_runtime
 {
