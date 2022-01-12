@@ -99,7 +99,7 @@ LINT.SH(1)
 
 SYNOPSIS
     ./scripts/lint.sh [ OPTION... ] < ACTION... >
-    just lin          [ OPTION... ] < ACTION... >
+    just lint         [ OPTION... ] < ACTION... >
 
 OPTIONS
     --help                     Show this help message

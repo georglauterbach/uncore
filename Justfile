@@ -49,8 +49,8 @@ help:
     bash "{{ROOT_DIRECTORY}}/scripts/build.sh" {{target}}
 
 # run the kernel for x86_64 in QEMU
-@run *options: (build options)
-    bash "{{ROOT_DIRECTORY}}/scripts/run_in_qemu.sh" {{options}}
+@run *arguments: (build arguments)
+    bash "{{ROOT_DIRECTORY}}/scripts/run_in_qemu.sh" {{arguments}}
 
 # remove the kernel/target/ directory
 @clean:
@@ -58,19 +58,8 @@ help:
     cd {{KERNEL_DIRECTORY}}/build/qemu/ && find . ! -name "grub.cfg" -delete
 
 # run tests workspace members
-test target='' test='':
-    #! /bin/bash
-    if [[ -z '{{target}}' ]]
-    then
-        bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" test {{test}}
-    elif [[ {{target}} == '--help' ]]
-    then
-        bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" --help
-    else
-        bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" \
-            --target {{target}}                          \
-            test {{test}}
-    fi
+@test *arguments:
+    bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} test
 
 # -----------------------------------------------
 # ----  Format and Lint  ------------------------
@@ -84,11 +73,11 @@ alias fmt := format
 
 # lint against rustfmt and Clippy
 @check *arguments: format
-    - bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} 'check'
+    - bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} check
 
 # generically lint the whole code base
-@lint linter='':
-    - bash {{ROOT_DIRECTORY}}/scripts/lint.sh {{linter}}
+@lint *arguments:
+    - bash "{{ROOT_DIRECTORY}}/scripts/lint.sh" {{arguments}}
 
 # -----------------------------------------------
 # ----  Documentation  --------------------------

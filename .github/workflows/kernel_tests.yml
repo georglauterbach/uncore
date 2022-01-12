@@ -65,6 +65,5 @@ jobs:
       - name: Print QEMU version
         run: qemu-system-x86_64 --version
 
-      # TODO adjust this as soon as tests work again with QEMU
-      # - name: Run `cargo test`
-      #   run: run: ./scripts/test_kernel.sh --is-ci test
+      - name: Run `cargo test`
+        run: ./scripts/test_kernel.sh --is-ci test

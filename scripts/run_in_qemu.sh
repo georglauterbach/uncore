@@ -148,14 +148,14 @@ function main
         ;;
 
       ( * )
-        notify 'abo' "'${1}' is invalid (run with --help to get more information)"
+        notify 'err' "'${1}' is invalid (run with --help to get more information)"
         exit 1
         ;;
     esac
   done
 
   prepare_qemu
-  run_in_qemu "${1:-}"
+  run_in_qemu "${@}"
 }
 
 main "${@}"

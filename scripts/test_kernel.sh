@@ -22,11 +22,8 @@ function check_kernel
 function test_kernel
 {
   # FIXME tests do not currently run
-  notify 'abo' 'Unit- and integration tests are unimplemented'
-  return 1
-
-  local INTEGRATION_TEST
-  INTEGRATION_TEST="${1:-}"
+  notify 'war' 'Unit- and integration tests are currently NOT implemented'
+  return 0
 
   if [[ -z ${INTEGRATION_TEST} ]]
   then
@@ -57,30 +54,32 @@ TEST_KERNEL.SH(1)
 
 SYNOPSIS
     ./scripts/test_kernel.sh [ OPTION... ] < ACTION... >
-    just check               [ OPTION... ] 
-    just test                [ [ '--help' ] | [ TARGET ] [ TEST ] ]
+    just < check | test >    [ OPTION... ] 
 
 OPTIONS
     --help           Show this help message
     --is-ci          specifies that this script invocation is performed during CI
     --target TARGET  specify target triple to use when building and running the kernel
+    --test TARGET    speficy the test when running integration tests
 
 ACTIONS
     check            run linter checks
-    test [ TEST ]    run unit- and integration tests or the TEST integration test
+    test             run unit- and integration tests or the TEST integration test
 
 EOM
 }
 
 function main
 {
-  trap '' ERR ; set +e
-
   if [[ -z ${1:-} ]]
   then
-    notify 'abo' 'No action specified'
+    notify 'err' 'No action specified'
     exit 1
   fi
+
+  trap '' ERR ; set +e
+  local ACTION=''
+  export INTEGRATION_TEST
 
   while [[ -n ${1:-} ]]
   do
@@ -99,24 +98,49 @@ function main
         set_build_target "${2:-}"
         shift 2
         ;;
+      
+      ( '--test' )
+        if [[ -z ${2:-} ]]
+        then
+          notify 'err' 'Provided test flag but no test was given afterwards'
+          exit 1
+        fi
+
+        INTEGRATION_TEST="${2}"
+        shift 2
+        ;;
 
       ( 'check' )
-        check_kernel
+        ACTION='check'
         shift 1
         ;;
     
       ( 'test' )
-        test_kernel "${2:-}"
-        [[ -n ${2:-} ]] && shift 1
+        ACTION='test'
         shift 1
         ;;
 
       ( * )
-        notify 'abo' "'${1}' is invalid (run with --help to get more information)"
+        notify 'err' "'${1}' is invalid (run with --help to get more information)"
         exit 1
         ;;
     esac
   done
+
+  case "${ACTION}" in
+    ( 'check' )
+      check_kernel
+      ;;
+
+    ( 'test' )
+      test_kernel
+      ;;
+
+    ( * )
+      notify 'err' 'No action provided (run with --help to get more information)'
+      exit 1
+      ;;
+  esac
 }
 
 main "${@}"

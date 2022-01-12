@@ -131,7 +131,7 @@ function main
 {
   if [[ -z ${1:-} ]]
   then
-    notify 'abo' 'No action specified'
+    notify 'err' 'No action specified'
     exit 1
   fi
 
@@ -162,7 +162,7 @@ function main
       ;;
 
     ( * )
-        notify 'abo' "'${1}' is invalid (run with --help to get more information)"
+        notify 'err' "'${1}' is invalid (run with --help to get more information)"
         exit 1
         ;;
   esac

@@ -37,7 +37,7 @@ function setup_kernel_environment
 
   if ! cd "${ROOT_DIRECTORY}/kernel"
   then
-    notify 'abo' 'Could not change into kernel directory'
+    notify 'err' 'Could not change into kernel directory'
     exit 1
   fi
 
@@ -77,14 +77,14 @@ function set_build_target
 
   if [[ -z ${BUILD_TARGET} ]]
   then
-    notify 'abo' 'Specified build target is empty'
+    notify 'err' 'Specified build target is empty'
     exit 1
   fi
 
   if [[ ! -f "build/targets/${BUILD_TARGET}.json"  ]] \
   && [[ ! -f "kernel/build/targets/${BUILD_TARGET}.json"  ]]
   then
-    notify 'abo'                                                     \
+    notify 'err'                                                     \
       "The build target '${BUILD_TARGET}' does not seem to be valid" \
       "(is it in the 'kernel/build/targets/' directory?)"
     exit 1
@@ -106,8 +106,8 @@ function main
         ;;
       
       ( * )
-        notify 'abo' "Option '${1:-}' is invalid"
-        exit 1
+        shift 1
+        continue
         ;;
     esac
   done

@@ -8,7 +8,7 @@ function notify
 {
   function __log_trace
   {
-    printf "%-15s \e[94mTRACE\e[0m   %s\n" \
+    printf "%-15s \e[36mTRACE\e[0m   %s\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
@@ -36,12 +36,6 @@ function notify
       "${SCRIPT:-${0}}" "${*}" >&2
   }
 
-  function __log_abort
-  {
-    printf "%-15s \e[31mABORT  \e[0m %s\n" \
-      "${SCRIPT:-${0}}" "${*}" >&2
-  }
-
   # Log Level
   #
   # Can be one of
@@ -57,10 +51,10 @@ function notify
   # default log level is 'warning' (2).
   local INTERNAL_LOG_LEVEL=2 INTERNAL_LOG_LEVEL_STRING
   case "${LOG_LEVEL:-war}" in
-    ( 'err' ) INTERNAL_LOG_LEVEL=0 ;;
-    ( 'war' ) INTERNAL_LOG_LEVEL=1 ;;
-    ( 'inf' ) INTERNAL_LOG_LEVEL=2 ;;
-    ( 'tra' ) INTERNAL_LOG_LEVEL=3 ;;
+    ( 'err'* ) INTERNAL_LOG_LEVEL=0 ;;
+    ( 'war'* ) INTERNAL_LOG_LEVEL=1 ;;
+    ( 'inf'* ) INTERNAL_LOG_LEVEL=2 ;;
+    ( 'tra'* ) INTERNAL_LOG_LEVEL=3 ;;
     ( * )     INTERNAL_LOG_LEVEL=2 ;;
   esac
 
@@ -89,7 +83,6 @@ function notify
       ;;
 
     ( 'err' ) __log_error "${*}" ;;
-    ( 'abo' ) __log_abort "${*}" ;;
 
     ( * )
       [[ "${INTERNAL_LOG_LEVEL}" -lt 1 ]] && return 0
