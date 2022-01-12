@@ -22,38 +22,26 @@ The documentation has a dedicated [Getting Started][docs-getting-started] sectio
 To check whether you have all needed tools, and install them if you do not already have them installed, run
 
 ``` CONSOLE
-$ ./scripts/tools.sh
-tools INFO    'rustup' is installed
-tools INFO    Setting Rust toolchain and ...
+$ pwd
+/uncore
+$ ./scripts/install_tools.sh
+tools        INFO    'rustup' is installed
+tools        SUCCESS Your Rust installation is complete
 ...
 ```
-
-from this repository's root directory.
 
 ## Documentation and Licensing
 
 The documentation is written in Markdown, built with [MkDocs] and can be found under `documentation/`. You may build and serve the documentation locally with a container runtime (like [Docker] or [Podman]) by running `./scripts/documentation.sh`, serving it under <http://127.0.0.1:8080>.
 
-This project is licensed under the [GNU General Public License v3], except for those parts (lines of code from libraries used in this project) already licensed under other licenses. Moreover, code taken from [_Phillip Oppermann_'s _BlogOS_ project][blog-os] is not covered by the license of this project as well.
-
-## Repository Structure
-
-This repository is structured into different subdirectories:
-
-``` BASH
-/
-├── .github/        # GitHub's templates and CI workflows
-├── documentation/  # full kernel documentation
-├── kernel/         # kernel files including all Rust code
-└── scripts/        # holds all Bash scripts for administration
-```
+This project is licensed under the [GNU General Public License v3], **except** for those parts (lines of code from libraries used in this project) already licensed under other licenses.
 
 [//]: # (Badges)
 
 [badge::license]: https://img.shields.io/github/license/georglauterbach/uncore.svg?label=LICENSE&color=informational&style=for-the-badge
 [badge::licence::link]: ./LICENSE
 [badge::documentation]: https://img.shields.io/badge/DOCUMENTATION-MKDOCS-informational?style=for-the-badge
-[badge::documentation::link]: https://georglauterbach.github.io/uncore/
+[badge::documentation::link]: https://georglauterbach.github.io/uncore/edge/
 
 [badge::ci::linting]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Linting?label=CI%20-%20Linting&logo=github&logoColor=white&style=for-the-badge
 [badge::ci::linting::link]: https://github.com/georglauterbach/uncore/actions/workflows/linting.yml
@@ -78,4 +66,3 @@ This repository is structured into different subdirectories:
 [Docker]: https://www.docker.com/
 [Podman]: https://podman.io/
 [GNU General Public License v3]: https://www.gnu.org/licenses/gpl-3.0.txt
-[blog-os]: https://github.com/phil-opp/blog_os#license

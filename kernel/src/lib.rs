@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
 // ? GLOBAL CRATE ATTRIBUTES AND DOCUMENTATION
 // ? ---------------------------------------------------------------------
 
@@ -31,13 +34,19 @@
 #![feature(custom_test_frameworks)]
 // With our own test framework, we have to define which function
 // runs our tests.
-#![test_runner(crate::library::test_runner)]
+#![test_runner(crate::library::prelude::test::runner)]
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
-// Since the `x86-interrupt` calling convention is still unstable, we
-// have to opt-in.
+// Since the `x86-interrupt` calling convention is still unstable,
+// we have to opt-in.
 #![feature(abi_x86_interrupt)]
+// Checking the target ABI is still experimental
+// and subject to change.
+#![feature(cfg_target_abi)]
+// Dereferencing raw mutable pointers in constant functions is still
+// unstable.
+#![feature(const_mut_refs)]
 // Since retrieving the message during a call to `panic!` is
 // still unstable, we have to opt-in.
 #![feature(panic_info_message)]
@@ -52,7 +61,7 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-/// # The Core Library Path
+/// ### The Core Library
 ///
 /// This module has been created to give the kernel source code a
 /// well-defined structure and layout. The `library` module is used as
@@ -60,19 +69,13 @@
 /// is important, and we are not allowed to mix them up.
 pub mod library;
 
-/// # Kernel Library Testing Entrypoint
+/// ### Re-Exporting the Prelude
 ///
-/// This is the kernel's entry point called after the bootloader has
-/// finished its setup. It is kept short on purpose. The
-/// `library::init()` function takes care of initialization.
-#[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) -> !
-{
-	library::init(boot_information);
-	__test_runner();
-	library::never_return()
-}
+/// The `prelude` module shall be accessible from `crate::` (or
+/// `kernel::` in case of `main.rs`).
+pub use library::prelude;
+
+use library::prelude::*;
 
 /// ### Default Panic Handler
 ///
@@ -81,4 +84,23 @@ pub extern "C" fn _start(boot_information: &'static mut bootloader::BootInfo) ->
 /// does not return afterwards. Note that we do not unwind the stack.
 #[cfg(test)]
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+
+/// ### Kernel Library Testing Entrypoint (`x86_64`)
+///
+/// This is the kernel's entry point called after the bootloader has
+/// finished its setup. It is kept short on purpose. The
+/// `library::init()` function takes care of initialization. This
+/// function is effectively run only during unit tests.
+#[cfg(target_arch = "x86_64")]
+#[no_mangle]
+pub fn kernel_main(
+	_multiboot2_bootloader_magic_value: u32,
+	_multiboot2_boot_information_pointer: u32,
+) -> !
+{
+	#[cfg(test)]
+	crate::__test_runner();
+
+	never_return()
+}

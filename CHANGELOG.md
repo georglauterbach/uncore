@@ -4,12 +4,17 @@
 
 ### v0.3
 
+- (WIP) paging and virtual memory
+- major linting enhancements
+- refactored boot information handling
+
 #### v0.3.0
 
 - major refactoring of kernel source code
   - revised kernel code structure
   - no individual kernel modules anymore
   - sorted our compiler errors
+  - interrupts and exceptions functional
   - removed all compiler warnings
   - `cargo clippy` now works without errors
   - completed code documentation

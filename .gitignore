@@ -12,10 +12,12 @@
 documentation/site
 
 # -----------------------------------------------
-# ----  Rust  -----------------------------------
+# ----  Kernel ----------------------------------
 # -----------------------------------------------
 
 kernel/target/
+kernel/build/qemu/*
+!kernel/build/qemu/grub.cfg
 
 kernel/**/Cargo.lock
 kernel/**/*.rs.bk

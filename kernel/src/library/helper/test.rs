@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
+use crate::prelude::*;
+
 /// ### Are We Running Tests?
 ///
 /// Can be used to get information about whether tests are run or not.
@@ -11,25 +16,6 @@ pub const IS_TEST: bool = true;
 #[allow(dead_code)]
 #[cfg(not(test))]
 pub const IS_TEST: bool = false;
-
-/// ### A (Very) Simple Test Runner Implementation
-///
-/// This function is registered as the tests runner when executing
-/// Cargo test's unit tests.
-///
-/// It will just execute all functions marked with `#[test_case]` one
-/// by one.
-#[allow(clippy::module_name_repetitions)]
-pub fn test_runner(tests: &[&dyn Testable])
-{
-	crate::log_test!("Starting tests");
-
-	for test in tests {
-		test.run();
-	}
-
-	super::miscellaneous::qemu::exit_with_success();
-}
 
 /// ### Streamlining Testing
 ///
@@ -52,10 +38,30 @@ where
 {
 	fn run(&self)
 	{
-		crate::log_test!("Testing {}", ::core::any::type_name::<Self>());
+		log_info!("Testing {}", ::core::any::type_name::<Self>());
 		self();
-		crate::log_test!("Last test finished. SUCCESS.");
+		log_info!("Most recent test PASSED");
 	}
+}
+
+/// ### A (Very) Simple Test Runner Implementation
+///
+/// This function is registered as the tests runner when executing
+/// Cargo test's unit tests.
+///
+/// It will just execute all functions marked with `#[test_case]` one
+/// by one.
+#[allow(clippy::module_name_repetitions)]
+pub fn runner(tests: &[&dyn Testable])
+{
+	log_info!("Starting tests");
+
+	for test in tests {
+		test.run();
+	}
+
+	log_info!("Last test finished. SUCCESS.");
+	// qemu::exit_with_success();
 }
 
 /// ### Sanity Check

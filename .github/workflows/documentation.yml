@@ -1,5 +1,5 @@
 ---
-# Gratefully copied and adjusted from docker-mailserver/docker-mailserver
+# gratefully copied and adjusted from docker-mailserver/docker-mailserver
 name: Documentation
 
 on: # yamllint disable-line rule:truthy
