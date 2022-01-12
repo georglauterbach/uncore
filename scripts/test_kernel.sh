@@ -52,19 +52,23 @@ function test_kernel
 
 function usage
 {
-  echo "TEST_KERNEL.SH(1)
+  cat << "EOM" 
+TEST_KERNEL.SH(1)
 
 SYNOPSIS
     ./scripts/test_kernel.sh [ OPTION... ] < ACTION... >
+    just < test | check >    [ OPTION... ] < ACTION... >
 
 OPTIONS
-    is-ci          specifies that this script invocation is performed during CI
-    target TARGET  specify target triple to use when building and running the kernel
+    --help           Show this help message
+    --is-ci          specifies that this script invocation is performed during CI
+    --target TARGET  specify target triple to use when building and running the kernel
 
 ACTIONS
-    check          run linter checks
-    test [ TEST ]  run unit- and integration tests or the TEST integration test
-"
+    check            run linter checks
+    test [ TEST ]    run unit- and integration tests or the TEST integration test
+
+EOM
 }
 
 function main
@@ -80,26 +84,26 @@ function main
   while [[ -n ${1:-} ]]
   do
     case "${1:-}" in
-      ( 'check' )
-          check_kernel
-          shift 1
-        ;;
-    
-      ( 'help' )
+      ( '--help' )
         usage
         exit 0
         ;;
 
-      ( 'is-ci' )
+      ( '--is-ci' )
         set -e
         shift 1
         ;;
 
-      ( 'target' )
+      ( '--target' )
         set_build_target "${2:-}"
         shift 2
         ;;
 
+      ( 'check' )
+        check_kernel
+        shift 1
+        ;;
+    
       ( 'test' )
         test_kernel "${2:-}"
         [[ -n ${2:-} ]] && shift 1
@@ -107,8 +111,7 @@ function main
         ;;
 
       ( * )
-        notify 'abo' "Option '${1}' is invalid"
-        usage
+        notify 'abo' "'${1}' is invalid (run with --help to get more information)"
         exit 1
         ;;
     esac

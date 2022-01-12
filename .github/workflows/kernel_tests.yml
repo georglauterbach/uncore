@@ -38,7 +38,7 @@ jobs:
         run: rustup component add rust-src llvm-tools-preview
 
       - name: Run all kernel-related checks
-        run: ./scripts/test_kernel.sh 'is-ci' 'check'
+        run: ./scripts/test_kernel.sh --is-ci check
 
   unit-and-integration-tests:
     name: Run all unit- and integration-tests
@@ -67,4 +67,4 @@ jobs:
 
       # TODO adjust this as soon as tests work again with QEMU
       # - name: Run `cargo test`
-      #   run: run: ./scripts/test_kernel.sh 'is-ci' 'test'
+      #   run: run: ./scripts/test_kernel.sh --is-ci test

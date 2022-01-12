@@ -88,7 +88,7 @@ function run_in_qemu
   QEMU_ARGUMENTS+=('-serial')
   QEMU_ARGUMENTS+=('stdio')
 
-  if [[ ${1:-} == 'graphical' ]]
+  if [[ ${*} == *'graphical'* ]]
   then
     QEMU_ARGUMENTS+=('-vga')
     QEMU_ARGUMENTS+=('std')
@@ -110,5 +110,48 @@ function run_in_qemu
   qemu-system-x86_64 "${QEMU_ARGUMENTS[@]}"
 }
 
-prepare_qemu
-run_in_qemu "${1:-}"
+function usage
+{
+  cat << "EOM" 
+RUN_IN_QEMU.SH(1)
+
+SYNOPSIS
+    ./scripts/run_in_qemu.sh [ OPTION... ] < ACTION... >
+    just run                 [ OPTION... ] < ACTION... >
+
+OPTIONS
+    --help                     Show this help message
+
+ACTIONS
+    shellcheck | sc            Run the ShellCheck linter
+    github-super-linter | gsl  Run the GitHub Super Linter
+
+EOM
+}
+
+function main
+{
+  while [[ -n ${1:-} ]]
+  do
+    case "${1:-}" in
+      ( '--help' )
+        usage
+        exit 0
+        ;;
+      
+      ( 'graphical' )
+        break
+        ;;
+
+      ( * )
+        notify 'abo' "'${1}' is invalid (run with --help to get more information)"
+        exit 1
+        ;;
+    esac
+  done
+
+  prepare_qemu
+  run_in_qemu "${1:-}"
+}
+
+main "${@}"

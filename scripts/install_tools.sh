@@ -70,12 +70,28 @@ function check_container_runtime
   notify 'suc' 'You can lint the code'
 }
 
-function _main
+function usage
 {
+  cat << "EOM"
+INSTALL_TOOLS.SH(1)
+
+SYNOPSIS
+    ./scripts/install_tools.sh [ OPTION ]
+
+OPTION
+    --help           Show this help message
+
+EOM
+}
+
+function main
+{
+  [[ ${1:-} == '--help' ]] && { usage ; exit 0 ; }
+
   check_rust
   check_container_runtime
 
   notify 'inf' 'Make sure QEMU is installed too'
 }
 
-_main "${@}"
+main "${@}"

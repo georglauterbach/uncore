@@ -4,10 +4,9 @@
 # executed by   just or manually
 # task          lints the codebase against various linters
 
-SCRIPT='linting'
-
 source scripts/lib/init.sh
 source scripts/lib/cri.sh
+SCRIPT='linting'
 
 # -->                   -->                   --> START
 
@@ -93,6 +92,25 @@ function lint_github_super_linter
   fi
 }
 
+function usage
+{
+  cat << "EOM" 
+LINT.SH(1)
+
+SYNOPSIS
+    ./scripts/lint.sh [ OPTION... ] < ACTION... >
+    just lin          [ OPTION... ] < ACTION... >
+
+OPTIONS
+    --help                     Show this help message
+
+ACTIONS
+    shellcheck | sc            Run the ShellCheck linter
+    github-super-linter | gsl  Run the GitHub Super Linter
+
+EOM
+}
+
 function main
 {
   setup_container_runtime
@@ -103,6 +121,11 @@ function main
   if [[ -n ${1:-} ]]
   then
     case "${1}" in
+      ( '--help' )
+        usage
+        exit 0
+        ;;
+
       ( 'shellcheck' | 'sc' )
         lint_shellcheck || ERROR_OCCURRED=true
         ;;

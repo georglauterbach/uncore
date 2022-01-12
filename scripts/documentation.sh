@@ -107,9 +107,34 @@ function update_versions_json
   fi
 }
 
+function usage
+{
+  cat << "EOM" 
+DOCUMENTATION.SH(1)
+
+SYNOPSIS
+    ./scripts/documentation.sh [ OPTION... ] < ACTION... >
+    just doc[s]                [ OPTION... ] < ACTION... >
+
+OPTIONS
+    --help                   Show this help message
+
+ACTIONS
+    build                 Build the documentation (create HTML/CSS/JS)
+    update_versions_json  (CI only) update a special versioning file
+    serve                 Serve locally under 'http://127.0.0.1:8080'
+
+EOM
+}
 
 function main
 {
+  if [[ -z ${1:-} ]]
+  then
+    notify 'abo' 'No action specified'
+    exit 1
+  fi
+
   DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY}/documentation"
   MKDOCS_MATERIAL_TAG='8.1.6'
   MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
@@ -118,6 +143,11 @@ function main
   setup_container_runtime
 
   case "${1:-}" in
+    ( '--help' )
+      usage
+      exit 0
+      ;;
+
     ( 'build' )
       build_documentation
       cleanup_documentation_files
@@ -127,9 +157,14 @@ function main
       update_versions_json
       ;;
 
-    ( * )
+    ( 'serve' )
       serve_documentation
       ;;
+
+    ( * )
+        notify 'abo' "'${1}' is invalid (run with --help to get more information)"
+        exit 1
+        ;;
   esac
 }
 
