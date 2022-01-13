@@ -191,12 +191,12 @@ mod serial
 			use log::Level;
 			use rgb::RGB8;
 
-			// https://coolors.co/da3e52-f2e94e-a3d9ff-96e6b3-9fa4a8
+			// https://coolors.co/da3e52-f2e94e-a3d9ff-bdefcf-9fa4a8
 			let (log_level, color) = match record.level() {
 				Level::Error => (" ERROR ", RGB8::new(218, 62, 82)),
 				Level::Warn => ("WARNING", RGB8::new(242, 233, 78)),
 				Level::Info => ("  INF  ", RGB8::new(163, 217, 255)),
-				Level::Debug => (" DEBUG ", RGB8::new(150, 230, 179)),
+				Level::Debug => (" DEBUG ", RGB8::new(189, 239, 207)),
 				Level::Trace => (" TRACE ", RGB8::new(159, 164, 168)),
 			};
 

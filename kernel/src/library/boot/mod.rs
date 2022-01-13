@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
+// ? MODULES
+// ? ---------------------------------------------------------------------
+
 /// ## Fake Locking for the Multiboot2
 ///
 /// This provides a fake-lock for the time being. This is not a
@@ -15,7 +18,6 @@ mod fake_lock;
 mod _multiboot2;
 
 pub use _multiboot2::MULTIBOOT2_INFORMATION;
-pub use _multiboot2::check_and_parse as check_and_parse_multiboot2;
 
 /// ## Handle UEFI
 ///
@@ -25,4 +27,23 @@ pub use _multiboot2::check_and_parse as check_and_parse_multiboot2;
 mod _uefi;
 
 pub use _uefi::UEFI_BOOT_SERVICES_MEMORY_MAP;
-pub use _uefi::exit_boot_services as exit_uefi_boot_services;
+
+// ? FUNCTION
+// ? ---------------------------------------------------------------------
+
+/// ### Kernel Boot Procedure
+///
+/// Unifies the kernel boot procedure. Should be called directly after
+/// initializing the log to finished the boot boot.
+pub fn boot(
+	multiboot2_bootloader_magic_value: u32,
+	multiboot2_boot_information_pointer: u32,
+) -> impl ExactSizeIterator<Item = &'static uefi::table::boot::MemoryDescriptor> + Clone
+{
+	_multiboot2::check_and_parse(
+		multiboot2_bootloader_magic_value,
+		multiboot2_boot_information_pointer,
+	);
+
+	_uefi::exit_boot_services()
+}
