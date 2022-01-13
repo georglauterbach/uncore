@@ -35,6 +35,7 @@ pub use _uefi::UEFI_BOOT_SERVICES_MEMORY_MAP;
 ///
 /// Unifies the kernel boot procedure. Should be called directly after
 /// initializing the log to finished the boot boot.
+#[must_use]
 pub fn boot(
 	multiboot2_bootloader_magic_value: u32,
 	multiboot2_boot_information_pointer: u32,

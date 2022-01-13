@@ -87,6 +87,7 @@ pub fn kernel_main(
 	never_return()
 }
 
+#[allow(dead_code)]
 #[allow(unconditional_recursion)]
 fn stack_overflow()
 {

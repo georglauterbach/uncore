@@ -47,7 +47,6 @@ pub fn kernel_main(
 
 	log_info!("This is the 'basic_boot' test");
 
-
 	let _uefi_memory_map = library::boot::boot(
 		multiboot2_bootloader_magic_value,
 		multiboot2_boot_information_pointer,

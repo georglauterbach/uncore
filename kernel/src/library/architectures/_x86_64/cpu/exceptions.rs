@@ -75,5 +75,6 @@ pub(super) mod handlers
 	}
 
 	// #[test_case]
-	// fn breakpoint_exception() { x86_64::instructions::interrupts::int3(); }
+	// fn breakpoint_exception() {
+	// x86_64::instructions::interrupts::int3(); }
 }

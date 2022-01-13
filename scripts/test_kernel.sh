@@ -11,14 +11,14 @@ SCRIPT='tests'
 function check_kernel
 {
   notify 'inf' "Running 'cargo check'"
-  cargo check --quiet                             \
+  cargo check                                     \
     --target "build/targets/${BUILD_TARGET}.json" \
     "${KERNEL_BUILD_FLAGS[@]}"
 
   notify 'inf' "Running formatting and clippy checks"
-  cargo fmt --quiet --all --message-format human -- --check
-  cargo clippy --quiet --lib --all-features -- -D warnings
-  cargo clippy --quiet --package test_runner --all-features -- -D warnings
+  cargo fmt --all --message-format human -- --check
+  cargo clippy --lib --all-features -- -D warnings
+  cargo clippy --package test_runner --all-features -- -D warnings
 }
 
 function test_kernel
