@@ -31,12 +31,26 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::prelude::*;
+use kernel::{
+	library,
+	prelude::*,
+};
 
 #[no_mangle]
-pub extern "C" fn _start(__todo: u32) -> !
+pub fn kernel_main(
+	multiboot2_bootloader_magic_value: u32,
+	multiboot2_boot_information_pointer: u32,
+) -> !
 {
-	// test::main(None, boot_information);
+	library::log::init(Some(log::Level::Trace));
+	library::log::display_initial_information();
+
+	log_info!("This is the 'basic_boot' test");
+
+	let _uefi_memory_map = library::boot::boot(
+		multiboot2_bootloader_magic_value,
+		multiboot2_boot_information_pointer,
+	);
 
 	__test_runner();
 
@@ -49,5 +63,5 @@ fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, pan
 #[test_case]
 fn test_println()
 {
-	log_info!("Test log output. Does not panic.");
+	log_debug!("Test log output does not panic.");
 }

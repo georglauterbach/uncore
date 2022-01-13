@@ -4,15 +4,15 @@
 # executed by   Just, manually or in CI
 # task          runs the kernel in QEMU
 
-source scripts/lib/init.sh 'kernel'
+# shellcheck source=scripts/lib/init.sh
+source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh" 'kernel'
 SCRIPT='QEMU runner'
 
 function prepare_qemu
 {
-  local QEMU_DIRECTORY
-  export QEMU_VOLUME_DIRECTORY
+  export QEMU_DIRECTORY QEMU_VOLUME_DIRECTORY
   
-  QEMU_DIRECTORY=build/qemu
+  QEMU_DIRECTORY="${QEMU_DIRECTORY:-build/qemu}"
   KERNEL_BINARY="${QEMU_DIRECTORY}/kernel.bin"
   QEMU_VOLUME_DIRECTORY="${QEMU_DIRECTORY}/vm_volume"
 
@@ -83,7 +83,7 @@ function run_in_qemu
 
   # https://phip1611.de/blog/how-to-use-qemus-debugcon-feature-and-write-to-a-file/
   QEMU_ARGUMENTS+=('-debugcon')
-  QEMU_ARGUMENTS+=('file:build/qemu/debugcon.txt') # file:build/qemu/debugcon.txt or file:/dev/stdout
+  QEMU_ARGUMENTS+=("file:${QEMU_DIRECTORY}/debugcon.txt") # file:${QEMU_DIRECTORY}/debugcon.txt or file:/dev/stdout
 
   QEMU_ARGUMENTS+=('-serial')
   QEMU_ARGUMENTS+=('stdio')
@@ -101,6 +101,10 @@ function run_in_qemu
     QEMU_ARGUMENTS+=('-display')
     QEMU_ARGUMENTS+=('none')
   fi
+
+  # mainly used for unit and integration tests
+  QEMU_ARGUMENTS+=('-device')
+  QEMU_ARGUMENTS+=('isa-debug-exit,iobase=0xf4,iosize=0x04')
 
   QEMU_ARGUMENTS+=('-no-reboot')
   
@@ -155,7 +159,7 @@ function main
   done
 
   prepare_qemu
-  run_in_qemu "${@}"
+  run_in_qemu "${@}" || return ${?}
 }
 
-main "${@}"
+main "${@}" || exit ${?}

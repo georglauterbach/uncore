@@ -74,6 +74,7 @@ pub(super) mod handlers
 		// crate::library::never_return();
 	}
 
-	#[test_case]
-	fn breakpoint_exception() { x86_64::instructions::interrupts::int3(); }
+	// #[test_case]
+	// fn breakpoint_exception() {
+	// x86_64::instructions::interrupts::int3(); }
 }

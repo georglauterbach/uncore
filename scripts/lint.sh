@@ -4,7 +4,8 @@
 # executed by   just or manually
 # task          lints the codebase against various linters
 
-source scripts/lib/init.sh
+# shellcheck source=scripts/lib/init.sh
+source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh"
 source scripts/lib/cri.sh
 SCRIPT='linting'
 
@@ -34,6 +35,7 @@ function lint_shellcheck
 
   notify 'inf' "Running ShellCheck (${TAG})"
 
+  # shellcheck disable=SC2154
   if ${CRI} run \
     --rm \
     --cap-drop=ALL \

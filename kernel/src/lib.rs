@@ -95,12 +95,22 @@ fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, pan
 #[cfg(target_arch = "x86_64")]
 #[no_mangle]
 pub fn kernel_main(
-	_multiboot2_bootloader_magic_value: u32,
-	_multiboot2_boot_information_pointer: u32,
+	multiboot2_bootloader_magic_value: u32,
+	multiboot2_boot_information_pointer: u32,
 ) -> !
 {
+	library::log::init(Some(log::Level::Trace));
+	library::log::display_initial_information();
+
+	log_info!("Running unit-tests of 'lib.rs'");
+
+	let _uefi_memory_map = library::boot::boot(
+		multiboot2_bootloader_magic_value,
+		multiboot2_boot_information_pointer,
+	);
+
 	#[cfg(test)]
-	crate::__test_runner();
+	__test_runner();
 
 	never_return()
 }

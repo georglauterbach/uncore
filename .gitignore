@@ -17,7 +17,9 @@ documentation/site
 
 kernel/target/
 kernel/build/qemu/*
+kernel/build/tests/*
 !kernel/build/qemu/grub.cfg
+!kernel/build/tests/grub.cfg
 
 kernel/**/Cargo.lock
 kernel/**/*.rs.bk

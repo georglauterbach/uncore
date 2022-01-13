@@ -18,35 +18,39 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
-// Use custom test runners. Since we cannot use the standard
-// library, we have to use our own test framework.
-#![feature(custom_test_frameworks)]
-// With our own test framework, we have to define which function
-// runs our tests.
-#![test_runner(test::runner)]
-// We will have to re-export the actual test runner above with
-// a new name so cargo is not confused.
-#![reexport_test_harness_main = "__test_runner"]
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::prelude::*;
+use kernel::{
+	library,
+	prelude::*,
+};
 
 #[no_mangle]
-pub extern "C" fn _start(__todo: u32) -> !
+pub fn kernel_main(
+	multiboot2_bootloader_magic_value: u32,
+	multiboot2_boot_information_pointer: u32,
+) -> !
 {
-	// test::main(Some(log::Level::Info), boot_information);
+	library::log::init(Some(log::Level::Trace));
+	library::log::display_initial_information();
 
-	__test_runner();
+	log_info!("This is the 'should_panic' test");
+
+	let _ = library::boot::boot(
+		multiboot2_bootloader_magic_value,
+		multiboot2_boot_information_pointer,
+	);
+
+	this_test_should_panic();
 
 	log_error!("Test did not panic but was expected to. FAILURE.");
-	// qemu::exit_with_failure();
+	test::qemu::exit_with_failure();
 
 	never_return()
 }
 
-#[test_case]
 fn this_test_should_panic()
 {
 	assert_eq!(0, 1);

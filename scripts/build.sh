@@ -4,9 +4,8 @@
 # executed by   Just, manually or in CI
 # task          builds the kernel
 
-# shellcheck disable=SC2154
-
-source scripts/lib/init.sh 'kernel'
+# shellcheck source=scripts/lib/init.sh
+source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh" 'kernel'
 SCRIPT='build'
 
 function build_kernel

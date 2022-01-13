@@ -66,18 +66,17 @@ pub fn kernel_main(
 	multiboot2_boot_information_pointer: u32,
 ) -> !
 {
-	#[cfg(test)]
-	__test_runner();
-
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	library::boot::check_and_parse_multiboot2(
+	// https://github.com/rust-osdev/bootloader/blob/main/src/bin/uefi.rs#L37
+	let _uefi_memory_map = library::boot::boot(
 		multiboot2_bootloader_magic_value,
 		multiboot2_boot_information_pointer,
 	);
-	// https://github.com/rust-osdev/bootloader/blob/main/src/bin/uefi.rs#L37
-	let _uefi_memory_map = library::boot::exit_uefi_boot_services();
+
+	#[cfg(test)]
+	__test_runner();
 
 	never_return()
 }
@@ -89,3 +88,15 @@ pub fn kernel_main(
 /// does not return afterwards. Note that we do not unwind the stack.
 #[panic_handler]
 fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+
+/// ### Sanity Check
+///
+/// This tests is just here for sanity's sake to make
+/// sure tests behave correctly at the most basic level.
+#[test_case]
+fn trivial_assertion()
+{
+	const ONE: u8 = 1;
+	assert_eq!(1, ONE);
+	assert_eq!(ONE, 1);
+}

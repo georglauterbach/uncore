@@ -13,7 +13,7 @@ function basic_setup
   export LOG_LEVEL ROOT_DIRECTORY SCRIPT
 
   LOG_LEVEL=${LOG_LEVEL:-inf}
-  GUESSED_ROOT_DIRECTORY="$(realpath -e -L "$(dirname "$(realpath -e -L "${0}")")/..")"
+  GUESSED_ROOT_DIRECTORY="$(realpath -eL "$(dirname "$(realpath -eL "${0}")")/..")"
   ROOT_DIRECTORY=${ROOT_DIRECTORY:-${GUESSED_ROOT_DIRECTORY}}
 
   if ! cd "${ROOT_DIRECTORY}"
