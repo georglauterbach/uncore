@@ -12,7 +12,7 @@ We highly recommend using [Just] when working with _unCORE_. The following steps
 The kernel is compiled against special targets. These targets is located under `kernel/build/targets/`. Our custom targets do not provide a standard library - obviously. To get an overview, you may visit [the `rustc` target specification page on GitHub][rustc-target-specification]. To get an overview over all target options, [the Rust documentation on the associated `#!rust struct`][rustc-target-options] has you covered.
 
 !!! danger "`.cargo/config.toml` And Its Fallacies"
-    Note that we do not use a `kernel/.cargo/config.toml` file. Using this file can mess with the defaults for build / run targets and this may lead to very unpleasant outputs. We rather write the target for each compilation explicitly when writing the command.
+    Note that we use a `kernel/.cargo/config.toml` file. Using this file generally messes with the defaults for build and run targets and this may lead to very unpleasant outputs. You will therefore, and of course, for convenience, use the scripts under `scripts/` or [Just] to build, run and test your code. A `runner` target has been provided to enable testing. More on this is explained on the [Testing][docs-testing] page.
 
 First of all, if you're using [Just], make yourself familiar with all recipes by running `#!bash just help`. The kernel itself is compiled by running
 
@@ -70,6 +70,8 @@ $ ./scripts/run_in_qemu.sh [graphical]
 Running these commands in your terminal will not open a new window unless you specify `graphical` as a parameter to [Just] or the `run_in_qemu.sh` script.
 
 [//]: # (Links)
+
+[docs-testing]: ./testing.md
 
 [Rust]: https://www.rust-lang.org/
 [Just]: https://github.com/casey/just
