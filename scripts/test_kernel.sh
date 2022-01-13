@@ -4,38 +4,43 @@
 # executed by   Just, manually or in CI
 # task          runs kernel unit- and integration tests
 
-source scripts/lib/init.sh 'kernel'
+# shellcheck source=scripts/lib/init.sh
+source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh" 'kernel'
 SCRIPT='tests'
 
 function check_kernel
 {
   notify 'inf' "Running 'cargo check'"
-  cargo check                                     \
+  cargo check --quiet                             \
     --target "build/targets/${BUILD_TARGET}.json" \
     "${KERNEL_BUILD_FLAGS[@]}"
 
   notify 'inf' "Running formatting and clippy checks"
-  cargo fmt --all --message-format human -- --check
-  cargo clippy --lib --all-features -- -D warnings
+  cargo fmt --quiet --all --message-format human -- --check
+  cargo clippy --quiet --lib --all-features -- -D warnings
+  cargo clippy --quiet --package test_runner --all-features -- -D warnings
 }
 
 function test_kernel
 {
-  # FIXME tests do not currently run
-  notify 'war' 'Unit- and integration tests are currently NOT implemented'
-  return 0
+  declare -a COMMAND
+  COMMAND=(
+    'cargo' 'test' '--quiet'
+    '--target' "build/targets/${BUILD_TARGET}.json"
+    "${KERNEL_BUILD_FLAGS[@]}"
+  )
 
-  if [[ -z ${INTEGRATION_TEST} ]]
+  if [[ -z ${INTEGRATION_TEST:-} ]]
   then
-  notify 'inf' 'Running unit- and integration tests'
-    cargo test --tests                              \
-      --target "build/targets/${BUILD_TARGET}.json" \
-      "${KERNEL_BUILD_FLAGS[@]}"
+    notify 'inf' 'Running all unit- and integration tests'
+    "${COMMAND[@]}" --tests
+  elif [[ ${INTEGRATION_TEST} == 'lib' ]]
+  then
+    notify 'inf' "Running only unit tests"
+    "${COMMAND[@]}" --lib
   else
     notify 'inf' "Running integration test '${INTEGRATION_TEST}'"
-    cargo test --test "${INTEGRATION_TEST}"       \
-      --target "build/targets/${BUILD_TARGET}.json" \
-      "${KERNEL_BUILD_FLAGS[@]}"
+    "${COMMAND[@]}" --test "${INTEGRATION_TEST}"
   fi
 
   # shellcheck disable=SC2181
@@ -44,6 +49,7 @@ function test_kernel
     notify 'suc' 'Tests passed'
   else
     notify 'war' 'Tests did not pass'
+    exit 1
   fi
 }
 
