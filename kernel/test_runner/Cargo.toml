@@ -1,0 +1,36 @@
+[package]
+name = "test_runner"
+version = "0.2.0"
+edition = "2021"
+workspace = "../"
+
+authors = ["The unCORE Kernel Community"]
+description = "unCORE Bootimage Creation"
+documentation = "../../documentation/"
+license = "GPL-3.0"
+readme = "../../README.md"
+
+homepage = "https://uncore-kernel.org"
+repository = "https://github.com/georglauterbach/uncore"
+
+keywords = [
+  "operating-system",
+  "os",
+  "kernel",
+  "bootimage",
+  "creation",
+]
+
+categories = [
+  "no-std",
+  "config"
+]
+
+publish = false
+
+[dependencies]
+ansi_rgb = "0.2.0"
+locate-cargo-manifest = "0.2.0"
+log = "0.4.14"
+rgb = "0.8.31"
+runner-utils = "0.0.2"
