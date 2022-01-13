@@ -59,7 +59,7 @@ help:
 
 # run tests workspace members
 @test *arguments:
-    bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} test
+    - bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} test
 
 # -----------------------------------------------
 # ----  Format and Lint  ------------------------
@@ -84,7 +84,7 @@ alias fmt := format
 # -----------------------------------------------
 
 # build or serve the documentation
-@docs action='':
+@docs action='serve':
     bash {{ROOT_DIRECTORY}}/scripts/documentation.sh {{action}}
 
 alias doc := docs

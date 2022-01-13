@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/%25s
 
 # version       0.4.1
 # sourced by    shell scripts under scripts/
@@ -8,31 +8,31 @@ function notify
 {
   function __log_trace
   {
-    printf "%-15s \e[36mTRACE\e[0m   %s\n" \
+    printf "[  \e[94mTRACE\e[0m  ] %25s\e[37m@\e[0mbash | \e[37m%s\e[0m\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
   function __log_info
   {
-    printf "%-15s \e[34mINFO   \e[0m %s\n" \
+    printf "[   \e[34mINF\e[0m   ] %25s\e[34m@\e[0mbash | \e[34m%s\e[0m\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
   function __log_success
   {
-    printf "%-15s \e[32mSUCCESS\e[0m %s\n" \
+    printf "[ \e[92mSUCCESS\e[0m ] %25s\e[92m@\e[0mbash | \e[92m%s\e[0m\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
   function __log_warning
   {
-    printf "%-15s \e[93mWARNING\e[0m %s\n" \
+    printf "[ \e[93mWARNING\e[0m ] %25s\e[93m@\e[0mbash | \e[93m%s\e[0m\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
   function __log_error
   {
-    printf "%-15s \e[91mERROR  \e[0m %s\n" \
+    printf "[  \e[91mERROR\e[0m  ] %25s\e[91m@\e[0mbash | \e[91m%s\e[0m\n" \
       "${SCRIPT:-${0}}" "${*}" >&2
   }
 

@@ -4,7 +4,8 @@
 # executed by   manually or in CI
 # task          builds and serves the documentation
 
-source scripts/lib/init.sh
+# shellcheck source=scripts/lib/init.sh
+source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh"
 source scripts/lib/cri.sh
 SCRIPT='documentation'
 
