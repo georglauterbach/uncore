@@ -25,7 +25,10 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::prelude::*;
+use kernel::{
+	library,
+	prelude::*,
+};
 
 use x86_64::structures::idt::{
 	InterruptDescriptorTable,
@@ -49,22 +52,39 @@ lazy_static::lazy_static! {
 pub extern "x86-interrupt" fn test_double_fault_handler(_: InterruptStackFrame, _: u64) -> !
 {
 	log_info!("Received double fault. SUCCESS.");
-	// qemu::exit_with_success();
+	test::qemu::exit_with_success();
 	never_return()
 }
 
 #[no_mangle]
-pub extern "C" fn _start(__todo: u32) -> !
+pub fn kernel_main(
+	_multiboot2_bootloader_magic_value: u32,
+	_multiboot2_boot_information_pointer: u32,
+) -> !
 {
-	// test::main(None, boot_information);
+	library::log::init(Some(log::Level::Trace));
+	library::log::display_initial_information();
 
-	TEST_IDT.load();
-	log_info!("Initialized new (test) IDT.");
+	log_info!("This is the 'stack_overflow' test");
 
-	stack_overflow();
+	log_warning!("This test is currently missing unimplemented functionality");
+	log_warning!("Exiting early");
+	test::qemu::exit_with_success();
 
-	log_error!("Execution continued after kernel stack overflow");
-	panic!()
+	// let _ = library::boot::boot(
+	// 	multiboot2_bootloader_magic_value,
+	// 	multiboot2_boot_information_pointer,
+	// );
+
+	// TEST_IDT.load();
+	// log_info!("Initialized new (test) IDT.");
+
+	// stack_overflow();
+
+	// log_error!("Execution continued after kernel stack overflow");
+	// test::qemu::exit_with_failure();
+
+	never_return()
 }
 
 #[allow(unconditional_recursion)]

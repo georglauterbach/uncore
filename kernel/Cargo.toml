@@ -70,6 +70,7 @@ arrayvec = { version = "0.7.1", default-features = false }
 multiboot2 = "0.13.1"
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 log = "0.4.14"
+qemu-exit = "3.0.0"
 rgb = "0.8.31"
 spin = { version = "0.9.2", features = ["lazy"] }
 uart_16550 = "0.2.15"
@@ -84,7 +85,9 @@ x86_64 = "0.14.7"
 
 [workspace]
 
-members = []
+members = [
+  "test_runner"
+]
 
 # -----------------------------------------------
 # ----  Tests  ----------------------------------
@@ -92,4 +95,8 @@ members = []
 
 [[test]]
 name = "stack_overflow"
+harness = false
+
+[[test]]
+name = "should_panic"
 harness = false
