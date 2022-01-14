@@ -121,8 +121,10 @@ function run_in_qemu
   elif [[ ${EXIT_CODE} -eq 0 ]]
   then
     notify 'war' 'Kernel exited QEMU unexpectedly (triple-fault, manual QEMU termination, ... ?)'
+    return 1
   else
     notify 'err' 'Kernel did not exit QEMU properly' "(exit code was ${EXIT_CODE})"
+    return $((EXIT_CODE + 1))
   fi
 }
 

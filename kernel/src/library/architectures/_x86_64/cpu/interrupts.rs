@@ -8,6 +8,7 @@ use crate::prelude::*;
 /// This function mainly takes care of enabling interrupts.
 pub(super) fn setup_and_enable()
 {
+	log_debug!("Setting up and enabling interrupts");
 	log_warning!("Interrupts are currently not implemented");
 
 	// crate::log_trace!("Enabling interrupts");

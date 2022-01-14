@@ -127,24 +127,17 @@ fn main()
 		.env("QEMU_DIRECTORY", "build/tests");
 
 	match runner_utils::run_with_timeout(&mut run_command, time::Duration::from_secs(TIMEOUT)) {
-		Ok(exit_code) => {
-			match exit_code.code() {
-				// we specifically configured QEMU to
-				// exit with exit code 33 on success
-				Some(0x3) => {},
-				Some(other_exit_code) => {
-					log::error!(
-						"Tests failed. Exit code was {}.",
-						other_exit_code
-					);
+		Ok(exit_code) => match exit_code.code() {
+			Some(0) => {},
+			Some(other_exit_code) => {
+				log::error!("Tests failed. Exit code was {}.", other_exit_code);
 
-					process::exit(other_exit_code | 1)
-				},
-				None => {
-					log::error!("Tests failed - terminated by signal?!");
-					process::exit(1)
-				},
-			}
+				process::exit(other_exit_code | 1)
+			},
+			None => {
+				log::error!("Tests failed - terminated by signal?!");
+				process::exit(1)
+			},
 		},
 		Err(run_error) => {
 			match run_error {
