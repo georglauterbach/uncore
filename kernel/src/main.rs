@@ -75,8 +75,14 @@ pub fn kernel_main(
 		multiboot2_boot_information_pointer,
 	);
 
+	log_info!("Starting architecture specific initialization");
+	library::architectures::cpu::initialize();
+
 	#[cfg(test)]
 	__test_runner();
+
+	#[cfg(target_arch = "x86_64")]
+	test::qemu::exit_with_success();
 
 	never_return()
 }

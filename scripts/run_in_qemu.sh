@@ -66,6 +66,7 @@ function prepare_qemu
 function run_in_qemu
 {
   declare -a QEMU_ARGUMENTS
+  local EXIT_CODE
 
   QEMU_ARGUMENTS+=('-nodefaults')
 
@@ -96,7 +97,7 @@ function run_in_qemu
     QEMU_ARGUMENTS+=('-monitor')
     QEMU_ARGUMENTS+=('vc:1024x768')
   else
-    QEMU_ARGUMENTS+=('-nographic')
+    # QEMU_ARGUMENTS+=('-nographic')
 
     QEMU_ARGUMENTS+=('-display')
     QEMU_ARGUMENTS+=('none')
@@ -109,9 +110,20 @@ function run_in_qemu
   QEMU_ARGUMENTS+=('-no-reboot')
   
   notify 'inf' 'Now running in QEMU'
-  notify 'tra' "Arguments are '${QEMU_ARGUMENTS[*]}'"
+  notify 'deb' "Arguments are '${QEMU_ARGUMENTS[*]}'"
 
   qemu-system-x86_64 "${QEMU_ARGUMENTS[@]}"
+  EXIT_CODE=${?}
+
+  if [[ ${EXIT_CODE} -eq 3 ]]
+  then
+    notify 'suc' 'Kernel exited QEMU properly'
+  elif [[ ${EXIT_CODE} -eq 0 ]]
+  then
+    notify 'war' 'Kernel exited QEMU unexpectedly (triple-fault, manual QEMU termination, ... ?)'
+  else
+    notify 'err' 'Kernel did not exit QEMU properly' "(exit code was ${EXIT_CODE})"
+  fi
 }
 
 function usage

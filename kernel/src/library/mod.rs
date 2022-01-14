@@ -9,7 +9,7 @@
 /// - assembly boot code
 /// - CPU initialization code
 /// - virtual memory initialization code
-mod architectures;
+pub mod architectures;
 
 /// ## Boot Code
 ///
