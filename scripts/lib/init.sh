@@ -28,12 +28,12 @@ function basic_setup
   source scripts/lib/logs.sh
   source scripts/lib/errors.sh
 
-  notify 'tra' 'Performed basic script intialization'
+  notify 'deb' 'Performed basic script intialization'
 }
 
 function setup_kernel_environment
 {
-  notify 'tra' 'Changing into kernel directory'
+  notify 'deb' 'Changing into kernel directory'
 
   if ! cd "${ROOT_DIRECTORY}/kernel"
   then
@@ -41,7 +41,7 @@ function setup_kernel_environment
     exit 1
   fi
 
-  notify 'tra' 'Setting kernel environment variables'
+  notify 'deb' 'Setting kernel environment variables'
 
   export BUILD_TARGET COMPILATION_DATE_AND_TIME
   export GIT_REVISION_HEAD
@@ -113,7 +113,7 @@ function main
   done
 
   export -f set_build_target
-  notify 'tra' 'Finished script intialization'
+  notify 'deb' 'Finished script intialization'
 }
 
 main "${@}"

@@ -103,20 +103,20 @@ pub fn display_initial_information()
 
 	log_info!("This is unCORE {}", KernelInformation::get_kernel_version());
 
-	log_trace!(
+	log_debug!(
 		"Target triple reads '{}'",
 		KernelInformation::get_build_target()
 	);
 
-	log_trace!(
+	log_debug!(
 		"Kernel was compiled at '{}'",
 		KernelInformation::get_compilation_date_and_time()
 	);
-	log_trace!(
+	log_debug!(
 		"Kernel was compiled with rustc version '{}'",
 		KernelInformation::get_rustc_version()
 	);
-	log_trace!(
+	log_debug!(
 		"Kernel was compiled with toolchain '{}'",
 		KernelInformation::get_rust_toolchain()
 	);
@@ -191,13 +191,13 @@ mod serial
 			use log::Level;
 			use rgb::RGB8;
 
-			// https://coolors.co/da3e52-f2e94e-a3d9ff-bdefcf-9fa4a8
+			// https://coolors.co/fb4934-fabd2f-458588-83a598-8f8f8f
 			let (log_level, color) = match record.level() {
-				Level::Error => (" ERROR ", RGB8::new(218, 62, 82)),
-				Level::Warn => ("WARNING", RGB8::new(242, 233, 78)),
-				Level::Info => ("  INF  ", RGB8::new(163, 217, 255)),
-				Level::Debug => (" DEBUG ", RGB8::new(189, 239, 207)),
-				Level::Trace => (" TRACE ", RGB8::new(159, 164, 168)),
+				Level::Error => (" ERROR ", RGB8::new(251, 73, 52)),
+				Level::Warn => ("WARNING", RGB8::new(250, 189, 47)),
+				Level::Info => ("  INF  ", RGB8::new(69, 133, 136)),
+				Level::Debug => (" DEBUG ", RGB8::new(131, 165, 152)),
+				Level::Trace => (" TRACE ", RGB8::new(143, 143, 143)),
 			};
 
 			Self::write(format_args!(

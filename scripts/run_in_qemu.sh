@@ -28,7 +28,7 @@ function prepare_qemu
     export OVMF_FW_PATH="${QEMU_DIRECTORY}/ovmf/OVMF_CODE.fd"
     export OVMF_VARS_PATH="${QEMU_DIRECTORY}/ovmf/OVMF_VARS.fd"
 
-    notify 'tra' 'Checking of OVMF files exist'
+    notify 'deb' 'Checking of OVMF files exist'
     rm -rf "${QEMU_DIRECTORY}/ovmf"
 
     if [[ ! -f "${OVMF_SYSTEM_PATH}/OVMF_CODE.fd" ]] \

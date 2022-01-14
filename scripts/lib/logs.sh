@@ -6,9 +6,9 @@
 
 function notify
 {
-  function __log_trace
+  function __log_debug
   {
-    printf "[  \e[94mTRACE\e[0m  ] %25s\e[37m@\e[0mbash | \e[37m%s\e[0m\n" \
+    printf "[  \e[94mDEBUG\e[0m  ] %25s\e[37m@\e[0mbash | \e[37m%s\e[0m\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
@@ -42,7 +42,7 @@ function notify
   #
   #   value => meaning - what to log
   #   -------------------------------------------------
-  #   tra   => trace   - log debug information
+  #   deb   => debug   - log debug information
   #   inf   => info    - log informational output
   #   war   => warning - log warnings
   #   err   => error   - log critical errors and aborts
@@ -54,7 +54,7 @@ function notify
     ( 'err'* ) INTERNAL_LOG_LEVEL=0 ;;
     ( 'war'* ) INTERNAL_LOG_LEVEL=1 ;;
     ( 'inf'* ) INTERNAL_LOG_LEVEL=2 ;;
-    ( 'tra'* ) INTERNAL_LOG_LEVEL=3 ;;
+    ( 'deb'* ) INTERNAL_LOG_LEVEL=3 ;;
     ( * )     INTERNAL_LOG_LEVEL=2 ;;
   esac
 
@@ -62,9 +62,9 @@ function notify
   shift 1
 
   case "${INTERNAL_LOG_LEVEL_STRING}" in
-    ( 'tra' )
+    ( 'deb' )
       [[ ${INTERNAL_LOG_LEVEL} -lt 3 ]] && return 0
-      __log_trace "${*}"
+      __log_debug "${*}"
       ;;
 
     ( 'inf' )

@@ -20,7 +20,7 @@ function build_kernel
     exit 1
   fi
 
-  notify 'tra' 'Checking for multiboot2 compatibility'
+  notify 'deb' 'Checking for multiboot2 compatibility'
 
   if ! grub-file --is-x86-multiboot2 "${KERNEL_BINARY}"
   then
@@ -30,7 +30,7 @@ function build_kernel
     notify 'inf' 'Kernel is multiboot2-compatible'
   fi
 
-  notify 'tra' "Copying kernel binary to '${QEMU_KERNEL_BINARY}'"
+  notify 'deb' "Copying kernel binary to '${QEMU_KERNEL_BINARY}'"
 
   if ! cp "${KERNEL_BINARY}" "${QEMU_KERNEL_BINARY}"
   then
