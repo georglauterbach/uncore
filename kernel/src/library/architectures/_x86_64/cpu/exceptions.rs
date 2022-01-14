@@ -1,16 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-/// ### Double Fault Interrupt Stack Table Index
-///
-/// This constant defines the stack to use in the Interrupt Stack
-/// Table (IST) field on the TSS for the double fault handler. The
-/// first index is chosen.
-///
-/// The `interrupt_stack_table` is a field in the Task State Segment
-/// (TSS) struct. It can be used to switch kernel stacks.
-pub const DOUBLE_FAULT_IST_INDEX: u16 = 0;
-
 /// ## CPU Exception Handlers
 ///
 /// This module contains all CPU exception handler callback functions.
@@ -18,19 +8,16 @@ pub const DOUBLE_FAULT_IST_INDEX: u16 = 0;
 pub(super) mod handlers
 {
 	use crate::prelude::*;
-
-	use x86_64::structures::idt::{
-		InterruptStackFrame,
-		PageFaultErrorCode,
-	};
+	use x86_64::structures::idt;
 
 	/// ### CPU Exception - Breakpoint Handler
 	///
 	/// This is the handler callback function for the Breakpoint
 	/// CPU Exception.
-	pub extern "x86-interrupt" fn breakpoint(_stack_frame: InterruptStackFrame)
+	#[allow(dead_code)]
+	pub extern "x86-interrupt" fn breakpoint(_stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_info!("CPU exception occurred (breakpoint, no abort)");
+		crate::log_info!("CPU exception occurred (type: breakpoint)");
 	}
 
 	/// ### CPU Exception - Double Fault Handler
@@ -45,15 +32,18 @@ pub(super) mod handlers
 	/// the `x86_64` architecture does not permit returning from
 	/// a double fault exception.
 	pub extern "x86-interrupt" fn double_fault(
-		stack_frame: InterruptStackFrame,
-		_error_code: u64,
+		stack_frame: idt::InterruptStackFrame,
+		error_code: u64,
 	) -> !
 	{
 		log_error!(
-			"Fatal CPU exception occurred (double fault, abort through panic)\n{:#?}\n",
-			stack_frame
+			"CPU exception occurred (type: double fault (fatal))\n\nError code: \
+			 {}\n{:#?}\n",
+			error_code,
+			stack_frame,
 		);
-		panic!("received fatal double fault exception");
+
+		panic!("fatal double fault CPU exception");
 	}
 
 	/// ### CPU Exception - Page Fault Handler
@@ -61,20 +51,19 @@ pub(super) mod handlers
 	/// This is the handler callback function for the page fault
 	/// CPU exception.
 	pub extern "x86-interrupt" fn page_fault(
-		_stack_frame: InterruptStackFrame,
-		error_code: PageFaultErrorCode,
+		_stack_frame: idt::InterruptStackFrame,
+		_error_code: idt::PageFaultErrorCode,
 	)
 	{
-		crate::log_warning!("CPU exception occurred (page fault, no abort)");
-		crate::log_info!(
-			"page fault information: accessed address = {:?} | error code = {:?}\n",
-			x86_64::registers::control::Cr2::read(),
-			error_code
-		);
-		// crate::library::never_return();
+		crate::log_warning!("CPU exception occurred (type: page fault)");
+		// crate::log_info!(
+		// 	"page fault information: accessed address = {:?} | error code =
+		// {:?}\n", 	x86_64::registers::control::Cr2::read(),
+		// 	error_code
+		// );
+		panic!("page fault are not yet implemented");
 	}
 
-	// #[test_case]
-	// fn breakpoint_exception() {
-	// x86_64::instructions::interrupts::int3(); }
+	#[test_case]
+	fn breakpoint_exception_does_not_panic() { x86_64::instructions::interrupts::int3(); }
 }

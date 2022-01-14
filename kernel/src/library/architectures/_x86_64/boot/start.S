@@ -17,12 +17,15 @@
  */
 
 .code64
-.global start
-.extern kernel_main
 
 .section .text
 
+	.global start
+	.extern kernel_main
+
 	start:
+		cli
+
 		# We call `kernel_main` with two parameters:
 		#   1. multiboot2 magic value
 		#   2. pointer to multiboot2 information structure
@@ -57,7 +60,14 @@
 
 .section .bss
 
+	.global kernel_fallback_stack_top
+
 	.align 16
 	initial_stack_bottom:
-		.fill 0x40000
+		.fill 0x120000
 	initial_stack_top:
+
+	.align 16
+	kernel_fallback_stack_bottom:
+		.fill 0x5000
+	kernel_fallback_stack_top:
