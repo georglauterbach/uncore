@@ -1,5 +1,7 @@
 # Security Policy
 
+**version 1.0**, 14 Jan 2022
+
 ## Supported Versions
 
 We support the latest version of our kernel modules and the kernel with security updates. That is to say that we do **not** backport security updates to older versions as of now.

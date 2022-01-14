@@ -109,6 +109,8 @@ pub fn kernel_main(
 		multiboot2_boot_information_pointer,
 	);
 
+	library::architectures::cpu::initialize();
+
 	#[cfg(test)]
 	__test_runner();
 

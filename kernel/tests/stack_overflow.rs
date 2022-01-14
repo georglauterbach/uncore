@@ -30,36 +30,45 @@ use kernel::{
 	prelude::*,
 };
 
-use x86_64::structures::idt::{
-	InterruptDescriptorTable,
-	InterruptStackFrame,
-};
+use x86_64::structures::idt;
 
 lazy_static::lazy_static! {
-	static ref TEST_IDT: InterruptDescriptorTable = {
-		let mut idt = InterruptDescriptorTable::new();
+	static ref TEST_IDT: idt::InterruptDescriptorTable = {
+		let mut idt = idt::InterruptDescriptorTable::new();
 
 		unsafe {
 			idt.double_fault
 				.set_handler_fn(test_double_fault_handler)
-				.set_stack_index(0);
+				.set_stack_index(1);
 		}
 
 		idt
 	};
 }
 
-pub extern "x86-interrupt" fn test_double_fault_handler(_: InterruptStackFrame, _: u64) -> !
+pub extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> !
 {
 	log_info!("Received double fault. SUCCESS.");
 	test::qemu::exit_with_success();
 	never_return()
 }
 
+// TODO [FIXME]
+// ! THIS TEST DOES NOT CURRENTLY WORK
+// it seems that the stack overflow does not yet result in the double
+// fault handler being called properly. Why? I don't know. The kernel
+// itself can call the double fault handler properly (one can test
+// this by uncommenting `x86_64::instructions::interrupts::int3();` in
+// line 81 - then you see that the test succeeds). I'm currently
+// thinking about stack guard pages (but they are set up by the OS -
+// i.e. we have not set up one), and I don't know why no exception is
+// triggered!!! I BET however that this has something to do with our
+// stack setup in out boot code (I'm looking at you, `start.S`) :D
+
 #[no_mangle]
 pub fn kernel_main(
-	_multiboot2_bootloader_magic_value: u32,
-	_multiboot2_boot_information_pointer: u32,
+	multiboot2_bootloader_magic_value: u32,
+	multiboot2_boot_information_pointer: u32,
 ) -> !
 {
 	library::log::init(Some(log::Level::Trace));
@@ -67,31 +76,30 @@ pub fn kernel_main(
 
 	log_info!("This is the 'stack_overflow' test");
 
-	log_warning!("This test is currently missing unimplemented functionality");
-	log_warning!("Exiting early");
-	test::qemu::exit_with_success();
+	let _ = library::boot::boot(
+		multiboot2_bootloader_magic_value,
+		multiboot2_boot_information_pointer,
+	);
 
-	// let _ = library::boot::boot(
-	// 	multiboot2_bootloader_magic_value,
-	// 	multiboot2_boot_information_pointer,
-	// );
+	library::architectures::cpu::initialize();
 
-	// TEST_IDT.load();
-	// log_info!("Initialized new (test) IDT.");
+	TEST_IDT.load();
+	log_info!("Initialized new (test) IDT.");
 
-	// stack_overflow();
+	// x86_64::instructions::interrupts::int3();
+	stack_overflow();
 
-	// log_error!("Execution continued after kernel stack overflow");
-	// test::qemu::exit_with_failure();
+	log_error!("Execution continued after kernel stack overflow");
+	test::qemu::exit_with_failure();
 
 	never_return()
 }
 
-#[allow(dead_code)]
 #[allow(unconditional_recursion)]
 fn stack_overflow()
 {
 	stack_overflow();
+	// prevent tail call optimization
 	volatile::Volatile::new(&0).read();
 }
 
