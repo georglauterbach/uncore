@@ -5,7 +5,7 @@
 ///
 /// The kernel target is a triple consisting of
 ///
-/// 1. The hardware architecture                        x86_64
+/// 1. The hardware architecture                        riscv64
 /// 2. The vendor (manufacturer) (optional)             unknown
 /// 3. Operating system                                 none
 /// 4. ABI (optional, omitted in our case)

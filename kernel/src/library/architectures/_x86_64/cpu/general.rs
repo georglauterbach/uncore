@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use crate::prelude::*;
-
 /// ### Double Fault Interrupt Stack Table Index
 ///
 /// This constant defines the stack to use in the Interrupt Stack
@@ -20,8 +18,8 @@ pub const DOUBLE_FAULT_IST_INDEX: u16 = 1;
 /// Interrupt Stack Table (IST).
 pub(super) mod gdt
 {
-	use super::*;
-
+	use crate::prelude::*;
+	use super::DOUBLE_FAULT_IST_INDEX;
 	use x86_64::{
 		instructions::{
 			tables,
@@ -136,9 +134,13 @@ pub(super) mod gdt
 	}
 }
 
+/// ## Interrupt Descriptor Table Setup
+///
+/// This module initializes and loads the interrupt descriptor table,
+/// hooking up CPU exception and interrupt handler callbacks.
 pub(super) mod idt
 {
-	use super::*;
+	use crate::prelude::*;
 	use x86_64::structures::idt;
 
 	lazy_static::lazy_static! {
@@ -169,13 +171,16 @@ pub(super) mod idt
 			unsafe {
 				idt.double_fault
 					.set_handler_fn(exceptions::handlers::double_fault)
-					.set_stack_index(DOUBLE_FAULT_IST_INDEX);
+					.set_stack_index(super::DOUBLE_FAULT_IST_INDEX);
 			}
 
 			idt
 		};
 	}
 
+	/// ### Loading the IDT
+	///
+	/// The Interrupt Stack Table is loaded here.
 	pub(in super::super) fn load()
 	{
 		log_debug!("Loading Interrupt Descriptor Table (IDT)");
