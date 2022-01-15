@@ -110,7 +110,7 @@ fn main()
 
 	if process::Command::new("cp")
 		.current_dir(root_directory.clone())
-		.arg(kernel_test_binary_path_string.clone())
+		.arg(kernel_test_binary_path_string)
 		.arg("kernel/build/tests/kernel/EFI/BOOT/BOOTX64.EFI")
 		.status()
 		.is_err()

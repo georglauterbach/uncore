@@ -41,26 +41,28 @@ pub(super) mod gdt
 		static ref TSS: tss::TaskStateSegment = {
 			let mut tss = tss::TaskStateSegment::new();
 
-			let mut kernel_fallback_stack: u64 = 0;
-			unsafe {
-				use ::core::arch::asm;
-
-				// the boot code (`start.S`) has extra setup for the
-				// fall back stack _atop_ the default kernel stack so
-				// kernel stack overflows do not mess with this stack
-				asm!(
-					"add $kernel_fallback_stack_top, {0}",
-					"sub $0x8, {0}",
-					inout(reg) kernel_fallback_stack,
-					options(att_syntax, nomem)
-				);
-			}
-
 			// we now define the kernel stack to use when a double
 			// fault exception occurs to prevent fatal triple fault
 			// exceptions (e.g. due to hitting the guard page)
 			tss.interrupt_stack_table[DOUBLE_FAULT_IST_INDEX as usize] = {
-				x86_64::VirtAddr::from_ptr(kernel_fallback_stack as *const u64)
+				/// The size of the stack used during
+				/// the CPU double fault exception.
+				const STACK_SIZE: usize = 0x5000;
+
+				/// Size-aligned representation of the stack used
+				/// during the CPU double fault exception.
+				#[repr(align(16))]
+				struct Stack([u8; STACK_SIZE]);
+
+				/// The stack representation of the actual stack
+				/// used during the  CPU double fault exception.
+				static mut STACK: Stack = Stack([0; STACK_SIZE]);
+
+				// on x86_64 the stack grows downwards, therefore, the
+				// "start" is the lowest address and we return the
+				// "end" address which is the highest
+				let stack_start = x86_64::VirtAddr::from_ptr(unsafe { &STACK });
+				stack_start + STACK_SIZE
 			};
 
 			tss

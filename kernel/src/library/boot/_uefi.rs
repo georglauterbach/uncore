@@ -2,14 +2,25 @@
 // Copyright 2022 The unCORE Kernel Organization
 
 use crate::prelude::*;
-use super::{
-	fake_lock,
-	MULTIBOOT2_INFORMATION,
-};
-use uefi::{
-	data_types,
-	table,
-};
+use super::fake_lock;
+use uefi::table;
+
+/// ### UEFI System Table - Boot
+///
+/// This is the UEFI system table before exiting the boot services.
+pub type UEFISystemTableBootTime = table::SystemTable<table::Boot>;
+
+/// ### UEFI System Table - Runtime
+///
+/// This is the UEFI system table after exiting the boot services.
+type UEFISystemTableRuntime = table::SystemTable<table::Runtime>;
+
+/// ### UEFI Memory Map Iterator
+///
+/// After exiting the UEFI boot services, this type is returned from
+/// the [`exit_boot_services`] function to obtain a memory map later.
+pub type UEFIMemoryMap =
+	impl ExactSizeIterator<Item = &'static uefi::table::boot::MemoryDescriptor> + Clone;
 
 /// ### UEFI Boot Services Memory Map Size Estimation
 ///
@@ -29,7 +40,7 @@ pub static mut UEFI_BOOT_SERVICES_MEMORY_MAP: &mut [u8] =
 ///
 /// Represents the view of the system **after** exiting the UEFI boot
 /// services.
-static UEFI_SYSTEM_TABLE_RUNTIME: fake_lock::Lock<Option<table::SystemTable<table::Runtime>>> =
+static UEFI_SYSTEM_TABLE_RUNTIME: fake_lock::Lock<Option<UEFISystemTableRuntime>> =
 	fake_lock::Lock::new(None);
 
 /// ## Exiting Boot Services
@@ -48,34 +59,14 @@ static UEFI_SYSTEM_TABLE_RUNTIME: fake_lock::Lock<Option<table::SystemTable<tabl
 /// 4. the UEFI boot services could not be exited cleanly
 #[must_use]
 pub fn exit_boot_services(
-) -> impl ExactSizeIterator<Item = &'static table::boot::MemoryDescriptor> + Clone
+	uefi_handle: uefi::Handle,
+	uefi_system_table_boot: UEFISystemTableBootTime,
+) -> UEFIMemoryMap
 {
-	use ::core::ffi::c_void;
-
-	let multiboot2_information = MULTIBOOT2_INFORMATION
-		.get()
-		.as_ref()
-		.expect("Could not acquire the multiboot2 information structure");
-
-	let uefi_system_table: table::SystemTable<table::Boot> =
-		multiboot2_information.efi_sdt_64_tag().map_or_else(
-			|| {
-				panic!("Could not acquire the UEFI system table from the \
-				        multiboot2 information");
-			},
-			|uefi_system_table| {
-				unsafe {
-					table::SystemTable::from_ptr(
-						uefi_system_table.sdt_address() as *mut c_void,
-					)
-				}
-				.expect("Acquiring the UEFI system table from pointer did not \
-				          succeed")
-			},
-		);
-	log_trace!("Acquired UEFI system table for boot view (temporarily)");
-
-	let memory_map_size = uefi_system_table.boot_services().memory_map_size().map_size;
+	let memory_map_size = uefi_system_table_boot
+		.boot_services()
+		.memory_map_size()
+		.map_size;
 	log_trace!(
 		"UEFI boot services memory map size = {} Byte",
 		memory_map_size
@@ -86,20 +77,8 @@ pub fn exit_boot_services(
 		UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE
 	);
 
-	let uefi_image_handle_address = multiboot2_information
-		.efi_64_ih()
-		.expect("No UEFI 64bit image handle provided by the multiboot2 information")
-		.image_handle();
-
-	let uefi_image_handle =
-		unsafe { data_types::Handle::from_ptr(uefi_image_handle_address as *mut c_void) }
-			.expect(
-				"Acquiring the UEFI image handle from the handle address did not \
-				 succeed",
-			);
-
-	let (uefi_system_table_runtime, uefi_memory_map_iterator) = match uefi_system_table
-		.exit_boot_services(uefi_image_handle, unsafe { UEFI_BOOT_SERVICES_MEMORY_MAP })
+	let (uefi_system_table_runtime, uefi_memory_map_iterator) = match uefi_system_table_boot
+		.exit_boot_services(uefi_handle, unsafe { UEFI_BOOT_SERVICES_MEMORY_MAP })
 	{
 		Ok(completion) => {
 			if completion.status().is_success() {

@@ -39,9 +39,9 @@ SYNOPSIS
     just build         [ OPTION... ]
 
 OPTIONS
-    --help           Show this help message
-    --target TARGET  specify target triple to use when building and running the kernel
-                     currently valid options are x86_64, aarch64 and i686
+    --help            Show this help message
+    --target TARGET   specify target triple to use when building and running the kernel
+                      currently valid options are x86_64, aarch64 and i686
 
 EOM
 }
