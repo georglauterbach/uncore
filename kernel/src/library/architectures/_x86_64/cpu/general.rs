@@ -47,7 +47,7 @@ pub(super) mod gdt
 			tss.interrupt_stack_table[DOUBLE_FAULT_IST_INDEX as usize] = {
 				/// The size of the stack used during
 				/// the CPU double fault exception.
-				const STACK_SIZE: usize = 0x5000;
+				const STACK_SIZE: usize = 0x20000;
 
 				/// Size-aligned representation of the stack used
 				/// during the CPU double fault exception.

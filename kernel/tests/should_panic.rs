@@ -44,9 +44,6 @@ pub extern "C" fn efi_main(
 
 fn main(_: library::boot::UEFIMemoryMap) -> !
 {
-	library::log::init(Some(log::Level::Trace));
-	library::log::display_initial_information();
-
 	log_info!("This is the 'should_panic' test");
 
 	this_test_should_panic();

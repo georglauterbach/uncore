@@ -48,22 +48,10 @@ lazy_static::lazy_static! {
 
 pub extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> !
 {
-	log_info!("Received double fault. SUCCESS.");
+	log_info!("Received double fault - nice");
 	test::qemu::exit_with_success();
 	never_return()
 }
-
-// TODO [FIXME]
-// ! THIS TEST DOES NOT CURRENTLY WORK
-// it seems that the stack overflow does not yet result in the double
-// fault handler being called properly. Why? I don't know. The kernel
-// itself can call the double fault handler properly (one can test
-// this by uncommenting `x86_64::instructions::interrupts::int3();` in
-// line 81 - then you see that the test succeeds). I'm currently
-// thinking about stack guard pages (but they are set up by the OS -
-// i.e. we have not set up one), and I don't know why no exception is
-// triggered!!! I BET however that this has something to do with our
-// stack setup in out boot code (I'm looking at you, `start.S`) :D
 
 #[no_mangle]
 pub extern "C" fn efi_main(
@@ -82,9 +70,6 @@ pub extern "C" fn efi_main(
 
 fn main(_: library::boot::UEFIMemoryMap) -> !
 {
-	library::log::init(Some(log::Level::Trace));
-	library::log::display_initial_information();
-
 	log_info!("This is the 'stack_overflow' test");
 
 	library::architectures::cpu::initialize();
@@ -92,7 +77,6 @@ fn main(_: library::boot::UEFIMemoryMap) -> !
 	TEST_IDT.load();
 	log_info!("Initialized new (test) IDT.");
 
-	x86_64::instructions::interrupts::int3();
 	stack_overflow();
 
 	log_error!("Execution continued after kernel stack overflow");
