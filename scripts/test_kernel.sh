@@ -21,10 +21,11 @@ function check_kernel
 
 function test_kernel
 {
+  local EXIT_CODE
   declare -a COMMAND
   COMMAND=(
-    'cargo' 'test' '--quiet'
-    '--target' "${BUILD_TARGET}" "${KERNEL_BUILD_FLAGS[@]}"
+    'cargo' 'test'
+    '--target' "${BUILD_TARGET}"
     "${KERNEL_BUILD_FLAGS[@]}"
   )
 
@@ -41,12 +42,13 @@ function test_kernel
     "${COMMAND[@]}" --test "${INTEGRATION_TEST}"
   fi
 
-  # shellcheck disable=SC2181
-  if [[ ${?} -eq 0 ]]
+  EXIT_CODE=${?}
+
+  if [[ ${EXIT_CODE} -eq 0 ]]
   then
     notify 'suc' 'Tests passed'
   else
-    notify 'war' 'Tests did not pass'
+    notify 'war' 'Tests did not pass' "(exit code was ${EXIT_CODE})"
     exit 1
   fi
 }

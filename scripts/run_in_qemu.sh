@@ -117,18 +117,11 @@ function main
         ;;
     esac
   done
-
-  if [[ ! -f ${KERNEL_BINARY} ]]
-  then
-    notify 'err' 'Kernel binary not found - was it built before?'
-    exit 1
-  fi
   
   export QEMU_DIRECTORY QEMU_VOLUME_DIRECTORY
   QEMU_DIRECTORY="${QEMU_DIRECTORY:-build/qemu}"
   QEMU_VOLUME_DIRECTORY="${QEMU_DIRECTORY}/kernel"
 
-  prepare
   run "${@}" || return ${?}
 }
 
