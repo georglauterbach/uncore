@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# version       0.1.1
+# version       0.2.0
 # executed by   Just, manually or in CI
 # task          runs kernel unit- and integration tests
 
@@ -11,9 +11,7 @@ SCRIPT='tests'
 function check_kernel
 {
   notify 'inf' "Running 'cargo check'"
-  cargo check                                     \
-    --target "build/targets/${BUILD_TARGET}.json" \
-    "${KERNEL_BUILD_FLAGS[@]}"
+  cargo check --target "${BUILD_TARGET}" "${KERNEL_BUILD_FLAGS[@]}"
 
   notify 'inf' "Running formatting and clippy checks"
   cargo fmt --all --message-format human -- --check
@@ -26,7 +24,7 @@ function test_kernel
   declare -a COMMAND
   COMMAND=(
     'cargo' 'test' '--quiet'
-    '--target' "build/targets/${BUILD_TARGET}.json"
+    '--target' "${BUILD_TARGET}" "${KERNEL_BUILD_FLAGS[@]}"
     "${KERNEL_BUILD_FLAGS[@]}"
   )
 
