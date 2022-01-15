@@ -19,7 +19,7 @@ nav:
   - Building & Running: building_and_running.md
   - Kernel Structure:
       - Overview: kernel_structure.md
-      - Boot: architecture/boot.md
+      - Bootstrapping: architecture/bootstrapping.md
   - Testing: testing.md
 
 theme:

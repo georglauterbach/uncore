@@ -9,7 +9,13 @@ We highly recommend using [Just] when working with _unCORE_. The following steps
 
 ## Compiling the Kernel
 
-The kernel is compiled against special targets. These targets is located under `kernel/build/targets/`. Our custom targets do not provide a standard library - obviously. To get an overview, you may visit [the `rustc` target specification page on GitHub][rustc-target-specification]. To get an overview over all target options, [the Rust documentation on the associated `#!rust struct`][rustc-target-options] has you covered.
+The kernel is compiled against special UEFI targets - these are
+
+1. `aarch64-unknown-none`
+2. `i686-unknown-none`
+3. `x86_64-unknown-none`
+
+To get an overview of all targets, you may visit [the `rustc` target specification page on GitHub][rustc-target-specification].
 
 !!! danger "`.cargo/config.toml` And Its Fallacies"
     Note that we use a `kernel/.cargo/config.toml` file. Using this file generally messes with the defaults for build and run targets and this may lead to very unpleasant outputs. You will therefore, and of course, for convenience, use the scripts under `scripts/` or [Just] to build, run and test your code. A `runner` target has been provided to enable testing. More on this is explained on the [Testing][docs-testing] page.
@@ -30,7 +36,7 @@ We specify the target and on top of that, which built-in function (that is, into
 The equivalent for this step with [Just] is
 
 ``` CONSOLE
-$ just build [target]
+$ just build
     Compiling kernel v0.1.0 (/uncore/kernel)
     Building [=======================>   ] 20/22: kernel
     ...
@@ -52,9 +58,7 @@ $ ./scripts/build.sh [target]
 We can now use the kernel binary we built in the step above to run it in QEMU with UEFI and multiboot2.
 
 ``` CONSOLE
-$ pwd
-/uncore/kernel
-$ just run [graphical]
+$ just run
 ...
 ```
 
@@ -63,7 +67,7 @@ Note how this requires you to have `qemu-system-x86_64` installed, and you shoul
 ``` CONSOLE
 $ pwd
 /uncore
-$ ./scripts/run_in_qemu.sh [graphical]
+$ ./scripts/run_in_qemu.sh
 ...
 ```
 
@@ -77,4 +81,3 @@ Running these commands in your terminal will not open a new window unless you sp
 [Just]: https://github.com/casey/just
 
 [rustc-target-specification]: https://github.com/rust-lang/rust/tree/1.57.0/compiler/rustc_target/src/spec
-[rustc-target-options]: https://doc.rust-lang.org/stable/nightly-rustc/rustc_target/spec/struct.TargetOptions.html
