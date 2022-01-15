@@ -66,27 +66,33 @@ pub extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFr
 // stack setup in out boot code (I'm looking at you, `start.S`) :D
 
 #[no_mangle]
-pub fn kernel_main(
-	multiboot2_bootloader_magic_value: u32,
-	multiboot2_boot_information_pointer: u32,
+pub extern "C" fn efi_main(
+	uefi_handle: uefi::Handle,
+	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
 ) -> !
+{
+	library::log::init(Some(log::Level::Trace));
+	library::log::display_initial_information();
+
+	main(library::boot::exit_boot_services(
+		uefi_handle,
+		uefi_system_table_boot,
+	))
+}
+
+fn main(_: library::boot::UEFIMemoryMap) -> !
 {
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
 	log_info!("This is the 'stack_overflow' test");
 
-	let _ = library::boot::boot(
-		multiboot2_bootloader_magic_value,
-		multiboot2_boot_information_pointer,
-	);
-
 	library::architectures::cpu::initialize();
 
 	TEST_IDT.load();
 	log_info!("Initialized new (test) IDT.");
 
-	// x86_64::instructions::interrupts::int3();
+	x86_64::instructions::interrupts::int3();
 	stack_overflow();
 
 	log_error!("Execution continued after kernel stack overflow");

@@ -1,2 +1,5 @@
+[target.'cfg(target_os = "uefi")']
+runner = "cargo run --quiet --package test_runner --"
+
 [target.'cfg(target_os = "none")']
 runner = "cargo run --quiet --package test_runner --"

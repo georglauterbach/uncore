@@ -28,20 +28,26 @@ use kernel::{
 };
 
 #[no_mangle]
-pub fn kernel_main(
-	multiboot2_bootloader_magic_value: u32,
-	multiboot2_boot_information_pointer: u32,
+pub extern "C" fn efi_main(
+	uefi_handle: uefi::Handle,
+	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
 ) -> !
 {
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	log_info!("This is the 'should_panic' test");
+	main(library::boot::exit_boot_services(
+		uefi_handle,
+		uefi_system_table_boot,
+	))
+}
 
-	let _ = library::boot::boot(
-		multiboot2_bootloader_magic_value,
-		multiboot2_boot_information_pointer,
-	);
+fn main(_: library::boot::UEFIMemoryMap) -> !
+{
+	library::log::init(Some(log::Level::Trace));
+	library::log::display_initial_information();
+
+	log_info!("This is the 'should_panic' test");
 
 	this_test_should_panic();
 
