@@ -7,7 +7,7 @@ on: # yamllint disable-line rule:truthy
     paths:
       - .github/workflows/kernel-tests.yml
       - kernel/**
-    branches: ['*']
+    branches: ['**']
   push:
     paths: [kernel/**]
     branches: [master]
