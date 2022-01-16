@@ -11,6 +11,20 @@
 /// (TSS) struct. It can be used to switch kernel stacks.
 pub const DOUBLE_FAULT_IST_INDEX: u16 = 1;
 
+/// ### Generic Stacks
+///
+/// This module contains a struct which can represent a stack (with
+/// proper alignment, etc.).
+mod stack
+{
+	/// ### Just a Stack
+	///
+	/// The `PseudoStack` represent a proper stack that is
+	/// allocated like a normal stack but as a stack object.
+	#[repr(align(16))]
+	pub(super) struct PseudoStack<'a>(pub &'a [u8]);
+}
+
 /// ## Global Descriptor Table Setup
 ///
 /// This module handles the setup of the Global Descriptor Table (GDT)
@@ -19,7 +33,10 @@ pub const DOUBLE_FAULT_IST_INDEX: u16 = 1;
 pub(super) mod gdt
 {
 	use crate::prelude::*;
-	use super::DOUBLE_FAULT_IST_INDEX;
+	use super::{
+		stack,
+		DOUBLE_FAULT_IST_INDEX,
+	};
 	use x86_64::{
 		instructions::{
 			tables,
@@ -30,6 +47,12 @@ pub(super) mod gdt
 			tss,
 		},
 	};
+
+	/// ### Stack Size for Double Fault Handler
+	///
+	/// The size of the stack used during the CPU double fault
+	/// exception.
+	const DOUBLE_FAULT_STACK_SIZE: usize = 0x20000;
 
 	lazy_static::lazy_static! {
 
@@ -45,24 +68,18 @@ pub(super) mod gdt
 			// fault exception occurs to prevent fatal triple fault
 			// exceptions (e.g. due to hitting the guard page)
 			tss.interrupt_stack_table[DOUBLE_FAULT_IST_INDEX as usize] = {
-				/// The size of the stack used during
-				/// the CPU double fault exception.
-				const STACK_SIZE: usize = 0x20000;
+				/// ### The Double Fault Handler Stack Memory
+				///
+				/// This variable contains the memory for the CPU
+				/// double fault exception handler stack.
+				static mut STACK: stack::PseudoStack =
+					stack::PseudoStack(&[0; DOUBLE_FAULT_STACK_SIZE]);
 
-				/// Size-aligned representation of the stack used
-				/// during the CPU double fault exception.
-				#[repr(align(16))]
-				struct Stack([u8; STACK_SIZE]);
-
-				/// The stack representation of the actual stack
-				/// used during the  CPU double fault exception.
-				static mut STACK: Stack = Stack([0; STACK_SIZE]);
-
-				// on x86_64 the stack grows downwards, therefore, the
-				// "start" is the lowest address and we return the
-				// "end" address which is the highest
+				// on `x86_64`, the stack grows downwards, therefore,
+				// the "start" is the lowest address and we return
+				// the "end" address which is the highest address
 				let stack_start = x86_64::VirtAddr::from_ptr(unsafe { &STACK });
-				stack_start + STACK_SIZE
+				stack_start + DOUBLE_FAULT_STACK_SIZE
 			};
 
 			tss
@@ -157,17 +174,42 @@ pub(super) mod idt
 		/// registered in the IDT.
 		///
 		/// [1]: https://os.phil-opp.com/cpu-exceptions/#the-interrupt-descriptor-table
+		/// [2]: https://wiki.osdev.org/Exceptions
 		static ref IDT: idt::InterruptDescriptorTable = {
 			use super::super::exceptions;
 
 			let mut idt = idt::InterruptDescriptorTable::new();
 
+			idt.alignment_check.set_handler_fn(
+				exceptions::handlers::alignment_check
+			);
+
+			idt.bound_range_exceeded.set_handler_fn(
+				exceptions::handlers::bound_range_exceeded
+			);
+
 			idt.breakpoint.set_handler_fn(
 				exceptions::handlers::breakpoint
 			);
 
-			idt.page_fault.set_handler_fn(
-				exceptions::handlers::page_fault
+			idt.vmm_communication_exception.set_handler_fn(
+				exceptions::handlers::vmm_communication
+			);
+
+			idt.debug.set_handler_fn(
+				exceptions::handlers::debug
+			);
+
+			idt.device_not_available.set_handler_fn(
+				exceptions::handlers::device_not_available
+			);
+
+			idt.divide_error.set_handler_fn(
+				exceptions::handlers::divide_by_zero
+			);
+
+			idt.general_protection_fault.set_handler_fn(
+				exceptions::handlers::general_protection_fault
 			);
 
 			unsafe {
@@ -175,6 +217,54 @@ pub(super) mod idt
 					.set_handler_fn(exceptions::handlers::double_fault)
 					.set_stack_index(super::DOUBLE_FAULT_IST_INDEX);
 			}
+
+			idt.invalid_tss.set_handler_fn(
+				exceptions::handlers::invalid_tss
+			);
+
+			idt.invalid_opcode.set_handler_fn(
+				exceptions::handlers::invalid_opcode
+			);
+
+			idt.machine_check.set_handler_fn(
+				exceptions::handlers::machine_check
+			);
+
+			idt.non_maskable_interrupt.set_handler_fn(
+				exceptions::handlers::non_maskable_interrupt
+			);
+
+			idt.overflow.set_handler_fn(
+				exceptions::handlers::overflow
+			);
+
+			idt.page_fault.set_handler_fn(
+				exceptions::handlers::page_fault
+			);
+
+			idt.security_exception.set_handler_fn(
+				exceptions::handlers::security
+			);
+
+			idt.segment_not_present.set_handler_fn(
+				exceptions::handlers::segment_not_present
+			);
+
+			idt.simd_floating_point.set_handler_fn(
+				exceptions::handlers::simd_floating_point
+			);
+
+			idt.stack_segment_fault.set_handler_fn(
+				exceptions::handlers::stack_segment_fault
+			);
+
+			idt.virtualization.set_handler_fn(
+				exceptions::handlers::virtualization
+			);
+
+			idt.x87_floating_point.set_handler_fn(
+				exceptions::handlers::x87_floating_point
+			);
 
 			idt
 		};

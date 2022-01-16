@@ -4,7 +4,7 @@
 // * ARM 64 Bit
 // * ---------------------------------------------------------------------
 
-/// ## The ARM 64bit Architecture
+/// ## The ARM 64 Bit Architecture
 ///
 /// This module contains ARM 64bit specific initialization and
 /// setup code - compiled conditionally.
@@ -16,7 +16,7 @@ mod _aarch64;
 // * x86 32 Bit
 // * ---------------------------------------------------------------------
 
-/// ## The x86 32bit Architecture
+/// ## The x86 32 Bit Architecture
 ///
 /// This module contains x86 32bit specific initialization and
 /// setup code - compiled conditionally.
@@ -28,9 +28,9 @@ mod _i686;
 // * x86 64 Bit
 // * ---------------------------------------------------------------------
 
-/// ## The `x86_64` Architecture
+/// ## The x86 64 Bit Architecture
 ///
-/// This module contains `x86_64` specific initialization and setup
+/// This module contains x86 64 Bit specific initialization and setup
 /// code - compiled conditionally.
 #[cfg(target_arch = "x86_64")]
 mod _x86_64;
