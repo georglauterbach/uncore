@@ -8,7 +8,7 @@ function notify
 {
   function __log_debug
   {
-    printf "[  \e[94mDEBUG\e[0m  ] %25s\e[37m@\e[0mbash | \e[37m%s\e[0m\n" \
+    printf "[  \e[94mDEBUG\e[0m  ] %25s\e[94m@\e[0mbash | \e[94m%s\e[0m\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 

@@ -35,10 +35,7 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 			.unwrap_or(&format_args!("no message provided"))
 	);
 
-	#[cfg(target_abi = "")]
-	#[cfg(target_os = "none")]
 	test::qemu::exit_with_failure();
-
 	never_return()
 }
 
@@ -49,14 +46,9 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 #[inline]
 fn __should_panic(_panic_info: &PanicInfo) -> !
 {
-	log_info!("Received panic - nice");
+	log_info!("Received expected panic - nice");
 
-	// just write the success code for QEMU
-	// when we are actually using QEMU
-	#[cfg(target_abi = "")]
-	#[cfg(target_os = "none")]
 	test::qemu::exit_with_success();
-
 	never_return()
 }
 
