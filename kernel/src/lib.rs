@@ -50,6 +50,8 @@
 // Since retrieving the message during a call to `panic!` is
 // still unstable, we have to opt-in.
 #![feature(panic_info_message)]
+// Defining `type = impl ...` has not yet been stabilized, so
+// we need to open this feature gate.
 #![feature(type_alias_impl_trait)]
 
 //! # The `unCORE` Operating System Kernel
@@ -77,11 +79,12 @@ pub mod library;
 pub use library::prelude;
 use library::prelude::*;
 
-/// ### UEFI Entrypoint
+/// ### Kernel Library Testing - UEFI Entrypoint
 ///
 /// This function is called before [`main`] is called. It handled
 /// initialization for logging exiting UEFI boot services. For
 /// `lib.rs`, this is the entrypoint for tests.
+#[cfg(test)]
 #[no_mangle]
 pub extern "C" fn efi_main(
 	uefi_handle: uefi::Handle,
@@ -97,12 +100,13 @@ pub extern "C" fn efi_main(
 	))
 }
 
-/// ### Kernel Library Testing Entrypoint
+/// ### Kernel Library Testing - Kernel Main Entrypoint
 ///
 /// This is the kernel's entry point called after the bootloader has
 /// finished its setup. It is kept short on purpose. The
 /// `library::init()` function takes care of initialization. This
 /// function is effectively run only during unit tests.
+#[cfg(test)]
 fn main(_uefi_memory_map: &library::boot::UEFIMemoryMap) -> !
 {
 	log_info!("Running unit-tests of 'lib.rs'");

@@ -76,7 +76,7 @@ pub extern "C" fn efi_main(
 	))
 }
 
-/// ### Kernel Binary Entrypoint
+/// ### Kernel Main Entrypoint
 ///
 /// This is the kernel's entry point directly called by the boot-code
 /// (written in assembly). We're still in the UEFI boot services are

@@ -7,6 +7,11 @@ pub use __uefi::UEFIMemoryMap;
 pub use __uefi::UEFI_BOOT_SERVICES_MEMORY_MAP;
 pub use __uefi::exit_boot_services;
 
+/// ## Handle UEFI
+///
+/// Handles UEFI related matters (boot services). After entry into
+/// `crate::kernel_main(...)`, UEFI boot services are still active and
+/// we need to handle and exit them.
 mod __uefi
 {
 	use crate::prelude::*;
@@ -133,13 +138,19 @@ mod __uefi
 	}
 }
 
+/// ## Fake Locking
+///
+/// This provides a fake-lock for the time being. This is not a
+/// thread-safe lock, as the marker traits `Send` and `Sync` are
+/// implemented on them in a fashion that actually violates the
+/// traits (as seen by the clippy exception we have to provide).
 mod fake_lock
 {
 	use ::core::cell;
 
 	/// ### The Unsafe Lock Itself
 	///
-	/// The fake locking structure for the multiboot2 information.
+	/// The fake locking structure information.
 	pub struct Lock<T>
 	{
 		/// The only data filed, a generic data type.

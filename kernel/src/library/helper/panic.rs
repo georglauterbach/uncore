@@ -46,7 +46,7 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 #[inline]
 fn __should_panic(_panic_info: &PanicInfo) -> !
 {
-	log_info!("Received panic - as expected");
+	log_info!("Received expected panic - nice");
 
 	test::qemu::exit_with_success();
 	never_return()

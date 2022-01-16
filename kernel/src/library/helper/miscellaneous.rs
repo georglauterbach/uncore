@@ -5,9 +5,9 @@
 ///
 /// The kernel target is a triple consisting of
 ///
-/// 1. The hardware architecture                        riscv64
+/// 1. The hardware architecture                        aarch64
 /// 2. The vendor (manufacturer) (optional)             unknown
-/// 3. Operating system                                 none
+/// 3. Operating system                                 uefi
 /// 4. ABI (optional, omitted in our case)
 ///
 /// The target triple reads as `ARCH-VENDOR-SYS-ABI` and you can read
