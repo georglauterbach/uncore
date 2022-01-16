@@ -15,7 +15,6 @@ pub use __uefi::exit_boot_services;
 mod __uefi
 {
 	use crate::prelude::*;
-	use super::fake_lock;
 	use uefi::table;
 
 	/// ### UEFI System Table - Boot
@@ -53,24 +52,6 @@ mod __uefi
 	pub static mut UEFI_BOOT_SERVICES_MEMORY_MAP: &mut [u8] =
 		&mut [0; UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE];
 
-	/// ### UEFI Runtime System Table
-	///
-	/// Represents the view of the system **after** exiting the
-	/// UEFI boot services.
-	///
-	/// ### TODO
-	///
-	/// As soon as an allocator is implemented, we can use
-	///
-	/// ``` edition2021
-	/// alloc::sync::Arc<spin::Mutex<Option<UEFISystemTableRuntime>>>
-	/// ```
-	///
-	/// instead of our fake lock to properly use safe
-	/// multi-threading on this table.
-	static UEFI_SYSTEM_TABLE_RUNTIME: fake_lock::Lock<Option<UEFISystemTableRunTime>> =
-		fake_lock::Lock::new(None);
-
 	/// ## Exiting Boot Services
 	///
 	/// This function will exit the UEFI boot services.
@@ -87,9 +68,9 @@ mod __uefi
 	/// 4. the UEFI boot services could not be exited cleanly
 	#[must_use]
 	pub fn exit_boot_services(
-		uefi_handle: uefi::Handle,
+		uefi_image_handle: uefi::Handle,
 		uefi_system_table_boot: UEFISystemTableBootTime,
-	) -> UEFIMemoryMap
+	) -> (UEFISystemTableRunTime, UEFIMemoryMap)
 	{
 		let memory_map_size = uefi_system_table_boot
 			.boot_services()
@@ -107,7 +88,7 @@ mod __uefi
 		);
 
 		let (uefi_system_table_runtime, uefi_memory_map_iterator) =
-			match uefi_system_table_boot.exit_boot_services(uefi_handle, unsafe {
+			match uefi_system_table_boot.exit_boot_services(uefi_image_handle, unsafe {
 				UEFI_BOOT_SERVICES_MEMORY_MAP
 			}) {
 				Ok(completion) => {
@@ -126,64 +107,9 @@ mod __uefi
 					panic!("Could not exit UEFI boot services: {:#?}", error)
 				},
 			};
-		log_debug!("Exited UEFI boot services");
 
-		UEFI_SYSTEM_TABLE_RUNTIME
-			.get_mut()
-			.replace(uefi_system_table_runtime);
-		log_trace!("Acquired UEFI system table for runtime view");
-
+		log_debug!("Exited UEFI boot services acquired UEFI system table for runtime view");
 		log_info!("Boot phase finished");
-		uefi_memory_map_iterator
-	}
-}
-
-/// ## Fake Locking
-///
-/// This provides a fake-lock for the time being. This is not a
-/// thread-safe lock, as the marker traits `Send` and `Sync` are
-/// implemented on them in a fashion that actually violates the
-/// traits (as seen by the clippy exception we have to provide).
-mod fake_lock
-{
-	use ::core::cell;
-
-	/// ### The Unsafe Lock Itself
-	///
-	/// The fake locking structure information.
-	pub struct Lock<T>
-	{
-		/// The only data filed, a generic data type.
-		data: cell::UnsafeCell<T>,
-	}
-
-	#[allow(clippy::non_send_fields_in_send_ty)]
-	unsafe impl<T> Send for Lock<T> {}
-	unsafe impl<T> Sync for Lock<T> {}
-
-	impl<T> Lock<T>
-	{
-		/// ### Create a New Lock.
-		///
-		/// This is a constant function and can subsequently
-		/// be used in global statics.
-		pub const fn new(data: T) -> Self
-		{
-			Self {
-				data: cell::UnsafeCell::new(data),
-			}
-		}
-
-		/// ### Get A Reference to the Inner Data
-		///
-		/// Returns a read only reference to the data
-		/// encapsulated with `as_ref()`.
-		pub const fn _get(&self) -> &T { unsafe { &*self.data.get() } }
-
-		/// ### Get a Mutable Reference
-		///
-		/// Returns mutable reference to the data inside.
-		#[allow(clippy::mut_from_ref)]
-		pub fn get_mut(&self) -> &mut T { unsafe { &mut *self.data.get() } }
+		(uefi_system_table_runtime, uefi_memory_map_iterator)
 	}
 }

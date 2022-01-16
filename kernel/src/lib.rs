@@ -38,20 +38,13 @@
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
-// Since the `x86-interrupt` calling convention is still unstable,
-// we have to opt-in.
+// the following feature are still unstable and guarded
+// behind feature gates that have to be unlocked
 #![feature(abi_x86_interrupt)]
-// Checking the target ABI is still experimental
-// and subject to change.
-#![feature(cfg_target_abi)]
-// Dereferencing raw mutable pointers in constant functions is still
-// unstable.
+#![feature(alloc_error_handler)]
+#![feature(const_fn_trait_bound)]
 #![feature(const_mut_refs)]
-// Since retrieving the message during a call to `panic!` is
-// still unstable, we have to opt-in.
 #![feature(panic_info_message)]
-// Defining `type = impl ...` has not yet been stabilized, so
-// we need to open this feature gate.
 #![feature(type_alias_impl_trait)]
 
 //! # The `unCORE` Operating System Kernel
@@ -87,17 +80,17 @@ use library::prelude::*;
 #[cfg(test)]
 #[no_mangle]
 pub extern "C" fn efi_main(
-	uefi_handle: uefi::Handle,
+	uefi_image_handle: uefi::Handle,
 	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
 ) -> !
 {
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	kernel_main(&library::boot::exit_boot_services(
-		uefi_handle,
-		uefi_system_table_boot,
-	))
+	let (_uefi_system_table_runtime, uefi_memory_map) =
+		library::boot::exit_boot_services(uefi_image_handle, uefi_system_table_boot);
+
+	kernel_main(&uefi_memory_map)
 }
 
 /// ### Kernel Library Testing - Kernel Main Entrypoint
@@ -111,8 +104,8 @@ fn kernel_main(_uefi_memory_map: &library::boot::UEFIMemoryMap) -> !
 {
 	log_info!("Running unit-tests of 'lib.rs'");
 
-	log_info!("Starting architecture specific initialization");
-	library::architectures::cpu::initialize();
+	library::architectures::initialize();
+	library::memory::initialize();
 
 	#[cfg(test)]
 	__test_runner();

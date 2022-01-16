@@ -63,10 +63,14 @@ impl KernelInformation
 	#[must_use]
 	pub fn get_build_target() -> &'static str
 	{
-		let target_triple = "unknown";
+		#[cfg(target_arch = "aarch64")]
+		let target_triple = "aarch64-unknown-uefi";
 
-		#[cfg(all(target_arch = "x86_64", target_abi = "none"))]
-		let target_triple = "x86_64-unknown-none";
+		#[cfg(target_arch = "i686")]
+		let target_triple = "i686-unknown-uefi";
+
+		#[cfg(target_arch = "x86_64")]
+		let target_triple = "x86_64-unknown-uefi";
 
 		BUILD_TARGET.unwrap_or(target_triple)
 	}

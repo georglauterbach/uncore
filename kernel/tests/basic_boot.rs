@@ -38,22 +38,28 @@ use kernel::{
 
 #[no_mangle]
 pub extern "C" fn efi_main(
-	uefi_handle: uefi::Handle,
+	uefi_image_handle: uefi::Handle,
 	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
 ) -> !
 {
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	kernel_main(library::boot::exit_boot_services(
-		uefi_handle,
+	let (_uefi_system_table_runtime, uefi_memory_map) = library::boot::exit_boot_services(
+		uefi_image_handle,
 		uefi_system_table_boot,
-	))
+	);
+
+	kernel_main(uefi_memory_map)
 }
 
 fn kernel_main(_: library::boot::UEFIMemoryMap) -> !
 {
 	log_info!("This is the 'basic_boot' test");
+
+	library::architectures::initialize();
+	library::memory::initialize();
+
 	__test_runner();
 
 	never_return()
