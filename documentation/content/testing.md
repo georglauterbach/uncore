@@ -78,16 +78,28 @@ use kernel::{
 };
 
 #[no_mangle]
-pub fn kernel_main(
-        multiboot2_bootloader_magic_value: u32,
-        multiboot2_boot_information_pointer: u32,
+pub extern "C" fn efi_main(
+        uefi_handle: uefi::Handle,
+        uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
 ) -> !
 {
         library::log::init(Some(log::Level::Trace));
         library::log::display_initial_information();
 
+        main(library::boot::exit_boot_services(
+                uefi_handle,
+                uefi_system_table_boot,
+        ))
+}
+
+fn main(_: library::boot::UEFIMemoryMap) -> !
+{
         log_info!("This is the 'TEST_NAME' test");
     ...
+}
+
+#[panic_handler]
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
 ```
 
 ## Running Tests

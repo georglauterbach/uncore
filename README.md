@@ -25,8 +25,8 @@ To check whether you have all needed tools, and install them if you do not alrea
 $ pwd
 /uncore
 $ ./scripts/install_tools.sh
-tools        INFO    'rustup' is installed
-tools        SUCCESS Your Rust installation is complete
+[   INF   ]                     tools@bash | 'rustup' is installed
+[ SUCCESS ]                     tools@bash | Your Rust installation is complete
 ...
 ```
 

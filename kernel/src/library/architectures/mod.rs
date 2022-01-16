@@ -1,28 +1,37 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-// ? HARDWARE PLATFORMS
-// ? ---------------------------------------------------------------------
-
-// * RISC V
+// * ARM 64 Bit
 // * ---------------------------------------------------------------------
 
-/// ## The RISC V 64bit Architecture
+/// ## The ARM 64 Bit Architecture
 ///
-/// This module contains RISC V 64bit specific initialization and
-/// setup code. Compiled conditionally.
-#[cfg(target_arch = "riscv64")]
-mod _riscv64;
+/// This module contains ARM 64bit specific initialization and
+/// setup code - compiled conditionally.
+#[cfg(target_arch = "aarch64")]
+mod _aarch64;
 
-#[cfg(target_arch = "riscv64")] pub use _riscv64::cpu;
+#[cfg(target_arch = "aarch64")] pub use _aarch64::cpu;
 
-// * x86_64
+// * x86 32 Bit
 // * ---------------------------------------------------------------------
 
-/// ## The `x86_64` Architecture
+/// ## The x86 32 Bit Architecture
 ///
-/// This module contains `x86_64` specific initialization and setup
-/// code. Compiled conditionally.
+/// This module contains x86 32bit specific initialization and
+/// setup code - compiled conditionally.
+#[cfg(target_arch = "i686")]
+mod _i686;
+
+#[cfg(target_arch = "i686")] pub use _i686::cpu;
+
+// * x86 64 Bit
+// * ---------------------------------------------------------------------
+
+/// ## The x86 64 Bit Architecture
+///
+/// This module contains x86 64 Bit specific initialization and setup
+/// code - compiled conditionally.
 #[cfg(target_arch = "x86_64")]
 mod _x86_64;
 

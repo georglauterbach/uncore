@@ -5,10 +5,10 @@
 ///
 /// The kernel target is a triple consisting of
 ///
-/// 1. The hardware architecture
-/// 2. The vendor (manufacturer) (optional)
-/// 3. Operating system
-/// 4. ABI (omitted in our case)
+/// 1. The hardware architecture                        aarch64
+/// 2. The vendor (manufacturer) (optional)             unknown
+/// 3. Operating system                                 uefi
+/// 4. ABI (optional, omitted in our case)
 ///
 /// The target triple reads as `ARCH-VENDOR-SYS-ABI` and you can read
 /// about it [here](https://docs.rust-embedded.org/embedonomicon/custom-target.html).

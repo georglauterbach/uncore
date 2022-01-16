@@ -72,7 +72,7 @@ fn main()
 			log::error!("No path to the kernel binary provided.");
 			process::exit(1);
 		},
-		|path| path,
+		String::from,
 	);
 
 	let kernel_test_binary_path = path::PathBuf::from(kernel_test_binary_path_string.clone());
@@ -111,7 +111,7 @@ fn main()
 	if process::Command::new("cp")
 		.current_dir(root_directory.clone())
 		.arg(kernel_test_binary_path_string)
-		.arg("kernel/build/tests/kernel.bin")
+		.arg("kernel/build/tests/kernel/EFI/BOOT/BOOTX64.EFI")
 		.status()
 		.is_err()
 	{
@@ -119,32 +119,24 @@ fn main()
 		process::exit(1);
 	}
 
-	let shell_script = format!("{}/scripts/run_in_qemu.sh", root_directory);
 	let mut run_command = process::Command::new("bash");
 	run_command
 		.current_dir(root_directory)
-		.arg(shell_script)
+		.arg("scripts/run_in_qemu.sh")
 		.env("QEMU_DIRECTORY", "build/tests");
 
 	match runner_utils::run_with_timeout(&mut run_command, time::Duration::from_secs(TIMEOUT)) {
-		Ok(exit_code) => {
-			match exit_code.code() {
-				// we specifically configured QEMU to
-				// exit with exit code 33 on success
-				Some(0x3) => {},
-				Some(other_exit_code) => {
-					log::error!(
-						"Tests failed. Exit code was {}.",
-						other_exit_code
-					);
+		Ok(exit_code) => match exit_code.code() {
+			Some(0) => {},
+			Some(other_exit_code) => {
+				log::error!("Tests failed. Exit code was {}.", other_exit_code);
 
-					process::exit(other_exit_code | 1)
-				},
-				None => {
-					log::error!("Tests failed - terminated by signal?!");
-					process::exit(1)
-				},
-			}
+				process::exit(other_exit_code | 1)
+			},
+			None => {
+				log::error!("Tests failed - terminated by signal?!");
+				process::exit(1)
+			},
 		},
 		Err(run_error) => {
 			match run_error {

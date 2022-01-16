@@ -1,10 +1,8 @@
 #! /bin/bash
 
-# version       0.1.1
+# version       0.1.2
 # executed by   shell scripts under scripts/
 # task          performs script initialization
-# parameters    ${1} - 'kernel' for kernel setup scripts (optional)
-#               ${2} - kernel build target (optional)
 
 SCRIPT='initialization'
 
@@ -28,12 +26,12 @@ function basic_setup
   source scripts/lib/logs.sh
   source scripts/lib/errors.sh
 
-  notify 'tra' 'Performed basic script intialization'
+  notify 'deb' 'Performed basic script intialization'
 }
 
 function setup_kernel_environment
 {
-  notify 'tra' 'Changing into kernel directory'
+  notify 'deb' 'Changing into kernel directory'
 
   if ! cd "${ROOT_DIRECTORY}/kernel"
   then
@@ -41,7 +39,7 @@ function setup_kernel_environment
     exit 1
   fi
 
-  notify 'tra' 'Setting kernel environment variables'
+  notify 'deb' 'Setting kernel environment variables'
 
   export BUILD_TARGET COMPILATION_DATE_AND_TIME
   export GIT_REVISION_HEAD
@@ -51,17 +49,19 @@ function setup_kernel_environment
 
   declare -g -a KERNEL_BUILD_FLAGS
 
-  BUILD_TARGET='x86_64-unknown-none'
+  BUILD_TARGET='x86_64-unknown-uefi'
   COMPILATION_DATE_AND_TIME="$(date +'%H:%M, %d %b %Y')"
   GIT_REVISION_HEAD="$(git rev-parse --short HEAD)"
   KERNEL_VERSION="$(grep -m 1 'version*' Cargo.toml | cut -d '"' -f 2)"
   KERNEL_VERSION+=" (${GIT_REVISION_HEAD})"
-  KERNEL_BINARY="target/${BUILD_TARGET}/debug/kernel"
+  KERNEL_BINARY="target/${BUILD_TARGET}/debug/kernel.efi"
   KERNEL_BUILD_FLAGS+=('-Z')
   KERNEL_BUILD_FLAGS+=('build-std=core,compiler_builtins,alloc')
   KERNEL_BUILD_FLAGS+=('-Z')
   KERNEL_BUILD_FLAGS+=('build-std-features=compiler-builtins-mem')
-  QEMU_KERNEL_BINARY='build/qemu/kernel.bin'
+  QEMU_KERNEL_BINARY='build/qemu/kernel/EFI/BOOT/BOOTX64.EFI'
+
+  mkdir -p build/qemu/kernel/EFI/BOOT/ build/tests/kernel/EFI/BOOT/
 
   RUST_DEFAULT_TARGET="$(rustc -Vv | grep 'host:' | cut -d ' ' -f 2)"
   RUSTC_VERSION="$(rustc --version)" ; RUSTC_VERSION=${RUSTC_VERSION#rustc }
@@ -70,27 +70,34 @@ function setup_kernel_environment
 
 function set_build_target
 {
-  export BUILD_TARGET KERNEL_BINARY
-
-  BUILD_TARGET="${1}"
-  KERNEL_BINARY="target/${BUILD_TARGET}/debug/kernel"
-
-  if [[ -z ${BUILD_TARGET} ]]
+  if [[ -z ${1:-} ]]
   then
-    notify 'err' 'Specified build target is empty'
+    notify 'err' 'Build target is empty'
     exit 1
   fi
 
-  if [[ ! -f "build/targets/${BUILD_TARGET}.json"  ]] \
-  && [[ ! -f "kernel/build/targets/${BUILD_TARGET}.json"  ]]
-  then
-    notify 'err'                                                     \
-      "The build target '${BUILD_TARGET}' does not seem to be valid" \
-      "(is it in the 'kernel/build/targets/' directory?)"
-    exit 1
-  fi
+  declare -a VALID_TARGETS
+  VALID_TARGETS=(
+    'aarch64'
+    'i686'
+    'x86_64'
+  )
 
-  notify 'inf' "Set build target to '${BUILD_TARGET}'"
+  for VALID_TARGET in "${VALID_TARGETS[@]}"
+  do
+    if [[ ${1} == "${VALID_TARGET}" ]]
+    then
+        export BUILD_TARGET KERNEL_BINARY
+
+        BUILD_TARGET="${1}-unknown-uefi"
+        KERNEL_BINARY="target/${BUILD_TARGET}/debug/kernel.efi"
+
+        return 0
+    fi
+  done
+
+  notify 'err' "Build target '${1}' is invalid"
+  exit 1
 }
 
 function main
@@ -113,7 +120,7 @@ function main
   done
 
   export -f set_build_target
-  notify 'tra' 'Finished script intialization'
+  notify 'deb' 'Finished script intialization'
 }
 
 main "${@}"

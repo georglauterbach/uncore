@@ -30,68 +30,66 @@ use kernel::{
 	prelude::*,
 };
 
-use x86_64::structures::idt::{
-	InterruptDescriptorTable,
-	InterruptStackFrame,
-};
+use x86_64::structures::idt;
 
 lazy_static::lazy_static! {
-	static ref TEST_IDT: InterruptDescriptorTable = {
-		let mut idt = InterruptDescriptorTable::new();
+	static ref TEST_IDT: idt::InterruptDescriptorTable = {
+		let mut idt = idt::InterruptDescriptorTable::new();
 
 		unsafe {
 			idt.double_fault
 				.set_handler_fn(test_double_fault_handler)
-				.set_stack_index(0);
+				.set_stack_index(1);
 		}
 
 		idt
 	};
 }
 
-pub extern "x86-interrupt" fn test_double_fault_handler(_: InterruptStackFrame, _: u64) -> !
+pub extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> !
 {
-	log_info!("Received double fault. SUCCESS.");
+	log_info!("Received double fault - nice");
 	test::qemu::exit_with_success();
 	never_return()
 }
 
 #[no_mangle]
-pub fn kernel_main(
-	_multiboot2_bootloader_magic_value: u32,
-	_multiboot2_boot_information_pointer: u32,
+pub extern "C" fn efi_main(
+	uefi_handle: uefi::Handle,
+	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
 ) -> !
 {
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
+	kernel_main(library::boot::exit_boot_services(
+		uefi_handle,
+		uefi_system_table_boot,
+	))
+}
+
+fn kernel_main(_: library::boot::UEFIMemoryMap) -> !
+{
 	log_info!("This is the 'stack_overflow' test");
 
-	log_warning!("This test is currently missing unimplemented functionality");
-	log_warning!("Exiting early");
-	test::qemu::exit_with_success();
+	library::architectures::cpu::initialize();
 
-	// let _ = library::boot::boot(
-	// 	multiboot2_bootloader_magic_value,
-	// 	multiboot2_boot_information_pointer,
-	// );
+	TEST_IDT.load();
+	log_info!("Initialized new (test) IDT.");
 
-	// TEST_IDT.load();
-	// log_info!("Initialized new (test) IDT.");
+	stack_overflow();
 
-	// stack_overflow();
-
-	// log_error!("Execution continued after kernel stack overflow");
-	// test::qemu::exit_with_failure();
+	log_error!("Execution continued after kernel stack overflow");
+	test::qemu::exit_with_failure();
 
 	never_return()
 }
 
-#[allow(dead_code)]
 #[allow(unconditional_recursion)]
 fn stack_overflow()
 {
 	stack_overflow();
+	// prevent tail call optimization
 	volatile::Volatile::new(&0).read();
 }
 

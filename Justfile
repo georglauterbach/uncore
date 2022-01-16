@@ -45,17 +45,22 @@ help:
 # -----------------------------------------------
 
 # compile the kernel
-@build target='':
-    bash "{{ROOT_DIRECTORY}}/scripts/build.sh" {{target}}
+@build *arguments:
+    bash "{{ROOT_DIRECTORY}}/scripts/build.sh" {{arguments}}
 
-# run the kernel for x86_64 in QEMU
-@run *arguments: (build arguments)
+# run the kernel in QEMU
+run *arguments: (build arguments)
+    #! /bin/bash
+
     bash "{{ROOT_DIRECTORY}}/scripts/run_in_qemu.sh" {{arguments}}
+    EXIT_CODE=${?}
+    [[ ${EXIT_CODE} -gt 1 ]] && exit $((EXIT_CODE - 1)) 
+    exit 0
 
 # remove the kernel/target/ directory
 @clean:
     cd {{KERNEL_DIRECTORY}} && {{BUILD_TOOL}} clean
-    cd {{KERNEL_DIRECTORY}}/build/qemu/ && find . ! -name "grub.cfg" -delete
+    cd {{KERNEL_DIRECTORY}}/build/ && rm -rf qemu tests
 
 # run tests workspace members
 @test *arguments:
