@@ -50,6 +50,8 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
+extern crate alloc;
+
 use kernel::{
 	library,
 	prelude::*,

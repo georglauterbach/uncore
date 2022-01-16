@@ -35,7 +35,7 @@ pub mod log;
 ///
 /// This module handles virtual memory, that is (demand) paging,
 /// allocations, etc. for the user- and kernel-space.
-mod memory;
+pub mod memory;
 
 /// ## The Kernel Prelude
 ///

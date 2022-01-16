@@ -57,6 +57,8 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
+extern crate alloc;
+
 /// ### The Core Library
 ///
 /// This module has been created to give the kernel source code a
