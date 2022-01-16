@@ -80,7 +80,7 @@ function usage
 RUN_IN_QEMU.SH(1)
 
 SYNOPSIS
-    ./scripts/run.sh [ OPTION... ] [ < QEMU_OPTION... > ]
+    ./scripts/run_in_qemu.sh [ OPTION... ] [ < QEMU_OPTION... > ]
     just run                 [ OPTION... ] [ < QEMU_OPTION... > ]
 
 OPTIONS
