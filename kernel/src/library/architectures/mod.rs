@@ -11,7 +11,7 @@
 #[cfg(target_arch = "aarch64")]
 mod _aarch64;
 
-#[cfg(target_arch = "aarch64")] pub use _aarch64::cpu;
+#[cfg(target_arch = "aarch64")] pub use _aarch64::initialize;
 
 // * x86 32 Bit
 // * ---------------------------------------------------------------------
@@ -23,7 +23,7 @@ mod _aarch64;
 #[cfg(target_arch = "i686")]
 mod _i686;
 
-#[cfg(target_arch = "i686")] pub use _i686::cpu;
+#[cfg(target_arch = "i686")] pub use _i686::initialize;
 
 // * x86 64 Bit
 // * ---------------------------------------------------------------------
@@ -35,5 +35,4 @@ mod _i686;
 #[cfg(target_arch = "x86_64")]
 mod _x86_64;
 
-#[cfg(target_arch = "x86_64")] pub use _x86_64::cpu;
-#[cfg(target_arch = "x86_64")] pub use _x86_64::memory;
+#[cfg(target_arch = "x86_64")] pub use _x86_64::initialize;

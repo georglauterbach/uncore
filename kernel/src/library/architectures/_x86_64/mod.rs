@@ -5,10 +5,22 @@
 ///
 /// Provides general CPU setup and exception as well as interrupt
 /// handlers.
-pub mod cpu;
+mod cpu;
 
 /// ## Virtual Memory Implementation
 ///
 /// This module contains the virtual memory / paging abstractions for
 /// `x86_64`.
-pub mod memory;
+mod memory;
+
+/// TODO
+/// 
+pub fn initialize()
+{
+	use crate::prelude::*;
+	log_info!("Starting architecture specific initialization");
+
+	cpu::initialize();
+
+	log_info!("Finished Architecture specific initialization");
+}
