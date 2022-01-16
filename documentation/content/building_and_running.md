@@ -11,9 +11,9 @@ We highly recommend using [Just] when working with _unCORE_. The following steps
 
 The kernel is compiled against special UEFI targets - these are
 
-1. `aarch64-unknown-none`
-2. `i686-unknown-none`
-3. `x86_64-unknown-none`
+1. `aarch64-unknown-uefi`
+2. `i686-unknown-uefi`
+3. `x86_64-unknown-uefi`
 
 To get an overview of all targets, you may visit [the `rustc` target specification page on GitHub][rustc-target-specification].
 

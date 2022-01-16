@@ -17,7 +17,6 @@ documentation/site
 
 kernel/target/
 kernel/build/
-!kernel/build/license_template.txt
 
 kernel/**/Cargo.lock
 kernel/**/*.rs.bk
