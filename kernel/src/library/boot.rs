@@ -10,7 +10,7 @@ pub use __uefi::exit_boot_services;
 /// ## Handle UEFI
 ///
 /// Handles UEFI related matters (boot services). After entry into
-/// `crate::kernel_main(...)`, UEFI boot services are still active and
+/// `crate::efi_main(...)`, UEFI boot services are still active and
 /// we need to handle and exit them.
 mod __uefi
 {

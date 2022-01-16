@@ -94,7 +94,7 @@ pub extern "C" fn efi_main(
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	main(&library::boot::exit_boot_services(
+	kernel_main(&library::boot::exit_boot_services(
 		uefi_handle,
 		uefi_system_table_boot,
 	))
@@ -107,7 +107,7 @@ pub extern "C" fn efi_main(
 /// `library::init()` function takes care of initialization. This
 /// function is effectively run only during unit tests.
 #[cfg(test)]
-fn main(_uefi_memory_map: &library::boot::UEFIMemoryMap) -> !
+fn kernel_main(_uefi_memory_map: &library::boot::UEFIMemoryMap) -> !
 {
 	log_info!("Running unit-tests of 'lib.rs'");
 

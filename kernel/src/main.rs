@@ -70,7 +70,7 @@ pub extern "C" fn efi_main(
 	library::log::display_initial_information();
 
 	// https://github.com/rust-osdev/bootloader/blob/main/src/bin/uefi.rs#L37
-	main(library::boot::exit_boot_services(
+	kernel_main(library::boot::exit_boot_services(
 		uefi_handle,
 		uefi_system_table_boot,
 	))
@@ -81,7 +81,7 @@ pub extern "C" fn efi_main(
 /// This is the kernel's entry point directly called by the boot-code
 /// (written in assembly). We're still in the UEFI boot services are
 /// still enabled: it is our job to disable them now.
-fn main(_uefi_memory_map: library::boot::UEFIMemoryMap) -> !
+fn kernel_main(_uefi_memory_map: library::boot::UEFIMemoryMap) -> !
 {
 	#[cfg(test)]
 	__test_runner();

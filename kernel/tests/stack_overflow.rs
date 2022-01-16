@@ -62,13 +62,13 @@ pub extern "C" fn efi_main(
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	main(library::boot::exit_boot_services(
+	kernel_main(library::boot::exit_boot_services(
 		uefi_handle,
 		uefi_system_table_boot,
 	))
 }
 
-fn main(_: library::boot::UEFIMemoryMap) -> !
+fn kernel_main(_: library::boot::UEFIMemoryMap) -> !
 {
 	log_info!("This is the 'stack_overflow' test");
 
