@@ -13,6 +13,11 @@ on: # yamllint disable-line rule:truthy
       - documentation/**
     tags:
       - v[0-9]+.[0-9]+*
+  pull_request:
+    branches: ['**']
+    paths:
+      - .github/workflows/documentation.yml
+      - documentation/**
 
 env:
   DOCS_VERSION: edge
@@ -22,9 +27,18 @@ env:
   GIT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
 
 jobs:
+  check-successful-build:
+    name: Test if documentation can be build
+    runs-on: ubuntu-20.04
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Build with mkdocs-material with Docker
+        run: scripts/documentation.sh build
+
   deployment:
     name: Deploy documentation
     runs-on: ubuntu-20.04
+    if: github.event_name != 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
@@ -38,7 +52,7 @@ jobs:
           # Docs should build referencing the tagged version instead:
           sed -i "s|^\(site_url:.*\)edge|\1${DOCS_VERSION}|" config.yml
 
-      - name: Build with mkdocs-material via Docker
+      - name: Build with mkdocs-material with Docker
         run: scripts/documentation.sh build
 
       - name: If a tagged version, fix canonical links and remove `404.html`
@@ -69,7 +83,7 @@ jobs:
   add-version-to-documentation:
     name: Update `versions.json` if necessary
     runs-on: ubuntu-20.04
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request'
     needs: deployment
     steps:
       - name: Checkout the tagged commit (shallow clone)

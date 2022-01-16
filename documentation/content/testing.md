@@ -79,20 +79,22 @@ use kernel::{
 
 #[no_mangle]
 pub extern "C" fn efi_main(
-        uefi_handle: uefi::Handle,
+        uefi_image_handle: uefi::Handle,
         uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
 ) -> !
 {
         library::log::init(Some(log::Level::Trace));
         library::log::display_initial_information();
 
-        main(library::boot::exit_boot_services(
-                uefi_handle,
+        let (_uefi_system_table_runtime, uefi_memory_map) = library::boot::exit_boot_services(
+                uefi_image_handle,
                 uefi_system_table_boot,
-        ))
+        );
+
+        kernel_main(uefi_memory_map)
 }
 
-fn main(_: library::boot::UEFIMemoryMap) -> !
+fn kernel_main(_: library::boot::UEFIMemoryMap) -> !
 {
         log_info!("This is the 'TEST_NAME' test");
     ...
