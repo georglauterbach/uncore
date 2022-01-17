@@ -25,9 +25,9 @@ pub fn initialize()
 {
 	log_info!("Initializing a simple, static allocator");
 	unsafe {
-		KERNEL_HEAP.init(
-			HEAP.get_mut(), 
-			BITMAP.get_mut()).expect("Could not acquire the heap bitmap")
+		KERNEL_HEAP
+			.init(HEAP.get_mut(), BITMAP.get_mut())
+			.expect("Could not acquire the heap bitmap")
 	}
 	log_debug!("Initialized allocator");
 }

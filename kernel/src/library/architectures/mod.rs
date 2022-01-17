@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
+// ? MODULES
+// ? ---------------------------------------------------------------------
+
 // * ARM 64 Bit
 // * ---------------------------------------------------------------------
 
@@ -10,8 +13,6 @@
 /// setup code - compiled conditionally.
 #[cfg(target_arch = "aarch64")]
 mod _aarch64;
-
-#[cfg(target_arch = "aarch64")] pub use _aarch64::initialize;
 
 // * x86 32 Bit
 // * ---------------------------------------------------------------------
@@ -23,8 +24,6 @@ mod _aarch64;
 #[cfg(target_arch = "i686")]
 mod _i686;
 
-#[cfg(target_arch = "i686")] pub use _i686::initialize;
-
 // * x86 64 Bit
 // * ---------------------------------------------------------------------
 
@@ -35,4 +34,22 @@ mod _i686;
 #[cfg(target_arch = "x86_64")]
 mod _x86_64;
 
-#[cfg(target_arch = "x86_64")] pub use _x86_64::initialize;
+// ? EXPORTED FUNCTIONS
+// ? ---------------------------------------------------------------------
+
+/// TODO
+pub fn initialize()
+{
+	use crate::prelude::*;
+
+	log_info!("Starting architecture specific initialization");
+
+	#[cfg(target_arch = "x86_64")]
+	_x86_64::initialize();
+	#[cfg(target_arch = "i686")]
+	_i686::initialize();
+	#[cfg(target_arch = "aarch64")]
+	_aarch64::initialize();
+
+	log_info!("Finished Architecture specific initialization");
+}

@@ -17,7 +17,6 @@ mod simple_static;
 // TODO copy and run the test from Phillip as well
 
 /// TODO
-/// 
 pub fn initialize()
 {
 	use crate::prelude::*;

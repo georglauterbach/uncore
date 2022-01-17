@@ -14,13 +14,4 @@ mod cpu;
 mod memory;
 
 /// TODO
-/// 
-pub fn initialize()
-{
-	use crate::prelude::*;
-	log_info!("Starting architecture specific initialization");
-
-	cpu::initialize();
-
-	log_info!("Finished Architecture specific initialization");
-}
+pub fn initialize() { cpu::initialize(); }
