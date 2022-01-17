@@ -103,10 +103,7 @@ pub fn display_initial_information()
 
 	log_info!("This is unCORE {}", KernelInformation::get_kernel_version());
 
-	log_debug!(
-		"Target triple reads '{}'",
-		KernelInformation::get_build_target()
-	);
+	log_debug!("Target triple reads '{}'", KernelInformation::get_build_target());
 
 	log_debug!(
 		"Kernel was compiled at '{}'",

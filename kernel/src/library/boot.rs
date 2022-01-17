@@ -72,41 +72,33 @@ mod __uefi
 		uefi_system_table_boot: UEFISystemTableBootTime,
 	) -> (UEFISystemTableRunTime, UEFIMemoryMap)
 	{
-		let memory_map_size = uefi_system_table_boot
-			.boot_services()
-			.memory_map_size()
-			.map_size;
-		log_trace!(
-			"UEFI boot services memory map size = {} Byte",
-			memory_map_size
-		);
+		let memory_map_size = uefi_system_table_boot.boot_services().memory_map_size().map_size;
+		log_trace!("UEFI boot services memory map size = {} Byte", memory_map_size);
 		assert!(
 			memory_map_size < UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE,
-			"The UEFI memory map size is smaller than what is statically allocated \
-			 ({} Byte)",
+			"The UEFI memory map size is smaller than what is statically allocated ({} Byte)",
 			UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE
 		);
 
-		let (uefi_system_table_runtime, uefi_memory_map_iterator) =
-			match uefi_system_table_boot.exit_boot_services(uefi_image_handle, unsafe {
-				UEFI_BOOT_SERVICES_MEMORY_MAP
-			}) {
-				Ok(completion) => {
-					if completion.status().is_success() {
-						let (_, result) = completion.split();
-						result
-					} else {
-						panic!(
-							"Exiting UEFI boot services resulted in \
-							 non-successful completion status: {:#?}",
-							completion.status()
-						)
-					}
-				},
-				Err(error) => {
-					panic!("Could not exit UEFI boot services: {:#?}", error)
-				},
-			};
+		let (uefi_system_table_runtime, uefi_memory_map_iterator) = match uefi_system_table_boot
+			.exit_boot_services(uefi_image_handle, unsafe { UEFI_BOOT_SERVICES_MEMORY_MAP })
+		{
+			Ok(completion) => {
+				if completion.status().is_success() {
+					let (_, result) = completion.split();
+					result
+				} else {
+					panic!(
+						"Exiting UEFI boot services resulted in non-successful \
+						 completion status: {:#?}",
+						completion.status()
+					)
+				}
+			},
+			Err(error) => {
+				panic!("Could not exit UEFI boot services: {:#?}", error)
+			},
+		};
 
 		log_debug!("Exited UEFI boot services acquired UEFI system table for runtime view");
 		log_info!("Boot phase finished");

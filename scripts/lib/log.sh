@@ -53,7 +53,7 @@ function notify
   local __LOG_LEVEL=2 __LOG_LEVEL_STRING="${1:-}"
   shift 1
 
-  case "${LOG_LEVEL:-war}" in
+  case "${LOG_LEVEL:-inf}" in
     ( 'err'* ) __LOG_LEVEL=0 ;;
     ( 'war'* ) __LOG_LEVEL=1 ;;
     ( 'inf'* ) __LOG_LEVEL=2 ;;

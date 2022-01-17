@@ -41,4 +41,4 @@ enum_discrim_align_threshold = 45
 struct_field_align_threshold = 45
 inline_attribute_width       = 70
 comment_width                = 70
-max_width                    = 100
+max_width                    = 110

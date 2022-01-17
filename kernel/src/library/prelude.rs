@@ -40,11 +40,7 @@ pub fn never_return() -> !
 		#[cfg(target_arch = "x86_64")]
 		{
 			unsafe {
-				core::arch::asm!(
-					"hlt",
-					"cli",
-					options(nomem, nostack, preserves_flags)
-				);
+				core::arch::asm!("hlt", "cli", options(nomem, nostack, preserves_flags));
 			}
 		}
 	}

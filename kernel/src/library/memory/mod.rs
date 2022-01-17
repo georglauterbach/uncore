@@ -5,7 +5,7 @@
 ///
 /// This module handles (demand) paging, that is virtual memory, for
 /// the kernel (and for the user-space in the future).
-mod paging;
+mod virtual_memory;
 
 /// ## A Simple Static Allocator
 ///

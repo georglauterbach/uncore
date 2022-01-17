@@ -14,10 +14,7 @@ pub(super) mod handlers
 	///
 	/// This is the handler callback function for the alignment
 	/// check CPU Exception.
-	pub extern "x86-interrupt" fn alignment_check(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	)
+	pub extern "x86-interrupt" fn alignment_check(stack_frame: idt::InterruptStackFrame, error_code: u64)
 	{
 		crate::log_warning!(
 			"CPU exception occurred (type: alignment check)\n\nError code: {}\n{:#?}\n",
@@ -55,10 +52,7 @@ pub(super) mod handlers
 	/// exceeded CPU Exception.
 	pub extern "x86-interrupt" fn debug(stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_info!(
-			"CPU exception occurred (type: debug)\n\n{:#?}\n",
-			stack_frame
-		);
+		crate::log_info!("CPU exception occurred (type: debug)\n\n{:#?}\n", stack_frame);
 	}
 
 	/// ### CPU Exception - Device Not Available
@@ -122,8 +116,7 @@ pub(super) mod handlers
 	)
 	{
 		crate::log_warning!(
-			"CPU exception occurred (type: general protection fault)\n\nError code: \
-			 {}\n{:#?}\n",
+			"CPU exception occurred (type: general protection fault)\n\nError code: {}\n{:#?}\n",
 			error_code,
 			stack_frame
 		);
@@ -147,10 +140,7 @@ pub(super) mod handlers
 	///
 	/// This is the handler callback function for the invalid TSS
 	/// CPU Exception.
-	pub extern "x86-interrupt" fn invalid_tss(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	)
+	pub extern "x86-interrupt" fn invalid_tss(stack_frame: idt::InterruptStackFrame, error_code: u64)
 	{
 		log_error!(
 			"CPU exception occurred (type: invalid TSS)\n\nError code: {}\n{:#?}\n",
@@ -193,10 +183,7 @@ pub(super) mod handlers
 	/// Exception.
 	pub extern "x86-interrupt" fn overflow(stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_warning!(
-			"CPU exception occurred (type: overflow)\n\n{:#?}\n",
-			stack_frame
-		);
+		crate::log_warning!("CPU exception occurred (type: overflow)\n\n{:#?}\n", stack_frame);
 	}
 
 	/// ### CPU Exception - Page Fault Handler
@@ -221,10 +208,7 @@ pub(super) mod handlers
 	///
 	/// This is the handler callback function for the security CPU
 	/// Exception.
-	pub extern "x86-interrupt" fn security(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	)
+	pub extern "x86-interrupt" fn security(stack_frame: idt::InterruptStackFrame, error_code: u64)
 	{
 		log_error!(
 			"CPU exception occurred (type: security)\n\nError code: {}\n{:#?}\n",
@@ -245,8 +229,7 @@ pub(super) mod handlers
 	)
 	{
 		log_error!(
-			"CPU exception occurred (type: segment not present)\n\nError code: \
-			 {}\n{:#?}\n",
+			"CPU exception occurred (type: segment not present)\n\nError code: {}\n{:#?}\n",
 			error_code,
 			stack_frame,
 		);
@@ -278,8 +261,7 @@ pub(super) mod handlers
 	)
 	{
 		log_error!(
-			"CPU exception occurred (type: stack segment fault)\n\nError code: \
-			 {}\n{:#?}\n",
+			"CPU exception occurred (type: stack segment fault)\n\nError code: {}\n{:#?}\n",
 			error_code,
 			stack_frame,
 		);
@@ -311,8 +293,7 @@ pub(super) mod handlers
 	)
 	{
 		crate::log_error!(
-			"CPU exception occurred (type: VMM communication)\n\nError code: \
-			 {}\n{:#?}\n",
+			"CPU exception occurred (type: VMM communication)\n\nError code: {}\n{:#?}\n",
 			error_code,
 			stack_frame
 		);

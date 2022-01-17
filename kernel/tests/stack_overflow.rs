@@ -62,10 +62,8 @@ pub extern "C" fn efi_main(
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	let (_uefi_system_table_runtime, uefi_memory_map) = library::boot::exit_boot_services(
-		uefi_image_handle,
-		uefi_system_table_boot,
-	);
+	let (_uefi_system_table_runtime, uefi_memory_map) =
+		library::boot::exit_boot_services(uefi_image_handle, uefi_system_table_boot);
 
 	kernel_main(uefi_memory_map)
 }
