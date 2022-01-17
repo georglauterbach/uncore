@@ -63,7 +63,7 @@ function run
 
   if [[ ${EXIT_CODE} -eq 3 ]]
   then
-    notify 'suc' 'Kernel exited QEMU properly'
+    notify 'inf' 'Kernel exited QEMU properly'
   elif [[ ${EXIT_CODE} -eq 0 ]]
   then
     notify 'war' 'Kernel exited QEMU unexpectedly (triple-fault, manual QEMU termination, ... ?)'

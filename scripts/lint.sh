@@ -46,7 +46,7 @@ function lint_shellcheck
       "${ARGUMENTS[@]}" \
       "${FILES[@]}"
   then
-    notify 'suc' 'ShellCheck succeeded'
+    notify 'inf' 'ShellCheck succeeded'
     return 0
   else
     notify 'err' 'ShellCheck reported problems'
@@ -86,7 +86,7 @@ function lint_github_super_linter
     -e LOG_FILE=../../dev/null \
     "${IMAGE}" >/dev/null
   then
-    notify 'suc' 'GitHub Super Linter succeeded'
+    notify 'inf' 'GitHub Super Linter succeeded'
     return 0
   else
     notify 'err' 'GitHub Super Linte reported problems'
@@ -150,7 +150,7 @@ function main
     notify 'err' 'Linting not successful'
     return 1
   else
-    notify 'suc' 'Linting successful'
+    notify 'inf' 'Linting successful'
     return 0
   fi
 }

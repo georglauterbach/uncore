@@ -46,7 +46,7 @@ function check_rust
     fi
   fi
 
-  notify 'suc' 'Your Rust installation is complete'
+  notify 'inf' 'Your Rust installation is complete'
 }
 
 function check_container_runtime
@@ -67,8 +67,8 @@ function check_container_runtime
     notify 'inf' 'Docker detected as container runtime'
   fi
 
-  notify 'suc' 'You will be able to build and serve the documentation'
-  notify 'suc' 'You can lint the code'
+  notify 'inf' 'You will be able to build and serve the documentation'
+  notify 'inf' 'You can lint the code'
 }
 
 function usage

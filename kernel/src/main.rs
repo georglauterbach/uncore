@@ -90,7 +90,7 @@ fn kernel_main(_uefi_memory_map: library::boot::UEFIMemoryMap) -> !
 
 	library::architectures::initialize();
 	library::memory::initialize();
-	
+
 	test::qemu::exit_with_success();
 	never_return()
 }

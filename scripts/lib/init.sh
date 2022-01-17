@@ -23,10 +23,10 @@ function basic_setup
     exit 1
   fi
 
-  source scripts/lib/logs.sh
+  source scripts/lib/log.sh
   source scripts/lib/errors.sh
 
-  notify 'deb' 'Performed basic script intialization'
+  notify 'tra' 'Performed basic script intialization'
 }
 
 function setup_kernel_environment
@@ -120,7 +120,7 @@ function main
   done
 
   export -f set_build_target
-  notify 'deb' 'Finished script intialization'
+  notify 'tra' 'Finished script intialization'
 }
 
 main "${@}"

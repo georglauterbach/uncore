@@ -46,7 +46,7 @@ function test_kernel
 
   if [[ ${EXIT_CODE} -eq 0 ]]
   then
-    notify 'suc' 'Tests passed'
+    notify 'inf' 'Tests passed'
   else
     notify 'war' 'Tests did not pass' "(exit code was ${EXIT_CODE})"
     exit 1

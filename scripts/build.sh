@@ -18,7 +18,7 @@ function build_kernel
     exit 1
   fi
 
-  notify 'suc' 'Finished building the kernel'
+  notify 'inf' 'Finished building the kernel'
   notify 'deb' "Copying kernel binary to '${QEMU_KERNEL_BINARY}'"
 
   # https://stackoverflow.com/a/55409182

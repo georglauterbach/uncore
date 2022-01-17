@@ -178,7 +178,7 @@ mod global_static_allocator
 		use core::alloc::Layout;
 
 		/// Possible errors for [`ChunkAllocator`].
-		/// TODO make more generic ?! later use in roottask
+		/// TODO make more generic ?! later use in root task
 		/// and native hedron app with different allocator
 		/// frontends?
 		#[derive(Debug)]

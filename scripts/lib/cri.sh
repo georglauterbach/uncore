@@ -1,6 +1,6 @@
 #! /bin/bash
 
-source scripts/lib/logs.sh
+source scripts/lib/log.sh
 
 function setup_container_runtime
 {
