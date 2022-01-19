@@ -109,3 +109,139 @@ impl KernelInformation
 	#[must_use]
 	pub fn get_rustc_version() -> &'static str { RUSTC_VERSION.unwrap_or("unknown") }
 }
+
+/// ## QEMU Abstractions
+///
+/// Contains helpers for running the kernel with QEMU.
+pub mod qemu
+{
+	/// ### Determine Whether We Are Running Inside of QEMU
+	///
+	/// This static variable shows whether we're running inside of
+	/// QEMU. This is used when exiting, as the port `0xF4` is
+	/// only written to if we're inside QEMU.
+	static mut RUNNING_IN_QEMU: bool = true;
+
+	/// ### Write An Exit Code
+	///
+	/// Writes to the `0xF4` port the correct bytes that indicate
+	/// either success or failure.
+	#[inline]
+	fn exit(success: bool)
+	{
+		use qemu_exit::QEMUExit;
+
+		if !unsafe { RUNNING_IN_QEMU } {
+			return;
+		}
+
+		#[cfg(target_arch = "x86_64")]
+		let qemu_exit_handle = qemu_exit::X86::new(0xF4, 0x3);
+
+		if success {
+			qemu_exit_handle.exit_success();
+		} else {
+			qemu_exit_handle.exit_failure();
+		}
+	}
+
+	/// ### Exit QEMU With Success
+	///
+	/// Write a success exit code for QEMU to recognize and exit.
+	#[allow(dead_code)]
+	#[inline(always)]
+	pub fn exit_with_success() { exit(true); }
+
+	/// ### Exit QEMU Without Success
+	///
+	/// Write a failure exit code for QEMU to recognize and exit.
+	#[allow(dead_code)]
+	#[inline(always)]
+	pub fn exit_with_failure() { exit(false); }
+}
+
+/// ## Kernel Library Types
+///
+/// This module contains important data types (enums, structures,
+/// etc.) used throughout the kernel. One example includes the
+/// [`GlobalStaticMut`] type used for global static variables.
+pub mod kernel_types
+{
+	/// ### Global Static Variables for Non-Thread-Safe Types
+	///
+	/// This enumeration is the abstraction needed to abstract
+	/// over global `static` variables. This is case because these
+	/// variables need to be thread safe, and some types do not
+	/// implement [`Send`] or [`Sync`]. Furthermore, when the
+	/// kernel boots, there is no allocator (needed by
+	/// [`alloc::sync::Arc`]). Therefore, this type eliminiates
+	/// the hassle of working with [`alloc::sync::Arc`] or
+	/// [`spin::Mutex`].
+	///
+	/// #### Safety
+	///
+	/// Calling the [`Self::new`] is always safe, but calling
+	/// [`Self::initialize`] requires a global allocator to be set
+	/// up.
+	#[allow(clippy::non_send_fields_in_send_ty)]
+	#[derive(::core::fmt::Debug)]
+	pub enum GlobalStaticMut<T>
+	{
+		/// The default, boot-time state
+		Uninitialized,
+		/// The "runtime", post-boot state
+		Initialized(alloc::sync::Arc<spin::Mutex<T>>),
+	}
+
+	impl<T> GlobalStaticMut<T>
+	{
+		/// ### Constant Boot-Time Initialization
+		///
+		/// This function **must** be used when creating a global, static variable
+		/// for non-thread safe types.
+		#[must_use]
+		pub const fn new() -> Self { Self::Uninitialized }
+
+		/// ### Initializing - Post-Boot
+		///
+		/// This function will return the [`Self::Initialized`] state with
+		/// initialized data. It will wrap the type in an
+		/// [`alloc::sync::Arc<spind::Mutex<T>>`] for thread-safe operation.
+		///
+		/// #### Safety
+		///
+		/// This function is considered unsafe for two reasons:
+		///
+		/// 1. It operates and changes `static mut` variables, which itself is
+		/// `unsafe`
+		/// 2. When calling this function before a global allocator has
+		///    been setup, this function    will panic due to the need for an
+		///    allocator in [`alloc::sync::Arc`].
+		pub unsafe fn initialize(inner_value: T) -> Self
+		{
+			Self::Initialized(alloc::sync::Arc::new(spin::Mutex::new(inner_value)))
+		}
+
+		/// ### Check Status
+		///
+		/// Checks whether the variable is initialized or not. Returns true if the
+		/// variable is initialized.
+		#[allow(dead_code)]
+		#[must_use]
+		pub const fn is_initialized(&self) -> bool
+		{
+			match self {
+				Self::Uninitialized => false,
+				Self::Initialized(_) => true,
+			}
+		}
+	}
+
+	impl<T> ::core::default::Default for GlobalStaticMut<T>
+	{
+		fn default() -> Self { Self::Uninitialized }
+	}
+
+	unsafe impl<T> Send for GlobalStaticMut<T> {}
+	unsafe impl<T> Sync for GlobalStaticMut<T> {}
+}

@@ -5,6 +5,8 @@
 // * ---------------------------------------------------------------------
 
 pub use super::helper::test;
+pub use super::helper::miscellaneous::kernel_types;
+pub use super::helper::miscellaneous::qemu;
 
 // * STRUCTURES
 // * ---------------------------------------------------------------------
