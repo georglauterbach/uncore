@@ -89,10 +89,10 @@ pub extern "C" fn efi_main(
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	let (_uefi_system_table_runtime, uefi_memory_map) =
+	let (uefi_system_table_runtime, uefi_memory_map) =
 		library::boot::exit_boot_services(uefi_image_handle, uefi_system_table_boot);
 
-	kernel_main(&uefi_memory_map)
+	kernel_main(uefi_system_table_runtime, uefi_memory_map)
 }
 
 /// ### Kernel Library Testing - Kernel Main Entrypoint
@@ -102,19 +102,21 @@ pub extern "C" fn efi_main(
 /// `library::init()` function takes care of initialization. This
 /// function is effectively run only during unit tests.
 #[cfg(test)]
-fn kernel_main(_uefi_memory_map: &library::boot::UEFIMemoryMap) -> !
+fn kernel_main(
+	uefi_system_table_runtime: library::boot::UEFISystemTableRunTime,
+	_uefi_memory_map: library::boot::UEFIMemoryMap,
+) -> !
 {
 	log_info!("Running unit-tests of 'lib.rs'");
 
 	library::architectures::initialize();
 	library::memory::initialize();
+	library::boot::post_boot_setup(uefi_system_table_runtime);
 
 	#[cfg(test)]
 	__test_runner();
 
-	#[cfg(target_arch = "x86_64")]
-	test::qemu::exit_with_success();
-
+	qemu::exit_with_success();
 	never_return()
 }
 

@@ -36,20 +36,20 @@ pub extern "C" fn efi_main(
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	let (_uefi_system_table_runtime, uefi_memory_map) =
+	let (uefi_system_table_runtime, uefi_memory_map) =
 		library::boot::exit_boot_services(uefi_image_handle, uefi_system_table_boot);
 
-	kernel_main(uefi_memory_map)
+	kernel_main(uefi_system_table_runtime, uefi_memory_map)
 }
 
-fn kernel_main(_: library::boot::UEFIMemoryMap) -> !
+fn kernel_main(_: library::boot::UEFISystemTableRunTime, _: library::boot::UEFIMemoryMap) -> !
 {
 	log_info!("This is the 'should_panic' test");
 
 	this_test_should_panic();
 
 	log_error!("Test did not panic but was expected to. FAILURE.");
-	test::qemu::exit_with_failure();
+	qemu::exit_with_failure();
 
 	never_return()
 }

@@ -35,7 +35,7 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 			.unwrap_or(&format_args!("no message provided"))
 	);
 
-	test::qemu::exit_with_failure();
+	qemu::exit_with_failure();
 	never_return()
 }
 
@@ -48,7 +48,7 @@ fn __should_panic(_panic_info: &PanicInfo) -> !
 {
 	log_info!("Received expected panic - nice");
 
-	test::qemu::exit_with_success();
+	qemu::exit_with_success();
 	never_return()
 }
 

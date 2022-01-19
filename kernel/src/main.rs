@@ -70,10 +70,10 @@ pub extern "C" fn efi_main(
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	let (_uefi_system_table_runtime, uefi_memory_map) =
+	let (uefi_system_table_runtime, uefi_memory_map) =
 		library::boot::exit_boot_services(uefi_image_handle, uefi_system_table_boot);
 
-	kernel_main(uefi_memory_map)
+	kernel_main(uefi_system_table_runtime, uefi_memory_map)
 }
 
 /// ### Kernel Main Entrypoint
@@ -81,15 +81,19 @@ pub extern "C" fn efi_main(
 /// This is the kernel's entry point directly called by the boot-code
 /// (written in assembly). We're still in the UEFI boot services are
 /// still enabled: it is our job to disable them now.
-fn kernel_main(_uefi_memory_map: library::boot::UEFIMemoryMap) -> !
+fn kernel_main(
+	uefi_system_table_runtime: library::boot::UEFISystemTableRunTime,
+	_uefi_memory_map: library::boot::UEFIMemoryMap,
+) -> !
 {
 	#[cfg(test)]
 	__test_runner();
 
 	library::architectures::initialize();
 	library::memory::initialize();
+	library::boot::post_boot_setup(uefi_system_table_runtime);
 
-	test::qemu::exit_with_success();
+	qemu::exit_with_success();
 	never_return()
 }
 

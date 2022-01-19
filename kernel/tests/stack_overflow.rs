@@ -49,7 +49,7 @@ lazy_static::lazy_static! {
 pub extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> !
 {
 	log_info!("Received double fault - nice");
-	test::qemu::exit_with_success();
+	qemu::exit_with_success();
 	never_return()
 }
 
@@ -62,18 +62,17 @@ pub extern "C" fn efi_main(
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	let (_uefi_system_table_runtime, uefi_memory_map) =
+	let (uefi_system_table_runtime, uefi_memory_map) =
 		library::boot::exit_boot_services(uefi_image_handle, uefi_system_table_boot);
 
-	kernel_main(uefi_memory_map)
+	kernel_main(uefi_system_table_runtime, uefi_memory_map)
 }
 
-fn kernel_main(_: library::boot::UEFIMemoryMap) -> !
+fn kernel_main(_: library::boot::UEFISystemTableRunTime, _: library::boot::UEFIMemoryMap) -> !
 {
 	log_info!("This is the 'stack_overflow' test");
 
 	library::architectures::initialize();
-	library::memory::initialize();
 
 	TEST_IDT.load();
 	log_info!("Initialized new (test) IDT.");
@@ -81,7 +80,7 @@ fn kernel_main(_: library::boot::UEFIMemoryMap) -> !
 	stack_overflow();
 
 	log_error!("Execution continued after kernel stack overflow");
-	test::qemu::exit_with_failure();
+	qemu::exit_with_failure();
 
 	never_return()
 }
