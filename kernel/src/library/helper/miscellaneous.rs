@@ -149,14 +149,14 @@ pub mod qemu
 	///
 	/// Write a success exit code for QEMU to recognize and exit.
 	#[allow(dead_code)]
-	#[inline(always)]
+	#[inline]
 	pub fn exit_with_success() { exit(true); }
 
 	/// ### Exit QEMU Without Success
 	///
 	/// Write a failure exit code for QEMU to recognize and exit.
 	#[allow(dead_code)]
-	#[inline(always)]
+	#[inline]
 	pub fn exit_with_failure() { exit(false); }
 }
 
@@ -235,6 +235,17 @@ pub mod kernel_types
 				Self::Initialized(_) => true,
 			}
 		}
+
+		/// TODO
+		#[must_use]
+		pub fn lock(&self) -> Option<spin::MutexGuard<T>>
+		{
+			if let Self::Initialized(data) = self {
+				Some(data.lock())
+			} else {
+				None
+			}
+		}
 	}
 
 	impl<T> ::core::default::Default for GlobalStaticMut<T>
@@ -244,4 +255,29 @@ pub mod kernel_types
 
 	unsafe impl<T> Send for GlobalStaticMut<T> {}
 	unsafe impl<T> Sync for GlobalStaticMut<T> {}
+
+	/// TODO
+	pub mod lock
+	{
+		/// TODO
+		pub struct Locked<T>
+		{
+			/// TODO
+			inner: spin::Mutex<T>,
+		}
+
+		impl<T> Locked<T>
+		{
+			/// TODO
+			pub const fn from(inner: T) -> Self
+			{
+				Self {
+					inner: spin::Mutex::new(inner),
+				}
+			}
+
+			/// TODO
+			pub fn lock(&self) -> spin::MutexGuard<T> { self.inner.lock() }
+		}
+	}
 }
