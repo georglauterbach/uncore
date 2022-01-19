@@ -7,12 +7,11 @@
 /// the kernel (and for the user-space in the future).
 mod virtual_memory;
 
-/// ## A Simple Static Allocator
+/// ## A Simple Allocator
 ///
 /// This module provides a _very_ simple and minimalistic allocator
-/// _only_ used in the kernel for simple tasks. It uses a
-/// pre-allocated array.
-mod simple_static;
+/// _only_ used in the kernel for simple tasks.
+mod simple_global_allocator;
 
 // TODO copy and run the test from Phillip as well
 
@@ -24,7 +23,7 @@ pub fn initialize()
 
 	// https://github.com/rust-osdev/bootloader/blob/main/src/bin/uefi.rs#L37
 
-	simple_static::initialize();
+	simple_global_allocator::initialize();
 
 	log_info!("Finished memory initialization");
 }
