@@ -2,9 +2,11 @@
 // Copyright 2022 The unCORE Kernel Organization
 
 pub use __uefi::UEFISystemTableBootTime;
+pub use __uefi::UEFISystemTableRunTime;
 pub use __uefi::UEFIMemoryMap;
 
 pub use __uefi::UEFI_BOOT_SERVICES_MEMORY_MAP;
+pub use __uefi::UEFI_RUNTIME_SERVICES;
 pub use __uefi::exit_boot_services;
 
 /// ## Handle UEFI
@@ -27,7 +29,7 @@ mod __uefi
 	///
 	/// This is the UEFI system table after exiting the boot
 	/// services.
-	type UEFISystemTableRunTime = table::SystemTable<table::Runtime>;
+	pub type UEFISystemTableRunTime = table::SystemTable<table::Runtime>;
 
 	/// ### UEFI Memory Map Iterator
 	///
@@ -51,6 +53,13 @@ mod __uefi
 	/// boot services were exited.
 	pub static mut UEFI_BOOT_SERVICES_MEMORY_MAP: &mut [u8] =
 		&mut [0; UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE];
+
+	/// ### UEFI Runtime Services Post-Boot
+	///
+	/// This variable contains - once initialized - the UEFI runtime services to work
+	/// with.
+	pub static mut UEFI_RUNTIME_SERVICES: kernel_types::GlobalStaticMut<UEFISystemTableRunTime> =
+		kernel_types::GlobalStaticMut::new();
 
 	/// ## Exiting Boot Services
 	///

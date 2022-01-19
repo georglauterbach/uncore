@@ -35,7 +35,7 @@ pub use super::helper::panic::panic_callback;
 ///
 /// We use the `hlt` instruction to "halt" the CPU to not burn through
 /// CPU time, as a call to `loop {}` would do.
-#[inline]
+#[inline(always)]
 pub fn never_return() -> !
 {
 	loop {
