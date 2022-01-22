@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
+use crate::library;
+
 /// ## Virtual Memory
 ///
 /// This module handles (demand) paging, that is virtual memory, for
@@ -11,21 +13,24 @@ mod virtual_memory;
 ///
 /// This module provides a _very_ simple and minimalistic allocator
 /// _only_ used in the kernel for simple tasks.
-mod simple_global_allocator;
+mod kernel_heap_allocator;
 
-// TODO copy and run the test from Phillip as well
-
-/// TODO
-pub fn initialize()
+/// ### Initialize Kernel Memory
+///
+/// This function takes care of initializing
+///
+/// 1. virtual memory (demand paging, setting up a page table, etc.)
+/// 2. a kernel heap allocator
+///
+/// all while abstracting over all the different architectures.
+pub fn initialize(_uefi_memory_map: library::boot::UEFIMemoryMap)
 {
 	use crate::prelude::*;
 	log_info!("Starting memory initialization");
 
 	// https://github.com/rust-osdev/bootloader/blob/main/src/bin/uefi.rs#L37
 
-	simple_global_allocator::initialize();
-
-	log_info!("Finished memory initialization");
+	log_error!("Reached an unfinished state here");
 }
 
 #[test_case]

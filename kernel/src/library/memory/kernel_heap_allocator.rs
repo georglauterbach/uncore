@@ -1,17 +1,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-// TODO write tests
+use crate::prelude::kernel_types::lock;
+
+/// TODO
+#[global_allocator]
+static ALLOCATOR: lock::Locked<fixed_block_size::Allocator> =
+	lock::Locked::from(fixed_block_size::Allocator::new());
+
+/// TODO
+#[alloc_error_handler]
+fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
+{
+	panic!("allocation error (layout: {:?})", layout);
+}
 
 /// ### Initialize a Global Allocator
 ///
 /// Initializes a simple global allocator.
-pub fn initialize()
+pub fn _initialize()
 {
 	use crate::prelude::*;
 
 	log_info!("Initializing a simple global memory allocator");
-
+	// unsafe { ALLOCATOR.lock().initialize(); }
 	log_debug!("Initialized allocator");
 }
 
@@ -73,7 +85,7 @@ mod fixed_block_size
 		}
 
 		/// TODO
-		fn fallback_allocate(&mut self, layout: alloc::Layout) -> *mut u8
+		fn allocate_with_fallback_allocator(&mut self, layout: alloc::Layout) -> *mut u8
 		{
 			match self.fallback_allocator.allocate_first_fit(layout) {
 				Ok(ptr) => ptr.as_ptr(),
@@ -95,14 +107,44 @@ mod fixed_block_size
 
 	unsafe impl alloc::GlobalAlloc for lock::Locked<Allocator>
 	{
-		unsafe fn alloc(&self, _layout: alloc::Layout) -> *mut u8
+		unsafe fn alloc(&self, layout: alloc::Layout) -> *mut u8
 		{
-			todo!();
+			let mut allocator = self.lock();
+			if let Some(index) = Allocator::list_index(&layout) {
+				if let Some(node) = allocator.list_heads[index].take() {
+					allocator.list_heads[index] = node.next.take();
+					(node as *mut ListNode).cast::<u8>()
+				} else {
+					// no block exists in list => allocate new block
+					let block_size = BLOCK_SIZES[index];
+					// only works if all block sizes are a power of 2
+					let block_align = block_size;
+					let layout = alloc::Layout::from_size_align(block_size, block_align)
+						.unwrap();
+					allocator.allocate_with_fallback_allocator(layout)
+				}
+			} else {
+				allocator.allocate_with_fallback_allocator(layout)
+			}
 		}
 
-		unsafe fn dealloc(&self, _ptr: *mut u8, _layout: alloc::Layout)
+		unsafe fn dealloc(&self, ptr: *mut u8, layout: alloc::Layout)
 		{
-			todo!();
+			let mut allocator = self.lock();
+			if let Some(index) = Allocator::list_index(&layout) {
+				let new_node = ListNode {
+					next: allocator.list_heads[index].take(),
+				};
+				// verify that block has size and alignment required for storing node
+				assert!(::core::mem::size_of::<ListNode>() <= BLOCK_SIZES[index]);
+				assert!(::core::mem::align_of::<ListNode>() <= BLOCK_SIZES[index]);
+				let new_node_ptr = ptr.cast::<ListNode>();
+				new_node_ptr.write(new_node);
+				allocator.list_heads[index] = Some(&mut *new_node_ptr);
+			} else {
+				let ptr = ::core::ptr::NonNull::new(ptr).unwrap();
+				allocator.fallback_allocator.deallocate(ptr, layout);
+			}
 		}
 	}
 }
