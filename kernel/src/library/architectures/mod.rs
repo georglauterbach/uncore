@@ -37,7 +37,10 @@ mod _x86_64;
 // ? EXPORTED FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-/// TODO
+/// ### Architecture-Specific Initialization
+///
+/// This function uses conditional compilation to initialize the chosen target
+/// architecture.
 pub fn initialize()
 {
 	use crate::prelude::*;

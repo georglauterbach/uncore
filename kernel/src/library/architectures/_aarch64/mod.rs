@@ -3,5 +3,11 @@
 
 pub mod cpu;
 
-/// TODO
-pub fn initialize() { cpu::initialize(); }
+/// ### Architecture Initialization Routine
+///
+/// This function takes care of the correct initialization of the ARM 64Bit architecture.
+pub fn initialize()
+{
+	crate::prelude::log_trace!("Initializing aarch64");
+	cpu::initialize();
+}

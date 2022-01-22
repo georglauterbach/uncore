@@ -13,5 +13,11 @@ mod cpu;
 /// `x86_64`.
 mod memory;
 
-/// TODO
-pub fn initialize() { cpu::initialize(); }
+/// ### Architecture Initialization Routine
+///
+/// This function takes care of the correct initialization of the x86 64Bit architecture.
+pub fn initialize()
+{
+	crate::prelude::log_trace!("Initializing x86_64");
+	cpu::initialize();
+}

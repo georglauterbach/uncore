@@ -3,5 +3,11 @@
 
 pub mod cpu;
 
-/// TODO
-pub fn initialize() { cpu::initialize(); }
+/// ### Architecture Initialization Routine
+///
+/// This function takes care of the correct initialization of the x86 32Bit architecture.
+pub fn initialize()
+{
+	crate::prelude::log_trace!("Initializing i686");
+	cpu::initialize();
+}
