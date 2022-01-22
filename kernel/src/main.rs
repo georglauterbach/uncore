@@ -83,14 +83,14 @@ pub extern "C" fn efi_main(
 /// still enabled: it is our job to disable them now.
 fn kernel_main(
 	uefi_system_table_runtime: library::boot::UEFISystemTableRunTime,
-	_uefi_memory_map: library::boot::UEFIMemoryMap,
+	uefi_memory_map: library::boot::UEFIMemoryMap,
 ) -> !
 {
 	#[cfg(test)]
 	__test_runner();
 
 	library::architectures::initialize();
-	library::memory::initialize();
+	library::memory::initialize(uefi_memory_map);
 	library::boot::post_boot_setup(uefi_system_table_runtime);
 
 	qemu::exit_with_success();

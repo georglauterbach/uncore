@@ -53,13 +53,13 @@ pub extern "C" fn efi_main(
 
 fn kernel_main(
 	uefi_system_table_runtime: library::boot::UEFISystemTableRunTime,
-	_: library::boot::UEFIMemoryMap,
+	uefi_memory_map: library::boot::UEFIMemoryMap,
 ) -> !
 {
 	log_info!("This is the 'basic_boot' test");
 
 	library::architectures::initialize();
-	library::memory::initialize();
+	library::memory::initialize(uefi_memory_map);
 	library::boot::post_boot_setup(uefi_system_table_runtime);
 
 	__test_runner();

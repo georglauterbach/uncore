@@ -44,6 +44,7 @@
 #![feature(alloc_error_handler)]
 #![feature(const_fn_trait_bound)]
 #![feature(const_mut_refs)]
+#![feature(maybe_uninit_slice)]
 #![feature(panic_info_message)]
 #![feature(type_alias_impl_trait)]
 
@@ -72,7 +73,8 @@ pub mod library;
 /// The `prelude` module shall be accessible from `crate::` (or
 /// `kernel::` in case of `main.rs`).
 pub use library::prelude;
-use library::prelude::*;
+
+#[cfg(test)] use library::prelude::*;
 
 /// ### Kernel Library Testing - UEFI Entrypoint
 ///
@@ -104,13 +106,13 @@ pub extern "C" fn efi_main(
 #[cfg(test)]
 fn kernel_main(
 	uefi_system_table_runtime: library::boot::UEFISystemTableRunTime,
-	_uefi_memory_map: library::boot::UEFIMemoryMap,
+	uefi_memory_map: library::boot::UEFIMemoryMap,
 ) -> !
 {
 	log_info!("Running unit-tests of 'lib.rs'");
 
 	library::architectures::initialize();
-	library::memory::initialize();
+	library::memory::initialize(uefi_memory_map);
 	library::boot::post_boot_setup(uefi_system_table_runtime);
 
 	#[cfg(test)]
