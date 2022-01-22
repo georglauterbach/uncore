@@ -5,7 +5,6 @@ pub use __uefi::UEFISystemTableBootTime;
 pub use __uefi::UEFISystemTableRunTime;
 pub use __uefi::UEFIMemoryMap;
 
-pub use __uefi::UEFI_BOOT_SERVICES_MEMORY_MAP;
 pub use __uefi::UEFI_RUNTIME_SERVICES;
 pub use __uefi::exit_boot_services;
 
@@ -17,7 +16,10 @@ pub use __uefi::exit_boot_services;
 mod __uefi
 {
 	use crate::prelude::*;
-	use uefi::table;
+	use uefi::{
+		table,
+		ResultExt,
+	};
 
 	/// ### UEFI System Table - Boot
 	///
@@ -37,22 +39,7 @@ mod __uefi
 	/// returned from the [`exit_boot_services`] function to
 	/// obtain a memory map later.
 	pub type UEFIMemoryMap =
-		impl ExactSizeIterator<Item = &'static uefi::table::boot::MemoryDescriptor> + Clone;
-
-	/// ### UEFI Boot Services Memory Map Size Estimation
-	///
-	/// This constant estimates the size (in bytes) of the memory
-	/// map that is obtained after the UEFI boot services were
-	/// exited. The kernel will panic if the provided map is
-	/// larger than this constant.
-	const UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE: usize = 7000;
-
-	/// ### UEFI Boot Services Memory Map
-	///
-	/// This array holds the memory map obtained after the UEFI
-	/// boot services were exited.
-	pub static mut UEFI_BOOT_SERVICES_MEMORY_MAP: &mut [u8] =
-		&mut [0; UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE];
+		impl ExactSizeIterator<Item = &'static table::boot::MemoryDescriptor> + Clone;
 
 	/// ### UEFI Runtime Services Post-Boot
 	///
@@ -81,36 +68,41 @@ mod __uefi
 		uefi_system_table_boot: UEFISystemTableBootTime,
 	) -> (UEFISystemTableRunTime, UEFIMemoryMap)
 	{
-		let memory_map_size = uefi_system_table_boot.boot_services().memory_map_size().map_size;
-		log_trace!("UEFI boot services memory map size = {} Byte", memory_map_size);
-		assert!(
-			memory_map_size < UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE,
-			"The UEFI memory map size is smaller than what is statically allocated ({} Byte)",
-			UEFI_BOOT_SERVICES_MEMORY_MAP_SIZE
-		);
+		let memory_map_maximum_size =
+			uefi_system_table_boot.boot_services().memory_map_size().map_size
+				+ 8 * ::core::mem::size_of::<table::boot::MemoryDescriptor>();
 
-		let (uefi_system_table_runtime, uefi_memory_map_iterator) = match uefi_system_table_boot
-			.exit_boot_services(uefi_image_handle, unsafe { UEFI_BOOT_SERVICES_MEMORY_MAP })
-		{
-			Ok(completion) => {
-				if completion.status().is_success() {
-					let (_, result) = completion.split();
-					result
-				} else {
-					panic!(
-						"Exiting UEFI boot services resulted in non-successful \
-						 completion status: {:#?}",
-						completion.status()
-					)
-				}
-			},
-			Err(error) => {
-				panic!("Could not exit UEFI boot services: {:#?}", error)
-			},
+		let uefi_memory_map_buffer = uefi_system_table_boot
+			.boot_services()
+			.allocate_pool(table::boot::MemoryType::LOADER_DATA, memory_map_maximum_size)
+			.expect_success("Could not allocate memory pool for UEFI memory map buffer");
+
+		let uefi_memory_map_buffer = unsafe {
+			::core::slice::from_raw_parts_mut(uefi_memory_map_buffer, memory_map_maximum_size)
 		};
+
+		let (uefi_system_table_runtime, uefi_memory_map_iterator) = uefi_system_table_boot
+			.exit_boot_services(uefi_image_handle, uefi_memory_map_buffer)
+			.expect_success("could not exit UEFI boot services");
 
 		log_debug!("Exited UEFI boot services acquired UEFI system table for runtime view");
 		log_info!("Boot phase finished");
+
 		(uefi_system_table_runtime, uefi_memory_map_iterator)
 	}
+}
+
+/// ### Setup Variables When Global Allocator Is Setup
+///
+/// This function is called after the UEFI boot services are exited and once a global
+/// allocator is set up. It mostly initializes global variables.
+pub fn post_boot_setup(uefi_system_table_runtime: UEFISystemTableRunTime)
+{
+	use crate::prelude::*;
+	log_debug!("Running post-boot initialization");
+
+	log_trace!("UEFI Runtime Services are now initialized");
+	unsafe {
+		UEFI_RUNTIME_SERVICES = kernel_types::GlobalStaticMut::initialize(uefi_system_table_runtime);
+	};
 }

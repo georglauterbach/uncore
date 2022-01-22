@@ -174,7 +174,7 @@ pub mod kernel_types
 	/// variables need to be thread safe, and some types do not
 	/// implement [`Send`] or [`Sync`]. Furthermore, when the
 	/// kernel boots, there is no allocator (needed by
-	/// [`alloc::sync::Arc`]). Therefore, this type eliminiates
+	/// [`alloc::sync::Arc`]). Therefore, this type eliminates
 	/// the hassle of working with [`alloc::sync::Arc`] or
 	/// [`spin::Mutex`].
 	///
@@ -184,13 +184,13 @@ pub mod kernel_types
 	/// [`Self::initialize`] requires a global allocator to be set
 	/// up.
 	#[allow(clippy::non_send_fields_in_send_ty)]
-	#[derive(::core::fmt::Debug)]
+	#[derive(Debug)]
 	pub enum GlobalStaticMut<T>
 	{
 		/// The default, boot-time state
 		Uninitialized,
 		/// The "runtime", post-boot state
-		Initialized(alloc::sync::Arc<spin::Mutex<T>>),
+		Initialized(alloc::sync::Arc<lock::Locked<T>>),
 	}
 
 	impl<T> GlobalStaticMut<T>
@@ -206,7 +206,7 @@ pub mod kernel_types
 		///
 		/// This function will return the [`Self::Initialized`] state with
 		/// initialized data. It will wrap the type in an
-		/// [`alloc::sync::Arc<spind::Mutex<T>>`] for thread-safe operation.
+		/// [`alloc::sync::Arc<spin::Mutex<T>>`] for thread-safe operation.
 		///
 		/// #### Safety
 		///
@@ -219,14 +219,13 @@ pub mod kernel_types
 		///    allocator in [`alloc::sync::Arc`].
 		pub unsafe fn initialize(inner_value: T) -> Self
 		{
-			Self::Initialized(alloc::sync::Arc::new(spin::Mutex::new(inner_value)))
+			Self::Initialized(alloc::sync::Arc::new(lock::Locked::from(inner_value)))
 		}
 
 		/// ### Check Status
 		///
 		/// Checks whether the variable is initialized or not. Returns true if the
 		/// variable is initialized.
-		#[allow(dead_code)]
 		#[must_use]
 		pub const fn is_initialized(&self) -> bool
 		{
@@ -236,9 +235,23 @@ pub mod kernel_types
 			}
 		}
 
-		/// TODO
+		/// ### Get Exclusive Access
+		///
+		/// Returns a guard to the inner data field, that provides
+		/// (mutable) access to the encapsulated data, if the data
+		/// has already been initialized. If this is not the case,
+		/// this function returns [`None`].
+		///
+		/// #### Safety
+		///
+		/// This function is marked as `unsafe` because access to
+		/// the underlying data appears to be [`Send`] and [`Sync`] while these
+		/// traits are actually implemented for all (generic) types this structure
+		/// encapsulates, even if these types are not strictly [`Send`] or
+		/// [`Sync`]. That being said, the access **should be** safe, but you'll
+		/// need to take care nevertheless.
 		#[must_use]
-		pub fn lock(&self) -> Option<spin::MutexGuard<T>>
+		pub unsafe fn lock(&self) -> Option<spin::MutexGuard<T>>
 		{
 			if let Self::Initialized(data) = self {
 				Some(data.lock())
@@ -248,36 +261,46 @@ pub mod kernel_types
 		}
 	}
 
-	impl<T> ::core::default::Default for GlobalStaticMut<T>
-	{
-		fn default() -> Self { Self::Uninitialized }
-	}
-
 	unsafe impl<T> Send for GlobalStaticMut<T> {}
 	unsafe impl<T> Sync for GlobalStaticMut<T> {}
 
-	/// TODO
+	/// ## Kernel Wide Locking Abstraction
+	///
+	/// This module abstracts over a specific locking mechanism to provide unified
+	/// locking in the whole kernel.
+	///
+	/// Currently, a simple [`spin::Mutex`] is used to lock and achieve [`Sync`].
 	pub mod lock
 	{
-		/// TODO
+		/// ### The Locking Structure
+		///
+		/// This structure abstracts over its inner [`data`] field and provides
+		/// [`Sync`] access to it if the [`T`] is [`Send`].
+		#[derive(Debug)]
 		pub struct Locked<T>
 		{
-			/// TODO
-			inner: spin::Mutex<T>,
+			/// Only and inner data field
+			data: spin::Mutex<T>,
 		}
 
 		impl<T> Locked<T>
 		{
-			/// TODO
-			pub const fn from(inner: T) -> Self
+			/// ### Create a New Locked Structure
+			///
+			/// Encapsulates the given [`data`], taking ownership over it, and
+			/// locks it.
+			pub const fn from(data: T) -> Self
 			{
 				Self {
-					inner: spin::Mutex::new(inner),
+					data: spin::Mutex::new(data),
 				}
 			}
 
-			/// TODO
-			pub fn lock(&self) -> spin::MutexGuard<T> { self.inner.lock() }
+			/// ### Get Exclusive Access
+			///
+			/// Returns a guard to the inner data field, that provides
+			/// (mutable) access to the encapsulated data.
+			pub fn lock(&self) -> spin::MutexGuard<T> { self.data.lock() }
 		}
 	}
 }
