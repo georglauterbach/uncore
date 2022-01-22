@@ -29,7 +29,7 @@ pub fn initialize(uefi_memory_map: library::boot::UEFIMemoryMap)
 	log_info!("Starting memory initialization");
 
 	virtual_memory::initialize(uefi_memory_map);
-	kernel_heap_allocator::_initialize();
+	kernel_heap_allocator::initialize();
 
 	log_error!("Reached an unfinished state here");
 }

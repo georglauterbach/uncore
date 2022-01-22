@@ -18,13 +18,13 @@ fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
 /// ### Initialize a Global Allocator
 ///
 /// Initializes a simple global allocator.
-pub fn _initialize()
+pub fn initialize()
 {
-	use crate::prelude::*;
+	// use crate::prelude::*;
 
-	log_info!("Initializing a simple global memory allocator");
+	// log_info!("Initializing a simple global memory allocator");
 	// unsafe { ALLOCATOR.lock().initialize(); }
-	log_debug!("Initialized allocator");
+	// log_debug!("Initialized allocator");
 }
 
 /// ## Simple Fixed-Block-Size Allocator
