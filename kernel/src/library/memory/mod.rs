@@ -23,12 +23,13 @@ mod kernel_heap_allocator;
 /// 2. a kernel heap allocator
 ///
 /// all while abstracting over all the different architectures.
-pub fn initialize(_uefi_memory_map: library::boot::UEFIMemoryMap)
+pub fn initialize(uefi_memory_map: library::boot::UEFIMemoryMap)
 {
 	use crate::prelude::*;
 	log_info!("Starting memory initialization");
 
-	// https://github.com/rust-osdev/bootloader/blob/main/src/bin/uefi.rs#L37
+	virtual_memory::initialize(uefi_memory_map);
+	kernel_heap_allocator::_initialize();
 
 	log_error!("Reached an unfinished state here");
 }

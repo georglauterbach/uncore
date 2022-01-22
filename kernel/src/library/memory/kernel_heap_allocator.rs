@@ -135,10 +135,14 @@ mod fixed_block_size
 				let new_node = ListNode {
 					next: allocator.list_heads[index].take(),
 				};
+
 				// verify that block has size and alignment required for storing node
 				assert!(::core::mem::size_of::<ListNode>() <= BLOCK_SIZES[index]);
 				assert!(::core::mem::align_of::<ListNode>() <= BLOCK_SIZES[index]);
+
+				#[allow(clippy::cast_ptr_alignment)]
 				let new_node_ptr = ptr.cast::<ListNode>();
+
 				new_node_ptr.write(new_node);
 				allocator.list_heads[index] = Some(&mut *new_node_ptr);
 			} else {
