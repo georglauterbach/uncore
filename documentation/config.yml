@@ -17,10 +17,16 @@ nav:
   - Home: index.md
   - Development: development.md
   - Building & Running: building_and_running.md
-  - Kernel Structure:
-      - Overview: kernel_structure.md
+  - Kernel Architecture:
+      - Overview: architecture/overview.md
       - Bootstrapping: architecture/bootstrapping.md
   - Testing: testing.md
+  - Community:
+      - Overview: community/overview.md
+      - Changelog: community/changelog.md
+      - Code of Conduct: community/code_of_conduct.md
+      - Contributing: development.md
+      - Security: community/security.md
 
 theme:
   name: material
