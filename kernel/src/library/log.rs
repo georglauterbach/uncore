@@ -169,7 +169,8 @@ mod serial
 			use ::core::fmt::Write;
 
 			x86_64::instructions::interrupts::without_interrupts(|| {
-				SERIAL0.lock()
+				SERIAL0
+					.lock()
 					.write_fmt(arguments)
 					.expect("Printing to serial failed");
 			});

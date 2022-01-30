@@ -38,8 +38,7 @@ mod __uefi
 	/// After exiting the UEFI boot services, this type is
 	/// returned from the [`exit_boot_services`] function to
 	/// obtain a memory map later.
-	pub type UEFIMemoryMap =
-		impl ExactSizeIterator<Item = &'static table::boot::MemoryDescriptor> + Clone;
+	pub type UEFIMemoryMap = impl ExactSizeIterator<Item = &'static table::boot::MemoryDescriptor> + Clone;
 
 	/// ### UEFI Runtime Services Post-Boot
 	///
@@ -68,18 +67,16 @@ mod __uefi
 		uefi_system_table_boot: UEFISystemTableBootTime,
 	) -> (UEFISystemTableRunTime, UEFIMemoryMap)
 	{
-		let memory_map_maximum_size =
-			uefi_system_table_boot.boot_services().memory_map_size().map_size
-				+ 8 * ::core::mem::size_of::<table::boot::MemoryDescriptor>();
+		let memory_map_maximum_size = uefi_system_table_boot.boot_services().memory_map_size().map_size
+			+ 8 * ::core::mem::size_of::<table::boot::MemoryDescriptor>();
 
 		let uefi_memory_map_buffer = uefi_system_table_boot
 			.boot_services()
 			.allocate_pool(table::boot::MemoryType::LOADER_DATA, memory_map_maximum_size)
 			.expect_success("Could not allocate memory pool for UEFI memory map buffer");
 
-		let uefi_memory_map_buffer = unsafe {
-			::core::slice::from_raw_parts_mut(uefi_memory_map_buffer, memory_map_maximum_size)
-		};
+		let uefi_memory_map_buffer =
+			unsafe { ::core::slice::from_raw_parts_mut(uefi_memory_map_buffer, memory_map_maximum_size) };
 
 		let (uefi_system_table_runtime, uefi_memory_map_iterator) = uefi_system_table_boot
 			.exit_boot_services(uefi_image_handle, uefi_memory_map_buffer)

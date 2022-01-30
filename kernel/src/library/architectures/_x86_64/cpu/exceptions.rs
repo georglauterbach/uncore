@@ -92,10 +92,7 @@ pub(super) mod handlers
 	/// double fault handler is diverging. The reason is that
 	/// the `x86_64` architecture does not permit returning from
 	/// a double fault exception.
-	pub extern "x86-interrupt" fn double_fault(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	) -> !
+	pub extern "x86-interrupt" fn double_fault(stack_frame: idt::InterruptStackFrame, error_code: u64) -> !
 	{
 		log_error!(
 			"CPU exception occurred (type: double fault)\n\nError code: {}\n{:#?}\n",
@@ -199,11 +196,11 @@ pub(super) mod handlers
 	{
 		log_debug!("CPU exception occurred (type: page fault)");
 		log_trace!(
-			"page fault information: accessed address = {:?} | error code = {:?}\n",
+			"page fault information: accessed address = {:?} | error code = {:?}",
 			x86_64::registers::control::Cr2::read(),
 			error_code
 		);
-		unimplemented!();
+		// unimplemented!();
 	}
 
 	/// ### CPU Exception - Security
@@ -225,10 +222,7 @@ pub(super) mod handlers
 	///
 	/// This is the handler callback function for the segment not
 	/// present CPU Exception.
-	pub extern "x86-interrupt" fn segment_not_present(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	)
+	pub extern "x86-interrupt" fn segment_not_present(stack_frame: idt::InterruptStackFrame, error_code: u64)
 	{
 		log_error!(
 			"CPU exception occurred (type: segment not present)\n\nError code: {}\n{:#?}\n",
@@ -257,10 +251,7 @@ pub(super) mod handlers
 	///
 	/// This is the handler callback function for the stack
 	/// segment fault Exception.
-	pub extern "x86-interrupt" fn stack_segment_fault(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	)
+	pub extern "x86-interrupt" fn stack_segment_fault(stack_frame: idt::InterruptStackFrame, error_code: u64)
 	{
 		log_error!(
 			"CPU exception occurred (type: stack segment fault)\n\nError code: {}\n{:#?}\n",
@@ -289,10 +280,7 @@ pub(super) mod handlers
 	///
 	/// This is the handler callback function for the VMM
 	/// communication CPU Exception.
-	pub extern "x86-interrupt" fn vmm_communication(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	)
+	pub extern "x86-interrupt" fn vmm_communication(stack_frame: idt::InterruptStackFrame, error_code: u64)
 	{
 		log_error!(
 			"CPU exception occurred (type: VMM communication)\n\nError code: {}\n{:#?}\n",

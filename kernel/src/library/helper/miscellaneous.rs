@@ -81,10 +81,7 @@ impl KernelInformation
 	/// corresponding environment variable was present, otherwise
 	/// returns "unknown".
 	#[must_use]
-	pub fn get_compilation_date_and_time() -> &'static str
-	{
-		COMPILATION_DATE_AND_TIME.unwrap_or("unknown")
-	}
+	pub fn get_compilation_date_and_time() -> &'static str { COMPILATION_DATE_AND_TIME.unwrap_or("unknown") }
 
 	/// ### Kernel Version
 	///
