@@ -15,8 +15,8 @@ documentation/site
 # ----  Kernel ----------------------------------
 # -----------------------------------------------
 
-kernel/target/
 kernel/build/
+kernel/target/
 
 kernel/**/Cargo.lock
 kernel/**/*.rs.bk

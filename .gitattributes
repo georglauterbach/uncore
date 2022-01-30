@@ -1,10 +1,8 @@
-# auto-detect text files and perform
-# normalization
+# auto-detect text files and perform normalization
 *           text=auto
 
 *.rs        text       diff=rust
-*.tom       text       diff=toml
-Cargo.lock  text
+*.toml      text       diff=toml
 
 *.png       -text
 *.ico       -text
