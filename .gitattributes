@@ -1,8 +1,33 @@
-# auto-detect text files and perform normalization
-*           text=auto
+# -----------------------------------------------
+# ----  GitAttributes  --------------------------
+# ----  https://git-scm.com/docs/gitattributes  -
+# -----------------------------------------------
 
-*.rs        text       diff=rust
-*.toml      text       diff=toml
+# For templates, see
+# https://github.com/alexkaratarakis/gitattributes
 
-*.png       -text
-*.ico       -text
+# -----------------------------------------------
+# ----  General  --------------------------------
+# -----------------------------------------------
+
+*        text=auto
+
+*.png   -text
+*.ico   -text
+
+# -----------------------------------------------
+# ----  Rust  -----------------------------------
+# -----------------------------------------------
+
+*.rs     text    diff=rust
+*.toml   text    diff=toml
+*.asm    text    diff=asm
+*.S      text    diff=asm
+
+# -----------------------------------------------
+# ----  Documents  ------------------------------
+# -----------------------------------------------
+
+*.md     text    diff=markdown
+*.tex    text    diff=tex
+*.txt    text
