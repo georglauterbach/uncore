@@ -12,7 +12,9 @@ function build_kernel
 {
   notify 'inf' "Compiling kernel for target '${BUILD_TARGET}'"
 
-  if ! cargo build --target "${BUILD_TARGET}" "${KERNEL_BUILD_FLAGS[@]}"
+  if ! cargo build                  \
+    --target "${BUILD_TARGET_PATH}" \
+    "${KERNEL_BUILD_FLAGS[@]}"
   then
     notify 'err' 'Could not compile kernel'
     exit 1

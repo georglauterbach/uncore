@@ -11,7 +11,7 @@ SCRIPT='tests'
 function check_kernel
 {
   notify 'inf' "Running 'cargo check'"
-  cargo check --target "${BUILD_TARGET}" "${KERNEL_BUILD_FLAGS[@]}"
+  cargo check --target "${BUILD_TARGET_PATH}" "${KERNEL_BUILD_FLAGS[@]}"
 
   notify 'inf' "Running formatting and clippy checks"
   cargo fmt --all --message-format human -- --check
@@ -25,7 +25,7 @@ function test_kernel
   declare -a COMMAND
   COMMAND=(
     'cargo' 'test'
-    '--target' "${BUILD_TARGET}"
+    '--target' "${BUILD_TARGET_PATH}"
     "${KERNEL_BUILD_FLAGS[@]}"
   )
 
