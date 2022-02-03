@@ -18,6 +18,14 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
+// Lint target for code documentation. This lint enforces code
+// documentation on every code item.
+#![deny(missing_docs)]
+#![deny(clippy::missing_docs_in_private_items)]
+
+//! # Kernel Panic Test
+//!
+//! Checks whether the panic handler works as expected.
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
@@ -27,23 +35,13 @@ use kernel::{
 	prelude::*,
 };
 
-#[no_mangle]
-pub extern "C" fn efi_main(
-	uefi_image_handle: uefi::Handle,
-	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
-) -> !
+bootloader::entry_point!(kernel_test_main);
+
+fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 {
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	let (uefi_system_table_runtime, uefi_memory_map) =
-		library::boot::exit_boot_services(uefi_image_handle, uefi_system_table_boot);
-
-	kernel_main(uefi_system_table_runtime, uefi_memory_map)
-}
-
-fn kernel_main(_: library::boot::UEFISystemTableRunTime, _: library::boot::UEFIMemoryMap) -> !
-{
 	log_info!("This is the 'should_panic' test");
 
 	this_test_should_panic();

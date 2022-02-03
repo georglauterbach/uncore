@@ -18,6 +18,10 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
+// Lint target for code documentation. This lint enforces code
+// documentation on every code item.
+#![deny(missing_docs)]
+#![deny(clippy::missing_docs_in_private_items)]
 // Use custom test runners. Since we cannot use the standard
 // library, we have to use our own test framework.
 #![feature(custom_test_frameworks)]
@@ -36,34 +40,18 @@ use kernel::{
 	prelude::*,
 };
 
-#[no_mangle]
-pub extern "C" fn efi_main(
-	uefi_image_handle: uefi::Handle,
-	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
-) -> !
+bootloader::entry_point!(kernel_test_main);
+
+fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 {
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	let (uefi_system_table_runtime, uefi_memory_map) =
-		library::boot::exit_boot_services(uefi_image_handle, uefi_system_table_boot);
-
-	kernel_main(uefi_system_table_runtime, uefi_memory_map)
-}
-
-fn kernel_main(
-	uefi_system_table_runtime: library::boot::UEFISystemTableRunTime,
-	uefi_memory_map: library::boot::UEFIMemoryMap,
-) -> !
-{
 	log_info!("This is the 'basic_boot' test");
 
 	library::architectures::initialize();
-	library::memory::initialize(uefi_memory_map);
-	library::boot::post_boot_setup(uefi_system_table_runtime);
 
 	__test_runner();
-
 	never_return()
 }
 
