@@ -8,7 +8,7 @@ We support the latest version of our kernel modules and the kernel with security
 
 ## Checks
 
-For every pull requests, and on schedule (every Saturday), a GitHub workflow under [`.github/workflows/security.yml`](.github/workflows/security.yml) called "Security Audit" is run. This workflow will check for any security vulnerabilities introduced by crates used in this project.
+For every pull requests, and on schedule (every Saturday), a GitHub workflow under [`.github/workflows/security.yml`][code::security-workflow] called "Security Audit" is run. This workflow will check for any security vulnerabilities introduced by crates used in this project.
 
 ## Reporting a Vulnerability
 
@@ -32,4 +32,5 @@ We urge you not to disclose the bug publicly at least until we've had a reasonab
 
 [//]: # (Links)
 
+[code::security-workflow]: https://github.com/georglauterbach/uncore/blob/master/.github/workflows/security.yml
 [responsible disclosure]: https://en.wikipedia.org/wiki/Responsible_disclosure

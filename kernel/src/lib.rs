@@ -74,9 +74,11 @@ pub mod library;
 /// `kernel::` in case of `main.rs`).
 pub use library::prelude;
 
+#[cfg(target_arch = "x86_64")]
 #[cfg(test)]
 bootloader::entry_point!(kernel_main);
 
+#[cfg(target_arch = "x86_64")]
 #[cfg(test)]
 fn kernel_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 {

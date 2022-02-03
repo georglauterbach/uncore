@@ -2,7 +2,7 @@
 
 ## Architecture
 
-The bootstrapping process of _unCORE_ is explained in detail in the [bootstrapping documentation page][docs-bootstrapping]. As we compile against UEFI targets, the entrypoint for our kernel is `#!rust fn efi_main()`, which calls `#!rust fn main()` in the end. There is no magic involved with this kernel - except for code clarity and code quality, of course - _unCORE_ also puts on its trousers one leg at a time. You should be able to navigate the code base quite easily - on the one hand because it is not too large, on the other hand because the code documentation for items allows you to jump through the code of you have a proper IDE setup.
+The bootstrapping process of _unCORE_ is explained in detail in the [bootstrapping documentation page][docs::bootstrapping]. As we compile against UEFI targets, the entrypoint for our kernel is `#!rust fn efi_main()`, which calls `#!rust fn main()` in the end. There is no magic involved with this kernel - except for code clarity and code quality, of course - _unCORE_ also puts on its trousers one leg at a time. You should be able to navigate the code base quite easily - on the one hand because it is not too large, on the other hand because the code documentation for items allows you to jump through the code of you have a proper IDE setup.
 
 ## Modules
 
@@ -33,7 +33,7 @@ The `memory` module provides main memory management functionality. It is a kerne
 
 [//]: # (Links)
 
-[docs-bootstrapping]: ./architecture/bootstrapping.md
+[docs::bootstrapping]: ./bootstrapping.md
 
 [Hardware Abstraction Layer]: https://en.wikipedia.org/wiki/Hardware_abstraction
 [Rust]: https://www.rust-lang.org/

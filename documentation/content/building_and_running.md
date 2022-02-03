@@ -18,7 +18,7 @@ The kernel is compiled against special UEFI targets - these are
 To get an overview of all targets, you may visit [the `rustc` target specification page on GitHub][rustc-target-specification].
 
 !!! danger "`.cargo/config.toml` And Its Fallacies"
-    Note that we use a `kernel/.cargo/config.toml` file. Using this file generally messes with the defaults for build and run targets and this may lead to very unpleasant outputs. You will therefore, and of course, for convenience, use the scripts under `scripts/` or [Just] to build, run and test your code. A `runner` target has been provided to enable testing. More on this is explained on the [Testing][docs-testing] page.
+    Note that we use a `kernel/.cargo/config.toml` file. Using this file generally messes with the defaults for build and run targets and this may lead to very unpleasant outputs. You will therefore, and of course, for convenience, use the scripts under `scripts/` or [Just] to build, run and test your code. A `runner` target has been provided to enable testing. More on this is explained on the [Testing][docs::testing] page.
 
 First of all, if you're using [Just], make yourself familiar with all recipes by running `#!bash just help`. The kernel itself is compiled by running
 
@@ -75,7 +75,7 @@ Running these commands in your terminal will not open a new window unless you sp
 
 [//]: # (Links)
 
-[docs-testing]: ./testing.md
+[docs::testing]: ./testing.md
 
 [Rust]: https://www.rust-lang.org/
 [Just]: https://github.com/casey/just
