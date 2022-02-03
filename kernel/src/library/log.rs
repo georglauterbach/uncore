@@ -19,7 +19,7 @@ pub static LOGGER: KernelLogger = KernelLogger {
 pub struct KernelLogger
 {
 	/// We use the QEMU `debugcon` feature to log to a file
-	/// located under `build/qemu/debugcon.txt`.
+	/// located under `out/qemu/debugcon.txt`.
 	qemu_debug_logger:         qemu::Logger,
 	/// Indicates whether QEMU's `debugcon` feature should be
 	/// enabled.
@@ -169,8 +169,7 @@ mod serial
 			use ::core::fmt::Write;
 
 			x86_64::instructions::interrupts::without_interrupts(|| {
-				SERIAL0
-					.lock()
+				SERIAL0.lock()
 					.write_fmt(arguments)
 					.expect("Printing to serial failed");
 			});

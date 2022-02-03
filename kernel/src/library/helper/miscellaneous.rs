@@ -7,13 +7,13 @@
 ///
 /// 1. The hardware architecture                        aarch64
 /// 2. The vendor (manufacturer) (optional)             unknown
-/// 3. Operating system                                 uefi
+/// 3. Operating system                                 uncore
 /// 4. ABI (optional, omitted in our case)
 ///
 /// The target triple reads as `ARCH-VENDOR-SYS-ABI` and you can read
 /// about it [here](https://docs.rust-embedded.org/embedonomicon/custom-target.html).
 ///
-/// The default case for `unCORE` is `x86_64-unknown-none`. This
+/// The default case for `unCORE` is `x86_64-unknown-uncore`. This
 /// target is for freestanding / bare-metal `x86-64` binaries in ELF
 /// format, i.e. firmware, kernels, etc.
 const BUILD_TARGET: Option<&str> = option_env!("BUILD_TARGET");
@@ -64,13 +64,13 @@ impl KernelInformation
 	pub fn get_build_target() -> &'static str
 	{
 		#[cfg(target_arch = "aarch64")]
-		let target_triple = "aarch64-unknown-uefi";
+		let target_triple = "aarch64-unknown-uncore";
 
 		#[cfg(target_arch = "i686")]
-		let target_triple = "i686-unknown-uefi";
+		let target_triple = "i686-unknown-uncore";
 
 		#[cfg(target_arch = "x86_64")]
-		let target_triple = "x86_64-unknown-uefi";
+		let target_triple = "x86_64-unknown-uncore";
 
 		BUILD_TARGET.unwrap_or(target_triple)
 	}
@@ -81,7 +81,10 @@ impl KernelInformation
 	/// corresponding environment variable was present, otherwise
 	/// returns "unknown".
 	#[must_use]
-	pub fn get_compilation_date_and_time() -> &'static str { COMPILATION_DATE_AND_TIME.unwrap_or("unknown") }
+	pub fn get_compilation_date_and_time() -> &'static str
+	{
+		COMPILATION_DATE_AND_TIME.unwrap_or("unknown")
+	}
 
 	/// ### Kernel Version
 	///
