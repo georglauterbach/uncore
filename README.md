@@ -26,7 +26,7 @@ $ pwd
 /uncore
 $ ./scripts/install_tools.sh
 [   INF   ]                     tools@bash | 'rustup' is installed
-[ SUCCESS ]                     tools@bash | Your Rust installation is complete
+[   INF   ]                     tools@bash | Your Rust installation is complete
 ...
 ```
 

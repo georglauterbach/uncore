@@ -9,7 +9,34 @@ source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh"
 source scripts/lib/cri.sh
 SCRIPT='linting'
 
+# shellcheck disable=SC2154
+
 # -->                   -->                   --> START
+
+function lint_editorconfig
+{
+  local VERSION IMAGE
+  VERSION=latest
+  IMAGE="docker.io/mstruebing/editorconfig-checker:${VERSION}"
+
+  notify 'deb' "Running EditorConfig lint (${VERSION})"
+
+  if "${CRI}" run \
+    --rm \
+    --cap-drop=ALL \
+    --user=999 \
+    --volume "${ROOT_DIRECTORY}:/ci:ro" \
+    --workdir "/ci" \
+    "${IMAGE}" ec \
+      -config "/ci/.github/linters/.ecrc"
+  then
+    notify 'inf' 'EditorConfig lint succeeded'
+    return 0
+  else
+    notify 'err' 'EditorConfig lint reported problems'
+    return 1
+  fi
+}
 
 function lint_shellcheck
 {  
@@ -33,10 +60,10 @@ function lint_shellcheck
     "--source-path=${ROOT_DIRECTORY}"
   )
 
-  notify 'inf' "Running ShellCheck (${TAG})"
+  notify 'deb' "Running ShellCheck (${TAG})"
 
   # shellcheck disable=SC2154
-  if ${CRI} run \
+  if "${CRI}" run \
     --rm \
     --cap-drop=ALL \
     --user=999 \
@@ -54,42 +81,31 @@ function lint_shellcheck
   fi
 }
 
-function lint_github_super_linter
+function lint_yamllint
 {
-  local TAG IMAGE
+  local VERSION IMAGE
+  VERSION=1.26-0.9
+  IMAGE="docker.io/cytopia/yamllint:${VERSION}"
 
-  TAG='slim-v4.8.5'
-  # TAG='slim-latest'
-  IMAGE="ghcr.io/github/super-linter:${TAG}"
+  notify 'deb' "Running YAMLLint (${VERSION})"
 
-  notify 'inf' "Running GitHub Super Linter (${TAG})"
-
-  if ${CRI} run \
-    -e RUN_LOCAL=true \
-    -e LOG_LEVEL=ERROR \
-    -e SUPPRESS_POSSUM=true \
-    -e VALIDATE_ALL_CODEBASE=true \
-    -e IGNORE_GITIGNORED_FILES=true \
-    -e ERROR_ON_MISSING_EXEC_BIT=true \
-    -e VALIDATE_JSCPD_ALL_CODEBASE=false \
-    -e VALIDATE_BASH=true \
-    -e VALIDATE_BASH_EXEC=true \
-    -e VALIDATE_EDITORCONFIG=true \
-    -e VALIDATE_GITHUB_ACTIONS=true \
-    -e VALIDATE_JSCPD=true \
-    -e VALIDATE_JSON=true \
-    -e VALIDATE_MARKDOWN=true \
-    -e VALIDATE_YAML=true \
-    --volume "$(pwd):/uncore:ro" \
-    --workdir "/uncore" \
-    -e DEFAULT_WORKSPACE=/uncore \
-    -e LOG_FILE=../../dev/null \
-    "${IMAGE}" >/dev/null
+  if "${CRI}" run \
+    --rm \
+    --cap-drop=ALL \
+    --user=999 \
+    --volume "${ROOT_DIRECTORY}/.github:/data/.github" \
+    --volume "${ROOT_DIRECTORY}/documentation:/data/documentation" \
+    --volume "${ROOT_DIRECTORY}/scripts:/data/scripts" \
+    "${IMAGE}" \
+      --strict \
+      --config-file "/data/.github/linters/.yaml-lint.yml" \
+      --format colored \
+      -- .
   then
-    notify 'inf' 'GitHub Super Linter succeeded'
+    notify 'inf' 'YAMLLint succeeded'
     return 0
   else
-    notify 'err' 'GitHub Super Linte reported problems'
+    notify 'err' 'YAMLLint reported problems'
     return 1
   fi
 }
@@ -107,8 +123,9 @@ OPTIONS
     --help                     Show this help message
 
 ACTIONS
-    shellcheck | sc            Run the ShellCheck linter
-    github-super-linter | gsl  Run the GitHub Super Linter
+    editorcinfig | ec          Run the EditorConfig linter
+    shellcheck   | sc          Run the ShellCheck linter
+    yamllint     | yl          Run the YAMLLint linter
 
 EOM
 }
@@ -128,21 +145,27 @@ function main
         exit 0
         ;;
 
+      ( 'editorconfig' | 'ec' )
+        lint_editorconfig || ERROR_OCCURRED=true
+        ;;
+
       ( 'shellcheck' | 'sc' )
         lint_shellcheck || ERROR_OCCURRED=true
         ;;
-      
-      ( 'github-super-linter' | 'gsl' )
-        lint_github_super_linter || ERROR_OCCURRED=true
+
+      ( 'yamllint' | 'yl' )
+        lint_yamllint || ERROR_OCCURRED=true
         ;;
-      
+
       ( * )
         notify 'err' "'${1}' is not a valid linter ('sh' or 'gsl' are valid)"
         exit 1
         ;;
     esac
   else
-    lint_github_super_linter || ERROR_OCCURRED=true
+    lint_editorconfig || ERROR_OCCURRED=true
+    lint_shellcheck || ERROR_OCCURRED=true
+    lint_yamllint || ERROR_OCCURRED=true
   fi
 
   if ${ERROR_OCCURRED}
