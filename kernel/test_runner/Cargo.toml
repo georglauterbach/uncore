@@ -6,30 +6,25 @@ workspace = "../"
 
 authors = ["The unCORE Kernel Community"]
 description = "unCORE Bootimage Creation"
-documentation = "../../documentation/"
+documentation = "https://georglauterbach.github.io/uncore/edge/"
 license = "GPL-3.0"
 readme = "../../README.md"
 
-homepage = "https://uncore-kernel.org"
+homepage = "https://github.com/georglauterbach/uncore"
 repository = "https://github.com/georglauterbach/uncore"
 
 keywords = [
   "operating-system",
   "os",
   "kernel",
-  "bootimage",
-  "creation",
-]
-
-categories = [
-  "no-std",
-  "config"
+  "tests",
+  "test-runner",
 ]
 
 publish = false
 
 [dependencies]
-ansi_rgb = "0.2.0"
+workspace_helper = { path = "../workspace_helper/", version = "*" }
+
 log = "0.4.14"
-rgb = "0.8.31"
 runner-utils = "0.0.2"

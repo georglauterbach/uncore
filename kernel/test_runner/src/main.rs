@@ -30,19 +30,16 @@
 //! seamlessly. This test runner should only be invoked by the script
 //! `test_kernel.sh` under `scripts/`.
 
-// ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
+// ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS / VARIABLES
 // ? ---------------------------------------------------------------------
-
-/// ## Provides Logging Functionality
-///
-/// A shameless copy of the kernel logging implementation.
-mod logger;
 
 use std::{
 	path,
 	process,
 	time,
 };
+
+use workspace_helper::logger;
 
 /// ### Compile Time Constant for Repository Root
 ///
@@ -91,6 +88,17 @@ fn main()
 		process::exit(1);
 	}
 
+	let kernel_test_binary_name = kernel_test_binary_path.file_name().map_or_else(
+		|| {
+			log::error!("Could not acquire kernel test binary file name");
+			process::exit(1);
+		},
+		|name| {
+			name.to_str()
+				.expect("String conversion for kernel test binary name failed")
+		},
+	);
+
 	let root_directory = ROOT_DIRECTORY.map_or_else(
 		|| {
 			if let Ok(handle) = process::Command::new("pwd").output() {
@@ -108,22 +116,66 @@ fn main()
 		String::from,
 	);
 
+	link_with_bootloader(
+		&root_directory,
+		&kernel_test_binary_path_string,
+		kernel_test_binary_name,
+	);
+	run_test(&root_directory);
+}
+
+/// ### Build a Bootable Test Binary
+///
+/// The kernel test binary needs to be linked with the bootloader before we can execute it
+/// in QEMU.
+fn link_with_bootloader(
+	root_directory: &str,
+	kernel_test_binary_path_string: &str,
+	kernel_test_binary_name: &str,
+)
+{
+	let mut boot_build_command = process::Command::new(env!("CARGO"));
+	boot_build_command.current_dir(root_directory.to_string() + "/kernel/");
+	boot_build_command
+		.arg("run")
+		.arg("--package")
+		.arg("boot")
+		.arg("--quiet")
+		.arg("--");
+	boot_build_command
+		.arg("--test")
+		.arg(kernel_test_binary_path_string);
+	if boot_build_command.status().is_err() {
+		log::error!("Could not link the kernel test binary to the bootloader");
+		process::exit(1);
+	}
+
 	if process::Command::new("cp")
-		.current_dir(root_directory.clone())
-		.arg(kernel_test_binary_path_string)
-		.arg("kernel/build/tests/kernel/EFI/BOOT/BOOTX64.EFI")
+		.current_dir(root_directory)
+		.arg(root_directory.to_string()
+			+ "/kernel/out/tests/boot_output/boot-uefi-"
+			+ kernel_test_binary_name
+			+ ".efi")
+		.arg("kernel/out/tests/kernel/EFI/BOOT/BOOTX64.EFI")
 		.status()
 		.is_err()
 	{
 		log::error!("Could not copy binary to test location");
 		process::exit(1);
 	}
+}
 
+/// ### Run the Actual Tests
+///
+/// This function runs the test binary in QEMU properly by calling the `run_in_qemu.sh`
+/// script with the correct environment and with proper timeout.
+fn run_test(root_directory: &str)
+{
 	let mut run_command = process::Command::new("bash");
 	run_command
 		.current_dir(root_directory)
 		.arg("scripts/run_in_qemu.sh")
-		.env("QEMU_DIRECTORY", "build/tests");
+		.env("QEMU_DIRECTORY", "out/tests");
 
 	match runner_utils::run_with_timeout(&mut run_command, time::Duration::from_secs(TIMEOUT)) {
 		Ok(exit_code) => match exit_code.code() {
