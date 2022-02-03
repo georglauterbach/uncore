@@ -9,7 +9,7 @@
 ///
 /// The `interrupt_stack_table` is a field in the Task State Segment
 /// (TSS) struct. It can be used to switch kernel stacks.
-pub const DOUBLE_FAULT_IST_INDEX: u16 = 1;
+const DOUBLE_FAULT_IST_INDEX: u16 = 0;
 
 /// ### Generic Stacks
 ///
@@ -52,7 +52,7 @@ pub(super) mod gdt
 	///
 	/// The size of the stack used during the CPU double fault
 	/// exception.
-	const DOUBLE_FAULT_STACK_SIZE: usize = 0x20000;
+	const DOUBLE_FAULT_STACK_SIZE: usize = 0x1000 * 5;
 
 	lazy_static::lazy_static! {
 
