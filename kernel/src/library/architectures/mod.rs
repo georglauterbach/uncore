@@ -34,6 +34,8 @@ mod _i686;
 #[cfg(target_arch = "x86_64")]
 mod _x86_64;
 
+pub use _x86_64::kernel_main;
+
 // ? EXPORTED FUNCTIONS
 // ? ---------------------------------------------------------------------
 
