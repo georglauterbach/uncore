@@ -25,7 +25,7 @@ First of all, if you're using [Just], make yourself familiar with all recipes by
 ``` CONSOLE
 $ pwd
 /uncore/kernel
-$ cargo build --target build/targets/x86_64-unknown-none.json -Z build-std=core,compiler_builtins -Z build-std-features=compiler-builtins-mem
+$ cargo build --target .cargo/targets/x86_64-unknown-uncore.json -Z build-std=core,compiler_builtins -Z build-std-features=compiler-builtins-mem
     Compiling kernel v0.1.0 (/uncore/kernel)
     Building [=======================>   ] 20/22: kernel
     ...

@@ -23,7 +23,7 @@ documentation/site
 # ----  Kernel ----------------------------------
 # -----------------------------------------------
 
-kernel/build/
+kernel/out/
 kernel/target/
 
 kernel/**/Cargo.lock

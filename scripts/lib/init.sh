@@ -50,6 +50,7 @@ function setup_kernel_environment
   declare -g -a KERNEL_BUILD_FLAGS
 
   BUILD_TARGET='x86_64-unknown-uefi'
+  BUILD_TARGET_PATH="${ROOT_DIRECTORY}/kernel/.cargo/targets/${BUILD_TARGET}.json"
   COMPILATION_DATE_AND_TIME="$(date +'%H:%M, %d %b %Y')"
   GIT_REVISION_HEAD="$(git rev-parse --short HEAD)"
   KERNEL_VERSION="$(grep -m 1 'version*' Cargo.toml | cut -d '"' -f 2)"
@@ -59,9 +60,13 @@ function setup_kernel_environment
   KERNEL_BUILD_FLAGS+=('build-std=core,compiler_builtins,alloc')
   KERNEL_BUILD_FLAGS+=('-Z')
   KERNEL_BUILD_FLAGS+=('build-std-features=compiler-builtins-mem')
-  QEMU_KERNEL_BINARY='build/qemu/kernel/EFI/BOOT/BOOTX64.EFI'
+  QEMU_KERNEL_BINARY='out/qemu/kernel/EFI/BOOT/BOOTX64.EFI'
 
-  mkdir -p build/qemu/kernel/EFI/BOOT/ build/tests/kernel/EFI/BOOT/
+  mkdir -p                     \
+    out/qemu/kernel/EFI/BOOT/  \
+    out/qemu/boot_output/      \
+    out/tests/kernel/EFI/BOOT/ \
+    out/tests/boot_output/
 
   RUST_DEFAULT_TARGET="$(rustc -Vv | grep 'host:' | cut -d ' ' -f 2)"
   RUSTC_VERSION="$(rustc --version)" ; RUSTC_VERSION=${RUSTC_VERSION#rustc }
@@ -91,6 +96,7 @@ function set_build_target
 
         BUILD_TARGET="${1}-unknown-uefi"
         KERNEL_BINARY="target/${BUILD_TARGET}/debug/kernel.efi"
+        BUILD_TARGET_PATH="${ROOT_DIRECTORY}/kernel/.cargo/targets/${BUILD_TARGET}.json"
 
         return 0
     fi

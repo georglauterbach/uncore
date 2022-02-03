@@ -59,7 +59,7 @@ run *arguments: (build arguments)
 # remove the kernel/target/ directory
 @clean:
 	cd {{KERNEL_DIRECTORY}} && {{CARGO}} clean
-	cd {{KERNEL_DIRECTORY}}/build/ && rm -rf qemu tests
+	rm -r {{KERNEL_DIRECTORY}}/out/
 
 # run tests workspace members
 @test *arguments:
