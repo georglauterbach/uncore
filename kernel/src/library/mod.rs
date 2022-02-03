@@ -11,13 +11,6 @@
 /// - virtual memory initialization code
 pub mod architectures;
 
-/// ## Boot Code
-///
-/// This module holds boot code concerning multiboot2 and UEFI. The
-/// multiboot2 information structure is parsed and the UEFI boot
-/// services are exited.
-pub mod boot;
-
 /// ## Generic Helper Function
 ///
 /// Holds many of the generic functions re-exported in the `prelude`
