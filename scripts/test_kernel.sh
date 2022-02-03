@@ -16,7 +16,9 @@ function check_kernel
   notify 'inf' "Running formatting and clippy checks"
   cargo fmt --all --message-format human -- --check
   cargo clippy --lib --all-features -- -D warnings
+  cargo clippy --package boot --all-features -- -D warnings
   cargo clippy --package test_runner --all-features -- -D warnings
+  cargo clippy --package workspace_helper --all-features -- -D warnings
 }
 
 function test_kernel
