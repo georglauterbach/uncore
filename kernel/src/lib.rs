@@ -76,21 +76,26 @@ pub use library::prelude;
 
 #[cfg(target_arch = "x86_64")]
 #[cfg(test)]
-bootloader::entry_point!(kernel_main);
+bootloader::entry_point!(library::architectures::kernel_main);
 
-#[cfg(target_arch = "x86_64")]
-#[cfg(test)]
-fn kernel_main(_boot_information: &'static mut bootloader::BootInfo) -> !
+/// ### Kernel Main Function
+///
+/// This is the architecture-independent main function which handles kernel setup.
+pub fn kernel_main(_boot_information: &library::prelude::boot::Information) -> !
 {
 	use library::prelude::*;
 
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
+	#[cfg(test)]
 	log_info!("Running unit-tests of 'lib.rs'");
-	library::architectures::initialize();
 
-	__test_runner();
+	library::architectures::initialize();
+	// library::memory::initialize(uefi_memory_map);
+
+	#[cfg(test)]
+	crate::__test_runner();
 
 	qemu::exit_with_success();
 	never_return()

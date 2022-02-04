@@ -38,11 +38,12 @@ pub fn kernel_main(boot_information: &'static mut bootloader::BootInfo) -> !
 /// ### Architecture Initialization Routine
 ///
 /// This function takes care of the correct initialization of the x86 64Bit architecture.
-pub fn initialize()
+pub(super) fn initialize()
 {
 	crate::prelude::log_trace!("Initializing x86_64");
 	cpu::initialize();
 }
+
 impl From<&'static mut bootloader::BootInfo> for boot::Information
 {
 	fn from(boot_information: &'static mut bootloader::BootInfo) -> Self
