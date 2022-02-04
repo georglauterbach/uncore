@@ -13,9 +13,10 @@ use crate::prelude::*;
 #[inline]
 fn __default_panic(_panic_info: &PanicInfo) -> !
 {
-	log_error!("Last test did not finish. FAILURE.");
 	log_error!("Received panic");
+	log_error!("Last test did not finish (successfully). FAILURE.");
 
+	qemu::exit_with_failure();
 	never_return()
 }
 

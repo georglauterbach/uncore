@@ -304,3 +304,27 @@ pub mod kernel_types
 		}
 	}
 }
+
+/// ## Boot-Information Abstraction
+///
+/// Provides a type that abstracts over boot information provided by bootloaders using
+/// conditional compilation.
+pub mod boot
+{
+	/// ### Boot Time Information
+	///
+	/// Represents the information provided by the bootloader for individual
+	/// architectures.
+	pub enum Information
+	{
+		/// The `x86_64` (`x86` 64 Bit) boot information
+		#[cfg(target_arch = "x86_64")]
+		X86_64(&'static mut bootloader::BootInfo),
+		// The `i686` (`x86` 32 Bit) boot information
+		#[cfg(target_arch = "i686")]
+		I686,
+		// The `aarch64` (ARM 64 Bit) boot information
+		#[cfg(target_arch = "aarch64")]
+		Aarch64,
+	}
+}
