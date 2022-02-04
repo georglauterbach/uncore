@@ -3,6 +3,22 @@
 
 pub mod cpu;
 
+use crate::library::prelude::*;
+
+/// ### Kernel Main Entrypoint for `aarch64`
+///
+/// This is the kernel's architecture-specific entry point directly called by the
+/// bootloader.
+#[cfg(not(test))]
+pub fn kernel_main() -> ! { crate::kernel_main(&boot::Information::Aarch64) }
+
+/// ### Kernel Main Entrypoint for `aarch64` During Tests
+///
+/// This is the kernel's architecture-specific entry point directly called by the
+/// bootloader during tests.
+#[cfg(test)]
+pub fn kernel_main() -> ! { crate::kernel_main(&boot::Information::Aarch64) }
+
 /// ### Architecture Initialization Routine
 ///
 /// This function takes care of the correct initialization of the ARM 64Bit architecture.

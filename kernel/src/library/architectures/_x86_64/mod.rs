@@ -13,29 +13,26 @@ mod cpu;
 /// `x86_64`.
 mod memory;
 
-use crate::{
-	library,
-	prelude::*,
-};
+use crate::library::prelude::*;
 
 /// ### Kernel Main Entrypoint for `x86_64`
 ///
-/// This is the kernel's entry point directly called by the boot-code
-/// (written in assembly). We're still in the UEFI boot services are
-/// still enabled: it is our job to disable them now.
-pub fn kernel_main(_boot_information: &'static mut bootloader::BootInfo) -> !
+/// This is the kernel's architecture-specific entry point directly called by the
+/// bootloader.
+#[cfg(not(test))]
+pub fn kernel_main(boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	library::log::init(Some(log::Level::Trace));
-	library::log::display_initial_information();
+	crate::kernel_main(&boot_information.into())
+}
 
-	#[cfg(test)]
-	crate::__test_runner();
-
-	library::architectures::initialize();
-	// library::memory::initialize(uefi_memory_map);
-
-	qemu::exit_with_success();
-	never_return()
+/// ### Kernel Main Entrypoint for `x86_64` During Tests
+///
+/// This is the kernel's architecture-specific entry point directly called by the
+/// bootloader during tests.
+#[cfg(test)]
+pub fn kernel_main(boot_information: &'static mut bootloader::BootInfo) -> !
+{
+	crate::kernel_main(&boot_information.into())
 }
 
 /// ### Architecture Initialization Routine
@@ -45,4 +42,11 @@ pub fn initialize()
 {
 	crate::prelude::log_trace!("Initializing x86_64");
 	cpu::initialize();
+}
+impl From<&'static mut bootloader::BootInfo> for boot::Information
+{
+	fn from(boot_information: &'static mut bootloader::BootInfo) -> Self
+	{
+		Self::X86_64(boot_information)
+	}
 }
