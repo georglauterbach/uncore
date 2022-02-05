@@ -1,34 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use ::core::panic::PanicInfo;
-
 use crate::prelude::*;
 
-/// ### Panic Handler when Running Tests that Should Not Panic
+/// ### Default Panic Handler
 ///
-/// This function is marked for conditional compilation, and
-/// is used when running the custom tests suite.
-#[cfg(test)]
+/// This is the default panic handler, which uses conditional compilation to be used in
+/// both tests and when running normally.
 #[inline]
-fn __default_panic(_panic_info: &PanicInfo) -> !
+fn default_panic(panic_info: &::core::panic::PanicInfo) -> !
 {
-	log_error!("Received panic");
-	log_error!("Last test did not finish (successfully). FAILURE.");
-
-	qemu::exit_with_failure();
-	never_return()
-}
-
-/// ### Panic Handler when not Running Tests
-///
-/// This function is marked for conditional compilation, and
-/// is used when running the binary natively, i.e. not the
-/// tests.
-#[cfg(not(test))]
-#[inline]
-fn __default_panic(panic_info: &PanicInfo) -> !
-{
+	#[cfg(not(test))]
 	log_error!(
 		"Received panic (reason: {:?}) - aborting",
 		panic_info
@@ -36,8 +18,12 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 			.unwrap_or(&format_args!("no message provided"))
 	);
 
-	qemu::exit_with_failure();
-	never_return()
+	#[cfg(test)]
+	log_error!("Received panic");
+	#[cfg(test)]
+	log_error!("Last test did not finish (successfully). FAILURE.");
+
+	exit_kernel(kernel_types::ExitCode::Failure)
 }
 
 /// ### Panic Handler that Should Panic
@@ -45,12 +31,10 @@ fn __default_panic(panic_info: &PanicInfo) -> !
 /// This function provides a panic handler that should panic and that
 /// will therefore show success.
 #[inline]
-fn __should_panic(_panic_info: &PanicInfo) -> !
+fn should_panic(_panic_info: &::core::panic::PanicInfo) -> !
 {
 	log_info!("Received expected panic - nice");
-
-	qemu::exit_with_success();
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Success)
 }
 
 /// ### Callback Panic Handler
@@ -68,7 +52,7 @@ fn __should_panic(_panic_info: &PanicInfo) -> !
 /// #[panic_handler]
 /// pub fn panic(panic_info: &::core::panic::PanicInfo) -> !
 /// {
-///         kernel::panic_callback(false, panic_info)
+///         kernel::panic::callback(false, panic_info)
 /// }
 /// ```
 ///
@@ -78,16 +62,15 @@ fn __should_panic(_panic_info: &PanicInfo) -> !
 /// #[panic_handler]
 /// pub fn panic(panic_info: &::core::panic::PanicInfo) -> !
 /// {
-///         kernel::panic_callback(true, panic_info)
+///         kernel::panic::callback(true, panic_info)
 /// }
 /// ```
 #[inline]
-#[allow(clippy::module_name_repetitions)]
-pub fn panic_callback(should_panic: bool, panic_info: &PanicInfo) -> !
+pub fn callback(callback_should_panic: bool, panic_info: &::core::panic::PanicInfo) -> !
 {
-	if should_panic {
-		__should_panic(panic_info);
+	if callback_should_panic {
+		should_panic(panic_info);
 	} else {
-		__default_panic(panic_info);
+		default_panic(panic_info);
 	}
 }
