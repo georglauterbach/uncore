@@ -63,7 +63,7 @@ bootloader::entry_point!(kernel::library::architectures::kernel_main);
 /// on whether you are running tests or not, writes an exit code and
 /// does not return afterwards. Note that we do not unwind the stack.
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { kernel::prelude::panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { kernel::prelude::panic::callback(false, panic_info) }
 
 /// ### Sanity Check
 ///

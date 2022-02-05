@@ -97,7 +97,7 @@ fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(false, panic_info) }
 ```
 
 Note that this procedure does currently _not_ use conditional compilation for different architectures. Instead, the tests are run against `x86_64` and against `x86_64` only.

@@ -8,6 +8,7 @@ pub use super::helper::test;
 pub use super::helper::miscellaneous::kernel_types;
 pub use super::helper::miscellaneous::qemu;
 pub use super::helper::miscellaneous::boot;
+pub use super::helper::panic;
 
 // * STRUCTURES
 // * ---------------------------------------------------------------------

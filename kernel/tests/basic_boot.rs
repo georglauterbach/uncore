@@ -56,7 +56,7 @@ fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(false, panic_info) }
 
 #[test_case]
 fn test_println()

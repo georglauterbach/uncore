@@ -108,4 +108,4 @@ pub fn kernel_main(_boot_information: &library::prelude::boot::Information) -> !
 /// does not return afterwards. Note that we do not unwind the stack.
 #[cfg(test)]
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::prelude::panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::prelude::panic::callback(false, panic_info) }

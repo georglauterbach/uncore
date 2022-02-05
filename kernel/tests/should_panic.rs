@@ -58,4 +58,4 @@ fn this_test_should_panic()
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(true, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(true, panic_info) }
