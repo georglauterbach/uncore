@@ -12,21 +12,37 @@ function build_kernel
 {
   notify 'inf' "Compiling kernel for target '${BUILD_TARGET}'"
 
-  if ! cargo build --target "${BUILD_TARGET}" "${KERNEL_BUILD_FLAGS[@]}"
+  if ! cargo build                  \
+    --target "${BUILD_TARGET_PATH}" \
+    "${KERNEL_BUILD_FLAGS[@]}"
   then
     notify 'err' 'Could not compile kernel'
     exit 1
   fi
 
   notify 'inf' 'Finished building the kernel'
-  notify 'deb' "Copying kernel binary to '${QEMU_KERNEL_BINARY}'"
+  notify 'inf' "Linking kernel with bootloader now"
 
-  # https://stackoverflow.com/a/55409182
-  if ! cp "${KERNEL_BINARY}" "${QEMU_KERNEL_BINARY}"
+  if ! cargo run --package boot --quiet
   then
-    notify 'err' "Could not copy kernel binary '${KERNEL_BINARY}'"
+    notify 'err' 'Could not link the kernel with the bootloader'
     exit 1
   fi
+
+  notify 'deb' "Finished linking kernel with bootloader"
+  notify 'deb' "Copying kernel binary to '${QEMU_KERNEL_BINARY}'"
+
+  local BOOTLOADER_BUILD_OUTPUT
+  BOOTLOADER_BUILD_OUTPUT="${ROOT_DIRECTORY}/kernel/out/qemu/boot_output/boot-uefi-kernel.efi"
+
+  # https://stackoverflow.com/a/55409182
+  if ! cp "${BOOTLOADER_BUILD_OUTPUT}" "${QEMU_KERNEL_BINARY}"
+  then
+    notify 'err' "Could not copy bootloader build output '${BOOTLOADER_BUILD_OUTPUT}'"
+    exit 1
+  fi
+
+  notify 'inf' 'Created bootable kernel image(s)'
 }
 
 function usage

@@ -13,7 +13,7 @@ function run
   declare -a QEMU_ARGUMENTS
   local EXIT_CODE
 
-  QEMU_ARGUMENTS+=('-nodefaults')
+  # QEMU_ARGUMENTS+=('-nodefaults')
 
   QEMU_ARGUMENTS+=('-machine')
   QEMU_ARGUMENTS+=('q35,accel=kvm:tcg')
@@ -22,6 +22,8 @@ function run
   QEMU_ARGUMENTS+=('128M')
 
   # set up OVMF
+  # QEMU_ARGUMENTS+=('-bios')
+  # QEMU_ARGUMENTS+=('/usr/share/ovmf/OVMF.fd')
   QEMU_ARGUMENTS+=('-drive')
   QEMU_ARGUMENTS+=('if=pflash,format=raw,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on')
   QEMU_ARGUMENTS+=('-drive')
@@ -33,9 +35,6 @@ function run
   QEMU_ARGUMENTS+=('-debugcon')
   QEMU_ARGUMENTS+=("file:${QEMU_DIRECTORY}/debugcon.txt")
 
-  QEMU_ARGUMENTS+=('-serial')
-  QEMU_ARGUMENTS+=('stdio')
-
   if [[ ${*} == *'graphical'* ]]
   then
     QEMU_ARGUMENTS+=('-vga')
@@ -44,7 +43,9 @@ function run
     QEMU_ARGUMENTS+=('-monitor')
     QEMU_ARGUMENTS+=('vc:1024x768')
   else
-    QEMU_ARGUMENTS+=('-nographic')
+    # QEMU_ARGUMENTS+=('-nographic')
+    QEMU_ARGUMENTS+=('-serial')
+    QEMU_ARGUMENTS+=('stdio')
     QEMU_ARGUMENTS+=('-display')
     QEMU_ARGUMENTS+=('none')
   fi
@@ -119,7 +120,7 @@ function main
   done
   
   export QEMU_DIRECTORY QEMU_VOLUME_DIRECTORY
-  QEMU_DIRECTORY="${QEMU_DIRECTORY:-build/qemu}"
+  QEMU_DIRECTORY="${QEMU_DIRECTORY:-out/qemu}"
   QEMU_VOLUME_DIRECTORY="${QEMU_DIRECTORY}/kernel"
 
   run "${@}" || return ${?}

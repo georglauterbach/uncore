@@ -7,13 +7,13 @@
 ///
 /// 1. The hardware architecture                        aarch64
 /// 2. The vendor (manufacturer) (optional)             unknown
-/// 3. Operating system                                 uefi
+/// 3. Operating system                                 uncore
 /// 4. ABI (optional, omitted in our case)
 ///
 /// The target triple reads as `ARCH-VENDOR-SYS-ABI` and you can read
 /// about it [here](https://docs.rust-embedded.org/embedonomicon/custom-target.html).
 ///
-/// The default case for `unCORE` is `x86_64-unknown-none`. This
+/// The default case for `unCORE` is `x86_64-unknown-uncore`. This
 /// target is for freestanding / bare-metal `x86-64` binaries in ELF
 /// format, i.e. firmware, kernels, etc.
 const BUILD_TARGET: Option<&str> = option_env!("BUILD_TARGET");
@@ -64,13 +64,13 @@ impl KernelInformation
 	pub fn get_build_target() -> &'static str
 	{
 		#[cfg(target_arch = "aarch64")]
-		let target_triple = "aarch64-unknown-uefi";
+		let target_triple = "aarch64-unknown-uncore";
 
 		#[cfg(target_arch = "i686")]
-		let target_triple = "i686-unknown-uefi";
+		let target_triple = "i686-unknown-uncore";
 
 		#[cfg(target_arch = "x86_64")]
-		let target_triple = "x86_64-unknown-uefi";
+		let target_triple = "x86_64-unknown-uncore";
 
 		BUILD_TARGET.unwrap_or(target_triple)
 	}
@@ -81,7 +81,10 @@ impl KernelInformation
 	/// corresponding environment variable was present, otherwise
 	/// returns "unknown".
 	#[must_use]
-	pub fn get_compilation_date_and_time() -> &'static str { COMPILATION_DATE_AND_TIME.unwrap_or("unknown") }
+	pub fn get_compilation_date_and_time() -> &'static str
+	{
+		COMPILATION_DATE_AND_TIME.unwrap_or("unknown")
+	}
 
 	/// ### Kernel Version
 	///
@@ -112,13 +115,6 @@ impl KernelInformation
 /// Contains helpers for running the kernel with QEMU.
 pub mod qemu
 {
-	/// ### Determine Whether We Are Running Inside of QEMU
-	///
-	/// This static variable shows whether we're running inside of
-	/// QEMU. This is used when exiting, as the port `0xF4` is
-	/// only written to if we're inside QEMU.
-	static mut RUNNING_IN_QEMU: bool = true;
-
 	/// ### Write An Exit Code
 	///
 	/// Writes to the `0xF4` port the correct bytes that indicate
@@ -128,7 +124,7 @@ pub mod qemu
 	{
 		use qemu_exit::QEMUExit;
 
-		if !unsafe { RUNNING_IN_QEMU } {
+		if runs_inside_qemu::runs_inside_qemu().is_definitely_not() {
 			return;
 		}
 
@@ -261,6 +257,17 @@ pub mod kernel_types
 	unsafe impl<T> Send for GlobalStaticMut<T> {}
 	unsafe impl<T> Sync for GlobalStaticMut<T> {}
 
+	/// ### Kernel Exit Code
+	///
+	/// Shows whether the kernel exited successfully or not.
+	pub enum ExitCode
+	{
+		/// Exit with success
+		Success,
+		/// Exit with failure
+		Failure,
+	}
+
 	/// ## Kernel Wide Locking Abstraction
 	///
 	/// This module abstracts over a specific locking mechanism to provide unified
@@ -299,5 +306,29 @@ pub mod kernel_types
 			/// (mutable) access to the encapsulated data.
 			pub fn lock(&self) -> spin::MutexGuard<T> { self.data.lock() }
 		}
+	}
+}
+
+/// ## Boot-Information Abstraction
+///
+/// Provides a type that abstracts over boot information provided by bootloaders using
+/// conditional compilation.
+pub mod boot
+{
+	/// ### Boot Time Information
+	///
+	/// Represents the information provided by the bootloader for individual
+	/// architectures.
+	pub enum Information
+	{
+		/// The `x86_64` (`x86` 64 Bit) boot information
+		#[cfg(target_arch = "x86_64")]
+		X86_64(&'static mut bootloader::BootInfo),
+		// The `i686` (`x86` 32 Bit) boot information
+		#[cfg(target_arch = "i686")]
+		I686,
+		// The `aarch64` (ARM 64 Bit) boot information
+		#[cfg(target_arch = "aarch64")]
+		Aarch64,
 	}
 }

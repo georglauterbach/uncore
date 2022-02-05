@@ -18,7 +18,7 @@ fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
 /// ### Initialize a Global Allocator
 ///
 /// Initializes a simple global allocator.
-pub fn initialize()
+pub const fn initialize()
 {
 	// use crate::prelude::*;
 

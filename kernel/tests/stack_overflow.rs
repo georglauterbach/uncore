@@ -18,9 +18,17 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
+// Lint target for code documentation. This lint enforces code
+// documentation on every code item.
+#![deny(missing_docs)]
+#![deny(clippy::missing_docs_in_private_items)]
 // Since the `x86-interrupt` calling convention is still unstable, we
 // have to opt-in.
 #![feature(abi_x86_interrupt)]
+
+//! # Kernel-Stack Overflow Test
+//!
+//! Checks whether the kernel can handle a kernel stack overflow properly.
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
@@ -39,37 +47,26 @@ lazy_static::lazy_static! {
 		unsafe {
 			idt.double_fault
 				.set_handler_fn(test_double_fault_handler)
-				.set_stack_index(1);
+				.set_stack_index(0);
 		}
 
 		idt
 	};
 }
 
-pub extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> !
+extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> !
 {
 	log_info!("Received double fault - nice");
-	qemu::exit_with_success();
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Success)
 }
 
-#[no_mangle]
-pub extern "C" fn efi_main(
-	uefi_image_handle: uefi::Handle,
-	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
-) -> !
+bootloader::entry_point!(kernel_test_main);
+
+fn kernel_test_main(_: &'static mut bootloader::BootInfo) -> !
 {
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	let (uefi_system_table_runtime, uefi_memory_map) =
-		library::boot::exit_boot_services(uefi_image_handle, uefi_system_table_boot);
-
-	kernel_main(uefi_system_table_runtime, uefi_memory_map)
-}
-
-fn kernel_main(_: library::boot::UEFISystemTableRunTime, _: library::boot::UEFIMemoryMap) -> !
-{
 	log_info!("This is the 'stack_overflow' test");
 
 	library::architectures::initialize();
@@ -80,9 +77,7 @@ fn kernel_main(_: library::boot::UEFISystemTableRunTime, _: library::boot::UEFIM
 	stack_overflow();
 
 	log_error!("Execution continued after kernel stack overflow");
-	qemu::exit_with_failure();
-
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Failure)
 }
 
 #[allow(unconditional_recursion)]
@@ -94,4 +89,4 @@ fn stack_overflow()
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(false, panic_info) }

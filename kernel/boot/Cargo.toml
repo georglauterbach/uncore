@@ -1,6 +1,6 @@
 [package]
-name = "test_runner"
-version = "0.2.0"
+name = "boot"
+version = "0.1.0"
 edition = "2021"
 workspace = "../"
 
@@ -17,8 +17,8 @@ keywords = [
   "operating-system",
   "os",
   "kernel",
-  "tests",
-  "test-runner",
+  "bootimage",
+  "creation",
 ]
 
 publish = false
@@ -26,5 +26,6 @@ publish = false
 [dependencies]
 workspace_helper = { path = "../workspace_helper/", version = "*" }
 
+bootloader-locator = "0.0.4"
+clap = { version = "3.0.14", features = ["derive"] }
 log = "0.4.14"
-runner-utils = "0.0.2"

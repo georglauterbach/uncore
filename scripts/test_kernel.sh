@@ -11,12 +11,14 @@ SCRIPT='tests'
 function check_kernel
 {
   notify 'inf' "Running 'cargo check'"
-  cargo check --target "${BUILD_TARGET}" "${KERNEL_BUILD_FLAGS[@]}"
+  cargo check --target "${BUILD_TARGET_PATH}" "${KERNEL_BUILD_FLAGS[@]}"
 
   notify 'inf' "Running formatting and clippy checks"
   cargo fmt --all --message-format human -- --check
   cargo clippy --lib --all-features -- -D warnings
+  cargo clippy --package boot --all-features -- -D warnings
   cargo clippy --package test_runner --all-features -- -D warnings
+  cargo clippy --package workspace_helper --all-features -- -D warnings
 }
 
 function test_kernel
@@ -25,7 +27,7 @@ function test_kernel
   declare -a COMMAND
   COMMAND=(
     'cargo' 'test'
-    '--target' "${BUILD_TARGET}"
+    '--target' "${BUILD_TARGET_PATH}"
     "${KERNEL_BUILD_FLAGS[@]}"
   )
 

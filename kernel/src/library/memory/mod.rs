@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use crate::library;
-
 /// ## Virtual Memory
 ///
 /// This module handles (demand) paging, that is virtual memory, for
@@ -23,23 +21,23 @@ mod kernel_heap_allocator;
 /// 2. a kernel heap allocator
 ///
 /// all while abstracting over all the different architectures.
-pub fn initialize(uefi_memory_map: library::boot::UEFIMemoryMap)
+pub fn initialize()
 {
 	use crate::prelude::*;
 	log_info!("Starting memory initialization");
 
-	virtual_memory::initialize(uefi_memory_map);
+	// virtual_memory::initialize(uefi_memory_map);
 	kernel_heap_allocator::initialize();
 
 	log_error!("Reached an unfinished state here");
 }
 
-#[test_case]
-fn boxing_does_not_panic()
-{
-	use crate::prelude::*;
+// #[test_case]
+// fn boxing_does_not_panic()
+// {
+// 	use crate::prelude::*;
 
-	log_debug!("Trying to box a value");
-	let x = alloc::boxed::Box::new(42);
-	log_debug!("The boxed value reads {:?}", x);
-}
+// 	log_debug!("Trying to box a value");
+// 	let x = alloc::boxed::Box::new(42);
+// 	log_debug!("The boxed value reads {:?}", x);
+// }

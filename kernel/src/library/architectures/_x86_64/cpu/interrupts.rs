@@ -11,6 +11,6 @@ pub(super) fn setup_and_enable()
 	log_debug!("Setting up and enabling interrupts");
 	log_warning!("Interrupts are currently not implemented");
 
-	// crate::log_trace!("Enabling interrupts");
+	// crate::log_debug!("Enabling interrupts");
 	// x86_64::instructions::interrupts::enable();
 }

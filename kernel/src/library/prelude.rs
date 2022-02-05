@@ -4,9 +4,10 @@
 // * MODULES
 // * ---------------------------------------------------------------------
 
-pub use super::helper::test;
+pub use super::helper::miscellaneous::boot;
 pub use super::helper::miscellaneous::kernel_types;
-pub use super::helper::miscellaneous::qemu;
+pub use super::helper::panic;
+pub use super::helper::test;
 
 // * STRUCTURES
 // * ---------------------------------------------------------------------
@@ -25,8 +26,6 @@ pub use log::error as log_error;
 // * FUNCTIONS
 // * ---------------------------------------------------------------------
 
-pub use super::helper::panic::panic_callback;
-
 /// ### The Event Horizon
 ///
 /// This function is just a nice abstraction of the call to `loop
@@ -35,9 +34,19 @@ pub use super::helper::panic::panic_callback;
 ///
 /// We use the `hlt` instruction to "halt" the CPU to not burn through
 /// CPU time, as a call to `loop {}` would do.
-#[inline]
-pub fn never_return() -> !
+#[allow(clippy::needless_pass_by_value)]
+pub fn exit_kernel(exit_code: kernel_types::ExitCode) -> !
 {
+	use super::helper::miscellaneous::{
+		qemu,
+		kernel_types::ExitCode,
+	};
+
+	match exit_code {
+		ExitCode::Failure => qemu::exit_with_failure(),
+		ExitCode::Success => qemu::exit_with_success(),
+	}
+
 	loop {
 		#[cfg(target_arch = "x86_64")]
 		{

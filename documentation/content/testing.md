@@ -4,7 +4,7 @@ _unCORE_ provides unit- and integration-tests. All unit-test are located "inside
 
 ## Unit Tests
 
-All unit tests for the kernel are associated with `lib.rs` and not with `main.rs`. Therefore, only one test runs when testing `main.rs` (a trivial assertion). `main.rs` is tested too when running all tests because it is easier to just use `cargo test --tests` to run all tests instead of running each tests individually.
+Unit tests for the kernel are associated with `lib.rs` and not with `main.rs`. Therefore, only one test runs when testing `main.rs` (a trivial assertion). `main.rs` is tested too when running all tests because it is easier to just use `cargo test --tests` to run all tests instead of running each tests individually.
 
 Unit tests run via the `#!rust #[test_case]` directive above the test:
 
@@ -49,6 +49,10 @@ Integration tests reside under `kernel/tests/`. These test bigger parts of the w
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
+// Lint target for code documentation. This lint enforces code
+// documentation on every code item.
+#![deny(missing_docs)]
+#![deny(clippy::missing_docs_in_private_items)]
 ```
 
 If a test uses a test harness, you'll need to go on with
@@ -77,68 +81,73 @@ use kernel::{
         prelude::*,
 };
 
-#[no_mangle]
-pub extern "C" fn efi_main(
-        uefi_image_handle: uefi::Handle,
-        uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
-) -> !
+bootloader::entry_point!(kernel_test_main);
+
+fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 {
         library::log::init(Some(log::Level::Trace));
         library::log::display_initial_information();
 
-        let (_uefi_system_table_runtime, uefi_memory_map) = library::boot::exit_boot_services(
-                uefi_image_handle,
-                uefi_system_table_boot,
-        );
+        log_info!("This is the '<TEST_NAME>' test");
 
-        kernel_main(uefi_memory_map)
-}
+        ...
 
-fn kernel_main(_: library::boot::UEFIMemoryMap) -> !
-{
-        log_info!("This is the 'TEST_NAME' test");
-    ...
+        __test_runner();
+        never_return()
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(false, panic_info) }
 ```
+
+Note that this procedure does currently _not_ use conditional compilation for different architectures. Instead, the tests are run against `x86_64` and against `x86_64` only.
 
 ## Running Tests
 
-Running kernel tests ist a bit more tricky than you might think. We will need to run them inside QEMU, and on top of that, `cargo` does not (yet) provide a nice interface to list the files it created for the tests.
+When using [Just] you can run
 
-`cargo` creates a new binary for each integration test, i.e. for `main.rs`, for `lib.rs` and so on, and it does not tell us the file names in an easy way. We therefore rely on `kernel/.cargo/config.toml`. We can provide a workspace member (`test_runner`) that will receive the produced binary as an argument. And because this repository has some fine Bash scripts in place, the workspace member is "just" a nice wrapper for running the `scripts/run_in_qemu.sh` script. Note that the wrapper does some very important things like testing for timeouts and checking whether the correct exit code (`0x3` for success) was provided.
-
-The whole test invocation is again wrapped by another script (mostly for convenience but also to provide the `ROOT_DIRECTORY` environment variable), namely `scripts/test_kernel.sh`. The whole "call-stack" looks like this:
-
-``` BASH
-[just test] ──> scripts/test_kernel.sh ─────────┐
-                                                │
-
-                                            cargo test ... # (1)
-
-                                                │
-scripts/run_in_qemu.sh <── kernel/test_runner <─┘
-```
-
-1. This command invokes the next programs multiple times, once for each test executable
-
-This looks overcomplicated, but integrates nicely with existing (shell) code and is currently the easiest approach. When using [Just] you can just run
-
-``` BASH
-# this will run all tests
+``` CONSOLE
+$ # this will run all tests
 $ just test
 [   INF   ]                     tests@bash | Running all unit- and integration tests
 
-# or run a single test
+$ # or run a single test
 $ just test --test basic_boot
 [   INF   ]                     tests@bash | Running integration test 'basic_boot'
 
-# or just the test belonging to `lib.rs` (a.k.a. unit-tests)
+$ # or just the test belonging to `lib.rs` (a.k.a. unit-tests)
 $ just test --test lib
 [   INF   ]                     tests@bash | Running only unit tests
 ```
+
+These calls are wrappers for
+
+``` CONSOLE
+$ pwd
+/uncore
+$ ./scripts/test_kernel.sh [--test <TEST>] test
+```
+
+## How Tests are Implemented
+
+Running kernel tests ist a bit more tricky than you might think. We will need to run them inside QEMU, and on top of that, `cargo` does not (yet) provide a nice interface to list the files it created for the tests. This is where `kernel/.cargo/config.toml` comes in handy.
+
+`cargo` creates a new binary for each integration test, i.e. for `main.rs`, for `lib.rs` and so on, and it does not tell us the file names in an easy way. We therefore rely on `kernel/.cargo/config.toml`. We provide a workspace member (`test_runner`) that will receive the produced binary as an argument. And because this repository has some fine Bash scripts in place, the workspace member is "just" a nice wrapper for running the `scripts/run_in_qemu.sh` script. Note that the wrapper does some very important things like testing for timeouts and checking whether the correct exit code (`0x3` for success) was provided. Moreover, it also handles creating a bootable image first by using the `boot` workspace member too!
+
+The whole test invocation is again wrapped by another script (mostly for convenience but also to provide needed environment variables), namely `scripts/test_kernel.sh`. The whole "call-stack" looks like this:
+
+``` BASH
+[just test] ──> scripts/test_kernel.sh ──> cargo test ... ────┐ # (1)
+                                                              │
+scripts/run_in_qemu.sh <────────────── kernel/test_runner <───┘
+                                        ^               │
+                                        └─ kernel/boot ─┘
+
+```
+
+1. The `cargo test` command invokes the next programs multiple times, once for each test executable
+
+This looks overcomplicated, but integrates nicely with existing (shell) code and is currently the easiest approach.
 
 [//]: # (Links)
 

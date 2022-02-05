@@ -13,11 +13,41 @@ mod cpu;
 /// `x86_64`.
 mod memory;
 
+use crate::library::prelude::*;
+
+/// ### Kernel Main Entrypoint for `x86_64`
+///
+/// This is the kernel's architecture-specific entry point directly called by the
+/// bootloader.
+#[cfg(not(test))]
+pub fn kernel_main(boot_information: &'static mut bootloader::BootInfo) -> !
+{
+	crate::kernel_main(&boot_information.into())
+}
+
+/// ### Kernel Main Entrypoint for `x86_64` During Tests
+///
+/// This is the kernel's architecture-specific entry point directly called by the
+/// bootloader during tests.
+#[cfg(test)]
+pub fn kernel_main(boot_information: &'static mut bootloader::BootInfo) -> !
+{
+	crate::kernel_main(&boot_information.into())
+}
+
 /// ### Architecture Initialization Routine
 ///
 /// This function takes care of the correct initialization of the x86 64Bit architecture.
-pub fn initialize()
+pub(super) fn initialize()
 {
-	crate::prelude::log_trace!("Initializing x86_64");
+	crate::prelude::log_debug!("Initializing x86_64");
 	cpu::initialize();
+}
+
+impl From<&'static mut bootloader::BootInfo> for boot::Information
+{
+	fn from(boot_information: &'static mut bootloader::BootInfo) -> Self
+	{
+		Self::X86_64(boot_information)
+	}
 }
