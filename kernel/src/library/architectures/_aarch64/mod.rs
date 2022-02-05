@@ -3,7 +3,7 @@
 
 pub mod cpu;
 
-use crate::library::prelude::*;
+use crate::prelude::*;
 
 /// ### Kernel Main Entrypoint for `aarch64`
 ///

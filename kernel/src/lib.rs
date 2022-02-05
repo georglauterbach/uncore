@@ -90,7 +90,6 @@ pub fn kernel_main(boot_information: &library::prelude::boot::Information) -> !
 
 	log_trace!("Bootloader information:\n\n{:#?}\n", boot_information);
 
-
 	#[cfg(test)]
 	log_info!("Running unit-tests of 'lib.rs'");
 

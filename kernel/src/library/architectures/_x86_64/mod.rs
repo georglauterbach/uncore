@@ -13,7 +13,7 @@ mod cpu;
 /// `x86_64`.
 mod memory;
 
-use crate::library::prelude::*;
+use crate::prelude::*;
 
 /// ### Kernel Main Entrypoint for `x86_64`
 ///

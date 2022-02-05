@@ -13,7 +13,7 @@ mod virtual_memory;
 /// _only_ used in the kernel for simple tasks.
 mod kernel_heap_allocator;
 
-use crate::library::prelude::*;
+use crate::prelude::*;
 
 /// ### Initialize Kernel Memory
 ///

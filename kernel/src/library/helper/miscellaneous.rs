@@ -110,7 +110,6 @@ impl KernelInformation
 	pub fn get_rustc_version() -> &'static str { RUSTC_VERSION.unwrap_or("unknown") }
 }
 
-
 /// ## Boot-Information Abstraction
 ///
 /// Provides a type that abstracts over boot information provided by bootloaders using
