@@ -197,7 +197,7 @@ pub(super) mod handlers
 		error_code: idt::PageFaultErrorCode,
 	)
 	{
-		log_debug!("CPU exception occurred (type: page fault)");
+		log_trace!("CPU exception occurred (type: page fault)");
 		log_trace!(
 			"page fault information: accessed address = {:?} | error code = {:?}",
 			x86_64::registers::control::Cr2::read(),

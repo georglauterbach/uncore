@@ -24,6 +24,6 @@ pub fn kernel_main() -> ! { crate::kernel_main(&boot::Information::Aarch64) }
 /// This function takes care of the correct initialization of the ARM 64Bit architecture.
 pub(super) fn initialize()
 {
-	crate::prelude::log_trace!("Initializing aarch64");
+	crate::prelude::log_debug!("Initializing aarch64");
 	cpu::initialize();
 }

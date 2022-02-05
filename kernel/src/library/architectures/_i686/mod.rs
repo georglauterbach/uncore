@@ -24,6 +24,6 @@ pub fn kernel_main() -> ! { crate::kernel_main(&boot::Information::I686) }
 /// This function takes care of the correct initialization of the x86 32Bit architecture.
 pub(super) fn initialize()
 {
-	crate::prelude::log_trace!("Initializing i686");
+	crate::prelude::log_debug!("Initializing i686");
 	cpu::initialize();
 }

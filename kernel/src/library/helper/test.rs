@@ -38,9 +38,9 @@ where
 {
 	fn run(&self)
 	{
-		log_debug!("Testing {}", ::core::any::type_name::<Self>());
+		log_info!("Testing {}", ::core::any::type_name::<Self>());
 		self();
-		log_trace!("Most recent test passed");
+		log_debug!("Most recent test passed");
 	}
 }
 

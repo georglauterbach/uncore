@@ -142,14 +142,14 @@ pub(super) mod gdt
 		log_debug!("Loading Global Descriptor Table (GDT) and Task State Segment (TSS)");
 		GDT.0.load();
 
-		log_trace!("Setting registers for the GDT");
+		log_debug!("Setting registers for the GDT");
 		unsafe {
 			segmentation::CS::set_reg(GDT.1.code_segment);
 			segmentation::SS::set_reg(GDT.1.stack_segment);
 			tables::load_tss(GDT.1.tss_segment);
 		}
 
-		log_trace!("Finished GDT setup");
+		log_debug!("Finished GDT setup");
 	}
 }
 
@@ -277,6 +277,6 @@ pub(super) mod idt
 	{
 		log_debug!("Loading Interrupt Descriptor Table (IDT)");
 		IDT.load();
-		log_trace!("Finished IDT setup");
+		log_debug!("Finished IDT setup");
 	}
 }

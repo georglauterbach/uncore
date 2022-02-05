@@ -40,7 +40,7 @@ pub fn kernel_main(boot_information: &'static mut bootloader::BootInfo) -> !
 /// This function takes care of the correct initialization of the x86 64Bit architecture.
 pub(super) fn initialize()
 {
-	crate::prelude::log_trace!("Initializing x86_64");
+	crate::prelude::log_debug!("Initializing x86_64");
 	cpu::initialize();
 }
 
