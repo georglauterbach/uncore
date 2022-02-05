@@ -115,13 +115,6 @@ impl KernelInformation
 /// Contains helpers for running the kernel with QEMU.
 pub mod qemu
 {
-	/// ### Determine Whether We Are Running Inside of QEMU
-	///
-	/// This static variable shows whether we're running inside of
-	/// QEMU. This is used when exiting, as the port `0xF4` is
-	/// only written to if we're inside QEMU.
-	static mut RUNNING_IN_QEMU: bool = true;
-
 	/// ### Write An Exit Code
 	///
 	/// Writes to the `0xF4` port the correct bytes that indicate
@@ -131,7 +124,7 @@ pub mod qemu
 	{
 		use qemu_exit::QEMUExit;
 
-		if !unsafe { RUNNING_IN_QEMU } {
+		if runs_inside_qemu::runs_inside_qemu().is_definitely_not() {
 			return;
 		}
 
@@ -273,6 +266,7 @@ pub mod kernel_types
 		/// Exit with failure
 		Failure
 	}
+
 	/// ## Kernel Wide Locking Abstraction
 	///
 	/// This module abstracts over a specific locking mechanism to provide unified
