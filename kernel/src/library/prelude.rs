@@ -34,6 +34,7 @@ pub use log::error as log_error;
 ///
 /// We use the `hlt` instruction to "halt" the CPU to not burn through
 /// CPU time, as a call to `loop {}` would do.
+#[allow(clippy::needless_pass_by_value)]
 pub fn exit_kernel(exit_code: kernel_types::ExitCode) -> !
 {
 	use super::helper::miscellaneous::{

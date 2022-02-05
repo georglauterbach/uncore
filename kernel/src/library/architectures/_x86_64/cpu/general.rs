@@ -15,7 +15,7 @@ const DOUBLE_FAULT_IST_INDEX: u16 = 0;
 ///
 /// This module contains a struct which can represent a stack (with
 /// proper alignment, etc.).
-mod stack
+mod stacks
 {
 	/// ### Stack Size for Double Fault Handler
 	///
@@ -24,20 +24,21 @@ mod stack
 	const DOUBLE_FAULT_STACK_SIZE: usize = 0x1000 * 20;
 
 	/// ### Double Fault Stack
-	/// 
-	/// This data structure represents the kernel stack used by the double fault handler.
+	///
+	/// This data structure represents the kernel stack used by the double fault
+	/// handler.
 	#[repr(align(16))]
 	pub struct DoubleFaultStack([u8; DOUBLE_FAULT_STACK_SIZE]);
 
 	impl DoubleFaultStack
 	{
 		/// ### Create a New Double Fault Stack
-		/// 
+		///
 		/// Returns a properly initialized double fault stack.
 		pub const fn new() -> Self { Self([0; Self::size()]) }
 
 		/// ### Get the Stack Size
-		/// 
+		///
 		/// Returns the (constant) size of the double fault stack.
 		pub const fn size() -> usize { DOUBLE_FAULT_STACK_SIZE }
 	}
@@ -52,7 +53,7 @@ pub(super) mod gdt
 {
 	use crate::prelude::*;
 	use super::{
-		stack,
+		stacks,
 		DOUBLE_FAULT_IST_INDEX,
 	};
 	use x86_64::{
@@ -80,9 +81,12 @@ pub(super) mod gdt
 			// fault exception occurs to prevent fatal triple fault
 			// exceptions (e.g. due to hitting the guard page)
 			tss.interrupt_stack_table[DOUBLE_FAULT_IST_INDEX as usize] = {
-				static mut DOUBLE_FAULT_STACK: stack::DoubleFaultStack = stack::DoubleFaultStack::new();
+				/// The instantiation of the double fault stack
+				/// used by the double fault handler.
+				static mut DOUBLE_FAULT_STACK: stacks::DoubleFaultStack =
+					stacks::DoubleFaultStack::new();
 				let stack_start = x86_64::VirtAddr::from_ptr(unsafe { &DOUBLE_FAULT_STACK });
-				stack_start + stack::DoubleFaultStack::size() // == stack end
+				stack_start + stacks::DoubleFaultStack::size() // == stack end
 			};
 
 			tss
