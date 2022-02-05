@@ -110,47 +110,30 @@ impl KernelInformation
 	pub fn get_rustc_version() -> &'static str { RUSTC_VERSION.unwrap_or("unknown") }
 }
 
-/// ## QEMU Abstractions
+
+/// ## Boot-Information Abstraction
 ///
-/// Contains helpers for running the kernel with QEMU.
-pub mod qemu
+/// Provides a type that abstracts over boot information provided by bootloaders using
+/// conditional compilation.
+pub mod boot
 {
-	/// ### Write An Exit Code
+	#[derive(Debug)]
+	/// ### Boot Time Information
 	///
-	/// Writes to the `0xF4` port the correct bytes that indicate
-	/// either success or failure.
-	#[inline]
-	fn exit(success: bool)
+	/// Represents the information provided by the bootloader for individual
+	/// architectures.
+	pub enum Information
 	{
-		use qemu_exit::QEMUExit;
-
-		if runs_inside_qemu::runs_inside_qemu().is_definitely_not() {
-			return;
-		}
-
+		/// The `x86_64` (`x86` 64 Bit) boot information
 		#[cfg(target_arch = "x86_64")]
-		let qemu_exit_handle = qemu_exit::X86::new(0xF4, 0x3);
-
-		if success {
-			qemu_exit_handle.exit_success();
-		} else {
-			qemu_exit_handle.exit_failure();
-		}
+		X86_64(&'static mut bootloader::BootInfo),
+		// The `i686` (`x86` 32 Bit) boot information
+		#[cfg(target_arch = "i686")]
+		I686,
+		// The `aarch64` (ARM 64 Bit) boot information
+		#[cfg(target_arch = "aarch64")]
+		Aarch64,
 	}
-
-	/// ### Exit QEMU With Success
-	///
-	/// Write a success exit code for QEMU to recognize and exit.
-	#[allow(dead_code)]
-	#[inline]
-	pub fn exit_with_success() { exit(true); }
-
-	/// ### Exit QEMU Without Success
-	///
-	/// Write a failure exit code for QEMU to recognize and exit.
-	#[allow(dead_code)]
-	#[inline]
-	pub fn exit_with_failure() { exit(false); }
 }
 
 /// ## Kernel Library Types
@@ -160,6 +143,17 @@ pub mod qemu
 /// [`GlobalStaticMut`] type used for global static variables.
 pub mod kernel_types
 {
+	/// ### Kernel Exit Code
+	///
+	/// Shows whether the kernel exited successfully or not.
+	pub enum ExitCode
+	{
+		/// Exit with success
+		Success,
+		/// Exit with failure
+		Failure,
+	}
+
 	/// ### Global Static Variables for Non-Thread-Safe Types
 	///
 	/// This enumeration is the abstraction needed to abstract
@@ -257,17 +251,6 @@ pub mod kernel_types
 	unsafe impl<T> Send for GlobalStaticMut<T> {}
 	unsafe impl<T> Sync for GlobalStaticMut<T> {}
 
-	/// ### Kernel Exit Code
-	///
-	/// Shows whether the kernel exited successfully or not.
-	pub enum ExitCode
-	{
-		/// Exit with success
-		Success,
-		/// Exit with failure
-		Failure,
-	}
-
 	/// ## Kernel Wide Locking Abstraction
 	///
 	/// This module abstracts over a specific locking mechanism to provide unified
@@ -309,26 +292,45 @@ pub mod kernel_types
 	}
 }
 
-/// ## Boot-Information Abstraction
+/// ## QEMU Abstractions
 ///
-/// Provides a type that abstracts over boot information provided by bootloaders using
-/// conditional compilation.
-pub mod boot
+/// Contains helpers for running the kernel with QEMU.
+pub mod qemu
 {
-	/// ### Boot Time Information
+	/// ### Write An Exit Code
 	///
-	/// Represents the information provided by the bootloader for individual
-	/// architectures.
-	pub enum Information
+	/// Writes to the `0xF4` port the correct bytes that indicate
+	/// either success or failure.
+	#[inline]
+	fn exit(success: bool)
 	{
-		/// The `x86_64` (`x86` 64 Bit) boot information
+		use qemu_exit::QEMUExit;
+
+		if runs_inside_qemu::runs_inside_qemu().is_definitely_not() {
+			return;
+		}
+
 		#[cfg(target_arch = "x86_64")]
-		X86_64(&'static mut bootloader::BootInfo),
-		// The `i686` (`x86` 32 Bit) boot information
-		#[cfg(target_arch = "i686")]
-		I686,
-		// The `aarch64` (ARM 64 Bit) boot information
-		#[cfg(target_arch = "aarch64")]
-		Aarch64,
+		let qemu_exit_handle = qemu_exit::X86::new(0xF4, 0x3);
+
+		if success {
+			qemu_exit_handle.exit_success();
+		} else {
+			qemu_exit_handle.exit_failure();
+		}
 	}
+
+	/// ### Exit QEMU With Success
+	///
+	/// Write a success exit code for QEMU to recognize and exit.
+	#[allow(dead_code)]
+	#[inline]
+	pub fn exit_with_success() { exit(true); }
+
+	/// ### Exit QEMU Without Success
+	///
+	/// Write a failure exit code for QEMU to recognize and exit.
+	#[allow(dead_code)]
+	#[inline]
+	pub fn exit_with_failure() { exit(false); }
 }

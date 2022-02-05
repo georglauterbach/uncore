@@ -13,6 +13,8 @@ mod virtual_memory;
 /// _only_ used in the kernel for simple tasks.
 mod kernel_heap_allocator;
 
+use crate::library::prelude::*;
+
 /// ### Initialize Kernel Memory
 ///
 /// This function takes care of initializing
@@ -21,12 +23,11 @@ mod kernel_heap_allocator;
 /// 2. a kernel heap allocator
 ///
 /// all while abstracting over all the different architectures.
-pub fn initialize()
+pub fn initialize(boot_information: &boot::Information)
 {
-	use crate::prelude::*;
 	log_info!("Starting memory initialization");
 
-	// virtual_memory::initialize(uefi_memory_map);
+	virtual_memory::initialize(boot_information);
 	kernel_heap_allocator::initialize();
 
 	log_error!("Reached an unfinished state here");

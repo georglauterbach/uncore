@@ -81,18 +81,21 @@ bootloader::entry_point!(library::architectures::kernel_main);
 /// ### Kernel Main Function
 ///
 /// This is the architecture-independent main function which handles kernel setup.
-pub fn kernel_main(_boot_information: &library::prelude::boot::Information) -> !
+pub fn kernel_main(boot_information: &library::prelude::boot::Information) -> !
 {
 	use library::prelude::*;
 
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
+	log_trace!("Bootloader information:\n\n{:#?}\n", boot_information);
+
+
 	#[cfg(test)]
 	log_info!("Running unit-tests of 'lib.rs'");
 
 	library::architectures::initialize();
-	// library::memory::initialize(uefi_memory_map);
+	library::memory::initialize(boot_information);
 
 	#[cfg(test)]
 	crate::__test_runner();

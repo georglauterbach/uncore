@@ -61,7 +61,7 @@ lto = false
 # panic = "abort"
 
 # -----------------------------------------------
-# ----  Dependencies  ---------------------------
+# ----  General Dependencies  -------------------
 # -----------------------------------------------
 
 [dependencies]
@@ -78,12 +78,29 @@ uart_16550 = "0.2.16"
 uefi = { git = "https://github.com/rust-osdev/uefi-rs", branch = "main" }
 volatile = "0.4.4"
 
+# -----------------------------------------------
+# ----  x86 64 Bit Dependencies  ----------------
+# -----------------------------------------------
+
 [target.'cfg(target_arch = "x86_64")'.dependencies]
 x86 = "0.46.0"
 x86_64 = "0.14.7"
 bootloader = { git = "https://github.com/rust-osdev/bootloader", branch = "main" }
 
+# https://docs.rs/bootloader/latest/bootloader/#configuration
+[package.metadata.bootloader]
+map-physical-memory = true
+
+# -----------------------------------------------
+# ----  x86 32 Bit Dependencies  ----------------
+# -----------------------------------------------
+
 [target.'cfg(target_arch = "i686")'.dependencies]
+
+# -----------------------------------------------
+# ----  ARM 64 Bit Dependencies  ----------------
+# -----------------------------------------------
+
 [target.'cfg(target_arch = "aarch64")'.dependencies]
 
 # -----------------------------------------------
