@@ -74,6 +74,8 @@ pub mod library;
 /// `kernel::` in case of `main.rs`).
 pub use library::prelude;
 
+use library::prelude::*;
+
 #[cfg(target_arch = "x86_64")]
 #[cfg(test)]
 bootloader::entry_point!(library::architectures::kernel_main);
@@ -81,14 +83,12 @@ bootloader::entry_point!(library::architectures::kernel_main);
 /// ### Kernel Main Function
 ///
 /// This is the architecture-independent main function which handles kernel setup.
-pub fn kernel_main(boot_information: &library::prelude::boot::Information) -> !
+pub fn kernel_main(boot_information: &boot::Information) -> !
 {
-	use library::prelude::*;
-
 	library::log::init(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	log_trace!("Bootloader information:\n\n{:#?}\n", boot_information);
+	prelude::log_trace!("Bootloader information:\n\n{:#?}\n", boot_information);
 
 	#[cfg(test)]
 	log_info!("Running unit-tests of 'lib.rs'");

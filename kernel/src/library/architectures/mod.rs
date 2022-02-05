@@ -39,6 +39,8 @@ mod _i686;
 mod _x86_64;
 
 #[cfg(target_arch = "x86_64")] pub use _x86_64::kernel_main;
+#[cfg(target_arch = "x86_64")]
+pub use _x86_64::memory::initialize as initialize_memory;
 
 // ? EXPORTED FUNCTIONS
 // ? ---------------------------------------------------------------------

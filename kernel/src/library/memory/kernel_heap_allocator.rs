@@ -1,14 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use crate::prelude::kernel_types::lock;
+use crate::prelude::*;
 
-/// TODO
+/// ### The Global Kernel Allocator
+///
+/// This structure implements the [`alloc::GlobalAlloc`] trait to allocator kernel heap
+/// memory.
 #[global_allocator]
-static ALLOCATOR: lock::Locked<fixed_block_size::Allocator> =
-	lock::Locked::from(fixed_block_size::Allocator::new());
+static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
+	kernel_types::lock::Locked::from(fixed_block_size::Allocator::new());
 
-/// TODO
+/// ### Kernel Heap Error Handler
+///
+/// This function shows errors during kernel heap allocation. In a nutshell, it panics
+/// with an appropriate message...
 #[alloc_error_handler]
 fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
 {
@@ -17,20 +23,21 @@ fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
 
 /// ### Initialize a Global Allocator
 ///
-/// Initializes a simple global allocator.
-pub const fn initialize()
+/// Initializes a simple global kernel heap memory allocator.
+pub fn initialize()
 {
-	// use crate::prelude::*;
-
-	// log_info!("Initializing a simple global memory allocator");
-	// unsafe { ALLOCATOR.lock().initialize(); }
-	// log_debug!("Initialized allocator");
+	log_info!("Initializing a simple global memory allocator");
+	unsafe {
+		ALLOCATOR
+			.lock()
+			.initialize(super::KERNEL_HEAP_START, super::KERNEL_HEAP_SIZE);
+	}
+	log_debug!("Initialized allocator");
 }
 
 /// ## Simple Fixed-Block-Size Allocator
 ///
 /// Contains an allocator that implements the fixed-block-allocation procedure.
-#[allow(dead_code)]
 mod fixed_block_size
 {
 	use crate::prelude::kernel_types::lock;
@@ -44,28 +51,36 @@ mod fixed_block_size
 
 	/// ### The Module Allocator
 	///
-	/// The structure implementing the allocation algorithm of this module.
+	/// The structure implementing the allocation algorithm of this module. See
+	/// <https://os.phil-opp.com/allocator-designs/#fixed-size-block-allocator>
 	pub struct Allocator
 	{
-		/// TODO
+		/// The head pointers for each block size.
 		list_heads:         [Option<&'static mut ListNode>; BLOCK_SIZES.len()],
-		/// TODO
+		/// A fallback allocator used when the default allocator does not work
+		/// (for an arbitrary reason).
 		fallback_allocator: linked_list_allocator::Heap,
 	}
 
-	/// TODO
+	/// ### A List Node
+	///
+	/// A simple node that holds a "pointer" to the next free node (for the same block
+	/// size).
 	struct ListNode
 	{
-		/// TODO
+		/// The next "pointer" pointing to the next node.
 		next: Option<&'static mut ListNode>,
 	}
 
 	impl Allocator
 	{
-		/// TODO
+		/// ### Create a New Allocator Instance
+		///
+		/// This constant function returns a new allocator instance.
 		pub const fn new() -> Self
 		{
-			/// TODO
+			/// Circumventing a weakness of the Rust `const` evaluator. This
+			/// constant is logic-wise not actually needed.
 			const EMPTY: Option<&'static mut ListNode> = None;
 
 			Self {
@@ -84,20 +99,25 @@ mod fixed_block_size
 			self.fallback_allocator.init(heap_start, heap_size);
 		}
 
-		/// TODO
+		/// ### Fallback Allocation
+		///
+		/// If for some reason, the default allocator fails, the fallback
+		/// allocator takes over.
 		fn allocate_with_fallback_allocator(&mut self, layout: alloc::Layout) -> *mut u8
 		{
+			crate::prelude::log_warning!(
+				"Had to allocator kernel heap memory with the fallback allocator"
+			);
 			match self.fallback_allocator.allocate_first_fit(layout) {
 				Ok(ptr) => ptr.as_ptr(),
 				Err(_) => ::core::ptr::null_mut(),
 			}
 		}
 
-		/// TODO
+		/// ### Choose the Correct Block Size
 		///
-		/// Choose an appropriate block size for the given layout.
-		///
-		/// Returns an index into the `BLOCK_SIZES` array.
+		/// Choose an appropriate block size for the given layout. Returns an
+		/// index into the `BLOCK_SIZES` array.
 		fn list_index(layout: &alloc::Layout) -> Option<usize>
 		{
 			let required_block_size = layout.size().max(layout.align());

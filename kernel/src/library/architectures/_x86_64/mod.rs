@@ -11,7 +11,7 @@ mod cpu;
 ///
 /// This module contains the virtual memory / paging abstractions for
 /// `x86_64`.
-mod memory;
+pub mod memory;
 
 use crate::prelude::*;
 
@@ -22,7 +22,7 @@ use crate::prelude::*;
 #[cfg(not(test))]
 pub fn kernel_main(boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	crate::kernel_main(&boot_information.into())
+	crate::kernel_main(&boot::Information(boot_information))
 }
 
 /// ### Kernel Main Entrypoint for `x86_64` During Tests
@@ -32,7 +32,7 @@ pub fn kernel_main(boot_information: &'static mut bootloader::BootInfo) -> !
 #[cfg(test)]
 pub fn kernel_main(boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	crate::kernel_main(&boot_information.into())
+	crate::kernel_main(&boot::Information(boot_information))
 }
 
 /// ### Architecture Initialization Routine
@@ -42,12 +42,4 @@ pub(super) fn initialize()
 {
 	crate::prelude::log_debug!("Initializing x86_64");
 	cpu::initialize();
-}
-
-impl From<&'static mut bootloader::BootInfo> for boot::Information
-{
-	fn from(boot_information: &'static mut bootloader::BootInfo) -> Self
-	{
-		Self::X86_64(boot_information)
-	}
 }

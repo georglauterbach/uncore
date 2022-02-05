@@ -116,23 +116,14 @@ impl KernelInformation
 /// conditional compilation.
 pub mod boot
 {
-	#[derive(Debug)]
-	/// ### Boot Time Information
+	/// ### Opaque Boot Information
 	///
-	/// Represents the information provided by the bootloader for individual
-	/// architectures.
-	pub enum Information
-	{
-		/// The `x86_64` (`x86` 64 Bit) boot information
-		#[cfg(target_arch = "x86_64")]
-		X86_64(&'static mut bootloader::BootInfo),
-		// The `i686` (`x86` 32 Bit) boot information
-		#[cfg(target_arch = "i686")]
-		I686,
-		// The `aarch64` (ARM 64 Bit) boot information
-		#[cfg(target_arch = "aarch64")]
-		Aarch64,
-	}
+	/// This structure exists to have a uniform type for different architectures to
+	/// work with their boot information (provided by the bootloader). This way, we
+	/// need not write a different `fn main()`, etc. for every architecture.
+	#[cfg(target_arch = "x86_64")]
+	#[derive(Debug)]
+	pub struct Information(pub &'static bootloader::BootInfo);
 }
 
 /// ## Kernel Library Types

@@ -20,8 +20,9 @@ mod stacks
 	/// ### Stack Size for Double Fault Handler
 	///
 	/// The size of the stack used during the CPU double fault
-	/// exception.
-	const DOUBLE_FAULT_STACK_SIZE: usize = 0x1000 * 20;
+	/// exception. We provide the equivalent of 20 pages, each 4096 (0x1000) byte in
+	/// size-
+	const DOUBLE_FAULT_STACK_SIZE: usize = crate::prelude::memory::PAGE_SIZE_DEFAULT * 20;
 
 	/// ### Double Fault Stack
 	///

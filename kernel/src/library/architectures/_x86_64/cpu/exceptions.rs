@@ -43,7 +43,7 @@ pub(super) mod handlers
 	/// CPU Exception.
 	pub extern "x86-interrupt" fn breakpoint(_stack_frame: idt::InterruptStackFrame)
 	{
-		log_debug!("CPU exception occurred (type: breakpoint)");
+		log_trace!("CPU exception occurred (type: breakpoint)");
 	}
 
 	/// ### CPU Exception - Bound Range Exceeded
