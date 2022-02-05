@@ -36,7 +36,10 @@ pub use log::error as log_error;
 /// CPU time, as a call to `loop {}` would do.
 pub fn exit_kernel(exit_code: kernel_types::ExitCode) -> !
 {
-	use super::helper::miscellaneous::{qemu, kernel_types::ExitCode};
+	use super::helper::miscellaneous::{
+		qemu,
+		kernel_types::ExitCode,
+	};
 
 	match exit_code {
 		ExitCode::Failure => qemu::exit_with_failure(),

@@ -17,12 +17,30 @@ const DOUBLE_FAULT_IST_INDEX: u16 = 0;
 /// proper alignment, etc.).
 mod stack
 {
-	/// ### Just a Stack
+	/// ### Stack Size for Double Fault Handler
 	///
-	/// The `PseudoStack` represent a proper stack that is
-	/// allocated like a normal stack but as a stack object.
+	/// The size of the stack used during the CPU double fault
+	/// exception.
+	const DOUBLE_FAULT_STACK_SIZE: usize = 0x1000 * 20;
+
+	/// ### Double Fault Stack
+	/// 
+	/// This data structure represents the kernel stack used by the double fault handler.
 	#[repr(align(16))]
-	pub(super) struct PseudoStack<'a>(pub &'a [u8]);
+	pub struct DoubleFaultStack([u8; DOUBLE_FAULT_STACK_SIZE]);
+
+	impl DoubleFaultStack
+	{
+		/// ### Create a New Double Fault Stack
+		/// 
+		/// Returns a properly initialized double fault stack.
+		pub const fn new() -> Self { Self([0; Self::size()]) }
+
+		/// ### Get the Stack Size
+		/// 
+		/// Returns the (constant) size of the double fault stack.
+		pub const fn size() -> usize { DOUBLE_FAULT_STACK_SIZE }
+	}
 }
 
 /// ## Global Descriptor Table Setup
@@ -48,12 +66,6 @@ pub(super) mod gdt
 		},
 	};
 
-	/// ### Stack Size for Double Fault Handler
-	///
-	/// The size of the stack used during the CPU double fault
-	/// exception.
-	const DOUBLE_FAULT_STACK_SIZE: usize = 0x1000 * 5;
-
 	lazy_static::lazy_static! {
 
 		/// ### Task State Segment (TSS)
@@ -68,18 +80,9 @@ pub(super) mod gdt
 			// fault exception occurs to prevent fatal triple fault
 			// exceptions (e.g. due to hitting the guard page)
 			tss.interrupt_stack_table[DOUBLE_FAULT_IST_INDEX as usize] = {
-				/// ### The Double Fault Handler Stack Memory
-				///
-				/// This variable contains the memory for the CPU
-				/// double fault exception handler stack.
-				static mut STACK: stack::PseudoStack =
-					stack::PseudoStack(&[0; DOUBLE_FAULT_STACK_SIZE]);
-
-				// on `x86_64`, the stack grows downwards, therefore,
-				// the "start" is the lowest address and we return
-				// the "end" address which is the highest address
-				let stack_start = x86_64::VirtAddr::from_ptr(unsafe { &STACK });
-				stack_start + DOUBLE_FAULT_STACK_SIZE
+				static mut DOUBLE_FAULT_STACK: stack::DoubleFaultStack = stack::DoubleFaultStack::new();
+				let stack_start = x86_64::VirtAddr::from_ptr(unsafe { &DOUBLE_FAULT_STACK });
+				stack_start + stack::DoubleFaultStack::size() // == stack end
 			};
 
 			tss
