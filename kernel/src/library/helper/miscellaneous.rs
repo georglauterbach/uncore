@@ -264,6 +264,15 @@ pub mod kernel_types
 	unsafe impl<T> Send for GlobalStaticMut<T> {}
 	unsafe impl<T> Sync for GlobalStaticMut<T> {}
 
+	/// ### Kernel Exit Code
+	/// 
+	/// Shows whether the kernel exited successfully or not.
+	pub enum ExitCode {
+		/// Exit with success
+		Success,
+		/// Exit with failure
+		Failure
+	}
 	/// ## Kernel Wide Locking Abstraction
 	///
 	/// This module abstracts over a specific locking mechanism to provide unified

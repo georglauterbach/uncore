@@ -52,7 +52,7 @@ fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 	library::architectures::initialize();
 
 	__test_runner();
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Success)
 }
 
 #[panic_handler]

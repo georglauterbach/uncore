@@ -47,9 +47,7 @@ fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 	this_test_should_panic();
 
 	log_error!("Test did not panic but was expected to. FAILURE.");
-	qemu::exit_with_failure();
-
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Failure)
 }
 
 fn this_test_should_panic()

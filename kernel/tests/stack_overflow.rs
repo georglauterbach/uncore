@@ -57,8 +57,7 @@ lazy_static::lazy_static! {
 extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> !
 {
 	log_info!("Received double fault - nice");
-	qemu::exit_with_success();
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Failure)
 }
 
 bootloader::entry_point!(kernel_test_main);
@@ -78,9 +77,7 @@ fn kernel_test_main(_: &'static mut bootloader::BootInfo) -> !
 	stack_overflow();
 
 	log_error!("Execution continued after kernel stack overflow");
-	qemu::exit_with_failure();
-
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Failure)
 }
 
 #[allow(unconditional_recursion)]

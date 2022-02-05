@@ -51,7 +51,6 @@ where
 ///
 /// It will just execute all functions marked with `#[test_case]` one
 /// by one.
-#[allow(clippy::module_name_repetitions)]
 pub fn runner(tests: &[&dyn Testable])
 {
 	log_info!("Starting tests");
@@ -61,7 +60,7 @@ pub fn runner(tests: &[&dyn Testable])
 	}
 
 	log_info!("Last test finished successfully");
-	qemu::exit_with_success();
+	super::miscellaneous::qemu::exit_with_success();
 }
 
 /// ### Sanity Check

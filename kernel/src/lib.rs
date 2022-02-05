@@ -97,8 +97,7 @@ pub fn kernel_main(_boot_information: &library::prelude::boot::Information) -> !
 	#[cfg(test)]
 	crate::__test_runner();
 
-	qemu::exit_with_success();
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Success)
 }
 
 /// ### Default Panic Handler
