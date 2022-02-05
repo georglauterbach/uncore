@@ -32,12 +32,12 @@ pub fn initialize()
 	log_error!("Reached an unfinished state here");
 }
 
-#[test_case]
-fn boxing_does_not_panic()
-{
-	use crate::prelude::*;
+// #[test_case]
+// fn boxing_does_not_panic()
+// {
+// 	use crate::prelude::*;
 
-	log_debug!("Trying to box a value");
-	let x = alloc::boxed::Box::new(42);
-	log_debug!("The boxed value reads {:?}", x);
-}
+// 	log_debug!("Trying to box a value");
+// 	let x = alloc::boxed::Box::new(42);
+// 	log_debug!("The boxed value reads {:?}", x);
+// }

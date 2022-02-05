@@ -134,6 +134,8 @@ fn link_with_bootloader(
 	kernel_test_binary_name: &str,
 )
 {
+	log::debug!("Linking with bootloader now");
+
 	let mut boot_build_command = process::Command::new(env!("CARGO"));
 	boot_build_command.current_dir(root_directory.to_string() + "/kernel/");
 	boot_build_command
@@ -171,6 +173,7 @@ fn link_with_bootloader(
 /// script with the correct environment and with proper timeout.
 fn run_test(root_directory: &str)
 {
+	log::debug!("Test runner runs test now");
 	let mut run_command = process::Command::new("bash");
 	run_command
 		.current_dir(root_directory)

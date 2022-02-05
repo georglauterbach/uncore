@@ -19,7 +19,12 @@ fn default_panic(panic_info: &::core::panic::PanicInfo) -> !
 	);
 
 	#[cfg(test)]
-	log_error!("Received panic");
+	log_error!(
+		"Received panic (reason: {:?})",
+		panic_info
+			.message()
+			.unwrap_or(&format_args!("no message provided"))
+	);
 	#[cfg(test)]
 	log_error!("Last test did not finish (successfully). FAILURE.");
 
