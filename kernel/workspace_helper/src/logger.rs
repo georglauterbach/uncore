@@ -5,16 +5,57 @@
 ///
 /// This static variable is used by the [`log`] crate for
 /// logging kernel-wide. Shamelessly copied from the kernel code.
-pub static LOGGER: KernelTestRunnerLogger = KernelTestRunnerLogger;
+pub static LOGGER: Logger = Logger;
+
+/// ## The Kernel Log Level from the Environment
+///
+/// This variable has a value if the kernel was executed in an environment where the
+/// `LOG_LEVEL` environment variable was set.
+const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
 
 /// ### The Main Test Runner Logger
 ///
 /// This structure holds associated function that provide logging. The
 /// [`log::Log`] trait is implemented for this structure.
 #[allow(clippy::module_name_repetitions)]
-pub struct KernelTestRunnerLogger;
+pub struct Logger;
 
-impl log::Log for KernelTestRunnerLogger
+impl Logger
+{
+	/// ### Parse [`LOG_LEVEL`]
+	///
+	/// Check if the environment variable `LOG_LEVEL` is set and try to parse it.
+	/// Returns [`None`] the string could not be parsed or if the environment variable
+	/// is not present.
+	fn try_from_str() -> Option<log::Level>
+	{
+		LOG_LEVEL.map_or(None, |log_level| match log_level {
+			"err" => Some(log::Level::Error),
+			"war" => Some(log::Level::Warn),
+			"inf" => Some(log::Level::Info),
+			"deb" => Some(log::Level::Debug),
+			"tra" => Some(log::Level::Trace),
+			_ => None,
+		})
+	}
+
+	/// ### Set the Log Level
+	///
+	/// This function takes care of setting the correct log level.
+	fn set_log_level(log_level: log::Level)
+	{
+		Logger::try_from_str().map_or_else(
+			|| {
+				log::set_max_level(log_level.to_level_filter());
+			},
+			|log_level| {
+				log::set_max_level(log_level.to_level_filter());
+			},
+		)
+	}
+}
+
+impl log::Log for Logger
 {
 	fn enabled(&self, metadata: &log::Metadata) -> bool { metadata.level() <= log::max_level() }
 
@@ -56,8 +97,8 @@ impl log::Log for KernelTestRunnerLogger
 ///
 /// This function sets the log level and displays version and
 /// bootloader information.
-pub fn init(log_level: log::Level)
+pub fn initialize(log_level: log::Level)
 {
-	log::set_max_level(log_level.to_level_filter());
+	Logger::set_log_level(log_level);
 	log::set_logger(&LOGGER).expect("Log should not have already been set");
 }

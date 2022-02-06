@@ -58,7 +58,7 @@ const TIMEOUT: u64 = 30;
 /// This is a simple, nice, beautiful `main` function, right?
 fn main()
 {
-	logger::init(log::Level::Info);
+	logger::initialize(log::Level::Info);
 	log::info!("Started test runner");
 
 	// skip executable name
