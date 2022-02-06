@@ -52,7 +52,7 @@ pub fn exit_kernel(exit_code: kernel_types::ExitCode) -> !
 		#[cfg(target_arch = "x86_64")]
 		{
 			unsafe {
-				core::arch::asm!("hlt", "cli", options(nomem, nostack, preserves_flags));
+				core::arch::asm!("cli", "hlt", options(nomem, nostack, preserves_flags));
 			}
 		}
 	}

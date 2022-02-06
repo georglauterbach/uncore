@@ -80,6 +80,21 @@ impl KernelLogger
 			None
 		}
 	}
+
+	/// ### Set the Log Level
+	///
+	/// This function takes care of setting the correct log level.
+	fn set_log_level(log_level: log::Level)
+	{
+		KernelLogger::try_from_str().map_or_else(
+			|| {
+				log::set_max_level(log_level.to_level_filter());
+			},
+			|log_level| {
+				log::set_max_level(log_level.to_level_filter());
+			},
+		)
+	}
 }
 
 impl log::Log for KernelLogger
@@ -109,14 +124,8 @@ impl log::Log for KernelLogger
 /// bootloader information.
 pub fn initialize(log_level: Option<log::Level>)
 {
-	if let Some(log_level) = KernelLogger::try_from_str() {
-		log::set_max_level(log_level.to_level_filter());
-	} else if let Some(log_level) = log_level {
-		log::set_max_level(log_level.to_level_filter());
-	}
-
+	KernelLogger::set_log_level(log_level.unwrap_or(log::Level::Debug));
 	log::set_logger(&LOGGER).expect("Log should not have already been set");
-
 	crate::prelude::log_debug!("Kernel logging enabled");
 }
 
