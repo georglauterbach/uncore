@@ -5,12 +5,13 @@
 ///
 /// This static variable is used by the [`log`] crate for
 /// logging kernel-wide.
-pub static LOGGER: KernelLogger = KernelLogger {
-	qemu_debug_logger:         qemu::Logger::new(),
-	qemu_debug_logger_enabled: true,
-	serial_logger:             serial::Logger::new(),
-	serial_logger_enabled:     true,
-};
+pub static LOGGER: KernelLogger = KernelLogger::new();
+
+/// ## The Kernel Log Level from the Environment
+///
+/// This variable has a value if the kernel was executed in an environment where the
+/// `LOG_LEVEL` environment variable was set.
+const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
 
 /// ### The Main Kernel Logger
 ///
@@ -37,19 +38,47 @@ impl KernelLogger
 	/// ### Enable or Disable QEMU
 	///
 	/// This function enabled or disables the log for QEMU's
-	/// `debugcon` feature.
-	pub fn enable_or_disable_qemu(&mut self, state_as_bool: bool)
-	{
-		self.qemu_debug_logger_enabled = state_as_bool;
-	}
+	/// `debugcon` feature. Providing `true` will enable the logger.
+	pub fn enable_or_disable_qemu(&mut self, enabled: bool) { self.qemu_debug_logger_enabled = enabled; }
 
 	/// ### Enable or Disable QEMU
 	///
 	/// This function enabled or disables the log for the serial
-	/// interface.
-	pub fn enable_or_disable_serial(&mut self, state_as_bool: bool)
+	/// interface. Providing `true` will enable the logger.
+	pub fn enable_or_disable_serial(&mut self, enabled: bool) { self.serial_logger_enabled = enabled; }
+
+	/// ### Create a New Global Logger for the Kernel
+	///
+	/// Creates a new instance of the kernel-wide logger.
+	const fn new() -> Self
 	{
-		self.serial_logger_enabled = state_as_bool;
+		Self {
+			qemu_debug_logger:         qemu::Logger::new(),
+			qemu_debug_logger_enabled: true,
+			serial_logger:             serial::Logger::new(),
+			serial_logger_enabled:     true,
+		}
+	}
+
+	/// ### Parse [`LOG_LEVEL`]
+	///
+	/// Check if the environment variable `LOG_LEVEL` is set and try to parse it.
+	/// Returns [`None`] the string could not be parsed or if the environment variable
+	/// is not present.
+	fn try_from_str() -> Option<log::Level>
+	{
+		if let Some(log_level) = LOG_LEVEL {
+			match log_level {
+				"err" => Some(log::Level::Error),
+				"war" => Some(log::Level::Warn),
+				"inf" => Some(log::Level::Info),
+				"deb" => Some(log::Level::Debug),
+				"tra" => Some(log::Level::Trace),
+				_ => None,
+			}
+		} else {
+			None
+		}
 	}
 }
 
@@ -74,14 +103,16 @@ impl log::Log for KernelLogger
 	fn flush(&self) {}
 }
 
-/// ### Show Initial Information
+/// ### Set Up Logging
 ///
 /// This function sets the log level and displays version and
 /// bootloader information.
-pub fn init(log_level: Option<log::Level>)
+pub fn initialize(log_level: Option<log::Level>)
 {
-	if let Some(level) = log_level {
-		log::set_max_level(level.to_level_filter());
+	if let Some(log_level) = KernelLogger::try_from_str() {
+		log::set_max_level(log_level.to_level_filter());
+	} else if let Some(log_level) = log_level {
+		log::set_max_level(log_level.to_level_filter());
 	}
 
 	log::set_logger(&LOGGER).expect("Log should not have already been set");

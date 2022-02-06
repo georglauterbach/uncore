@@ -104,7 +104,7 @@ bootloader::entry_point!(library::architectures::kernel_main);
 /// This is the architecture-independent main function which handles kernel setup.
 pub fn kernel_main(boot_information: &boot::Information) -> !
 {
-	library::log::init(Some(log::Level::Trace));
+	library::log::initialize(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
 	prelude::log_trace!("Bootloader information:\n\n{:#?}\n", boot_information);
