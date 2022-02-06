@@ -14,12 +14,9 @@ pub(super) mod handlers
 	///
 	/// This is the handler callback function for the alignment
 	/// check CPU Exception.
-	pub extern "x86-interrupt" fn alignment_check(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	)
+	pub extern "x86-interrupt" fn alignment_check(stack_frame: idt::InterruptStackFrame, error_code: u64)
 	{
-		crate::log_warning!(
+		log_warning!(
 			"CPU exception occurred (type: alignment check)\n\nError code: {}\n{:#?}\n",
 			error_code,
 			stack_frame
@@ -32,7 +29,7 @@ pub(super) mod handlers
 	/// exceeded CPU Exception.
 	pub extern "x86-interrupt" fn bound_range_exceeded(stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_error!(
+		log_error!(
 			"CPU exception occurred (type: bound range exceeded)\n\n{:#?}\n",
 			stack_frame
 		);
@@ -46,7 +43,7 @@ pub(super) mod handlers
 	/// CPU Exception.
 	pub extern "x86-interrupt" fn breakpoint(_stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_info!("CPU exception occurred (type: breakpoint)");
+		log_trace!("CPU exception occurred (type: breakpoint)");
 	}
 
 	/// ### CPU Exception - Bound Range Exceeded
@@ -55,10 +52,7 @@ pub(super) mod handlers
 	/// exceeded CPU Exception.
 	pub extern "x86-interrupt" fn debug(stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_info!(
-			"CPU exception occurred (type: debug)\n\n{:#?}\n",
-			stack_frame
-		);
+		log_info!("CPU exception occurred (type: debug)\n\n{:#?}\n", stack_frame);
 	}
 
 	/// ### CPU Exception - Device Not Available
@@ -67,7 +61,7 @@ pub(super) mod handlers
 	/// available CPU Exception.
 	pub extern "x86-interrupt" fn device_not_available(stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_warning!(
+		log_warning!(
 			"CPU exception occurred (type: device not available)\n\n{:#?}\n",
 			stack_frame
 		);
@@ -121,12 +115,13 @@ pub(super) mod handlers
 		error_code: u64,
 	)
 	{
-		crate::log_warning!(
-			"CPU exception occurred (type: general protection fault)\n\nError code: \
-			 {}\n{:#?}\n",
+		log_error!(
+			"CPU exception occurred (type: general protection fault)\n\nError code: {}\n{:#?}\n",
 			error_code,
 			stack_frame
 		);
+
+		panic!("fatal 'general protection fault' CPU exception occurred");
 	}
 
 	/// ### CPU Exception - Invalid Opcode
@@ -135,7 +130,7 @@ pub(super) mod handlers
 	/// opcode CPU Exception.
 	pub extern "x86-interrupt" fn invalid_opcode(stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_error!(
+		log_error!(
 			"CPU exception occurred (type: invalid opcode)\n\n{:#?}\n",
 			stack_frame
 		);
@@ -147,10 +142,7 @@ pub(super) mod handlers
 	///
 	/// This is the handler callback function for the invalid TSS
 	/// CPU Exception.
-	pub extern "x86-interrupt" fn invalid_tss(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	)
+	pub extern "x86-interrupt" fn invalid_tss(stack_frame: idt::InterruptStackFrame, error_code: u64)
 	{
 		log_error!(
 			"CPU exception occurred (type: invalid TSS)\n\nError code: {}\n{:#?}\n",
@@ -167,7 +159,7 @@ pub(super) mod handlers
 	/// check CPU Exception.
 	pub extern "x86-interrupt" fn machine_check(stack_frame: idt::InterruptStackFrame) -> !
 	{
-		crate::log_error!(
+		log_error!(
 			"CPU exception occurred (type: machine check)\n\n{:#?}\n",
 			stack_frame
 		);
@@ -181,7 +173,7 @@ pub(super) mod handlers
 	/// interrupt CPU Exception.
 	pub extern "x86-interrupt" fn non_maskable_interrupt(stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_warning!(
+		log_warning!(
 			"CPU exception occurred (type: non-maskable interrupt)\n\n{:#?}\n",
 			stack_frame
 		);
@@ -193,10 +185,7 @@ pub(super) mod handlers
 	/// Exception.
 	pub extern "x86-interrupt" fn overflow(stack_frame: idt::InterruptStackFrame)
 	{
-		crate::log_warning!(
-			"CPU exception occurred (type: overflow)\n\n{:#?}\n",
-			stack_frame
-		);
+		log_warning!("CPU exception occurred (type: overflow)\n\n{:#?}\n", stack_frame);
 	}
 
 	/// ### CPU Exception - Page Fault Handler
@@ -205,26 +194,23 @@ pub(super) mod handlers
 	/// CPU exception.
 	pub extern "x86-interrupt" fn page_fault(
 		_stack_frame: idt::InterruptStackFrame,
-		_error_code: idt::PageFaultErrorCode,
+		error_code: idt::PageFaultErrorCode,
 	)
 	{
-		crate::log_warning!("CPU exception occurred (type: page fault)");
-		// crate::log_info!(
-		// 	"page fault information: accessed address = {:?} | error code =
-		// {:?}\n", 	x86_64::registers::control::Cr2::read(),
-		// 	error_code
-		//);
-		unimplemented!();
+		log_trace!("CPU exception occurred (type: page fault)");
+		log_trace!(
+			"page fault information: accessed address = {:?} | error code = {:?}",
+			x86_64::registers::control::Cr2::read(),
+			error_code
+		);
+		// unimplemented!();
 	}
 
 	/// ### CPU Exception - Security
 	///
 	/// This is the handler callback function for the security CPU
 	/// Exception.
-	pub extern "x86-interrupt" fn security(
-		stack_frame: idt::InterruptStackFrame,
-		error_code: u64,
-	)
+	pub extern "x86-interrupt" fn security(stack_frame: idt::InterruptStackFrame, error_code: u64)
 	{
 		log_error!(
 			"CPU exception occurred (type: security)\n\nError code: {}\n{:#?}\n",
@@ -245,8 +231,7 @@ pub(super) mod handlers
 	)
 	{
 		log_error!(
-			"CPU exception occurred (type: segment not present)\n\nError code: \
-			 {}\n{:#?}\n",
+			"CPU exception occurred (type: segment not present)\n\nError code: {}\n{:#?}\n",
 			error_code,
 			stack_frame,
 		);
@@ -278,8 +263,7 @@ pub(super) mod handlers
 	)
 	{
 		log_error!(
-			"CPU exception occurred (type: stack segment fault)\n\nError code: \
-			 {}\n{:#?}\n",
+			"CPU exception occurred (type: stack segment fault)\n\nError code: {}\n{:#?}\n",
 			error_code,
 			stack_frame,
 		);
@@ -310,9 +294,8 @@ pub(super) mod handlers
 		error_code: u64,
 	)
 	{
-		crate::log_error!(
-			"CPU exception occurred (type: VMM communication)\n\nError code: \
-			 {}\n{:#?}\n",
+		log_error!(
+			"CPU exception occurred (type: VMM communication)\n\nError code: {}\n{:#?}\n",
 			error_code,
 			stack_frame
 		);

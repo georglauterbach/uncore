@@ -38,62 +38,24 @@
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
-#![feature(type_alias_impl_trait)]
 
 //! # The `unCORE` Operating System Kernel
 //!
-//! This is `unCORE`, an operating system kerne completely written in
-//! pure, idiomatic Rust.
+//! This is `unCORE`, an operating system kerne completely written in pure, idiomatic
+//! Rust.
 //!
-//! This file provides the "entrypoint" for the main binary, i.e. the
-//! kernel, as well as functions for integration tests.
+//! ## Entrypoint
+//!
+//! The entrypoint is architecture-specific, and therefore found under
+//! `library/architectures/<ARCHITECTURE>/mod.rs`.
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::{
-	library,
-	prelude::*,
-};
+extern crate alloc;
 
-/// ### UEFI Entrypoint
-///
-/// This function is called before [`main`] is called. It handled
-/// initialization for logging exiting UEFI boot services.
-#[no_mangle]
-pub extern "C" fn efi_main(
-	uefi_handle: uefi::Handle,
-	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
-) -> !
-{
-	library::log::init(Some(log::Level::Trace));
-	library::log::display_initial_information();
-
-	// https://github.com/rust-osdev/bootloader/blob/main/src/bin/uefi.rs#L37
-	kernel_main(library::boot::exit_boot_services(
-		uefi_handle,
-		uefi_system_table_boot,
-	))
-}
-
-/// ### Kernel Main Entrypoint
-///
-/// This is the kernel's entry point directly called by the boot-code
-/// (written in assembly). We're still in the UEFI boot services are
-/// still enabled: it is our job to disable them now.
-fn kernel_main(_uefi_memory_map: library::boot::UEFIMemoryMap) -> !
-{
-	#[cfg(test)]
-	__test_runner();
-
-	log_info!("Starting architecture specific initialization");
-	library::architectures::cpu::initialize();
-
-	#[cfg(target_arch = "x86_64")]
-	test::qemu::exit_with_success();
-
-	never_return()
-}
+#[cfg(target_arch = "x86_64")]
+bootloader::entry_point!(kernel::library::architectures::kernel_main);
 
 /// ### Default Panic Handler
 ///
@@ -101,7 +63,7 @@ fn kernel_main(_uefi_memory_map: library::boot::UEFIMemoryMap) -> !
 /// on whether you are running tests or not, writes an exit code and
 /// does not return afterwards. Note that we do not unwind the stack.
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { kernel::prelude::panic::callback(false, panic_info) }
 
 /// ### Sanity Check
 ///

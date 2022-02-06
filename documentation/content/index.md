@@ -2,13 +2,13 @@
 
 ## Introduction
 
-Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs-getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs-development]. The [Building and Running][docs-building-and-running] site contains information on how to build and run the kernel (with QEMU). The [Structure][docs-structure] section contains all the information about the kernel's internal structure and composition. The [Testing][docs-testing] page contains information on unit- and integration tests. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
+Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs::getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs::development]. The [Building and Running][docs::building-and-running] site contains information on how to build and run the kernel (with QEMU). The [Kernel Architecture][docs::kernel-architecture] section contains all the information about the kernel's internal structure and composition. The [Testing][docs::testing] page contains information on unit- and integration tests. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
 
 !!! check "Code of Conduct and Contributing Guidelines"
     By working on this projects and with other participants, you agree to the **code of conduct** and the **contributing guidelines** set by this project.
 
 !!! danger "Developer Instructions"
-    Make sure you read the [**Development Guidelines**][docs-development] _carefully_. Adhering to a consistent style and conventions allows everyone to work efficiently.
+    Make sure you read the [**Development Guidelines**][docs::development] _carefully_. Adhering to a consistent style and conventions allows everyone to work efficiently.
 
 ## Getting Started
 
@@ -44,7 +44,7 @@ If you're on Windows or macOS, you will need to install these tools yourself.
 
 ## Vision
 
-_unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in _UNIX_ / _GNU-Linux_. But, we acknowledge that modern software development is heavily benefitting of CI pipelines, GIT platforms (such as _GitHub_) and collaboration in the form of issues, pull requests, projects and other actions. While we know that mailing lists work, we belief that modern software development can do better. One aspect we heavily focus on is code quality (in the same way that _Linus Torvalds_ has ensured the code quality in the _Linux_ kernel). We are using  automated CI to achieve this goal too. You will, when you start out, notice that CI is very restrictive. This may get on your nerves, but ensures all code in this project is as clean as possible. The motto here is: **We either do it right or not at all**. Please also read the [conventions set in this project](development.md#miscellaneous) to ensure you're up-to-date when it comes to writing real code.
+_unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in _UNIX_ / _GNU-Linux_. But, we acknowledge that modern software development is heavily benefitting of CI pipelines, GIT platforms (such as _GitHub_) and collaboration in the form of issues, pull requests, projects and other actions. While we know that mailing lists work, we belief that modern software development can do better. One aspect we heavily focus on is code quality. The motto here is: **We either do it right or not at all**. Please also read the [conventions set by this project](development.md#miscellaneous) to ensure you're up-to-date when it comes to writing real code.
 
 ## Goals
 
@@ -109,11 +109,11 @@ This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-o
 
 [//]: # (Links)
 
-[docs-getting-started]: #getting-started
-[docs-development]: ./development.md
-[docs-building-and-running]: ./building_and_running.md
-[docs-structure]: ./kernel_structure.md
-[docs-testing]: ./testing.md
+[docs::getting-started]: #getting-started
+[docs::development]: ./development.md
+[docs::building-and-running]: ./building_and_running.md
+[docs::kernel-architecture]: ./architecture/overview.md
+[docs::testing]: ./testing.md
 
 [operating system]: https://en.wikipedia.org/wiki/Operating_system
 [kernel]: https://en.wikipedia.org/wiki/Kernel_(operating_system)

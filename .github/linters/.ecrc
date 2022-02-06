@@ -4,7 +4,7 @@
   "IgnoreDefaults": false,
   "SpacesAftertabs": true,
   "NoColor": false,
-  "Exclude": ["\\.xcf$"],
+  "Exclude": ["\\.xcf$", "\\.md$"],
   "AllowedContentTypes": [],
   "PassedFiles": [],
   "Disable": {

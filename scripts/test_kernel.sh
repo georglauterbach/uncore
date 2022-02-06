@@ -11,12 +11,17 @@ SCRIPT='tests'
 function check_kernel
 {
   notify 'inf' "Running 'cargo check'"
-  cargo check --target "${BUILD_TARGET}" "${KERNEL_BUILD_FLAGS[@]}"
+  cargo check --target "${BUILD_TARGET_PATH}" "${KERNEL_BUILD_FLAGS[@]}"
 
-  notify 'inf' "Running formatting and clippy checks"
+  notify 'inf' 'Checking the source code documentation'
+  cargo doc --lib --document-private-items
+
+  notify 'inf' 'Running formatting and clippy checks'
   cargo fmt --all --message-format human -- --check
   cargo clippy --lib --all-features -- -D warnings
+  cargo clippy --package boot --all-features -- -D warnings
   cargo clippy --package test_runner --all-features -- -D warnings
+  cargo clippy --package workspace_helper --all-features -- -D warnings
 }
 
 function test_kernel
@@ -25,7 +30,7 @@ function test_kernel
   declare -a COMMAND
   COMMAND=(
     'cargo' 'test'
-    '--target' "${BUILD_TARGET}"
+    '--target' "${BUILD_TARGET_PATH}"
     "${KERNEL_BUILD_FLAGS[@]}"
   )
 
@@ -46,7 +51,7 @@ function test_kernel
 
   if [[ ${EXIT_CODE} -eq 0 ]]
   then
-    notify 'suc' 'Tests passed'
+    notify 'inf' 'Tests passed'
   else
     notify 'war' 'Tests did not pass' "(exit code was ${EXIT_CODE})"
     exit 1

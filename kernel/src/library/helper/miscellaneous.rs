@@ -7,13 +7,13 @@
 ///
 /// 1. The hardware architecture                        aarch64
 /// 2. The vendor (manufacturer) (optional)             unknown
-/// 3. Operating system                                 uefi
+/// 3. Operating system                                 uncore
 /// 4. ABI (optional, omitted in our case)
 ///
 /// The target triple reads as `ARCH-VENDOR-SYS-ABI` and you can read
 /// about it [here](https://docs.rust-embedded.org/embedonomicon/custom-target.html).
 ///
-/// The default case for `unCORE` is `x86_64-unknown-none`. This
+/// The default case for `unCORE` is `x86_64-unknown-uncore`. This
 /// target is for freestanding / bare-metal `x86-64` binaries in ELF
 /// format, i.e. firmware, kernels, etc.
 const BUILD_TARGET: Option<&str> = option_env!("BUILD_TARGET");
@@ -63,10 +63,14 @@ impl KernelInformation
 	#[must_use]
 	pub fn get_build_target() -> &'static str
 	{
-		let target_triple = "unknown";
+		#[cfg(target_arch = "aarch64")]
+		let target_triple = "aarch64-unknown-uncore";
 
-		#[cfg(all(target_arch = "x86_64", target_abi = "none"))]
-		let target_triple = "x86_64-unknown-none";
+		#[cfg(target_arch = "i686")]
+		let target_triple = "i686-unknown-uncore";
+
+		#[cfg(target_arch = "x86_64")]
+		let target_triple = "x86_64-unknown-uncore";
 
 		BUILD_TARGET.unwrap_or(target_triple)
 	}
@@ -104,4 +108,219 @@ impl KernelInformation
 	/// provided at built-time, otherwise returns "unknown".
 	#[must_use]
 	pub fn get_rustc_version() -> &'static str { RUSTC_VERSION.unwrap_or("unknown") }
+}
+
+/// ## Boot-Information Abstraction
+///
+/// Provides a type that abstracts over boot information provided by bootloaders using
+/// conditional compilation.
+pub mod boot
+{
+	/// ### Opaque Boot Information
+	///
+	/// This structure exists to have a uniform type for different architectures to
+	/// work with their boot information (provided by the bootloader). This way, we
+	/// need not write a different `fn main()`, etc. for every architecture.
+	#[cfg(target_arch = "x86_64")]
+	#[derive(Debug)]
+	pub struct Information(pub &'static bootloader::BootInfo);
+}
+
+/// ## Kernel Library Types
+///
+/// This module contains important data types (enums, structures,
+/// etc.) used throughout the kernel. One example includes the
+/// [`kernel_types::GlobalStaticMut`] type used for global static variables.
+pub mod kernel_types
+{
+	/// ### Kernel Exit Code
+	///
+	/// Shows whether the kernel exited successfully or not.
+	pub enum ExitCode
+	{
+		/// Exit with success
+		Success,
+		/// Exit with failure
+		Failure,
+	}
+
+	/// ### Global Static Variables for Non-Thread-Safe Types
+	///
+	/// This enumeration is the abstraction needed to abstract
+	/// over global `static` variables. This is case because these
+	/// variables need to be thread safe, and some types do not
+	/// implement [`Send`] or [`Sync`]. Furthermore, when the
+	/// kernel boots, there is no allocator (needed by
+	/// [`alloc::sync::Arc`]). Therefore, this type eliminates
+	/// the hassle of working with [`alloc::sync::Arc`] or
+	/// [`spin::Mutex`].
+	///
+	/// #### Safety
+	///
+	/// Calling the [`Self::new`] is always safe, but calling
+	/// [`Self::initialize`] requires a global allocator to be set
+	/// up.
+	#[allow(clippy::non_send_fields_in_send_ty)]
+	#[derive(Debug)]
+	pub enum GlobalStaticMut<T>
+	{
+		/// The default, boot-time state
+		Uninitialized,
+		/// The "runtime", post-boot state
+		Initialized(alloc::sync::Arc<lock::Locked<T>>),
+	}
+
+	impl<T> GlobalStaticMut<T>
+	{
+		/// ### Constant Boot-Time Initialization
+		///
+		/// This function **must** be used when creating a global, static variable
+		/// for non-thread safe types.
+		#[must_use]
+		pub const fn new() -> Self { Self::Uninitialized }
+
+		/// ### Initializing - Post-Boot
+		///
+		/// This function will return the [`Self::Initialized`] state with
+		/// initialized data. It will wrap the type in an
+		/// [`alloc::sync::Arc<spin::Mutex<T>>`] for thread-safe operation.
+		///
+		/// #### Safety
+		///
+		/// This function is considered unsafe for two reasons:
+		///
+		/// 1. It operates and changes `static mut` variables, which itself is
+		/// `unsafe`
+		/// 2. When calling this function before a global allocator has
+		///    been setup, this function    will panic due to the need for an
+		///    allocator in [`alloc::sync::Arc`].
+		pub unsafe fn initialize(inner_value: T) -> Self
+		{
+			Self::Initialized(alloc::sync::Arc::new(lock::Locked::from(inner_value)))
+		}
+
+		/// ### Check Status
+		///
+		/// Checks whether the variable is initialized or not. Returns true if the
+		/// variable is initialized.
+		#[must_use]
+		pub const fn is_initialized(&self) -> bool
+		{
+			match self {
+				Self::Uninitialized => false,
+				Self::Initialized(_) => true,
+			}
+		}
+
+		/// ### Get Exclusive Access
+		///
+		/// Returns a guard to the inner data field, that provides
+		/// (mutable) access to the encapsulated data, if the data
+		/// has already been initialized. If this is not the case,
+		/// this function returns [`None`].
+		///
+		/// #### Safety
+		///
+		/// This function is marked as `unsafe` because access to
+		/// the underlying data appears to be [`Send`] and [`Sync`] while these
+		/// traits are actually implemented for all (generic) types this structure
+		/// encapsulates, even if these types are not strictly [`Send`] or
+		/// [`Sync`]. That being said, the access **should be** safe, but you'll
+		/// need to take care nevertheless.
+		#[must_use]
+		pub unsafe fn lock(&self) -> Option<spin::MutexGuard<T>>
+		{
+			if let Self::Initialized(data) = self {
+				Some(data.lock())
+			} else {
+				None
+			}
+		}
+	}
+
+	unsafe impl<T> Send for GlobalStaticMut<T> {}
+	unsafe impl<T> Sync for GlobalStaticMut<T> {}
+
+	/// ## Kernel Wide Locking Abstraction
+	///
+	/// This module abstracts over a specific locking mechanism to provide unified
+	/// locking in the whole kernel.
+	///
+	/// Currently, a simple [`spin::Mutex`] is used to lock and achieve [`Sync`].
+	pub mod lock
+	{
+		/// ### The Locking Structure
+		///
+		/// This structure abstracts over its inner data and provides [`Sync`]
+		/// access to it if the provided data is [`Send`].
+		#[derive(Debug)]
+		pub struct Locked<T>
+		{
+			/// Only and inner data field
+			data: spin::Mutex<T>,
+		}
+
+		impl<T> Locked<T>
+		{
+			/// ### Create a New Locked Structure
+			///
+			/// Encapsulates the given `data`, taking ownership over it, and
+			/// locking it.
+			pub const fn from(data: T) -> Self
+			{
+				Self {
+					data: spin::Mutex::new(data),
+				}
+			}
+
+			/// ### Get Exclusive Access
+			///
+			/// Returns a guard to the inner data field, that provides
+			/// (mutable) access to the encapsulated data.
+			pub fn lock(&self) -> spin::MutexGuard<T> { self.data.lock() }
+		}
+	}
+}
+
+/// ## QEMU Abstractions
+///
+/// Contains helpers for running the kernel with QEMU.
+pub mod qemu
+{
+	/// ### Write An Exit Code
+	///
+	/// Writes to the `0xF4` port the correct bytes that indicate
+	/// either success or failure.
+	#[inline]
+	fn exit(success: bool)
+	{
+		use qemu_exit::QEMUExit;
+
+		if runs_inside_qemu::runs_inside_qemu().is_definitely_not() {
+			return;
+		}
+
+		#[cfg(target_arch = "x86_64")]
+		let qemu_exit_handle = qemu_exit::X86::new(0xF4, 0x3);
+
+		if success {
+			qemu_exit_handle.exit_success();
+		} else {
+			qemu_exit_handle.exit_failure();
+		}
+	}
+
+	/// ### Exit QEMU With Success
+	///
+	/// Write a success exit code for QEMU to recognize and exit.
+	#[allow(dead_code)]
+	#[inline]
+	pub fn exit_with_success() { exit(true); }
+
+	/// ### Exit QEMU Without Success
+	///
+	/// Write a failure exit code for QEMU to recognize and exit.
+	#[allow(dead_code)]
+	#[inline]
+	pub fn exit_with_failure() { exit(false); }
 }

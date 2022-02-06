@@ -19,10 +19,9 @@ mod general;
 /// interrupts arrive.
 mod interrupts;
 
-/// ### Initialize `x86_64`
+/// ### Initialize x86 64 Bit
 ///
-/// This function initializes interrupts, exceptions, GDT, IDT and
-/// more.
+/// This function initializes the CPU for the x86 64 Bit architecture.
 pub fn initialize()
 {
 	crate::prelude::log_debug!("Initializing CPU");

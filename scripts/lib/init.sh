@@ -16,17 +16,17 @@ function basic_setup
 
   if ! cd "${ROOT_DIRECTORY}"
   then
-    printf "%-12s \e[31mABORT  \e[0m %s%s\n"             \
-      "${SCRIPT:-${0}}"                                 \
-      'Could not change into repository root directory' \
-      "${ROOT_DIRECTORY}" >&2
+    printf "[  \e[91mERROR\e[0m  ] %25s\e[91m@\e[0mbash | \e[91m%s\e[0m\n" \
+      "${SCRIPT:-${0}}"                                                    \
+      'Could not change into repository root directory'                    \
+      >&2
     exit 1
   fi
 
-  source scripts/lib/logs.sh
+  source scripts/lib/log.sh
   source scripts/lib/errors.sh
 
-  notify 'deb' 'Performed basic script intialization'
+  notify 'tra' 'Performed basic script intialization'
 }
 
 function setup_kernel_environment
@@ -41,7 +41,7 @@ function setup_kernel_environment
 
   notify 'deb' 'Setting kernel environment variables'
 
-  export BUILD_TARGET COMPILATION_DATE_AND_TIME
+  export BUILD_TARGET BUILD_TARGET_PATH COMPILATION_DATE_AND_TIME
   export GIT_REVISION_HEAD
   export KERNEL_BINARY KERNEL_VERSION
   export QEMU_KERNEL_BINARY
@@ -49,19 +49,24 @@ function setup_kernel_environment
 
   declare -g -a KERNEL_BUILD_FLAGS
 
-  BUILD_TARGET='x86_64-unknown-uefi'
+  BUILD_TARGET='x86_64-unknown-uncore'
+  BUILD_TARGET_PATH="${ROOT_DIRECTORY}/kernel/.cargo/targets/${BUILD_TARGET}.json"
   COMPILATION_DATE_AND_TIME="$(date +'%H:%M, %d %b %Y')"
   GIT_REVISION_HEAD="$(git rev-parse --short HEAD)"
   KERNEL_VERSION="$(grep -m 1 'version*' Cargo.toml | cut -d '"' -f 2)"
   KERNEL_VERSION+=" (${GIT_REVISION_HEAD})"
-  KERNEL_BINARY="target/${BUILD_TARGET}/debug/kernel.efi"
+  KERNEL_BINARY="${ROOT_DIRECTORY}/kernel/target/${BUILD_TARGET}/debug/kernel"
   KERNEL_BUILD_FLAGS+=('-Z')
   KERNEL_BUILD_FLAGS+=('build-std=core,compiler_builtins,alloc')
   KERNEL_BUILD_FLAGS+=('-Z')
   KERNEL_BUILD_FLAGS+=('build-std-features=compiler-builtins-mem')
-  QEMU_KERNEL_BINARY='build/qemu/kernel/EFI/BOOT/BOOTX64.EFI'
+  QEMU_KERNEL_BINARY='out/qemu/kernel/EFI/BOOT/BOOTX64.EFI'
 
-  mkdir -p build/qemu/kernel/EFI/BOOT/ build/tests/kernel/EFI/BOOT/
+  mkdir -p                     \
+    out/qemu/kernel/EFI/BOOT/  \
+    out/qemu/boot_output/      \
+    out/tests/kernel/EFI/BOOT/ \
+    out/tests/boot_output/
 
   RUST_DEFAULT_TARGET="$(rustc -Vv | grep 'host:' | cut -d ' ' -f 2)"
   RUSTC_VERSION="$(rustc --version)" ; RUSTC_VERSION=${RUSTC_VERSION#rustc }
@@ -89,8 +94,9 @@ function set_build_target
     then
         export BUILD_TARGET KERNEL_BINARY
 
-        BUILD_TARGET="${1}-unknown-uefi"
-        KERNEL_BINARY="target/${BUILD_TARGET}/debug/kernel.efi"
+        BUILD_TARGET="${1}-unknown-uncore"
+        BUILD_TARGET_PATH="${ROOT_DIRECTORY}/kernel/.cargo/targets/${BUILD_TARGET}.json"
+        KERNEL_BINARY="${ROOT_DIRECTORY}/kernel/target/${BUILD_TARGET}/debug/kernel"
 
         return 0
     fi
@@ -120,7 +126,7 @@ function main
   done
 
   export -f set_build_target
-  notify 'deb' 'Finished script intialization'
+  notify 'tra' 'Finished script intialization'
 }
 
 main "${@}"

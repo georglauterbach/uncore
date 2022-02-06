@@ -9,20 +9,40 @@
 ///
 /// The `interrupt_stack_table` is a field in the Task State Segment
 /// (TSS) struct. It can be used to switch kernel stacks.
-pub const DOUBLE_FAULT_IST_INDEX: u16 = 1;
+const DOUBLE_FAULT_IST_INDEX: u16 = 0;
 
 /// ### Generic Stacks
 ///
 /// This module contains a struct which can represent a stack (with
 /// proper alignment, etc.).
-mod stack
+mod stacks
 {
-	/// ### Just a Stack
+	/// ### Stack Size for Double Fault Handler
 	///
-	/// The `PseudoStack` represent a proper stack that is
-	/// allocated like a normal stack but as a stack object.
+	/// The size of the stack used during the CPU double fault
+	/// exception. We provide the equivalent of 20 pages, each 4096 (0x1000) byte in
+	/// size-
+	const DOUBLE_FAULT_STACK_SIZE: usize = crate::prelude::memory::PAGE_SIZE_DEFAULT * 20;
+
+	/// ### Double Fault Stack
+	///
+	/// This data structure represents the kernel stack used by the double fault
+	/// handler.
 	#[repr(align(16))]
-	pub(super) struct PseudoStack<'a>(pub &'a [u8]);
+	pub struct DoubleFaultStack([u8; DOUBLE_FAULT_STACK_SIZE]);
+
+	impl DoubleFaultStack
+	{
+		/// ### Create a New Double Fault Stack
+		///
+		/// Returns a properly initialized double fault stack.
+		pub const fn new() -> Self { Self([0; Self::size()]) }
+
+		/// ### Get the Stack Size
+		///
+		/// Returns the (constant) size of the double fault stack.
+		pub const fn size() -> usize { DOUBLE_FAULT_STACK_SIZE }
+	}
 }
 
 /// ## Global Descriptor Table Setup
@@ -34,7 +54,7 @@ pub(super) mod gdt
 {
 	use crate::prelude::*;
 	use super::{
-		stack,
+		stacks,
 		DOUBLE_FAULT_IST_INDEX,
 	};
 	use x86_64::{
@@ -47,12 +67,6 @@ pub(super) mod gdt
 			tss,
 		},
 	};
-
-	/// ### Stack Size for Double Fault Handler
-	///
-	/// The size of the stack used during the CPU double fault
-	/// exception.
-	const DOUBLE_FAULT_STACK_SIZE: usize = 0x20000;
 
 	lazy_static::lazy_static! {
 
@@ -68,18 +82,12 @@ pub(super) mod gdt
 			// fault exception occurs to prevent fatal triple fault
 			// exceptions (e.g. due to hitting the guard page)
 			tss.interrupt_stack_table[DOUBLE_FAULT_IST_INDEX as usize] = {
-				/// ### The Double Fault Handler Stack Memory
-				///
-				/// This variable contains the memory for the CPU
-				/// double fault exception handler stack.
-				static mut STACK: stack::PseudoStack =
-					stack::PseudoStack(&[0; DOUBLE_FAULT_STACK_SIZE]);
-
-				// on `x86_64`, the stack grows downwards, therefore,
-				// the "start" is the lowest address and we return
-				// the "end" address which is the highest address
-				let stack_start = x86_64::VirtAddr::from_ptr(unsafe { &STACK });
-				stack_start + DOUBLE_FAULT_STACK_SIZE
+				/// The instantiation of the double fault stack
+				/// used by the double fault handler.
+				static mut DOUBLE_FAULT_STACK: stacks::DoubleFaultStack =
+					stacks::DoubleFaultStack::new();
+				let stack_start = x86_64::VirtAddr::from_ptr(unsafe { &DOUBLE_FAULT_STACK });
+				stack_start + stacks::DoubleFaultStack::size() // == stack end
 			};
 
 			tss
@@ -125,7 +133,7 @@ pub(super) mod gdt
 		code_segment:  gdt::SegmentSelector,
 		/// The Stack Segment (`ss`) register selector
 		stack_segment: gdt::SegmentSelector,
-		/// The [`TSS`] selector
+		/// The [`struct@TSS`] selector
 		tss_segment:   gdt::SegmentSelector,
 	}
 
@@ -142,14 +150,14 @@ pub(super) mod gdt
 		log_debug!("Loading Global Descriptor Table (GDT) and Task State Segment (TSS)");
 		GDT.0.load();
 
-		log_trace!("Setting registers for the GDT");
+		log_debug!("Setting registers for the GDT");
 		unsafe {
 			segmentation::CS::set_reg(GDT.1.code_segment);
 			segmentation::SS::set_reg(GDT.1.stack_segment);
 			tables::load_tss(GDT.1.tss_segment);
 		}
 
-		log_trace!("Finished GDT setup");
+		log_debug!("Finished GDT setup");
 	}
 }
 
@@ -277,6 +285,6 @@ pub(super) mod idt
 	{
 		log_debug!("Loading Interrupt Descriptor Table (IDT)");
 		IDT.load();
-		log_trace!("Finished IDT setup");
+		log_debug!("Finished IDT setup");
 	}
 }

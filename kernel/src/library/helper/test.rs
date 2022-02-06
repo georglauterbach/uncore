@@ -38,9 +38,9 @@ where
 {
 	fn run(&self)
 	{
-		log_debug!("Testing {}", ::core::any::type_name::<Self>());
+		log_info!("Testing {}", ::core::any::type_name::<Self>());
 		self();
-		log_trace!("Most recent test passed");
+		log_debug!("Most recent test passed");
 	}
 }
 
@@ -51,7 +51,6 @@ where
 ///
 /// It will just execute all functions marked with `#[test_case]` one
 /// by one.
-#[allow(clippy::module_name_repetitions)]
 pub fn runner(tests: &[&dyn Testable])
 {
 	log_info!("Starting tests");
@@ -61,7 +60,7 @@ pub fn runner(tests: &[&dyn Testable])
 	}
 
 	log_info!("Last test finished successfully");
-	qemu::exit_with_success();
+	super::miscellaneous::qemu::exit_with_success();
 }
 
 /// ### Sanity Check
@@ -74,44 +73,4 @@ fn trivial_assertion()
 	const ONE: u8 = 1;
 	assert_eq!(1, ONE);
 	assert_eq!(ONE, 1);
-}
-
-/// ## QEMU Abstractions
-///
-/// Contains helpers for running the kernel with QEMU.
-pub mod qemu
-{
-
-	/// ### Write An Exit Code
-	///
-	/// Writes to the `0xF4` port the correct bytes that indicate
-	/// either success or failure.
-	#[inline]
-	fn exit(success: bool)
-	{
-		use qemu_exit::QEMUExit;
-
-		#[cfg(target_arch = "x86_64")]
-		let qemu_exit_handle = qemu_exit::X86::new(0xF4, 0x3);
-
-		if success {
-			qemu_exit_handle.exit_success();
-		} else {
-			qemu_exit_handle.exit_failure();
-		}
-	}
-
-	/// ### Exit QEMU With Success
-	///
-	/// Write a success exit code for QEMU to recognize and exit.
-	#[allow(dead_code)]
-	#[inline]
-	pub fn exit_with_success() { exit(true); }
-
-	/// ### Exit QEMU Without Success
-	///
-	/// Write a failure exit code for QEMU to recognize and exit.
-	#[allow(dead_code)]
-	#[inline]
-	pub fn exit_with_failure() { exit(false); }
 }

@@ -6,7 +6,7 @@ on: # yamllint disable-line rule:truthy
   workflow_dispatch:
   push:
     branches:
-      - master,
+      - master
       - development
     paths:
       - .github/workflows/documentation.yml
@@ -38,7 +38,7 @@ jobs:
           # Docs should build referencing the tagged version instead:
           sed -i "s|^\(site_url:.*\)edge|\1${DOCS_VERSION}|" config.yml
 
-      - name: Build with mkdocs-material via Docker
+      - name: Build with mkdocs-material with Docker
         run: scripts/documentation.sh build
 
       - name: If a tagged version, fix canonical links and remove `404.html`

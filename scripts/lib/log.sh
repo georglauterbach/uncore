@@ -1,11 +1,17 @@
-#! /bin/%25s
+#! /bin/bash
 
-# version       0.4.1
+# version       0.5.0
 # sourced by    shell scripts under scripts/
 # task          provides logging functionality
 
 function notify
 {
+  function __log_trace
+  {
+    printf "[  \e[94mDEBUG\e[0m  ] %25s\e[94m@\e[0mbash | \e[94m%s\e[0m\n" \
+      "${SCRIPT:-${0}}" "${*}"
+  }
+
   function __log_debug
   {
     printf "[  \e[94mDEBUG\e[0m  ] %25s\e[94m@\e[0mbash | \e[94m%s\e[0m\n" \
@@ -15,12 +21,6 @@ function notify
   function __log_info
   {
     printf "[   \e[34mINF\e[0m   ] %25s\e[34m@\e[0mbash | \e[34m%s\e[0m\n" \
-      "${SCRIPT:-${0}}" "${*}"
-  }
-
-  function __log_success
-  {
-    printf "[ \e[92mSUCCESS\e[0m ] %25s\e[92m@\e[0mbash | \e[92m%s\e[0m\n" \
       "${SCRIPT:-${0}}" "${*}"
   }
 
@@ -42,6 +42,7 @@ function notify
   #
   #   value => meaning - what to log
   #   -------------------------------------------------
+  #   tra   => trace   - log trace information
   #   deb   => debug   - log debug information
   #   inf   => info    - log informational output
   #   war   => warning - log warnings
@@ -49,45 +50,46 @@ function notify
   #
   # where a higher level includes the level below. The
   # default log level is 'warning' (2).
-  local INTERNAL_LOG_LEVEL=2 INTERNAL_LOG_LEVEL_STRING
-  case "${LOG_LEVEL:-war}" in
-    ( 'err'* ) INTERNAL_LOG_LEVEL=0 ;;
-    ( 'war'* ) INTERNAL_LOG_LEVEL=1 ;;
-    ( 'inf'* ) INTERNAL_LOG_LEVEL=2 ;;
-    ( 'deb'* ) INTERNAL_LOG_LEVEL=3 ;;
-    ( * )     INTERNAL_LOG_LEVEL=2 ;;
-  esac
-
-  INTERNAL_LOG_LEVEL_STRING="${1:-}"
+  local __LOG_LEVEL=2 __LOG_LEVEL_STRING="${1:-}"
   shift 1
 
-  case "${INTERNAL_LOG_LEVEL_STRING}" in
+  case "${LOG_LEVEL:-inf}" in
+    ( 'err'* ) __LOG_LEVEL=0 ;;
+    ( 'war'* ) __LOG_LEVEL=1 ;;
+    ( 'inf'* ) __LOG_LEVEL=2 ;;
+    ( 'deb'* ) __LOG_LEVEL=3 ;;
+    ( 'tra'* ) __LOG_LEVEL=4 ;;
+    ( *      ) __LOG_LEVEL=2 ;;
+  esac
+
+  case "${__LOG_LEVEL_STRING}" in
+    ( 'tra' )
+      [[ ${__LOG_LEVEL} -lt 4 ]] && return 0
+      __log_debug "${*}"
+      ;;
+
     ( 'deb' )
-      [[ ${INTERNAL_LOG_LEVEL} -lt 3 ]] && return 0
+      [[ ${__LOG_LEVEL} -lt 3 ]] && return 0
       __log_debug "${*}"
       ;;
 
     ( 'inf' )
-      [[ "${INTERNAL_LOG_LEVEL}" -lt 2 ]] && return 0
+      [[ "${__LOG_LEVEL}" -lt 2 ]] && return 0
       __log_info "${*}"
       ;;
 
-    ( 'suc' )
-      [[ "${INTERNAL_LOG_LEVEL}" -lt 2 ]] && return 0
-      __log_success "${*}"
-      ;;
-
     ( 'war' )
-      [[ "${INTERNAL_LOG_LEVEL}" -lt 1 ]] && return 0
+      [[ "${__LOG_LEVEL}" -lt 1 ]] && return 0
       __log_warning "${*}"
       ;;
 
-    ( 'err' ) __log_error "${*}" ;;
-
-    ( * )
-      [[ "${INTERNAL_LOG_LEVEL}" -lt 1 ]] && return 0
+    ( 'err' )
       __log_error "${*}"
       ;;
 
+    ( * )
+      [[ "${__LOG_LEVEL}" -lt 1 ]] && return 0
+      __log_warning "${*}"
+      ;;
   esac
 }

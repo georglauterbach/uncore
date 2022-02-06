@@ -18,6 +18,10 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
+// Lint target for code documentation. This lint enforces code
+// documentation on every code item.
+#![deny(missing_docs)]
+#![deny(clippy::missing_docs_in_private_items)]
 // Use custom test runners. Since we cannot use the standard
 // library, we have to use our own test framework.
 #![feature(custom_test_frameworks)]
@@ -36,31 +40,23 @@ use kernel::{
 	prelude::*,
 };
 
-#[no_mangle]
-pub extern "C" fn efi_main(
-	uefi_handle: uefi::Handle,
-	uefi_system_table_boot: library::boot::UEFISystemTableBootTime,
-) -> !
+bootloader::entry_point!(kernel_test_main);
+
+fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	library::log::init(Some(log::Level::Trace));
+	library::log::initialize(Some(log::Level::Trace));
 	library::log::display_initial_information();
 
-	kernel_main(library::boot::exit_boot_services(
-		uefi_handle,
-		uefi_system_table_boot,
-	))
-}
-
-fn kernel_main(_: library::boot::UEFIMemoryMap) -> !
-{
 	log_info!("This is the 'basic_boot' test");
-	__test_runner();
 
-	never_return()
+	library::architectures::initialize();
+
+	__test_runner();
+	exit_kernel(kernel_types::ExitCode::Success)
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(false, panic_info) }
 
 #[test_case]
 fn test_println()
