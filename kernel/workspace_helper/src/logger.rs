@@ -29,7 +29,7 @@ impl Logger
 	/// is not present.
 	fn try_from_str() -> Option<log::Level>
 	{
-		LOG_LEVEL.map_or(None, |log_level| match log_level {
+		LOG_LEVEL.and_then(|log_level| match log_level {
 			"err" => Some(log::Level::Error),
 			"war" => Some(log::Level::Warn),
 			"inf" => Some(log::Level::Info),
@@ -44,14 +44,14 @@ impl Logger
 	/// This function takes care of setting the correct log level.
 	fn set_log_level(log_level: log::Level)
 	{
-		Logger::try_from_str().map_or_else(
+		Self::try_from_str().map_or_else(
 			|| {
 				log::set_max_level(log_level.to_level_filter());
 			},
 			|log_level| {
 				log::set_max_level(log_level.to_level_filter());
 			},
-		)
+		);
 	}
 }
 

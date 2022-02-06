@@ -14,6 +14,7 @@ pub struct PageTable<'a>(Option<paging::OffsetPageTable<'a>>);
 impl<'a> PageTable<'a>
 {
 	/// TODO
+	#[must_use]
 	pub const fn new(page_table: Option<paging::OffsetPageTable<'a>>) -> Self { Self(page_table) }
 }
 
@@ -33,6 +34,7 @@ pub struct FrameAllocator(Option<frame_allocation::BootInfoFrameAllocator>);
 impl FrameAllocator
 {
 	/// TODO
+	#[must_use]
 	pub const fn new(allocator: Option<frame_allocation::BootInfoFrameAllocator>) -> Self
 	{
 		Self(allocator)

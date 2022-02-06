@@ -67,18 +67,14 @@ impl KernelLogger
 	/// is not present.
 	fn try_from_str() -> Option<log::Level>
 	{
-		if let Some(log_level) = LOG_LEVEL {
-			match log_level {
-				"err" => Some(log::Level::Error),
-				"war" => Some(log::Level::Warn),
-				"inf" => Some(log::Level::Info),
-				"deb" => Some(log::Level::Debug),
-				"tra" => Some(log::Level::Trace),
-				_ => None,
-			}
-		} else {
-			None
-		}
+		LOG_LEVEL.and_then(|log_level| match log_level {
+			"err" => Some(log::Level::Error),
+			"war" => Some(log::Level::Warn),
+			"inf" => Some(log::Level::Info),
+			"deb" => Some(log::Level::Debug),
+			"tra" => Some(log::Level::Trace),
+			_ => None,
+		})
 	}
 
 	/// ### Set the Log Level
@@ -86,14 +82,14 @@ impl KernelLogger
 	/// This function takes care of setting the correct log level.
 	fn set_log_level(log_level: log::Level)
 	{
-		KernelLogger::try_from_str().map_or_else(
+		Self::try_from_str().map_or_else(
 			|| {
 				log::set_max_level(log_level.to_level_filter());
 			},
 			|log_level| {
 				log::set_max_level(log_level.to_level_filter());
 			},
-		)
+		);
 	}
 }
 

@@ -6,9 +6,11 @@ use crate::library::{
 	prelude::*,
 };
 
+/// TODO
 pub static mut KERNEL_PAGE_TABLE: architectures::memory::PageTable =
 	architectures::memory::PageTable::new(None);
 
+/// TODO
 pub static mut KERNEL_FRAME_ALLOCATOR: architectures::memory::FrameAllocator =
 	architectures::memory::FrameAllocator::new(None);
 
@@ -33,14 +35,16 @@ pub fn initialize(boot_information: &boot::Information)
 	log_info!("Finished initializing virtual memory");
 }
 
+/// TODO
 #[allow(dead_code)]
 struct Frame;
 
+/// TODO
 #[allow(dead_code)]
 struct Page;
 
 /// TODO
-pub(crate) trait PageAllocation
+pub trait PageAllocation
 {
 	/// TODO
 	fn allocate_page<FA>(&mut self, frame_allocator: FA)
@@ -49,7 +53,7 @@ pub(crate) trait PageAllocation
 }
 
 /// TODO
-pub(crate) trait FrameAllocation
+pub trait FrameAllocation
 {
 	/// TODO
 	fn allocate_frame(&mut self) -> Result<(), ()>;
