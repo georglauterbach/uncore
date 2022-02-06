@@ -91,4 +91,8 @@ alias fmt := format
 @docs action='serve':
 	bash {{ROOT_DIRECTORY}}/scripts/documentation.sh {{action}}
 
+@cargo_doc arguments='':
+	cd {{KERNEL_DIRECTORY}} && cargo doc --lib --document-private-items {{arguments}}
+
 alias doc := docs
+alias cargo_docs := cargo_doc

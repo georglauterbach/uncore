@@ -13,7 +13,10 @@ function check_kernel
   notify 'inf' "Running 'cargo check'"
   cargo check --target "${BUILD_TARGET_PATH}" "${KERNEL_BUILD_FLAGS[@]}"
 
-  notify 'inf' "Running formatting and clippy checks"
+  notify 'inf' 'Checking the source code documentation'
+  cargo doc --lib --document-private-items
+
+  notify 'inf' 'Running formatting and clippy checks'
   cargo fmt --all --message-format human -- --check
   cargo clippy --lib --all-features -- -D warnings
   cargo clippy --package boot --all-features -- -D warnings
