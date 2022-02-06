@@ -7,6 +7,9 @@
 /// the kernel (and for the user-space in the future).
 mod virtual_memory;
 
+pub(crate) use virtual_memory::PageAllocation;
+pub(crate) use virtual_memory::FrameAllocation;
+
 /// ## A Simple Allocator
 ///
 /// This module provides a _very_ simple and minimalistic allocator

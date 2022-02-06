@@ -7,10 +7,49 @@ use crate::prelude::*;
 
 use x86_64::structures::paging;
 
+/// TODO
+pub struct PageTable<'a>(Option<paging::OffsetPageTable<'a>>);
+
+#[cfg(target_arch = "x86_64")]
+impl<'a> PageTable<'a>
+{
+	/// TODO
+	pub const fn new(page_table: Option<paging::OffsetPageTable<'a>>) -> Self { Self(page_table) }
+}
+
+impl<'a> memory::PageAllocation for PageTable<'a>
+{
+	fn allocate_page<FA>(&mut self, _frame_allocator: FA)
+	where
+		FA: memory::FrameAllocation,
+	{
+		unimplemented!()
+	}
+}
+
+/// TODO
+pub struct FrameAllocator(Option<frame_allocation::BootInfoFrameAllocator>);
+
+impl FrameAllocator
+{
+	/// TODO
+	pub const fn new(allocator: Option<frame_allocation::BootInfoFrameAllocator>) -> Self
+	{
+		Self(allocator)
+	}
+}
+
+impl memory::FrameAllocation for FrameAllocator
+{
+	fn allocate_frame(&mut self) -> Result<(), ()> { todo!() }
+}
+
 /// ### Architecture Specific Virtual Memory Initialization
 ///
 /// This function initializes the virtual memory for the `x86_64` architecture.
-pub fn initialize(boot_information: &'static bootloader::BootInfo)
+pub fn initialize(
+	boot_information: &'static bootloader::BootInfo,
+) -> (paging::OffsetPageTable, frame_allocation::BootInfoFrameAllocator)
 {
 	log_info!("Initializing virtual memory for x86_64");
 
@@ -34,6 +73,8 @@ pub fn initialize(boot_information: &'static bootloader::BootInfo)
 		unsafe { frame_allocation::BootInfoFrameAllocator::init(&boot_information.memory_regions) };
 
 	initialize_kernel_heap(&mut frame_allocator, &mut offset_page_table);
+
+	(offset_page_table, frame_allocator)
 }
 
 // TODO this is actually for the kernel heap... re-locate it after a proper refactoring
