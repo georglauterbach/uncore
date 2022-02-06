@@ -49,9 +49,9 @@ const ROOT_DIRECTORY: Option<&str> = option_env!("ROOT_DIRECTORY");
 
 /// ### Individual Test Run Timeout
 ///
-/// The time in seconds any individual test has before being
+/// The time **in seconds** any individual test has before being
 /// terminated.
-const TIMEOUT: u64 = 10;
+const TIMEOUT: u64 = 30;
 
 /// # Entrypoint
 ///
@@ -121,7 +121,12 @@ fn main()
 		&kernel_test_binary_path_string,
 		kernel_test_binary_name,
 	);
-	run_test(&root_directory);
+
+	if kernel_test_binary_path_string.contains("uncore/debug/deps/kernel-") {
+		run_test(&root_directory, 120);
+	} else {
+		run_test(&root_directory, TIMEOUT);
+	}
 }
 
 /// ### Build a Bootable Test Binary
@@ -171,7 +176,7 @@ fn link_with_bootloader(
 ///
 /// This function runs the test binary in QEMU properly by calling the `run_in_qemu.sh`
 /// script with the correct environment and with proper timeout.
-fn run_test(root_directory: &str)
+fn run_test(root_directory: &str, timeout: u64)
 {
 	log::debug!("Test runner runs test now");
 	let mut run_command = process::Command::new("bash");
@@ -180,7 +185,7 @@ fn run_test(root_directory: &str)
 		.arg("scripts/run_in_qemu.sh")
 		.env("QEMU_DIRECTORY", "out/tests");
 
-	match runner_utils::run_with_timeout(&mut run_command, time::Duration::from_secs(TIMEOUT)) {
+	match runner_utils::run_with_timeout(&mut run_command, time::Duration::from_secs(timeout)) {
 		Ok(exit_code) => match exit_code.code() {
 			Some(0) => {},
 			Some(other_exit_code) => {

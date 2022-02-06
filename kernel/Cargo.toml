@@ -41,6 +41,10 @@ autobins = true
 autoexamples = true
 autotests = true
 
+[[bin]]
+name = "kernel"
+path = "src/main.rs"
+
 # -----------------------------------------------
 # ----  Profiles  -------------------------------
 # -----------------------------------------------
