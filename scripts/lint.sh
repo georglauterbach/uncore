@@ -41,10 +41,10 @@ function lint_editorconfig
 function lint_shellcheck
 {  
   declare -a ARGUMENTS
-  local TAG IMAGE FILES
+  local VERSION IMAGE FILES
 
-  TAG='0.8.0'
-  IMAGE="docker.io/koalaman/shellcheck:v${TAG}"
+  VERSION='0.8.0'
+  IMAGE="docker.io/koalaman/shellcheck:v${VERSION}"
   readarray -d '' FILES < <(find . -type f -iname "*.sh" -print0)
 
   ARGUMENTS=(
@@ -60,7 +60,7 @@ function lint_shellcheck
     "--source-path=${ROOT_DIRECTORY}"
   )
 
-  notify 'deb' "Running ShellCheck (${TAG})"
+  notify 'deb' "Running ShellCheck (${VERSION})"
 
   # shellcheck disable=SC2154
   if "${CRI}" run \
