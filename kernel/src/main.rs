@@ -41,46 +41,21 @@
 
 //! # The `unCORE` Operating System Kernel
 //!
-//! This is `unCORE`, an operating system kerne completely written in
-//! pure, idiomatic Rust.
+//! This is `unCORE`, an operating system kerne completely written in pure, idiomatic
+//! Rust.
 //!
-//! This file provides the "entrypoint" for the main binary, i.e. the
-//! kernel, as well as functions for integration tests.
+//! ## Entrypoint
+//!
+//! The entrypoint is architecture-specific, and therefore found under
+//! `library/architectures/<ARCHITECTURE>/mod.rs`.
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::{
-	library,
-	prelude::*,
-};
+extern crate alloc;
 
-/// ### Kernel Binary Entrypoint
-///
-/// This is the kernel's entry point directly called by the boot-code
-/// (written in assembly). We're still in the UEFI boot services are
-/// still enabled: it is our job to disable them now.
-#[no_mangle]
-pub fn kernel_main(
-	multiboot2_bootloader_magic_value: u32,
-	multiboot2_boot_information_pointer: u32,
-) -> !
-{
-	#[cfg(test)]
-	__test_runner();
-
-	library::log::init(Some(log::Level::Trace));
-	library::log::display_initial_information();
-
-	library::boot::check_and_parse_multiboot2(
-		multiboot2_bootloader_magic_value,
-		multiboot2_boot_information_pointer,
-	);
-	// https://github.com/rust-osdev/bootloader/blob/main/src/bin/uefi.rs#L37
-	let _uefi_memory_map = library::boot::exit_uefi_boot_services();
-
-	never_return()
-}
+#[cfg(target_arch = "x86_64")]
+bootloader::entry_point!(kernel::library::architectures::kernel_main);
 
 /// ### Default Panic Handler
 ///
@@ -88,4 +63,16 @@ pub fn kernel_main(
 /// on whether you are running tests or not, writes an exit code and
 /// does not return afterwards. Note that we do not unwind the stack.
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { kernel::prelude::panic::callback(false, panic_info) }
+
+/// ### Sanity Check
+///
+/// This tests is just here for sanity's sake to make
+/// sure tests behave correctly at the most basic level.
+#[test_case]
+fn trivial_assertion()
+{
+	const ONE: u8 = 1;
+	assert_eq!(1, ONE);
+	assert_eq!(ONE, 1);
+}

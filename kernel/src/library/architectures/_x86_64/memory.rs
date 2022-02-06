@@ -1,176 +1,193 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-// TODO work in progress
+// TODO
 
-// use x86_64::{
-// 	structures::paging::{
-// 		// PageTable,
-// 		OffsetPageTable,
-// 		// Translate,
-// 		FrameAllocator,
-// 		Size4KiB,
-// 		PhysFrame,
-// 		Mapper,
-// 		Page,
-// 	},
-// 	PhysAddr,
-// 	VirtAddr,
-// };
+use crate::prelude::*;
 
-// /// ### Initialize Memory for `x86_64`
-// ///
-// /// This function initialized the memory for the `x86_64` target
-// /// platform.
-// pub fn init(boot_information: &'static bootloader::BootInfo)
-// {
-// 	let mut offset_page_table = unsafe {
-// create_offset_page_table(boot_information) };
+use x86_64::structures::paging;
 
-// 	let mut frame_allocator =
-// 		unsafe {
-// CustomFrameAllocator::init(&boot_information.memory_regions) };
+/// TODO
+pub struct PageTable<'a>(Option<paging::OffsetPageTable<'a>>);
 
-// 	let page =
-// Page::containing_address(VirtAddr::new(0x0DEA_DBEA_F000));
-// 	create_example_mapping(page, &mut offset_page_table, &mut
-// frame_allocator); 	let page_ptr: *mut u64 =
-// page.start_address().as_mut_ptr(); 	unsafe { page_ptr.offset(400).
-// write_volatile(0x_F021_F077_F065_F04E) }; }
+#[cfg(target_arch = "x86_64")]
+impl<'a> PageTable<'a>
+{
+	/// TODO
+	#[must_use]
+	pub const fn new(page_table: Option<paging::OffsetPageTable<'a>>) -> Self { Self(page_table) }
+}
 
-// /// ### Initialize a new `OffsetPageTable`
-// ///
-// /// This function crates the page table structure for `uncORE`. As
-// the /// complete physical memory is mapped by the bootloader, we
-// cam just /// use an offset to calculate the first level 4 page
-// table. ///
-// /// #### Safety
-// ///
-// /// This function is unsafe because the caller must guarantee that
-// the /// complete physical memory is mapped to virtual memory at the
-// passed /// `physical_memory_offset`. Also, this function must be
-// only called /// once to avoid aliasing `&mut` references (which is
-// undefined /// behavior).
-// unsafe fn create_offset_page_table(
-// 	boot_information: &bootloader::BootInfo,
-// ) -> OffsetPageTable<'static>
-// {
-// 	let physical_memory_mapping_offset =
-// 		if let Some(address) =
-// boot_information.physical_memory_offset.into_option() { 			VirtAddr::
-// new(address) 		} else {
-// 			log_error!("Physical memory offset non-existent");
-// 			panic!("Memory offset should not be non-existent");
-// 		};
+impl<'a> memory::PageAllocation for PageTable<'a>
+{
+	fn allocate_page<FA>(&mut self, _frame_allocator: FA)
+	where
+		FA: memory::FrameAllocation,
+	{
+		unimplemented!()
+	}
+}
 
-// 	let (level_4_page_table_frame, _) =
-// x86_64::registers::control::Cr3::read();
-// 	let level_4_page_table_frame_physical_address =
-// level_4_page_table_frame.start_address();
-// 	let level_4_page_table_frame_virtual_address =
-// 		physical_memory_mapping_offset +
-// level_4_page_table_frame_physical_address.as_u64();
-// 	let level_4_page_table =
-// level_4_page_table_frame_virtual_address.as_mut_ptr();
+/// TODO
+pub struct FrameAllocator(Option<frame_allocation::BootInfoFrameAllocator>);
 
-// 	crate::log_trace!(
-// 		"Page table starts at {:?} / {:?}",
-// 		level_4_page_table_frame_physical_address,
-// 		level_4_page_table_frame_virtual_address
-// 	);
+impl FrameAllocator
+{
+	/// TODO
+	#[must_use]
+	pub const fn new(allocator: Option<frame_allocation::BootInfoFrameAllocator>) -> Self
+	{
+		Self(allocator)
+	}
+}
 
-// 	OffsetPageTable::new(&mut *level_4_page_table,
-// physical_memory_mapping_offset) }
+impl memory::FrameAllocation for FrameAllocator
+{
+	fn allocate_frame(&mut self) -> Result<(), ()> { todo!() }
+}
 
-// // ! ---------------------------------------------------------------------
+/// ### Architecture Specific Virtual Memory Initialization
+///
+/// This function initializes the virtual memory for the `x86_64` architecture.
+pub fn initialize(
+	boot_information: &'static bootloader::BootInfo,
+) -> (paging::OffsetPageTable, frame_allocation::BootInfoFrameAllocator)
+{
+	log_info!("Initializing virtual memory for x86_64");
 
-// // TODO
+	let physical_memory_offset = boot_information.physical_memory_offset.into_option().map_or_else(
+		|| {
+			log_error!(
+				"Expected a physical memory offset to be present in the boot information \
+				 structure"
+			);
+			exit_kernel(kernel_types::ExitCode::Failure);
+		},
+		x86_64::VirtAddr::new,
+	);
 
-// // https://os.phil-opp.com/paging-implementation/#creating-a-new-mapping
+	let mut offset_page_table = unsafe {
+		let level_4_table = get_active_level_4_table(physical_memory_offset);
+		paging::OffsetPageTable::new(level_4_table, physical_memory_offset)
+	};
 
-// /// Just some doc
-// pub fn create_example_mapping(
-// 	page: Page,
-// 	mapper: &mut OffsetPageTable,
-// 	frame_allocator: &mut impl FrameAllocator<Size4KiB>,
-// )
-// {
-// 	use x86_64::structures::paging::PageTableFlags as Flags;
+	let mut frame_allocator =
+		unsafe { frame_allocation::BootInfoFrameAllocator::init(&boot_information.memory_regions) };
 
-// 	let frame = PhysFrame::containing_address(PhysAddr::new(0xB8000));
-// 	let flags = Flags::PRESENT | Flags::WRITABLE;
+	initialize_kernel_heap(&mut frame_allocator, &mut offset_page_table);
 
-// 	let map_to_result = unsafe {
-// 		// FIXME: this is not safe, we do it only for testing
-// 		mapper.map_to(page, frame, flags, frame_allocator)
-// 	};
-// 	map_to_result.expect("map_to failed").flush();
-// }
+	(offset_page_table, frame_allocator)
+}
 
-// use bootloader::boot_info::{
-// 	MemoryRegions,
-// 	MemoryRegionKind,
-// };
-// // use bootloader::bootinfo::MemoryMap;
+// TODO this is actually for the kernel heap... re-locate it after a proper refactoring
+/// TODO
+///
+/// #### Panics
+///
+/// TODO
+fn initialize_kernel_heap(
+	frame_allocator: &mut frame_allocation::BootInfoFrameAllocator,
+	offset_page_table: &mut paging::OffsetPageTable,
+)
+{
+	use x86_64::structures::paging::{
+		FrameAllocator,
+		Mapper,
+	};
 
-// /// A `CustomFrameAllocator` that returns usable frames from the
-// /// bootloader's memory map.
-// pub struct CustomFrameAllocator
-// {
-// 	/// morjen
-// 	memory_map: &'static MemoryRegions,
-// 	/// namd
-// 	next:       usize,
-// }
+	log_info!("Initializing (fallback) kernel heap memory");
+	let page_range = {
+		let heap_start = x86_64::VirtAddr::new(memory::KERNEL_HEAP_START as u64);
+		let heap_end = heap_start + memory::KERNEL_HEAP_SIZE - 1u64;
+		let heap_start_page = paging::Page::containing_address(heap_start);
+		let heap_end_page = paging::Page::containing_address(heap_end);
+		paging::Page::range_inclusive(heap_start_page, heap_end_page)
+	};
 
-// impl CustomFrameAllocator
-// {
-// 	/// Create a `CustomFrameAllocator` from the passed memory
-// 	/// map.
-// 	///
-// 	/// This function is unsafe because the caller must guarantee
-// 	/// that the passed memory map is valid. The main requirement
-// 	/// is that all frames that are marked as `USABLE` in it are
-// 	/// really unused.
-// 	///
-// 	/// #### Safety
-// 	///
-// 	/// TODO
-// 	#[must_use]
-// 	pub const unsafe fn init(memory_map: &'static MemoryRegions) ->
-// Self 	{
-// 		Self {
-// 			memory_map,
-// 			next: 0,
-// 		}
-// 	}
+	for page in page_range {
+		let frame = frame_allocator.allocate_frame().unwrap();
+		let flags = paging::PageTableFlags::PRESENT | paging::PageTableFlags::WRITABLE;
+		unsafe {
+			offset_page_table
+				.map_to(page, frame, flags, frame_allocator)
+				.unwrap()
+				.flush();
+		}
+	}
+}
 
-// 	/// namd
-// 	/// TODO
-// 	fn usable_frames(&self) -> impl Iterator<Item = PhysFrame>
-// 	{
-// 		// get usable regions from memory map
-// 		let regions = self.memory_map.iter();
+/// Returns a mutable reference to the active level 4 table.
+///
+/// This function is unsafe because the caller must guarantee that the
+/// complete physical memory is mapped to virtual memory at the passed
+/// `physical_memory_offset`. Also, this function must be only called once
+/// to avoid aliasing `&mut` references (which is undefined behavior).
+unsafe fn get_active_level_4_table(physical_memory_offset: x86_64::VirtAddr)
+	-> &'static mut paging::PageTable
+{
+	let (level_4_table_frame, _) = x86_64::registers::control::Cr3::read();
 
-// 		let usable_regions = regions.filter(|r| r.kind ==
-// MemoryRegionKind::Usable);
+	let level_4_table_page = physical_memory_offset + level_4_table_frame.start_address().as_u64();
+	let page_table_pointer: *mut paging::PageTable = level_4_table_page.as_mut_ptr();
 
-// 		// map each region to its address range
-// 		let addr_ranges = usable_regions.map(|r| r.start..r.end);
+	&mut *page_table_pointer
+}
 
-// 		// transform to an iterator of frame start addresses
-// 		let frame_addresses = addr_ranges.flat_map(|r| r.step_by(4096));
-// 		// create `PhysFrame` types from the start addresses
-// 		frame_addresses.map(|addr|
-// PhysFrame::containing_address(PhysAddr::new(addr))) 	}
-// }
+/// TODO
+mod frame_allocation
+{
+	use bootloader::boot_info::{
+		MemoryRegionKind,
+		MemoryRegions,
+	};
+	use x86_64::structures::paging;
 
-// unsafe impl FrameAllocator<Size4KiB> for CustomFrameAllocator
-// {
-// 	fn allocate_frame(&mut self) -> Option<PhysFrame>
-// 	{
-// 		let frame = self.usable_frames().nth(self.next);
-// 		self.next += 1;
-// 		frame
-// 	}
-// }
+	/// TODO
+	pub struct BootInfoFrameAllocator
+	{
+		/// TODO
+		memory_map: &'static MemoryRegions,
+		/// TODO
+		next:       usize,
+	}
+
+	impl BootInfoFrameAllocator
+	{
+		/// Create a `paging::FrameAllocator` from the passed memory map.
+		///
+		/// This function is unsafe because the caller must guarantee that the
+		/// passed memory map is valid. The main requirement is that all frames
+		/// that are marked as `USABLE` in it are really unused.
+		pub const unsafe fn init(memory_map: &'static MemoryRegions) -> Self
+		{
+			Self { memory_map, next: 0 }
+		}
+
+		/// Returns an iterator over the usable frames specified in the memory
+		/// map.
+		fn usable_frames(&self) -> impl Iterator<Item = paging::PhysFrame>
+		{
+			// get usable regions from memory map
+			let regions = self.memory_map.iter();
+			let usable_regions = regions.filter(|r| r.kind == MemoryRegionKind::Usable);
+			// map each region to its address range
+			let addr_ranges = usable_regions.map(|r| r.start..r.end);
+			// transform to an iterator of frame start addresses
+			let frame_addresses = addr_ranges.flat_map(|r| r.step_by(4096));
+			// create `paging::PhysFrame` types from the start addresses
+			frame_addresses.map(|addr| {
+				paging::PhysFrame::containing_address(x86_64::PhysAddr::new(addr))
+			})
+		}
+	}
+
+	unsafe impl paging::FrameAllocator<paging::Size4KiB> for BootInfoFrameAllocator
+	{
+		fn allocate_frame(&mut self) -> Option<paging::PhysFrame>
+		{
+			let frame = self.usable_frames().nth(self.next);
+			self.next += 1;
+			frame
+		}
+	}
+}

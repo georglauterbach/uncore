@@ -19,12 +19,15 @@ mod general;
 /// interrupts arrive.
 mod interrupts;
 
-/// ### Initialize the CPU
+/// ### Initialize x86 64 Bit
 ///
-/// This function initializes the CPU.
-#[allow(dead_code)]
-pub(super) fn initialize()
+/// This function initializes the CPU for the x86 64 Bit architecture.
+pub fn initialize()
 {
-	general::gdt::init();
-	interrupts::init();
+	crate::prelude::log_debug!("Initializing CPU");
+
+	general::gdt::load();
+	general::idt::load();
+
+	interrupts::setup_and_enable();
 }

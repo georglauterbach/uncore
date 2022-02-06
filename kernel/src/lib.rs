@@ -38,28 +38,46 @@
 // We will have to re-export the actual test runner above with
 // a new name so cargo is not confused.
 #![reexport_test_harness_main = "__test_runner"]
-// Since the `x86-interrupt` calling convention is still unstable,
-// we have to opt-in.
+// the following feature are still unstable and guarded
+// behind feature gates that have to be unlocked
 #![feature(abi_x86_interrupt)]
-// Checking the target ABI is still experimental
-// and subject to change.
-#![feature(cfg_target_abi)]
-// Dereferencing raw mutable pointers in constant functions is still
-// unstable.
+#![feature(alloc_error_handler)]
+#![feature(const_fn_trait_bound)]
 #![feature(const_mut_refs)]
-// Since retrieving the message during a call to `panic!` is
-// still unstable, we have to opt-in.
+#![feature(maybe_uninit_slice)]
 #![feature(panic_info_message)]
+#![feature(type_alias_impl_trait)]
 
-//! # The `unCORE` Operating System Kernel
+//! # The `unCORE` Operating System Kernel Library
 //!
-//! This is `unCORE`, an operating system kerne completely written in
-//! pure, idiomatic Rust.
+//! This is `unCORE`, an operating system kernel completely written in pure, idiomatic and
+//! clean Rust. This "crate" provides the library and actual modules for the kernel.
 //!
-//! This file provides the library and modules for the actual binary.
+//! ## Vision
+//!
+//! `unCORE` is not trying to invent the wheel anew. As of now, `unCORE` is an educational
+//! project that does not run real software. We want to change this in the future.
+//! `unCORE` shall make use of well-known and common concepts used in _UNIX_ /
+//! _GNU-Linux_. But, we acknowledge that modern software development is heavily
+//! benefitting of CI pipelines, GIT platforms (such as _GitHub_) and collaboration in the
+//! form of issues, pull requests, projects and other actions. While we know that mailing
+//! lists work, we belief that modern software development can do better. One aspect we
+//! heavily focus on is code quality. The motto here is: **We either do it right or not at
+//! all**. Please also read the [conventions set by this
+//! project](development.md#miscellaneous) to ensure you're up-to-date when it comes to
+//! writing real code.
+//!
+//! ## Why Rust
+//!
+//! We believe that Rust is able to circumvent many of the fallacies and idiosyncrasies of
+//! older programming languages like C or C++. We love C, but we also know that C brings
+//! legacy problems with it. Rust on the other hands has modern packaging, out-of-the-box
+//! testing, very strong guarantees due to its type system and many more benefits.
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
+
+extern crate alloc;
 
 /// ### The Core Library
 ///
@@ -77,6 +95,32 @@ pub use library::prelude;
 
 use library::prelude::*;
 
+#[cfg(target_arch = "x86_64")]
+#[cfg(test)]
+bootloader::entry_point!(library::architectures::kernel_main);
+
+/// ### Kernel Main Function
+///
+/// This is the architecture-independent main function which handles kernel setup.
+pub(crate) fn kernel_main(boot_information: &boot::Information) -> !
+{
+	library::log::initialize(Some(log::Level::Trace));
+	library::log::display_initial_information();
+
+	prelude::log_trace!("Bootloader information:\n\n{:#?}\n", boot_information);
+
+	#[cfg(test)]
+	log_info!("Running unit-tests of 'lib.rs'");
+
+	library::architectures::initialize();
+	library::memory::initialize(boot_information);
+
+	#[cfg(test)]
+	crate::__test_runner();
+
+	exit_kernel(kernel_types::ExitCode::Success)
+}
+
 /// ### Default Panic Handler
 ///
 /// This function provides a very basic panic handler, that, depending
@@ -84,23 +128,4 @@ use library::prelude::*;
 /// does not return afterwards. Note that we do not unwind the stack.
 #[cfg(test)]
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
-
-/// ### Kernel Library Testing Entrypoint (`x86_64`)
-///
-/// This is the kernel's entry point called after the bootloader has
-/// finished its setup. It is kept short on purpose. The
-/// `library::init()` function takes care of initialization. This
-/// function is effectively run only during unit tests.
-#[cfg(target_arch = "x86_64")]
-#[no_mangle]
-pub fn kernel_main(
-	_multiboot2_bootloader_magic_value: u32,
-	_multiboot2_boot_information_pointer: u32,
-) -> !
-{
-	#[cfg(test)]
-	crate::__test_runner();
-
-	never_return()
-}
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { library::prelude::panic::callback(false, panic_info) }

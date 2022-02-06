@@ -1,45 +1,48 @@
 #! /bin/bash
 
-# version       0.1.1
+# version       0.2.0
 # executed by   Just, manually or in CI
 # task          builds the kernel
 
-# shellcheck disable=SC2154
-
-source scripts/lib/init.sh 'kernel'
+# shellcheck source=scripts/lib/init.sh
+source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh" 'kernel'
 SCRIPT='build'
 
 function build_kernel
 {
   notify 'inf' "Compiling kernel for target '${BUILD_TARGET}'"
 
-  if ! cargo build                                       \
-    --target "build/targets/${BUILD_TARGET}.json" \
+  if ! cargo build                  \
+    --target "${BUILD_TARGET_PATH}" \
     "${KERNEL_BUILD_FLAGS[@]}"
   then
     notify 'err' 'Could not compile kernel'
     exit 1
   fi
 
-  notify 'tra' 'Checking for multiboot2 compatibility'
+  notify 'inf' 'Finished building the kernel'
+  notify 'inf' "Linking kernel with bootloader now"
 
-  if ! grub-file --is-x86-multiboot2 "${KERNEL_BINARY}"
+  if ! cargo run --package boot --quiet
   then
-    notify 'err' 'Kernel binary is not multiboot2-compatible'
-    exit 1
-  else
-    notify 'inf' 'Kernel is multiboot2-compatible'
-  fi
-
-  notify 'tra' "Copying kernel binary to '${QEMU_KERNEL_BINARY}'"
-
-  if ! cp "${KERNEL_BINARY}" "${QEMU_KERNEL_BINARY}"
-  then
-    notify 'err' "Could not copy kernel binary '${KERNEL_BINARY}'"
+    notify 'err' 'Could not link the kernel with the bootloader'
     exit 1
   fi
 
-  notify 'suc' 'Finished building the kernel'
+  notify 'deb' "Finished linking kernel with bootloader"
+  notify 'deb' "Copying kernel binary to '${QEMU_KERNEL_BINARY}'"
+
+  local BOOTLOADER_BUILD_OUTPUT
+  BOOTLOADER_BUILD_OUTPUT="${ROOT_DIRECTORY}/kernel/out/qemu/boot_output/boot-uefi-kernel.efi"
+
+  # https://stackoverflow.com/a/55409182
+  if ! cp "${BOOTLOADER_BUILD_OUTPUT}" "${QEMU_KERNEL_BINARY}"
+  then
+    notify 'err' "Could not copy bootloader build output '${BOOTLOADER_BUILD_OUTPUT}'"
+    exit 1
+  fi
+
+  notify 'inf' 'Created bootable kernel image(s)'
 }
 
 function usage
@@ -52,8 +55,9 @@ SYNOPSIS
     just build         [ OPTION... ]
 
 OPTIONS
-    --help           Show this help message
-    --target TARGET  specify target triple to use when building and running the kernel
+    --help            Show this help message
+    --target TARGET   specify target triple to use when building and running the kernel
+                      currently valid options are x86_64, aarch64 and i686
 
 EOM
 }
@@ -69,8 +73,8 @@ function main
         ;;
 
       ( '--target' )
-        set_build_target "${1:-}"
-        shift 1
+        set_build_target "${2:-}"
+        shift 2
         ;;
 
       # the arguments of this scripts are a real superset of those of

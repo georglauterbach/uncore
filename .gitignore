@@ -1,4 +1,12 @@
 # -----------------------------------------------
+# ----  GitIgnore  ------------------------------
+# ----  https://git-scm.com/docs/gitignore  -----
+# -----------------------------------------------
+
+# Create gitignore files automatically for with
+# https://www.toptal.com/developers/gitignore 
+
+# -----------------------------------------------
 # ----  IDEs  -----------------------------------
 # -----------------------------------------------
 
@@ -15,9 +23,8 @@ documentation/site
 # ----  Kernel ----------------------------------
 # -----------------------------------------------
 
+kernel/out/
 kernel/target/
-kernel/build/qemu/*
-!kernel/build/qemu/grub.cfg
 
 kernel/**/Cargo.lock
 kernel/**/*.rs.bk

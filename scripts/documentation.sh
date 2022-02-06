@@ -4,17 +4,22 @@
 # executed by   manually or in CI
 # task          builds and serves the documentation
 
-source scripts/lib/init.sh
+# shellcheck source=scripts/lib/init.sh
+source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh"
 source scripts/lib/cri.sh
 SCRIPT='documentation'
 
 function build_documentation
 {
-  ${CRI} run --rm \
+  if ! ${CRI} run --rm \
     --name "build-documentation" \
     --user "$(id -u):$(id -g)" \
     -v "${DOCUMENTATION_DIRECTORY}:/docs" \
     "${MKDOCS_MATERIAL_IMAGE}" build  --config-file config.yml --strict
+  then
+    notify 'err' 'Building the documentation failed'
+    exit 1
+  fi
 }
 
 function cleanup_documentation_files
@@ -57,7 +62,6 @@ function update_versions_json
   MAJOR_MINOR=$(grep -oE 'v[0-9]+\.[0-9]+' <<< "${GITHUB_REF}")
 
   # Github Actions CI method for exporting ENV vars to share across a jobs steps
-  # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#setting-an-environment-variable
   # shellcheck disable=SC2154
   echo "DOCS_VERSION=${MAJOR_MINOR}" >> "${GITHUB_ENV}"
 

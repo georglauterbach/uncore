@@ -5,12 +5,13 @@
 ///
 /// This static variable is used by the [`log`] crate for
 /// logging kernel-wide.
-pub static LOGGER: KernelLogger = KernelLogger {
-	qemu_debug_logger:         qemu::Logger::new(),
-	qemu_debug_logger_enabled: true,
-	serial_logger:             serial::Logger::new(),
-	serial_logger_enabled:     true,
-};
+pub static LOGGER: KernelLogger = KernelLogger::new();
+
+/// ## The Kernel Log Level from the Environment
+///
+/// This variable has a value if the kernel was executed in an environment where the
+/// `LOG_LEVEL` environment variable was set.
+const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
 
 /// ### The Main Kernel Logger
 ///
@@ -19,7 +20,7 @@ pub static LOGGER: KernelLogger = KernelLogger {
 pub struct KernelLogger
 {
 	/// We use the QEMU `debugcon` feature to log to a file
-	/// located under `build/qemu/debugcon.txt`.
+	/// located under `out/qemu/debugcon.txt`.
 	qemu_debug_logger:         qemu::Logger,
 	/// Indicates whether QEMU's `debugcon` feature should be
 	/// enabled.
@@ -37,19 +38,58 @@ impl KernelLogger
 	/// ### Enable or Disable QEMU
 	///
 	/// This function enabled or disables the log for QEMU's
-	/// `debugcon` feature.
-	pub fn enable_or_disable_qemu(&mut self, state_as_bool: bool)
-	{
-		self.qemu_debug_logger_enabled = state_as_bool;
-	}
+	/// `debugcon` feature. Providing `true` will enable the logger.
+	pub fn enable_or_disable_qemu(&mut self, enabled: bool) { self.qemu_debug_logger_enabled = enabled; }
 
 	/// ### Enable or Disable QEMU
 	///
 	/// This function enabled or disables the log for the serial
-	/// interface.
-	pub fn enable_or_disable_serial(&mut self, state_as_bool: bool)
+	/// interface. Providing `true` will enable the logger.
+	pub fn enable_or_disable_serial(&mut self, enabled: bool) { self.serial_logger_enabled = enabled; }
+
+	/// ### Create a New Global Logger for the Kernel
+	///
+	/// Creates a new instance of the kernel-wide logger.
+	const fn new() -> Self
 	{
-		self.serial_logger_enabled = state_as_bool;
+		Self {
+			qemu_debug_logger:         qemu::Logger::new(),
+			qemu_debug_logger_enabled: true,
+			serial_logger:             serial::Logger::new(),
+			serial_logger_enabled:     true,
+		}
+	}
+
+	/// ### Parse [`LOG_LEVEL`]
+	///
+	/// Check if the environment variable `LOG_LEVEL` is set and try to parse it.
+	/// Returns [`None`] the string could not be parsed or if the environment variable
+	/// is not present.
+	fn try_from_str() -> Option<log::Level>
+	{
+		LOG_LEVEL.and_then(|log_level| match log_level {
+			"err" => Some(log::Level::Error),
+			"war" => Some(log::Level::Warn),
+			"inf" => Some(log::Level::Info),
+			"deb" => Some(log::Level::Debug),
+			"tra" => Some(log::Level::Trace),
+			_ => None,
+		})
+	}
+
+	/// ### Set the Log Level
+	///
+	/// This function takes care of setting the correct log level.
+	fn set_log_level(log_level: log::Level)
+	{
+		Self::try_from_str().map_or_else(
+			|| {
+				log::set_max_level(log_level.to_level_filter());
+			},
+			|log_level| {
+				log::set_max_level(log_level.to_level_filter());
+			},
+		);
 	}
 }
 
@@ -74,18 +114,14 @@ impl log::Log for KernelLogger
 	fn flush(&self) {}
 }
 
-/// ### Show Initial Information
+/// ### Set Up Logging
 ///
 /// This function sets the log level and displays version and
 /// bootloader information.
-pub fn init(log_level: Option<log::Level>)
+pub fn initialize(log_level: Option<log::Level>)
 {
-	if let Some(level) = log_level {
-		log::set_max_level(level.to_level_filter());
-	}
-
+	KernelLogger::set_log_level(log_level.unwrap_or(log::Level::Debug));
 	log::set_logger(&LOGGER).expect("Log should not have already been set");
-
 	crate::prelude::log_debug!("Kernel logging enabled");
 }
 
@@ -103,20 +139,17 @@ pub fn display_initial_information()
 
 	log_info!("This is unCORE {}", KernelInformation::get_kernel_version());
 
-	log_trace!(
-		"Target triple reads '{}'",
-		KernelInformation::get_build_target()
-	);
+	log_debug!("Target triple reads '{}'", KernelInformation::get_build_target());
 
-	log_trace!(
+	log_debug!(
 		"Kernel was compiled at '{}'",
 		KernelInformation::get_compilation_date_and_time()
 	);
-	log_trace!(
+	log_debug!(
 		"Kernel was compiled with rustc version '{}'",
 		KernelInformation::get_rustc_version()
 	);
-	log_trace!(
+	log_debug!(
 		"Kernel was compiled with toolchain '{}'",
 		KernelInformation::get_rust_toolchain()
 	);
@@ -191,13 +224,13 @@ mod serial
 			use log::Level;
 			use rgb::RGB8;
 
-			// https://coolors.co/da3e52-f2e94e-a3d9ff-96e6b3-9fa4a8
+			// https://coolors.co/fb4934-fabd2f-458588-83a598-8f8f8f
 			let (log_level, color) = match record.level() {
-				Level::Error => (" ERROR ", RGB8::new(218, 62, 82)),
-				Level::Warn => ("WARNING", RGB8::new(242, 233, 78)),
-				Level::Info => ("  INF  ", RGB8::new(163, 217, 255)),
-				Level::Debug => (" DEBUG ", RGB8::new(150, 230, 179)),
-				Level::Trace => (" TRACE ", RGB8::new(159, 164, 168)),
+				Level::Error => (" ERROR ", RGB8::new(251, 73, 52)),
+				Level::Warn => ("WARNING", RGB8::new(250, 189, 47)),
+				Level::Info => ("  INF  ", RGB8::new(69, 133, 136)),
+				Level::Debug => (" DEBUG ", RGB8::new(131, 165, 152)),
+				Level::Trace => (" TRACE ", RGB8::new(143, 143, 143)),
 			};
 
 			Self::write(format_args!(

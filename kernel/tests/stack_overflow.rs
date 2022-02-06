@@ -18,23 +18,31 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
+// Lint target for code documentation. This lint enforces code
+// documentation on every code item.
+#![deny(missing_docs)]
+#![deny(clippy::missing_docs_in_private_items)]
 // Since the `x86-interrupt` calling convention is still unstable, we
 // have to opt-in.
 #![feature(abi_x86_interrupt)]
 
+//! # Kernel-Stack Overflow Test
+//!
+//! Checks whether the kernel can handle a kernel stack overflow properly.
+
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::prelude::*;
-
-use x86_64::structures::idt::{
-	InterruptDescriptorTable,
-	InterruptStackFrame,
+use kernel::{
+	library,
+	prelude::*,
 };
 
+use x86_64::structures::idt;
+
 lazy_static::lazy_static! {
-	static ref TEST_IDT: InterruptDescriptorTable = {
-		let mut idt = InterruptDescriptorTable::new();
+	static ref TEST_IDT: idt::InterruptDescriptorTable = {
+		let mut idt = idt::InterruptDescriptorTable::new();
 
 		unsafe {
 			idt.double_fault
@@ -46,17 +54,22 @@ lazy_static::lazy_static! {
 	};
 }
 
-pub extern "x86-interrupt" fn test_double_fault_handler(_: InterruptStackFrame, _: u64) -> !
+extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> !
 {
-	log_info!("Received double fault. SUCCESS.");
-	// qemu::exit_with_success();
-	never_return()
+	log_info!("Received double fault - nice");
+	exit_kernel(kernel_types::ExitCode::Success)
 }
 
-#[no_mangle]
-pub extern "C" fn _start(__todo: u32) -> !
+bootloader::entry_point!(kernel_test_main);
+
+fn kernel_test_main(_: &'static mut bootloader::BootInfo) -> !
 {
-	// test::main(None, boot_information);
+	library::log::initialize(Some(log::Level::Trace));
+	library::log::display_initial_information();
+
+	log_info!("This is the 'stack_overflow' test");
+
+	library::architectures::initialize();
 
 	TEST_IDT.load();
 	log_info!("Initialized new (test) IDT.");
@@ -64,15 +77,16 @@ pub extern "C" fn _start(__todo: u32) -> !
 	stack_overflow();
 
 	log_error!("Execution continued after kernel stack overflow");
-	panic!()
+	exit_kernel(kernel_types::ExitCode::Failure)
 }
 
 #[allow(unconditional_recursion)]
 fn stack_overflow()
 {
 	stack_overflow();
+	// prevent tail call optimization
 	volatile::Volatile::new(&0).read();
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(false, panic_info) }

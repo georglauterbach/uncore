@@ -1,0 +1,29 @@
+[package]
+name = "workspace_helper"
+version = "0.1.0"
+edition = "2021"
+workspace = "../"
+
+authors = ["The unCORE Kernel Community"]
+description = "unCORE Bootimage Creation"
+documentation = "https://georglauterbach.github.io/uncore/edge/"
+license = "GPL-3.0"
+readme = "../../README.md"
+
+homepage = "https://github.com/georglauterbach/uncore"
+repository = "https://github.com/georglauterbach/uncore"
+
+keywords = [
+  "operating-system",
+  "os",
+  "kernel",
+  "helper",
+  "common",
+]
+
+publish = false
+
+[dependencies]
+ansi_rgb = "0.2.0"
+log = "0.4.14"
+rgb = "0.8.31"

@@ -18,39 +18,42 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
-// Use custom test runners. Since we cannot use the standard
-// library, we have to use our own test framework.
-#![feature(custom_test_frameworks)]
-// With our own test framework, we have to define which function
-// runs our tests.
-#![test_runner(test::runner)]
-// We will have to re-export the actual test runner above with
-// a new name so cargo is not confused.
-#![reexport_test_harness_main = "__test_runner"]
+// Lint target for code documentation. This lint enforces code
+// documentation on every code item.
+#![deny(missing_docs)]
+#![deny(clippy::missing_docs_in_private_items)]
+
+//! # Kernel Panic Test
+//!
+//! Checks whether the panic handler works as expected.
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::prelude::*;
+use kernel::{
+	library,
+	prelude::*,
+};
 
-#[no_mangle]
-pub extern "C" fn _start(__todo: u32) -> !
+bootloader::entry_point!(kernel_test_main);
+
+fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	// test::main(Some(log::Level::Info), boot_information);
+	library::log::initialize(Some(log::Level::Trace));
+	library::log::display_initial_information();
 
-	__test_runner();
+	log_info!("This is the 'should_panic' test");
+
+	this_test_should_panic();
 
 	log_error!("Test did not panic but was expected to. FAILURE.");
-	// qemu::exit_with_failure();
-
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Failure)
 }
 
-#[test_case]
 fn this_test_should_panic()
 {
 	assert_eq!(0, 1);
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(true, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(true, panic_info) }

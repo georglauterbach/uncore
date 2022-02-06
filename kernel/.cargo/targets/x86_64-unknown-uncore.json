@@ -1,8 +1,8 @@
 {
-  "llvm-target": "x86_64-unknown-none",
+  "llvm-target": "x86_64-unknown-uncore",
   
   "arch": "x86_64",
-  "os": "none",
+  "os": "uncore",
   
   "target-endian": "little",
   "target-pointer-width": "64",
@@ -16,12 +16,5 @@
   "disable-redzone": true,
 
   "linker": "rust-lld",
-  "linker-flavor": "ld.lld",
-  "pre-link-args": {
-    "ld.lld": [
-      "-n",
-      "-T",
-      "src/library/architectures/_x86_64/boot/linker.ld"
-    ]
-  }
+  "linker-flavor": "ld.lld"
 }

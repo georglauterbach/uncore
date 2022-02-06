@@ -18,6 +18,10 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
+// Lint target for code documentation. This lint enforces code
+// documentation on every code item.
+#![deny(missing_docs)]
+#![deny(clippy::missing_docs_in_private_items)]
 // Use custom test runners. Since we cannot use the standard
 // library, we have to use our own test framework.
 #![feature(custom_test_frameworks)]
@@ -31,23 +35,39 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::prelude::*;
+use kernel::{
+	library,
+	prelude::*,
+};
 
-#[no_mangle]
-pub extern "C" fn _start(__todo: u32) -> !
+bootloader::entry_point!(kernel_test_main);
+
+fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	// test::main(None, boot_information);
+	library::log::initialize(Some(log::Level::Trace));
+	library::log::display_initial_information();
+
+	log_info!("This is the 'basic_boot' test");
+
+	library::architectures::initialize();
 
 	__test_runner();
-
-	never_return()
+	exit_kernel(kernel_types::ExitCode::Success)
 }
 
 #[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic_callback(false, panic_info) }
+fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(false, panic_info) }
 
 #[test_case]
 fn test_println()
 {
-	log_info!("Test log output. Does not panic.");
+	log_debug!("Test log output does not panic.");
+}
+
+#[test_case]
+fn trivial_assertion()
+{
+	const ONE: u8 = 1;
+	assert_eq!(1, ONE);
+	assert_eq!(ONE, 1);
 }
