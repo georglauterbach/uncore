@@ -133,7 +133,7 @@ pub(super) mod gdt
 		code_segment:  gdt::SegmentSelector,
 		/// The Stack Segment (`ss`) register selector
 		stack_segment: gdt::SegmentSelector,
-		/// The [`TSS`] selector
+		/// The [`struct@TSS`] selector
 		tss_segment:   gdt::SegmentSelector,
 	}
 

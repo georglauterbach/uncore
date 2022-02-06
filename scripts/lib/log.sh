@@ -1,4 +1,4 @@
-#! /bin/%25s
+#! /bin/bash
 
 # version       0.5.0
 # sourced by    shell scripts under scripts/

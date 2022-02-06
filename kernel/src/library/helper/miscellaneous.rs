@@ -130,7 +130,7 @@ pub mod boot
 ///
 /// This module contains important data types (enums, structures,
 /// etc.) used throughout the kernel. One example includes the
-/// [`GlobalStaticMut`] type used for global static variables.
+/// [`kernel_types::GlobalStaticMut`] type used for global static variables.
 pub mod kernel_types
 {
 	/// ### Kernel Exit Code
@@ -251,8 +251,8 @@ pub mod kernel_types
 	{
 		/// ### The Locking Structure
 		///
-		/// This structure abstracts over its inner [`data`] field and provides
-		/// [`Sync`] access to it if the [`T`] is [`Send`].
+		/// This structure abstracts over its inner data and provides [`Sync`]
+		/// access to it if the provided data is [`Send`].
 		#[derive(Debug)]
 		pub struct Locked<T>
 		{
@@ -264,8 +264,8 @@ pub mod kernel_types
 		{
 			/// ### Create a New Locked Structure
 			///
-			/// Encapsulates the given [`data`], taking ownership over it, and
-			/// locks it.
+			/// Encapsulates the given `data`, taking ownership over it, and
+			/// locking it.
 			pub const fn from(data: T) -> Self
 			{
 				Self {

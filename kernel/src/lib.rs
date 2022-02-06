@@ -48,12 +48,31 @@
 #![feature(panic_info_message)]
 #![feature(type_alias_impl_trait)]
 
-//! # The `unCORE` Operating System Kernel
+//! # The `unCORE` Operating System Kernel Library
 //!
-//! This is `unCORE`, an operating system kerne completely written in
-//! pure, idiomatic Rust.
+//! This is `unCORE`, an operating system kernel completely written in pure, idiomatic and
+//! clean Rust. This "crate" provides the library and actual modules for the kernel.
 //!
-//! This "crate" provides the library and actual modules for the kernel.
+//! ## Vision
+//!
+//! `unCORE` is not trying to invent the wheel anew. As of now, `unCORE` is an educational
+//! project that does not run real software. We want to change this in the future.
+//! `unCORE` shall make use of well-known and common concepts used in _UNIX_ /
+//! _GNU-Linux_. But, we acknowledge that modern software development is heavily
+//! benefitting of CI pipelines, GIT platforms (such as _GitHub_) and collaboration in the
+//! form of issues, pull requests, projects and other actions. While we know that mailing
+//! lists work, we belief that modern software development can do better. One aspect we
+//! heavily focus on is code quality. The motto here is: **We either do it right or not at
+//! all**. Please also read the [conventions set by this
+//! project](development.md#miscellaneous) to ensure you're up-to-date when it comes to
+//! writing real code.
+//!
+//! ## Why Rust
+//!
+//! We believe that Rust is able to circumvent many of the fallacies and idiosyncrasies of
+//! older programming languages like C or C++. We love C, but we also know that C brings
+//! legacy problems with it. Rust on the other hands has modern packaging, out-of-the-box
+//! testing, very strong guarantees due to its type system and many more benefits.
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------

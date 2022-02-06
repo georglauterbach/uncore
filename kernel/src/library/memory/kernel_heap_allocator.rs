@@ -5,7 +5,7 @@ use crate::prelude::*;
 
 /// ### The Global Kernel Allocator
 ///
-/// This structure implements the [`alloc::GlobalAlloc`] trait to allocator kernel heap
+/// This structure implements the [`::core::alloc::GlobalAlloc`] trait to allocator kernel heap
 /// memory.
 #[global_allocator]
 static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
