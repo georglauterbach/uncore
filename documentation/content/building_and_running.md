@@ -1,6 +1,6 @@
 # Building and Running _unCORE_
 
-The `kernel/` directory contains all kernel code (and therefore the complete [Rust] code of _unCORE_). It is, at the same time, package and a Cargo workspace. That means, the `kernel/` directory contains a binary -- the kernel with all its source code located under `kernel/src/` -- and **possibly** other workspace members in the future. The final binary is obviously built from the source code located at `kernel/src/`.
+The `kernel/` directory contains all kernel code (and therefore the complete _Rust_ code of _unCORE_). It is, at the same time, package and a Cargo workspace. That means, the `kernel/` directory contains a binary -- the kernel with all its source code located under `kernel/src/` -- and **possibly** other workspace members in the future. The final binary is obviously built from the source code located at `kernel/src/`.
 
 We highly recommend using [Just] when working with _unCORE_. The following steps will just (no pun intended) explain what [Just] does in the background. With [Just] installed, you do not need to run all these long and tedious and error-prone commands yourself.
 
@@ -82,7 +82,6 @@ Running these commands in your terminal will not open a new window unless you sp
 
 [docs::testing]: ./testing.md
 
-[Rust]: https://www.rust-lang.org/
 [Just]: https://github.com/casey/just
 
 [rustc-target-specification]: https://github.com/rust-lang/rust/tree/1.57.0/compiler/rustc_target/src/spec

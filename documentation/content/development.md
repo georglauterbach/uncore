@@ -31,7 +31,7 @@ When writing code, adhere to the style provided in the miscellaneous configurati
 
 ### Rust Conventions
 
-Rust if formatted using `rustfmt`, which is installed with [Rust] itself. You can format your code using `just format` or `cargo fmt` in the repository modules containing [Rust] code. The style definition is found under `kernel/.rustfmt.toml`. Make sure to adjust your style to the already present style. The [Rust naming convention] is strictly adhered to.
+Rust if formatted using `rustfmt`, which is installed with _Rust_ itself. You can format your code using `just format` or `cargo fmt` in the repository modules containing _Rust_ code. The style definition is found under `kernel/.rustfmt.toml`. Make sure to adjust your style to the already present style. The [Rust naming convention] is strictly adhered to.
 
 ---
 
@@ -106,7 +106,6 @@ If you do not want [`clippy`][rust-clippy] to eat you alive during GitHub's CI, 
 
 [//]: # (Links)
 
-[Rust]: https://www.rust-lang.org/
 [Prettier]: https://prettier.io/
 [Rust naming convention]: https://doc.rust-lang.org/1.0.0/style/style/naming/README.html
 

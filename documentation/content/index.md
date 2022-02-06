@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs::getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs::development]. The [Building and Running][docs::building-and-running] site contains information on how to build and run the kernel (with QEMU). The [Kernel Architecture][docs::kernel-architecture] section contains all the information about the kernel's internal structure and composition. The [Testing][docs::testing] page contains information on unit- and integration tests. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
+Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic _Rust_. _unCORE_ makes use of the _Rust_ ecosystem, avoiding unnecessary complexity while being stable and performant. If you're new to this project, we highly recommend reading the [Getting Started][docs::getting-started] section. Everything you need to know about development guidelines can be found under [Development][docs::development]. The [Building and Running][docs::building-and-running] site contains information on how to build and run the kernel (with QEMU). The [Kernel Architecture][docs::kernel-architecture] section contains all the information about the kernel's internal structure and composition. The [Testing][docs::testing] page contains information on unit- and integration tests. This documentation is only one half of the whole documentation that is available. The other part is the code documentation which can be built with `#!bash cargo doc --open`.
 
 !!! check "Code of Conduct and Contributing Guidelines"
     By working on this projects and with other participants, you agree to the **code of conduct** and the **contributing guidelines** set by this project.
@@ -14,7 +14,7 @@ Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_
 
 ### Overview
 
-Please read the full [`README`](https://github.com/georglauterbach/uncore/blob/master/README.md) of this project carefully. We expect you to have _some_ experience with [Rust]. You need not be an expert, but we require you to understand the basics. We highly recommend you to read the [official Rust book].
+Please read the full [`README`](https://github.com/georglauterbach/uncore/blob/master/README.md) of this project carefully. We expect you to have _some_ experience with _Rust_. You need not be an expert, but we require you to understand the basics. We highly recommend you to read the [official Rust book].
 
 ### Repository Structure
 
@@ -32,10 +32,10 @@ uncore/
 
 You may execute the `tools.sh` scripts if you're on Linux. This script is invoked by running `./scripts/install_tools.sh` from the repository root. It will install
 
-1. a complete [Rust] installation including
-    - [`rustup`](https://rustup.rs/) - the [Rust] toolchain installer
-    - [`rustc`](https://doc.rust-lang.org/rustc/what-is-rustc.html) - the [Rust] compiler
-    - [`cargo`](https://doc.rust-lang.org/cargo/) - the [Rust] package manager
+1. a complete _Rust_ installation including
+    - [`rustup`](https://rustup.rs/) - the _Rust_ toolchain installer
+    - [`rustc`](https://doc.rust-lang.org/rustc/what-is-rustc.html) - the _Rust_ compiler
+    - [`cargo`](https://doc.rust-lang.org/cargo/) - the _Rust_ package manager
 2. [`just`](https://github.com/casey/just), a command runner
 
 The script will also check whether you have [Docker] or [Podman] installed. These tools are needed to lint the code and to work the rendered version of the documentation. The script will _not_ install the container runtimes for you. Also, make sure you have [QEMU] for your OS installed.
@@ -52,16 +52,16 @@ _unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educa
 
 ## Goals
 
-_unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and fast. The main goals are
+_unCORE_ makes use of the _Rust_ ecosystem, avoiding unnecessary complexity while being stable and fast. The main goals are
 
-1. Robustness - [Rust] provides a stable foundation with strong compile-time guarantees.
+1. Robustness - _Rust_ provides a stable foundation with strong compile-time guarantees.
 2. Safety - The code in _unCORE_ especially focuses on being safe in the sense of not allowing exploitation.
 
 _unCORE_ has set itself some more goals, of course:
 
-1. Performance - [Rust] provides C++ / C performance.
+1. Performance - _Rust_ provides C++ / C performance.
 2. Correctness - _unCORE_ has high test standards, see [the documentation and testing advise](./development.md#code-documentation-testing).
-3. Simplicity - We want to make use of [Rust]'s high level of abstraction to write clean and concise code.
+3. Simplicity - We want to make use of _Rust_'s high level of abstraction to write clean and concise code.
 
 ## Architecture
 
@@ -121,7 +121,6 @@ This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-o
 
 [operating system]: https://en.wikipedia.org/wiki/Operating_system
 [kernel]: https://en.wikipedia.org/wiki/Kernel_(operating_system)
-[Rust]: https://www.rust-lang.org/
 [official Rust book]: https://doc.rust-lang.org/book/
 
 [MkDocs]: https://www.mkdocs.org/

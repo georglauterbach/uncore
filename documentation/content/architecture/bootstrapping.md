@@ -14,7 +14,7 @@ The kernel uses the `bootloader` crate (for `x86_64`) to define an entry point a
 
 This integrates nicely with tests as well, because we do not need much redundant code for the kernel-wide setup. Just another architecture specific `#!rust fn kernel_main(...) -> !` annotated with `#!rust #[cfg(test)]`. The `boot::BootInformation` enumeration is then used to initialize memory, etc.
 
-This procedure makes use of [Rust]'s ecosystem, heavily benefitting from compiler features for conditional compilation.
+This procedure makes use of _Rust_'s ecosystem, heavily benefitting from compiler features for conditional compilation.
 
 ## The `boot` Workspace Member
 
@@ -35,5 +35,3 @@ PE32+ executable (EFI application) x86-64, for MS Windows
 This file is copied to `kernel/out/qemu/kernel/EFI/BOOT/BOOTX64.EFI` so we're able to run QEMU on the `kernel/out/qemu/kernel/` directory. The other files created under `kernel/out/qemu/boot_output/` may be used in the future for proper disk image creation.
 
 [//]: # (Links)
-
-[Rust]: https://www.rust-lang.org/
