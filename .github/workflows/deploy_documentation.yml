@@ -7,7 +7,6 @@ on: # yamllint disable-line rule:truthy
   push:
     branches:
       - master
-      - development
     paths:
       - .github/workflows/documentation.yml
       - documentation/**

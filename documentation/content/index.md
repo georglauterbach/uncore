@@ -42,6 +42,10 @@ The script will also check whether you have [Docker] or [Podman] installed. Thes
 
 If you're on Windows or macOS, you will need to install these tools yourself.
 
+### The Documentation
+
+The documentation is written in Markdown, built with [MkDocs] and found under `documentation/`. You may build and serve the documentation locally with a container runtime (like [Docker] or [Podman]) by running `just docs` or `./scripts/documentation.sh serve`, serving it under <http://127.0.0.1:8080>. The documentation for the latest commit on `master` can be found under <https://georglauterbach.github.io/uncore/edge/>.
+
 ## Vision
 
 _unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in _UNIX_ / _GNU-Linux_. But, we acknowledge that modern software development is heavily benefitting of CI pipelines, GIT platforms (such as _GitHub_) and collaboration in the form of issues, pull requests, projects and other actions. While we know that mailing lists work, we belief that modern software development can do better. One aspect we heavily focus on is code quality. The motto here is: **We either do it right or not at all**. Please also read the [conventions set by this project](development.md#miscellaneous) to ensure you're up-to-date when it comes to writing real code.
@@ -120,9 +124,11 @@ This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-o
 [Rust]: https://www.rust-lang.org/
 [official Rust book]: https://doc.rust-lang.org/book/
 
-[QEMU]: https://www.qemu.org/
+[MkDocs]: https://www.mkdocs.org/
 [Docker]: https://www.docker.com/
 [Podman]: https://podman.io/
+
+[QEMU]: https://www.qemu.org/
 
 [blog-os]: https://os.phil-opp.com/
 [GNU General Public License v3]: https://www.gnu.org/licenses/gpl-3.0.txt

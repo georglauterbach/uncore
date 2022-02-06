@@ -13,11 +13,11 @@
 
 ## About
 
-_unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic [Rust]. _unCORE_ makes use of the [Rust] ecosystem, avoiding unnecessary complexity while being stable and performant.
+_unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic _[Rust]_. _unCORE_ makes use of the _Rust_ ecosystem, avoiding unnecessary complexity while being stable and performant.
 
 ## Getting Started
 
-The documentation has a dedicated [Getting Started][docs::getting-started] section. You will need to have [Rust]'s basic tools (in the form of `rustc`, `rustup` and `cargo`) installed. To run a pre-defined set of commands (building, linting, formatting, testing, etc.), you may use [Just], a command runner. It is **highly recommended** to install [Just] in order to make working with _unCORE_ easier. You can then run `just help` to get an overview of available commands to run.
+The **documentation** has a dedicated **[Getting Started][docs::getting-started]** section. You will need to have _Rust_'s basic tools (in the form of `rustc`, `rustup` and `cargo`) installed. To run a pre-defined set of commands (building, linting, formatting, testing, etc.), you may use [Just], a command runner. It is highly recommended to install [Just] in order to make working with _unCORE_ easier. You can then run `just help` to get an overview of available commands to run.
 
 To check whether you have all needed tools, and install them if you do not already have them installed, run
 
@@ -30,9 +30,7 @@ $ ./scripts/install_tools.sh
 ...
 ```
 
-## Documentation and Licensing
-
-The documentation is written in Markdown, built with [MkDocs] and can be found under `documentation/`. You may build and serve the documentation locally with a container runtime (like [Docker] or [Podman]) by running `./scripts/documentation.sh serve`, serving it under <http://127.0.0.1:8080>.
+## Licensing
 
 This project is licensed under the [GNU General Public License v3], **except** for those parts (lines of code from libraries used in this project) already licensed under other licenses.
 
@@ -54,15 +52,11 @@ This project is licensed under the [GNU General Public License v3], **except** f
 
 [//]: # (Links)
 
-[docs::getting-started]: ./documentation/content/index.md#getting-started
+[docs::getting-started]: https://georglauterbach.github.io/uncore/edge/#getting-started
 
 [operating system]: https://en.wikipedia.org/wiki/Operating_system
 [kernel]: https://en.wikipedia.org/wiki/Kernel_(operating_system)
 [Rust]: https://www.rust-lang.org/
-
 [Just]: https://github.com/casey/just
 
-[MkDocs]: https://www.mkdocs.org/
-[Docker]: https://www.docker.com/
-[Podman]: https://podman.io/
 [GNU General Public License v3]: https://www.gnu.org/licenses/gpl-3.0.txt
