@@ -3,6 +3,19 @@
 
 use crate::prelude::*;
 
+/// ### (Temporary) Kernel Heap Start
+///
+/// This value marks the temporary virtual start address of the kernel heap. **In the
+/// future, a proper paging implementation will render this obsolete!**
+pub const KERNEL_HEAP_START: usize = 0x0000_4444_4444_0000;
+
+/// ### (Temporary) Kernel Heap Size
+///
+/// The size of the kernel heap. **In the future, a proper paging implementation will
+/// render this obsolete!** The size of the kernel heap equals the default page size times
+/// 100. With 4096 Byte default page size, this equals 800 KiB.
+pub const KERNEL_HEAP_SIZE: usize = 200 * super::virtual_memory::ChunkSizeDefault::size();
+
 /// ### The Global Kernel Allocator
 ///
 /// This structure implements the [`::core::alloc::GlobalAlloc`] trait to allocator kernel
@@ -26,11 +39,9 @@ fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
 /// Initializes a simple global kernel heap memory allocator.
 pub fn initialize()
 {
-	log_info!("Initializing a simple global memory allocator");
+	log_debug!("Initializing a simple global memory allocator");
 	unsafe {
-		ALLOCATOR
-			.lock()
-			.initialize(super::KERNEL_HEAP_START, super::KERNEL_HEAP_SIZE);
+		ALLOCATOR.lock().initialize(KERNEL_HEAP_START, KERNEL_HEAP_SIZE);
 	}
 	log_debug!("Initialized allocator");
 }
