@@ -1,14 +1,33 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-// use spin::once::Once;
-
-use crate::library::architectures::memory::virtual_memory;
+use crate::library::architectures::memory::virtual_memory as architecture_virtual_memory;
 
 /// ### Kernel Page Table
 ///
 /// Represents the global page table held by the kernel for demand paging.
-pub static mut KERNEL_PAGE_TABLE: virtual_memory::PageTable = virtual_memory::PageTable::new(None);
+pub static mut KERNEL_PAGE_TABLE: spin::once::Once<architecture_virtual_memory::PageTable> =
+	spin::Once::new();
+
+/// ### A Virtual Memory Address
+///
+/// A simple wrapper for a virtual address.
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct VirtualAddress(usize);
+
+impl VirtualAddress
+{
+	/// ### Create a New Virtual Address
+	///
+	/// Takes a
+	pub fn new(address: impl Into<usize>) -> Self { Self(address.into()) }
+
+	/// ### Get the Inner Value
+	///
+	/// Returns the inner value, i.e. content that is wrapped by this type.
+	pub fn inner(&self) -> usize { self.0 }
+}
+
 impl ::core::ops::Add for VirtualAddress
 {
 	type Output = Self;
@@ -129,29 +148,12 @@ pub mod paging
 {
 	use ::core::marker;
 
-	/// ### A Virtual Memory Address
-	///
-	/// A simple wrapper for a virtual address.
-	#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-	pub struct VirtualAddress(usize);
-
-	impl VirtualAddress
-	{
-		/// TODO
-		pub fn new(address: impl Into<usize>) -> Self { Self(address.into()) }
-	}
-
-	impl ::core::convert::From<usize> for VirtualAddress
-	{
-		fn from(start_address: usize) -> Self { Self(start_address) }
-	}
-
 	/// ### Representation of a Page
 	///
 	/// This structs holds the information of a single page.
-	struct Page<S: super::ChuckSize>
+	pub struct Page<S: super::ChuckSize>
 	{
-		start_address: VirtualAddress,
+		start_address: super::VirtualAddress,
 		size:          marker::PhantomData<S>,
 	}
 
@@ -160,13 +162,18 @@ pub mod paging
 		/// ### Create a New Page
 		///
 		/// This function creates a new page.
-		pub fn new(start_address: VirtualAddress) -> Self
+		pub fn new(start_address: super::VirtualAddress) -> Self
 		{
 			Self {
 				start_address,
 				size: marker::PhantomData,
 			}
 		}
+
+		/// ### Start Address of a Page
+		///
+		/// Returns the starts address of the given page.
+		pub fn start(&self) -> super::VirtualAddress { self.start_address }
 	}
 
 	/// ### Capability of Allocating Pages
@@ -176,9 +183,9 @@ pub mod paging
 	pub trait PageAllocation<S: super::ChuckSize>
 	{
 		/// ### Allocate a Single Page
-		/// 
+		///
 		/// The method with which a single page is allocated.
-		fn allocate_page<FA>(&mut self, frame_allocator: FA)
+		fn allocate_page<FA>(&mut self)
 		where
 			FA: super::super::physical_memory::FrameAllocation<S>;
 	}

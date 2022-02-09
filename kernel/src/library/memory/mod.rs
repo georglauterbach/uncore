@@ -35,17 +35,18 @@ pub fn initialize(boot_information: &boot::Information)
 	log_info!("Starting memory initialization");
 
 	log_debug!("Initializing virtual memory");
-	let (mut kernel_page_table, kernel_frame_allocator) =
+	let (kernel_page_table, kernel_frame_allocator) =
 		architecture_memory::initialize(boot_information.0);
 
 	unsafe {
 		physical_memory::KERNEL_FRAME_ALLOCATOR.call_once(|| {
 			architecture_memory::physical_memory::FrameAllocator::new(kernel_frame_allocator)
 		});
+
+		virtual_memory::KERNEL_PAGE_TABLE
+			.call_once(|| architecture_memory::virtual_memory::PageTable::new(kernel_page_table));
 	}
 	log_debug!("Finished initializing virtual memory");
-
-	architecture_memory::initialize_kernel_heap(&mut kernel_page_table);
 
 	heap::initialize();
 
