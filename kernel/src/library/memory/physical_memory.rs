@@ -31,8 +31,62 @@ impl PhysicalAddress
 	{
 		self.0
 	}
+
+impl ::core::ops::Add for PhysicalAddress
+{
+	type Output = Self;
+
+	fn add(self, rhs: Self) -> Self::Output { Self::new(self.inner() + rhs.inner()) }
 }
 
+impl ::core::ops::Add<usize> for PhysicalAddress
+{
+	type Output = Self;
+
+	fn add(self, rhs: usize) -> Self::Output { Self::new(self.inner() + rhs) }
+}
+
+impl ::core::ops::Add<u64> for PhysicalAddress
+{
+	type Output = Self;
+
+	fn add(self, rhs: u64) -> Self::Output { Self::new(self.inner() + rhs as usize) }
+}
+
+impl ::core::ops::Add<i64> for PhysicalAddress
+{
+	type Output = Self;
+
+	fn add(self, rhs: i64) -> Self::Output { Self::new(self.inner() + rhs as usize) }
+}
+
+impl ::core::ops::Sub for PhysicalAddress
+{
+	type Output = Self;
+
+	fn sub(self, rhs: Self) -> Self::Output { Self::new(self.inner() - rhs.inner()) }
+}
+
+impl ::core::ops::Sub<usize> for PhysicalAddress
+{
+	type Output = Self;
+
+	fn sub(self, rhs: usize) -> Self::Output { Self::new(self.inner() - rhs) }
+}
+
+impl ::core::ops::Sub<u64> for PhysicalAddress
+{
+	type Output = Self;
+
+	fn sub(self, rhs: u64) -> Self::Output { Self::new(self.inner() - rhs as usize) }
+}
+
+impl ::core::ops::Sub<i64> for PhysicalAddress
+{
+	type Output = Self;
+
+	fn sub(self, rhs: i64) -> Self::Output { Self::new(self.inner() - rhs as usize) }
+}
 /// ### Representation of a Page
 /// 
 /// This structure holds the information necessary to represent a memory frame with a given chunk size.

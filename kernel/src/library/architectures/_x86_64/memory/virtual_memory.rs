@@ -23,3 +23,31 @@ impl<'a> PageTable<'a>
 // 		unimplemented!()
 // 	}
 // }
+impl From<usize> for virtual_memory::VirtualAddress
+{
+	fn from(address_value: usize) -> Self { Self::new(address_value) }
+}
+impl From<u64> for virtual_memory::VirtualAddress
+{
+	fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
+}
+impl From<i64> for virtual_memory::VirtualAddress
+{
+	fn from(address_value: i64) -> Self { Self::new(address_value as usize) }
+}
+impl From<virtual_memory::VirtualAddress> for usize
+{
+	fn from(address: virtual_memory::VirtualAddress) -> Self { address.inner() }
+}
+impl From<virtual_memory::VirtualAddress> for u64
+{
+	fn from(address: virtual_memory::VirtualAddress) -> Self { address.inner() as u64 }
+}
+impl From<virtual_memory::VirtualAddress> for i64
+{
+	fn from(address: virtual_memory::VirtualAddress) -> Self { address.inner() as i64 }
+}
+impl From<x86_64::VirtAddr> for virtual_memory::VirtualAddress
+{
+	fn from(address: x86_64::VirtAddr) -> Self { Self::new(address.as_u64() as usize) }
+}

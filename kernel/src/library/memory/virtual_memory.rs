@@ -9,6 +9,61 @@ use crate::library::architectures::memory::virtual_memory;
 ///
 /// Represents the global page table held by the kernel for demand paging.
 pub static mut KERNEL_PAGE_TABLE: virtual_memory::PageTable = virtual_memory::PageTable::new(None);
+impl ::core::ops::Add for VirtualAddress
+{
+	type Output = Self;
+
+	fn add(self, rhs: Self) -> Self::Output { Self::new(self.inner() + rhs.inner()) }
+}
+
+impl ::core::ops::Add<usize> for VirtualAddress
+{
+	type Output = Self;
+
+	fn add(self, rhs: usize) -> Self::Output { Self::new(self.inner() + rhs) }
+}
+
+impl ::core::ops::Add<u64> for VirtualAddress
+{
+	type Output = Self;
+
+	fn add(self, rhs: u64) -> Self::Output { Self::new(self.inner() + rhs as usize) }
+}
+
+impl ::core::ops::Add<i64> for VirtualAddress
+{
+	type Output = Self;
+
+	fn add(self, rhs: i64) -> Self::Output { Self::new(self.inner() + rhs as usize) }
+}
+
+impl ::core::ops::Sub for VirtualAddress
+{
+	type Output = Self;
+
+	fn sub(self, rhs: Self) -> Self::Output { Self::new(self.inner() - rhs.inner()) }
+}
+
+impl ::core::ops::Sub<usize> for VirtualAddress
+{
+	type Output = Self;
+
+	fn sub(self, rhs: usize) -> Self::Output { Self::new(self.inner() - rhs) }
+}
+
+impl ::core::ops::Sub<u64> for VirtualAddress
+{
+	type Output = Self;
+
+	fn sub(self, rhs: u64) -> Self::Output { Self::new(self.inner() - rhs as usize) }
+}
+
+impl ::core::ops::Sub<i64> for VirtualAddress
+{
+	type Output = Self;
+
+	fn sub(self, rhs: i64) -> Self::Output { Self::new(self.inner() - rhs as usize) }
+}
 
 /// ### Determine Page Size
 ///
