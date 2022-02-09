@@ -22,15 +22,13 @@ impl PhysicalAddress
 	/// ### Create a New Physical Address
 	///
 	/// Constructs a new physical address.
-	pub fn new(address: usize) -> Self { Self(address) }
+	pub fn new(address: impl Into<usize>) -> Self { Self(address.into()) }
 
-	/// ### Get the Inner value
-	/// 
+	/// ### Get the Inner Value
+	///
 	/// Returns the inner value, i.e. content that is wrapped by this type.
-	pub fn inner(&self) -> usize
-	{
-		self.0
-	}
+	pub fn inner(&self) -> usize { self.0 }
+}
 
 impl ::core::ops::Add for PhysicalAddress
 {
@@ -87,21 +85,23 @@ impl ::core::ops::Sub<i64> for PhysicalAddress
 
 	fn sub(self, rhs: i64) -> Self::Output { Self::new(self.inner() - rhs as usize) }
 }
+
 /// ### Representation of a Page
-/// 
-/// This structure holds the information necessary to represent a memory frame with a given chunk size.
+///
+/// This structure holds the information necessary to represent a memory frame with a
+/// given chunk size.
 pub struct Frame<S: super::virtual_memory::ChuckSize = super::virtual_memory::ChunkSizeDefault>
 {
 	/// Where the frame starts in physical memory.
-	pub start_address: PhysicalAddress,
+	start_address: PhysicalAddress,
 	/// How big the physical frame is.
-	size:              marker::PhantomData<S>,
+	size:          marker::PhantomData<S>,
 }
 
 impl<S: super::virtual_memory::ChuckSize> Frame<S>
 {
 	/// ### Create a New Frame
-	/// 
+	///
 	/// Creates a new physical frame instance.
 	pub fn new(start_address: PhysicalAddress) -> Self
 	{
@@ -110,6 +110,11 @@ impl<S: super::virtual_memory::ChuckSize> Frame<S>
 			size: marker::PhantomData,
 		}
 	}
+
+	/// ### Start Address of a Frame
+	///
+	/// Returns the starts address of the given frame.
+	pub fn start(&self) -> PhysicalAddress { self.start_address }
 }
 
 /// ### Capability of Allocating Frames
@@ -118,7 +123,7 @@ impl<S: super::virtual_memory::ChuckSize> Frame<S>
 pub trait FrameAllocation<S: super::virtual_memory::ChuckSize>
 {
 	/// ### Allocate a Single Frame
-	/// 
+	///
 	/// The method with which a single frame is allocated.
 	fn allocate_frame(&mut self) -> Result<Frame<S>, ()>;
 }

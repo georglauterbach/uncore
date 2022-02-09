@@ -19,10 +19,7 @@ impl FrameAllocator
 	/// This function creates a new instance of a frame allocator for the `x86_64`
 	/// architecture.
 	#[must_use]
-	pub const fn new(allocator: frame_allocation::BootInfoFrameAllocator) -> Self
-	{
-		Self(allocator)
-	}
+	pub const fn new(allocator: frame_allocation::BootInfoFrameAllocator) -> Self { Self(allocator) }
 }
 
 impl From<x86_64::PhysAddr> for physical_memory::PhysicalAddress
@@ -35,7 +32,7 @@ impl<S: virtual_memory::ChuckSize> From<physical_memory::Frame<S>>
 {
 	fn from(frame: physical_memory::Frame<S>) -> Self
 	{
-		Self::from_start_address(x86_64::PhysAddr::new(frame.start_address.into())).unwrap()
+		Self::from_start_address(x86_64::PhysAddr::new(frame.start().into())).unwrap()
 	}
 }
 
@@ -51,9 +48,7 @@ impl<S: virtual_memory::ChuckSize>
 
 impl<S: virtual_memory::ChuckSize> physical_memory::FrameAllocation<S> for FrameAllocator
 {
-	fn allocate_frame(
-		&mut self,
-	) -> Result<physical_memory::Frame<S>, ()>
+	fn allocate_frame(&mut self) -> Result<physical_memory::Frame<S>, ()>
 	{
 		use x86_64::structures::paging::FrameAllocator;
 
@@ -96,7 +91,7 @@ impl From<physical_memory::PhysicalAddress> for i64
 }
 
 /// ## Physical Frame Allocation
-/// 
+///
 /// This module contains the structures for allocation and reservation of physical frames.
 pub mod frame_allocation
 {
@@ -104,8 +99,9 @@ pub mod frame_allocation
 	use x86_64::structures::paging;
 
 	/// The Kernel's Frame Allocator for `x86_64`
-	/// 
-	/// This structure can use the information given to it by the [`bootloader`] crate.
+	///
+	/// This structure can use the information given to it by the [`bootloader`]
+	/// crate.
 	pub struct BootInfoFrameAllocator
 	{
 		/// The map of used / unused frames.
@@ -117,7 +113,7 @@ pub mod frame_allocation
 	impl BootInfoFrameAllocator
 	{
 		/// ### Create a New Frame Allocator
-		/// 
+		///
 		/// Create a frame allocator from the passed memory map.
 		///
 		/// This function is unsafe because the caller must guarantee that the
@@ -129,14 +125,15 @@ pub mod frame_allocation
 		}
 
 		/// ### Return the Next Usable Frame(s)
-		/// 
+		///
 		/// Returns an iterator over the usable frames specified in the memory
 		/// map.
 		fn usable_frames(&self) -> impl Iterator<Item = paging::PhysFrame>
 		{
 			// get usable regions from memory map
 			let regions = self.memory_map.iter();
-			let usable_regions = regions.filter(|r| r.kind == boot_info::MemoryRegionKind::Usable);
+			let usable_regions =
+				regions.filter(|r| r.kind == boot_info::MemoryRegionKind::Usable);
 			// map each region to its address range
 			let addr_ranges = usable_regions.map(|r| r.start..r.end);
 			// transform to an iterator of frame start addresses
