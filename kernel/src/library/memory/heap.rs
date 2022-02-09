@@ -21,7 +21,7 @@ pub const KERNEL_HEAP_SIZE: usize = 200 * super::virtual_memory::ChunkSizeDefaul
 /// This structure implements the [`::core::alloc::GlobalAlloc`] trait to allocator kernel
 /// heap memory.
 #[global_allocator]
-static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
+pub(super) static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
 	kernel_types::lock::Locked::from(fixed_block_size::Allocator::new());
 
 /// ### Kernel Heap Error Handler

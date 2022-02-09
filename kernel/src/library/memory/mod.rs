@@ -30,9 +30,23 @@ use crate::prelude::*;
 /// all while abstracting over all the different architectures.
 pub fn initialize(boot_information: &boot::Information)
 {
+	use crate::library::architectures::memory as architecture_memory;
+
 	log_info!("Starting memory initialization");
 
-	virtual_memory::initialize(boot_information);
+	log_debug!("Initializing virtual memory");
+	let (mut kernel_page_table, kernel_frame_allocator) =
+		architecture_memory::initialize(boot_information.0);
+
+	unsafe {
+		physical_memory::KERNEL_FRAME_ALLOCATOR.call_once(|| {
+			architecture_memory::physical_memory::FrameAllocator::new(kernel_frame_allocator)
+		});
+	}
+	log_debug!("Finished initializing virtual memory");
+
+	architecture_memory::initialize_kernel_heap(&mut kernel_page_table);
+
 	heap::initialize();
 
 	log_info!("Finished memory initialization");

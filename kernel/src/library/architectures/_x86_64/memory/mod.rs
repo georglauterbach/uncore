@@ -7,7 +7,10 @@ pub mod physical_memory;
 /// TODO
 pub mod virtual_memory;
 
-use crate::{prelude::*, library::memory::physical_memory::FrameAllocation};
+use crate::{
+	prelude::*,
+	library::memory::physical_memory::FrameAllocation,
+};
 
 use x86_64::structures::paging;
 
@@ -37,7 +40,7 @@ pub fn initialize(
 	};
 
 	let mut frame_allocator =
-		unsafe { frame_allocation::BootInfoFrameAllocator::init(&boot_information.memory_regions) };
+		unsafe { frame_allocation::BootInfoFrameAllocator::new(&boot_information.memory_regions) };
 
 	// initialize_kernel_heap(&mut frame_allocator, &mut offset_page_table);
 
@@ -62,7 +65,6 @@ unsafe fn get_active_level_4_table(physical_memory_offset: x86_64::VirtAddr)
 }
 
 // TODO this is actually for the kernel heap... re-locate it after a proper refactoring
-///
 /// #### Panics
 ///
 /// TODO
@@ -72,7 +74,6 @@ pub fn initialize_kernel_heap(
 )
 {
 	use x86_64::structures::paging::{
-		FrameAllocator,
 		Mapper,
 	};
 
@@ -85,20 +86,22 @@ pub fn initialize_kernel_heap(
 		paging::Page::range_inclusive(heap_start_page, heap_end_page)
 	};
 
+	log_warning!("namd");
+
 	use crate::prelude::memory::physical_memory::KERNEL_FRAME_ALLOCATOR;
 
-	let x = if let Some(namd) = unsafe { &mut KERNEL_FRAME_ALLOCATOR.0 }
-	{
-		namd
-	} else { panic!("NAMD") };
+	let x = unsafe { KERNEL_FRAME_ALLOCATOR.get_mut().unwrap() };
+	log_warning!("naaaaamd");
 
 	for page in page_range {
-		let frame: crate::prelude::memory::physical_memory::Frame<crate::prelude::memory::virtual_memory::ChunkSizeDefault> = unsafe { KERNEL_FRAME_ALLOCATOR.allocate_frame().unwrap() };
+		let frame: crate::prelude::memory::physical_memory::Frame<
+			crate::prelude::memory::virtual_memory::ChunkSizeDefault,
+		> = x.allocate_frame().unwrap();
 		// let frame = frame_allocator.allocate_frame().unwrap();
 		let flags = paging::PageTableFlags::PRESENT | paging::PageTableFlags::WRITABLE;
 		unsafe {
 			offset_page_table
-				.map_to(page, frame.into(), flags, x)
+				.map_to(page, frame.into(), flags, &mut KERNEL_FRAME_ALLOCATOR.get_mut().unwrap().0 )
 				.unwrap()
 				.flush();
 		}

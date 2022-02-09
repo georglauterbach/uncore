@@ -1,43 +1,54 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use crate::library::architectures::memory::physical_memory;
+use crate::library::architectures::memory::physical_memory as architecture_physical_memory;
 
 use ::core::marker;
 
-/// TODO
-pub static mut KERNEL_FRAME_ALLOCATOR: physical_memory::FrameAllocator =
-	physical_memory::FrameAllocator::new(None);
+/// ### Global Kernel Frame Allocator
+///
+/// Structure containing the kernel's global frame allocator.
+pub static mut KERNEL_FRAME_ALLOCATOR: spin::once::Once<architecture_physical_memory::FrameAllocator> =
+	spin::once::Once::new();
 
-/// TODO
+/// ### A Physical Address Abstraction
+///
+/// This is an opaque wrapper type that contains the address as its first type.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PhysicalAddress(usize);
 
 impl PhysicalAddress
 {
-	/// TODO
+	/// ### Create a New Physical Address
+	///
+	/// Constructs a new physical address.
 	pub fn new(address: usize) -> Self { Self(address) }
 
-	/// TODO
-	pub fn as_u64(&self) -> u64
+	/// ### Get the Inner value
+	/// 
+	/// Returns the inner value, i.e. content that is wrapped by this type.
+	pub fn inner(&self) -> usize
 	{
-		self.0 as u64
+		self.0
 	}
 }
 
-/// TODO
-#[allow(dead_code)]
+/// ### Representation of a Page
+/// 
+/// This structure holds the information necessary to represent a memory frame with a given chunk size.
 pub struct Frame<S: super::virtual_memory::ChuckSize = super::virtual_memory::ChunkSizeDefault>
 {
-	/// TODO
+	/// Where the frame starts in physical memory.
 	pub start_address: PhysicalAddress,
-	/// TODO
-	size:          marker::PhantomData<S>,
+	/// How big the physical frame is.
+	size:              marker::PhantomData<S>,
 }
 
 impl<S: super::virtual_memory::ChuckSize> Frame<S>
 {
-	/// TODO
+	/// ### Create a New Frame
+	/// 
+	/// Creates a new physical frame instance.
 	pub fn new(start_address: PhysicalAddress) -> Self
 	{
 		Self {
@@ -47,19 +58,13 @@ impl<S: super::virtual_memory::ChuckSize> Frame<S>
 	}
 }
 
-/// TODO
+/// ### Capability of Allocating Frames
+///
+/// This traits shows that a type can frames.
 pub trait FrameAllocation<S: super::virtual_memory::ChuckSize>
 {
-	/// TODO
-	fn allocate_frame(&mut self) -> Result<Frame<S>, FrameAllocationError>;
-}
-
-/// TODO
-#[derive(Debug, Copy, Clone)]
-pub enum FrameAllocationError
-{
-	/// TODO
-	FrameAllocatorNotInitialized,
-	/// TODO
-	GenericCouldNotAllocateFrame,
+	/// ### Allocate a Single Frame
+	/// 
+	/// The method with which a single frame is allocated.
+	fn allocate_frame(&mut self) -> Result<Frame<S>, ()>;
 }
