@@ -5,5 +5,5 @@
 # https://rust-lang.github.io/rustup-components-history/
 
 [toolchain]
-channel = "nightly-2022-01-01"
+channel = "nightly-2022-02-06"
 components = [ "rust-src", "rust-std", "rustc", "cargo", "llvm-tools-preview" ]
