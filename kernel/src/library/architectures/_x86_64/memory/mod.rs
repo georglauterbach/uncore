@@ -4,12 +4,12 @@
 /// ## Architecture-Specific Physical Memory
 ///
 /// Contains types and functionality to interact with physical memory.
-pub mod physical_memory;
+pub mod physical;
 
 /// ## Architecture-Specific Virtual Memory
 ///
 /// Contains types and functionality to interact with virtual memory.
-pub mod virtual_memory;
+pub mod virtual_;
 
 use crate::prelude::*;
 
@@ -22,7 +22,7 @@ pub fn initialize(
 	boot_information: &'static bootloader::BootInfo,
 ) -> (
 	paging::OffsetPageTable,
-	physical_memory::frame_allocation::BootInfoFrameAllocator,
+	physical::frame_allocation::BootInfoFrameAllocator,
 )
 {
 	let physical_memory_offset = boot_information.physical_memory_offset.into_option().map_or_else(
@@ -42,16 +42,14 @@ pub fn initialize(
 	};
 
 	let frame_allocator = unsafe {
-		physical_memory::frame_allocation::BootInfoFrameAllocator::new(
-			&boot_information.memory_regions,
-		)
+		physical::frame_allocation::BootInfoFrameAllocator::new(&boot_information.memory_regions)
 	};
 
 	(offset_page_table, frame_allocator)
 }
 
 /// TODO proper doc comment
-/// 
+///
 /// Returns a mutable reference to the active level 4 table.
 ///
 /// This function is unsafe because the caller must guarantee that the

@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use crate::prelude::memory::{
-	physical_memory,
-	virtual_memory,
-};
+use crate::prelude::memory;
 
 /// ### A Frame Allocator
 ///
@@ -22,23 +19,23 @@ impl FrameAllocator
 	pub const fn new(allocator: frame_allocation::BootInfoFrameAllocator) -> Self { Self(allocator) }
 }
 
-impl From<x86_64::PhysAddr> for physical_memory::PhysicalAddress
+impl From<x86_64::PhysAddr> for memory::PhysicalAddress
 {
 	fn from(address: x86_64::PhysAddr) -> Self { Self::new(address.as_u64() as usize) }
 }
 
-impl<S: virtual_memory::ChuckSize> From<physical_memory::Frame<S>>
+/// TODO make this absolutely generic, not only for 4KiB frames
+impl<S: memory::ChuckSize> From<memory::Frame<S>>
 	for x86_64::structures::paging::PhysFrame<x86_64::structures::paging::Size4KiB>
 {
-	fn from(frame: physical_memory::Frame<S>) -> Self
+	fn from(frame: memory::Frame<S>) -> Self
 	{
 		Self::from_start_address(x86_64::PhysAddr::new(frame.start().into())).unwrap()
 	}
 }
 
-impl<S: virtual_memory::ChuckSize>
-	From<x86_64::structures::paging::PhysFrame<x86_64::structures::paging::Size4KiB>>
-	for physical_memory::Frame<S>
+impl<S: memory::ChuckSize> From<x86_64::structures::paging::PhysFrame<x86_64::structures::paging::Size4KiB>>
+	for memory::Frame<S>
 {
 	fn from(frame: x86_64::structures::paging::PhysFrame) -> Self
 	{
@@ -46,9 +43,9 @@ impl<S: virtual_memory::ChuckSize>
 	}
 }
 
-impl<S: virtual_memory::ChuckSize> physical_memory::FrameAllocation<S> for FrameAllocator
+impl<S: memory::ChuckSize> memory::FrameAllocation<S> for FrameAllocator
 {
-	fn allocate_frame(&mut self) -> Result<physical_memory::Frame<S>, ()>
+	fn allocate_frame(&mut self) -> Result<memory::Frame<S>, ()>
 	{
 		use x86_64::structures::paging::FrameAllocator;
 
@@ -60,34 +57,34 @@ impl<S: virtual_memory::ChuckSize> physical_memory::FrameAllocation<S> for Frame
 	}
 }
 
-impl From<usize> for physical_memory::PhysicalAddress
+impl From<usize> for memory::PhysicalAddress
 {
 	fn from(address_value: usize) -> Self { Self::new(address_value) }
 }
 
-impl From<u64> for physical_memory::PhysicalAddress
+impl From<u64> for memory::PhysicalAddress
 {
 	fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
 }
 
-impl From<i64> for physical_memory::PhysicalAddress
+impl From<i64> for memory::PhysicalAddress
 {
 	fn from(address_value: i64) -> Self { Self::new(address_value as usize) }
 }
 
-impl From<physical_memory::PhysicalAddress> for usize
+impl From<memory::PhysicalAddress> for usize
 {
-	fn from(address: physical_memory::PhysicalAddress) -> Self { address.inner() }
+	fn from(address: memory::PhysicalAddress) -> Self { address.inner() }
 }
 
-impl From<physical_memory::PhysicalAddress> for u64
+impl From<memory::PhysicalAddress> for u64
 {
-	fn from(address: physical_memory::PhysicalAddress) -> Self { address.inner() as u64 }
+	fn from(address: memory::PhysicalAddress) -> Self { address.inner() as u64 }
 }
 
-impl From<physical_memory::PhysicalAddress> for i64
+impl From<memory::PhysicalAddress> for i64
 {
-	fn from(address: physical_memory::PhysicalAddress) -> Self { address.inner() as i64 }
+	fn from(address: memory::PhysicalAddress) -> Self { address.inner() as i64 }
 }
 
 /// ## Physical Frame Allocation
