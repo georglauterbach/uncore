@@ -3,6 +3,8 @@
 
 use crate::prelude::memory;
 
+use x86_64::structures::paging;
+
 /// ### A Frame Allocator
 ///
 /// This structure enables frame allocation (i.e. handling of physical addresses and
@@ -24,30 +26,24 @@ impl From<x86_64::PhysAddr> for memory::PhysicalAddress
 	fn from(address: x86_64::PhysAddr) -> Self { Self::new(address.as_u64() as usize) }
 }
 
-/// TODO make this absolutely generic, not only for 4KiB frames
-impl<S: memory::ChuckSize> From<memory::Frame<S>>
-	for x86_64::structures::paging::PhysFrame<x86_64::structures::paging::Size4KiB>
+impl From<memory::Frame<memory::ChunkSizeDefault>> for paging::PhysFrame<paging::Size4KiB>
 {
-	fn from(frame: memory::Frame<S>) -> Self
+	fn from(frame: memory::Frame<memory::ChunkSizeDefault>) -> Self
 	{
 		Self::from_start_address(x86_64::PhysAddr::new(frame.start().into())).unwrap()
 	}
 }
 
-impl<S: memory::ChuckSize> From<x86_64::structures::paging::PhysFrame<x86_64::structures::paging::Size4KiB>>
-	for memory::Frame<S>
+impl From<paging::PhysFrame<paging::Size4KiB>> for memory::Frame<memory::ChunkSizeDefault>
 {
-	fn from(frame: x86_64::structures::paging::PhysFrame) -> Self
-	{
-		Self::new(frame.start_address().into())
-	}
+	fn from(frame: paging::PhysFrame) -> Self { Self::new(frame.start_address().into()) }
 }
 
-impl<S: memory::ChuckSize> memory::FrameAllocation<S> for FrameAllocator
+impl memory::FrameAllocation<memory::ChunkSizeDefault> for FrameAllocator
 {
-	fn allocate_frame(&mut self) -> Result<memory::Frame<S>, ()>
+	fn allocate_frame(&mut self) -> Result<memory::Frame<memory::ChunkSizeDefault>, ()>
 	{
-		use x86_64::structures::paging::FrameAllocator;
+		use paging::FrameAllocator;
 
 		if let Some(frame) = self.0.allocate_frame() {
 			Ok(frame.into())

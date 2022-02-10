@@ -104,7 +104,7 @@ impl ::core::ops::Sub<i64> for PhysicalAddress
 ///
 /// This structure holds the information necessary to represent a memory frame with a
 /// given chunk size.
-pub struct Frame<S: super::ChuckSize = super::ChunkSizeDefault>
+pub struct Frame<S: super::ChunkSize = super::ChunkSizeDefault>
 {
 	/// Where the frame starts in physical memory.
 	start_address: PhysicalAddress,
@@ -112,7 +112,7 @@ pub struct Frame<S: super::ChuckSize = super::ChunkSizeDefault>
 	size:          ::core::marker::PhantomData<S>,
 }
 
-impl<S: super::ChuckSize> Frame<S>
+impl<S: super::ChunkSize> Frame<S>
 {
 	/// ### Create a New Frame
 	///
@@ -134,7 +134,7 @@ impl<S: super::ChuckSize> Frame<S>
 /// ### Capability of Allocating Frames
 ///
 /// This traits shows that a type can frames.
-pub trait FrameAllocation<S: super::ChuckSize>
+pub trait FrameAllocation<S: super::ChunkSize>
 {
 	/// ### Allocate a Single Frame
 	///

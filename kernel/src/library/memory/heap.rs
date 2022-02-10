@@ -7,14 +7,14 @@ use crate::prelude::*;
 ///
 /// This value marks the temporary virtual start address of the kernel heap. **In the
 /// future, a proper paging implementation will render this obsolete!**
-pub const KERNEL_HEAP_START: usize = 0x0000_4444_4444_0000;
+const KERNEL_HEAP_START: usize = 0x0000_4444_4444_0000;
 
 /// ### (Temporary) Kernel Heap Size
 ///
 /// The size of the kernel heap. **In the future, a proper paging implementation will
 /// render this obsolete!** The size of the kernel heap equals the default page size times
-/// 100. With 4096 Byte default page size, this equals 800 KiB.
-pub const KERNEL_HEAP_SIZE: usize = 200 * super::ChunkSizeDefault::size();
+/// the value given to this variable.
+const KERNEL_HEAP_PAGE_COUNT: usize = 200;
 
 /// ### The Global Kernel Allocator
 ///
@@ -95,9 +95,14 @@ mod fixed_block_size
 		/// must be called only once.
 		pub unsafe fn initialize(&mut self)
 		{
-			create_heap_mappings();
-			self.fallback_allocator
-				.init(super::KERNEL_HEAP_START, super::KERNEL_HEAP_SIZE);
+			use crate::prelude::*;
+
+			log_debug!("Initializing (fallback) kernel heap memory");
+			let size = memory::allocate_range(
+				super::KERNEL_HEAP_START,
+				super::KERNEL_HEAP_PAGE_COUNT,
+			);
+			self.fallback_allocator.init(super::KERNEL_HEAP_START, size);
 		}
 
 		/// ### Fallback Allocation
@@ -107,7 +112,7 @@ mod fixed_block_size
 		fn allocate_with_fallback_allocator(&mut self, layout: alloc::Layout) -> *mut u8
 		{
 			crate::prelude::log_warning!(
-				"Had to allocator kernel heap memory with the fallback allocator"
+				"Had to allocate kernel heap memory with fallback allocator"
 			);
 			match self.fallback_allocator.allocate_first_fit(layout) {
 				Ok(ptr) => ptr.as_ptr(),
@@ -172,60 +177,13 @@ mod fixed_block_size
 			}
 		}
 	}
+}
 
-	/// ### Create Kernel Page Mapping for this Heap Allocator
-	///
-	/// The current heap implementation uses a fallback heap allocator which relies on
-	/// certain mapped pages. This function maps these pages.
-	// TODO refactor this function
-	fn create_heap_mappings()
-	{
-		use crate::prelude::{
-			*,
-			memory::{
-				physical::{
-					KERNEL_FRAME_ALLOCATOR,
-					FrameAllocation,
-				},
-				virtual_::KERNEL_PAGE_TABLE,
-			},
-		};
-		use x86_64::structures::paging::{
-			self,
-			Mapper,
-		};
-
-		log_debug!("Initializing (fallback) kernel heap memory");
-
-		let page_range = {
-			let heap_start = x86_64::VirtAddr::new(memory::heap::KERNEL_HEAP_START as u64);
-			let heap_end = heap_start + memory::heap::KERNEL_HEAP_SIZE - 1u64;
-			let heap_start_page = paging::Page::containing_address(heap_start);
-			let heap_end_page = paging::Page::containing_address(heap_end);
-			paging::Page::range_inclusive(heap_start_page, heap_end_page)
-		};
-
-		let frame_allocator = unsafe { KERNEL_FRAME_ALLOCATOR.get_mut().unwrap() };
-		let offset_page_table = unsafe { KERNEL_PAGE_TABLE.get_mut().unwrap() };
-
-		for page in page_range {
-			let frame: crate::prelude::memory::physical::Frame<
-				crate::prelude::memory::virtual_::ChunkSizeDefault,
-			> = frame_allocator.allocate_frame().unwrap();
-			// let frame = frame_allocator.allocate_frame().unwrap();
-			let flags = paging::PageTableFlags::PRESENT | paging::PageTableFlags::WRITABLE;
-			unsafe {
-				offset_page_table
-					.0
-					.map_to(
-						page,
-						frame.into(),
-						flags,
-						&mut KERNEL_FRAME_ALLOCATOR.get_mut().unwrap().0,
-					)
-					.unwrap()
-					.flush();
-			}
-		}
+#[test_case]
+fn many_boxes()
+{
+	for i in 0..KERNEL_HEAP_PAGE_COUNT {
+		let x = alloc::boxed::Box::new(i);
+		assert_eq!(*x, i);
 	}
 }

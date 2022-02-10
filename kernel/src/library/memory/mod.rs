@@ -27,11 +27,13 @@ mod virtual_;
 
 pub use virtual_::{
 	VirtualAddress,
-	ChuckSize,
+	ChunkSize,
 	ChunkSizeDefault,
 	ChunkSizeHuge,
 	ChunkSizeGiant,
 	paging,
+	allocate_page,
+	allocate_range,
 };
 
 use crate::prelude::*;
@@ -50,7 +52,7 @@ pub fn initialize(boot_information: &boot::Information)
 
 	log_info!("Starting memory initialization");
 	log_debug!("Initializing virtual memory");
-	
+
 	let (kernel_page_table, kernel_frame_allocator) = architecture_memory::initialize(boot_information.0);
 	unsafe {
 		physical::KERNEL_FRAME_ALLOCATOR.call_once(|| {
@@ -70,14 +72,6 @@ pub fn initialize(boot_information: &boot::Information)
 
 	log_debug!("Initialized allocator");
 	log_info!("Finished memory initialization");
-}
-
-/// TODO
-pub fn allocate_page(_address: VirtualAddress)
-{
-	// use paging::PageAllocation;
-	// let x = unsafe { virtual_::KERNEL_PAGE_TABLE.get() };
-	// x.unwrap()<>::allocate_page(address);
 }
 
 #[test_case]
@@ -104,13 +98,4 @@ fn large_vector()
 	}
 
 	assert_eq!(vec.iter().sum::<u64>(), (vector_size - 1) * vector_size / 2);
-}
-
-#[test_case]
-fn many_boxes()
-{
-	for i in 0..heap::KERNEL_HEAP_SIZE {
-		let x = alloc::boxed::Box::new(i);
-		assert_eq!(*x, i);
-	}
 }

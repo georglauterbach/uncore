@@ -5,19 +5,19 @@ use crate::prelude::*;
 
 use x86_64::structures::paging;
 
-impl memory::ChuckSize for memory::ChunkSizeDefault
+impl memory::ChunkSize for memory::ChunkSizeDefault
 {
 	const SIZE: usize = usize::pow(2, 12);
 	const SIZE_AS_DEBUG_STRING: &'static str = "4KiB (4096Byte)";
 }
 
-impl memory::ChuckSize for memory::ChunkSizeHuge
+impl memory::ChunkSize for memory::ChunkSizeHuge
 {
 	const SIZE: usize = usize::pow(2, 21);
 	const SIZE_AS_DEBUG_STRING: &'static str = "2MiB (2097152Byte)";
 }
 
-impl memory::ChuckSize for memory::ChunkSizeGiant
+impl memory::ChunkSize for memory::ChunkSizeGiant
 {
 	const SIZE: usize = usize::pow(2, 30);
 	const SIZE_AS_DEBUG_STRING: &'static str = "1GiB (1073741824 Byte)";
@@ -37,7 +37,7 @@ impl<'a> PageTable<'a>
 	pub const fn new(page_table: paging::OffsetPageTable<'a>) -> Self { Self(page_table) }
 }
 
-impl<'a, S: memory::ChuckSize> memory::paging::PageAllocation<S> for PageTable<'a>
+impl<'a> memory::paging::PageAllocation for PageTable<'a>
 {
 	fn allocate_page(&mut self, address: memory::VirtualAddress)
 	{
@@ -65,11 +65,6 @@ impl<'a, S: memory::ChuckSize> memory::paging::PageAllocation<S> for PageTable<'
 	}
 }
 
-impl From<usize> for memory::VirtualAddress
-{
-	fn from(address_value: usize) -> Self { Self::new(address_value) }
-}
-
 impl From<u64> for memory::VirtualAddress
 {
 	fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
@@ -78,11 +73,6 @@ impl From<u64> for memory::VirtualAddress
 impl From<i64> for memory::VirtualAddress
 {
 	fn from(address_value: i64) -> Self { Self::new(address_value as usize) }
-}
-
-impl From<memory::VirtualAddress> for usize
-{
-	fn from(address: memory::VirtualAddress) -> Self { address.inner() }
 }
 
 impl From<memory::VirtualAddress> for u64
@@ -100,9 +90,25 @@ impl From<x86_64::VirtAddr> for memory::VirtualAddress
 	fn from(address: x86_64::VirtAddr) -> Self { Self::new(address.as_u64() as usize) }
 }
 
-impl<S: memory::ChuckSize> From<memory::paging::Page<S>> for paging::Page<paging::Size4KiB>
+impl From<memory::paging::Page<memory::ChunkSizeDefault>> for paging::Page<paging::Size4KiB>
 {
-	fn from(page: memory::paging::Page<S>) -> Self
+	fn from(page: memory::paging::Page<memory::ChunkSizeDefault>) -> Self
+	{
+		Self::from_start_address(x86_64::VirtAddr::new(page.start().into())).unwrap()
+	}
+}
+
+impl From<memory::paging::Page<memory::ChunkSizeHuge>> for paging::Page<paging::Size2MiB>
+{
+	fn from(page: memory::paging::Page<memory::ChunkSizeHuge>) -> Self
+	{
+		Self::from_start_address(x86_64::VirtAddr::new(page.start().into())).unwrap()
+	}
+}
+
+impl From<memory::paging::Page<memory::ChunkSizeGiant>> for paging::Page<paging::Size1GiB>
+{
+	fn from(page: memory::paging::Page<memory::ChunkSizeGiant>) -> Self
 	{
 		Self::from_start_address(x86_64::VirtAddr::new(page.start().into())).unwrap()
 	}
@@ -111,4 +117,14 @@ impl<S: memory::ChuckSize> From<memory::paging::Page<S>> for paging::Page<paging
 impl From<paging::Page<paging::Size4KiB>> for memory::paging::Page<memory::ChunkSizeDefault>
 {
 	fn from(page: paging::Page<paging::Size4KiB>) -> Self { Self::new(page.start_address().into()) }
+}
+
+impl From<paging::Page<paging::Size2MiB>> for memory::paging::Page<memory::ChunkSizeHuge>
+{
+	fn from(page: paging::Page<paging::Size2MiB>) -> Self { Self::new(page.start_address().into()) }
+}
+
+impl From<paging::Page<paging::Size1GiB>> for memory::paging::Page<memory::ChunkSizeGiant>
+{
+	fn from(page: paging::Page<paging::Size1GiB>) -> Self { Self::new(page.start_address().into()) }
 }
