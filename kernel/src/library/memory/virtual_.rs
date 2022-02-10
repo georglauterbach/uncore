@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use crate::library::architectures::memory::virtual_memory as architecture_virtual_memory;
+use crate::library::architectures::memory::virtual_ as architecture_virtual_memory;
 
 /// ### Kernel Page Table
 ///
 /// Represents the global page table held by the kernel for demand paging.
-pub static mut KERNEL_PAGE_TABLE: spin::once::Once<architecture_virtual_memory::PageTable> =
+pub(super) static mut KERNEL_PAGE_TABLE: spin::once::Once<architecture_virtual_memory::PageTable> =
 	spin::Once::new();
 
 /// ### A Virtual Memory Address
@@ -103,12 +103,6 @@ pub trait ChuckSize: Copy
 #[derive(Debug, Clone, Copy)]
 pub struct ChunkSizeDefault;
 
-impl ChuckSize for ChunkSizeDefault
-{
-	const SIZE: usize = usize::pow(2, 12);
-	const SIZE_AS_DEBUG_STRING: &'static str = "4KiB (4096Byte)";
-}
-
 impl ChunkSizeDefault
 {
 	/// ### Default Size
@@ -123,38 +117,24 @@ impl ChunkSizeDefault
 #[derive(Debug, Clone, Copy)]
 pub struct ChunkSizeHuge;
 
-impl ChuckSize for ChunkSizeHuge
-{
-	const SIZE: usize = usize::pow(2, 21);
-	const SIZE_AS_DEBUG_STRING: &'static str = "2MiB (2097152Byte)";
-}
-
 /// ### Architecture's Biggest Pages
 ///
 /// This is the biggest page size available for an architecture.
 #[derive(Debug, Clone, Copy)]
 pub struct ChunkSizeGiant;
 
-impl ChuckSize for ChunkSizeGiant
-{
-	const SIZE: usize = usize::pow(2, 30);
-	const SIZE_AS_DEBUG_STRING: &'static str = "1GiB (1073741824 Byte)";
-}
-
 /// ## Demand Paging
 ///
 /// Contains the needed types for proper demand paging.
 pub mod paging
 {
-	use ::core::marker;
-
 	/// ### Representation of a Page
 	///
 	/// This structs holds the information of a single page.
 	pub struct Page<S: super::ChuckSize>
 	{
 		start_address: super::VirtualAddress,
-		size:          marker::PhantomData<S>,
+		size:          ::core::marker::PhantomData<S>,
 	}
 
 	impl<S: super::ChuckSize> Page<S>
@@ -166,7 +146,7 @@ pub mod paging
 		{
 			Self {
 				start_address,
-				size: marker::PhantomData,
+				size: ::core::marker::PhantomData,
 			}
 		}
 
@@ -185,8 +165,6 @@ pub mod paging
 		/// ### Allocate a Single Page
 		///
 		/// The method with which a single page is allocated.
-		fn allocate_page<FA>(&mut self)
-		where
-			FA: super::super::physical_memory::FrameAllocation<S>;
+		fn allocate_page(&mut self, address: super::VirtualAddress);
 	}
 }

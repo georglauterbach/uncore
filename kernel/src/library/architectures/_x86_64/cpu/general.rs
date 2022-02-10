@@ -22,8 +22,7 @@ mod stacks
 	/// The size of the stack used during the CPU double fault
 	/// exception. We provide the equivalent of 20 pages, each 4096 (0x1000) byte in
 	/// size-
-	const DOUBLE_FAULT_STACK_SIZE: usize =
-		crate::prelude::memory::virtual_memory::ChunkSizeDefault::size() * 20;
+	const DOUBLE_FAULT_STACK_SIZE: usize = crate::prelude::memory::ChunkSizeDefault::size() * 20;
 
 	/// ### Double Fault Stack
 	///

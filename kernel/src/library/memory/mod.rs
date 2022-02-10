@@ -5,18 +5,34 @@
 ///
 /// This module provides a _very_ simple and minimalistic allocator
 /// _only_ used in the kernel for simple tasks.
-pub mod heap;
+mod heap;
 
 /// ## Physical Memory
 ///
 /// Holds structures and functions needed when interacting with physical addresses.
-pub mod physical_memory;
+mod physical;
+
+pub use physical::{
+	Frame,
+	FrameAllocation,
+	PhysicalAddress,
+};
+pub(crate) use physical::get_frame_allocator;
 
 /// ## Virtual Memory
 ///
 /// This module handles (demand) paging, that is virtual memory, for
 /// the kernel (and for the user-space in the future).
-pub mod virtual_memory;
+mod virtual_;
+
+pub use virtual_::{
+	VirtualAddress,
+	ChuckSize,
+	ChunkSizeDefault,
+	ChunkSizeHuge,
+	ChunkSizeGiant,
+	paging,
+};
 
 use crate::prelude::*;
 
@@ -33,24 +49,35 @@ pub fn initialize(boot_information: &boot::Information)
 	use crate::library::architectures::memory as architecture_memory;
 
 	log_info!("Starting memory initialization");
-
 	log_debug!("Initializing virtual memory");
-	let (kernel_page_table, kernel_frame_allocator) =
-		architecture_memory::initialize(boot_information.0);
-
+	
+	let (kernel_page_table, kernel_frame_allocator) = architecture_memory::initialize(boot_information.0);
 	unsafe {
-		physical_memory::KERNEL_FRAME_ALLOCATOR.call_once(|| {
-			architecture_memory::physical_memory::FrameAllocator::new(kernel_frame_allocator)
+		physical::KERNEL_FRAME_ALLOCATOR.call_once(|| {
+			architecture_memory::physical::FrameAllocator::new(kernel_frame_allocator)
 		});
 
-		virtual_memory::KERNEL_PAGE_TABLE
-			.call_once(|| architecture_memory::virtual_memory::PageTable::new(kernel_page_table));
+		virtual_::KERNEL_PAGE_TABLE
+			.call_once(|| architecture_memory::virtual_::PageTable::new(kernel_page_table));
 	}
+
 	log_debug!("Finished initializing virtual memory");
+	log_debug!("Initializing a simple global memory allocator");
 
-	heap::initialize();
+	unsafe {
+		heap::ALLOCATOR.lock().initialize();
+	}
 
+	log_debug!("Initialized allocator");
 	log_info!("Finished memory initialization");
+}
+
+/// TODO
+pub fn allocate_page(_address: VirtualAddress)
+{
+	// use paging::PageAllocation;
+	// let x = unsafe { virtual_::KERNEL_PAGE_TABLE.get() };
+	// x.unwrap()<>::allocate_page(address);
 }
 
 #[test_case]
