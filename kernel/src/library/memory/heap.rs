@@ -98,7 +98,7 @@ mod fixed_block_size
 			use crate::prelude::*;
 
 			log_debug!("Initializing (fallback) kernel heap memory");
-			let size = memory::allocate_range(
+			let size = memory::paging::allocate_range(
 				super::KERNEL_HEAP_START,
 				super::KERNEL_HEAP_PAGE_COUNT,
 			);

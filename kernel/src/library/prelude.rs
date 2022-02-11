@@ -4,6 +4,7 @@
 // * MODULES
 // * ---------------------------------------------------------------------
 
+pub use super::architectures;
 pub use super::helper::miscellaneous::boot;
 pub use super::helper::miscellaneous::kernel_types;
 pub use super::helper::panic;

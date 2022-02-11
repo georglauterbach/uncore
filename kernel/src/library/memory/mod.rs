@@ -15,7 +15,6 @@ mod physical;
 pub use physical::{
 	Frame,
 	FrameAllocation,
-	PhysicalAddress,
 };
 pub(crate) use physical::get_frame_allocator;
 
@@ -26,14 +25,17 @@ pub(crate) use physical::get_frame_allocator;
 mod virtual_;
 
 pub use virtual_::{
-	VirtualAddress,
-	ChunkSize,
-	ChunkSizeDefault,
-	ChunkSizeHuge,
-	ChunkSizeGiant,
+	addresses::{
+		PhysicalAddress,
+		VirtualAddress,
+	},
+	chunks::{
+		ChunkSize,
+		ChunkSizeDefault,
+		ChunkSizeHuge,
+		ChunkSizeGiant,
+	},
 	paging,
-	allocate_page,
-	allocate_range,
 };
 
 use crate::prelude::*;
@@ -55,13 +57,12 @@ pub fn initialize(boot_information: &boot::Information)
 
 	let (kernel_page_table, kernel_frame_allocator) = architecture_memory::initialize(boot_information.0);
 	unsafe {
-		physical::KERNEL_FRAME_ALLOCATOR.call_once(|| {
-			architecture_memory::physical::FrameAllocator::new(kernel_frame_allocator)
-		});
+		physical::KERNEL_FRAME_ALLOCATOR
+			.call_once(|| architecture_memory::FrameAllocator::new(kernel_frame_allocator));
 
 		virtual_::KERNEL_PAGE_TABLE
 			.lock()
-			.call_once(|| architecture_memory::virtual_::PageTable::new(kernel_page_table));
+			.call_once(|| architecture_memory::PageTable::new(kernel_page_table));
 	}
 
 	log_debug!("Finished initializing virtual memory");

@@ -26,7 +26,7 @@ impl memory::ChunkSize for memory::ChunkSizeGiant
 /// ### A Page Table
 ///
 /// This structure represent the page table used by the kernel.
-pub struct PageTable<'a>(pub paging::OffsetPageTable<'a>);
+pub(crate) struct PageTable<'a>(pub paging::OffsetPageTable<'a>);
 
 impl<'a> PageTable<'a>
 {

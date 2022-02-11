@@ -9,7 +9,7 @@ use x86_64::structures::paging;
 ///
 /// This structure enables frame allocation (i.e. handling of physical addresses and
 /// "selection" of physical memory regions).
-pub struct FrameAllocator(pub frame_allocation::BootInfoFrameAllocator);
+pub(crate) struct FrameAllocator(pub frame_allocation::BootInfoFrameAllocator);
 
 impl FrameAllocator
 {

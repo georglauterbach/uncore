@@ -4,12 +4,16 @@
 /// ## Architecture-Specific Physical Memory
 ///
 /// Contains types and functionality to interact with physical memory.
-pub mod physical;
+mod physical;
+
+pub(crate) use physical::FrameAllocator;
 
 /// ## Architecture-Specific Virtual Memory
 ///
 /// Contains types and functionality to interact with virtual memory.
-pub mod virtual_;
+mod virtual_;
+
+pub(crate) use virtual_::PageTable;
 
 use crate::prelude::*;
 
