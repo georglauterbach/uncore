@@ -21,6 +21,7 @@ impl<S: memory::ChunkSize> Page<S>
 	/// page is created.
 	pub fn new(mut start_address: memory::VirtualAddress) -> Self
 	{
+		start_address.align_down(S::SIZE);
 		Self {
 			start_address,
 			size: ::core::marker::PhantomData,
