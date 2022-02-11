@@ -28,6 +28,7 @@ mod stacks
 	///
 	/// This data structure represents the kernel stack used by the double fault
 	/// handler.
+	#[derive(Debug)]
 	#[repr(align(16))]
 	pub struct DoubleFaultStack([u8; DOUBLE_FAULT_STACK_SIZE]);
 
@@ -127,6 +128,7 @@ pub(super) mod gdt
 	/// be loaded. This makes sure the correct GDT and TSS are
 	/// used by putting these values in the corresponding regis-
 	/// ters.
+	#[derive(Debug)]
 	struct Selectors
 	{
 		/// The Code Segment (`cs`) register selector

@@ -49,6 +49,7 @@ const KERNEL_VERSION: Option<&str> = option_env!("KERNEL_VERSION");
 /// This struct exists to call non-member ("static") function on it to
 /// obtain information about the kernel, such as its version or build
 /// target as a string.
+#[derive(Debug, Copy, Clone)]
 pub struct KernelInformation;
 
 impl KernelInformation
@@ -136,12 +137,13 @@ pub mod kernel_types
 	/// ### Kernel Exit Code
 	///
 	/// Shows whether the kernel exited successfully or not.
+	#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 	pub enum ExitCode
 	{
 		/// Exit with success
-		Success,
+		Success = 0,
 		/// Exit with failure
-		Failure,
+		Failure = 1,
 	}
 
 	/// ### Global Static Variables for Non-Thread-Safe Types

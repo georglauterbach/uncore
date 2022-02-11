@@ -9,6 +9,7 @@ use x86_64::structures::paging;
 ///
 /// This structure enables frame allocation (i.e. handling of physical addresses and
 /// "selection" of physical memory regions).
+#[derive(Debug)]
 pub(crate) struct FrameAllocator(pub frame_allocation::BootInfoFrameAllocator);
 
 impl FrameAllocator
@@ -95,6 +96,7 @@ pub mod frame_allocation
 	///
 	/// This structure can use the information given to it by the [`bootloader`]
 	/// crate.
+	#[derive(Debug)]
 	pub struct BootInfoFrameAllocator
 	{
 		/// The map of used / unused frames.

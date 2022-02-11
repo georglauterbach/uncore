@@ -30,6 +30,7 @@ pub(crate) unsafe fn get_frame_allocator() -> &'static mut architecture_memory::
 ///
 /// This structure holds the information necessary to represent a memory frame with a
 /// given chunk size.
+#[derive(Debug, Copy, Clone)]
 pub struct Frame<S: super::ChunkSize = super::ChunkSizeDefault>
 {
 	/// Where the frame starts in physical memory.
