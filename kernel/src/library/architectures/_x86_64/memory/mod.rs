@@ -48,14 +48,19 @@ pub fn initialize(
 	(offset_page_table, frame_allocator)
 }
 
-/// TODO proper doc comment
+/// ### Page Table Beginning
 ///
 /// Returns a mutable reference to the active level 4 table.
 ///
-/// This function is unsafe because the caller must guarantee that the
+/// #### Safety
+///
+/// "This function is unsafe because the caller must guarantee that the
 /// complete physical memory is mapped to virtual memory at the passed
 /// `physical_memory_offset`. Also, this function must be only called once
-/// to avoid aliasing `&mut` references (which is undefined behavior).
+/// to avoid aliasing `&mut` references (which is undefined behavior)."
+///
+///   -- Stolen From
+/// "https://os.phil-opp.com/paging-implementation/#accessing-the-page-tables"
 unsafe fn get_active_level_4_table(physical_memory_offset: x86_64::VirtAddr)
 	-> &'static mut paging::PageTable
 {

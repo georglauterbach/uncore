@@ -7,17 +7,25 @@ use crate::prelude::*;
 /// ### Kernel Page Table
 ///
 /// Represents the global page table held by the kernel for demand paging.
-pub static mut KERNEL_PAGE_TABLE: spin::once::Once<architecture_virtual_memory::PageTable> =
-	spin::Once::new();
+pub static mut KERNEL_PAGE_TABLE: spin::Mutex<spin::once::Once<architecture_virtual_memory::PageTable>> =
+	spin::Mutex::new(spin::Once::new());
 
-/// TODO
+/// ### Allocate a Single Page
+///
+/// This function takes a virtual address and allocates a single page for it.
 pub fn allocate_page(address: VirtualAddress)
 {
 	use paging::PageAllocation;
-	unsafe { KERNEL_PAGE_TABLE.get_mut().unwrap() }.allocate_page(address);
+	unsafe { KERNEL_PAGE_TABLE.lock() }
+		.get_mut()
+		.expect("Could not acquire kernel page table")
+		.allocate_page(address);
 }
 
-/// TODO
+/// ### Allocate Multiple Pages At Once
+///
+/// This function allocates a page for the virtual address given and `page_count` pages
+/// afterwards.
 pub fn allocate_range(start: impl Into<VirtualAddress>, page_count: usize) -> usize
 {
 	let address = start.into();
@@ -30,7 +38,7 @@ pub fn allocate_range(start: impl Into<VirtualAddress>, page_count: usize) -> us
 	let page_range: paging::PageRange<ChunkSizeDefault> =
 		paging::PageRange::new(paging::Page::new(address), page_count);
 
-	let size = page_range.size();
+	let size = page_range.size_in_bytes();
 	for page in page_range {
 		allocate_page(page.start());
 	}
@@ -240,30 +248,50 @@ pub mod paging
 		fn allocate_page(&mut self, address: super::VirtualAddress);
 	}
 
-	/// TODO
+	/// ### Representation of Multiple Pages
+	///
+	/// Represents a (inclusive) range of pages.
+	#[derive(Debug, Copy, Clone)]
 	pub struct PageRange<S: super::ChunkSize = super::ChunkSizeDefault>
 	{
-		/// TODO
+		/// The first page in the range.
 		start: Page<S>,
-		/// TODO
+		/// The last page (inclusive) in the range.
 		end:   Page<S>,
-		// TODO
+		// The size of the range in bytes.
 		size:  usize,
 	}
 
 	impl<S: super::ChunkSize> PageRange<S>
 	{
-		/// TODO
+		/// ### Create a new Range of Pages
+		///
+		/// This function takes the start address and the amount of pages one
+		/// needs. This constructor does not take a specific `end` page to avoid
+		/// common mistakes such as the end being before the start, etc.
 		pub fn new(start: Page<S>, page_count: usize) -> Self
 		{
-			let size = page_count * super::ChunkSizeDefault::size() - 1;
-			let end = start.start() + size;
-			let end = Page::new(end);
+			assert_ne!(
+				page_count, 0,
+				"Page count in page range was 0 which is not allowed"
+			);
+			let size = (page_count * S::SIZE) - 1;
+			let end = Page::new(start.start() + size);
 			Self { start, end, size }
 		}
 
-		/// TODO
-		pub fn size(&self) -> usize { self.size }
+		/// ### The Page Range's Size
+		/// 
+		/// Returns the Size of the page range in bytes.
+		pub fn size_in_bytes(&self) -> usize { self.size }
+
+		/// ### Number of Pages
+		/// 
+		/// Returns the number of pages the range contains.
+		pub fn page_count(&self) -> usize
+		{
+			(self.size + 1) / S::SIZE
+		}
 	}
 
 	impl<S: super::ChunkSize> Iterator for PageRange<S>

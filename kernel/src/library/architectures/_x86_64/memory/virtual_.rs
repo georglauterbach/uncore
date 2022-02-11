@@ -59,7 +59,7 @@ impl<'a> memory::paging::PageAllocation for PageTable<'a>
 		let flags = paging::PageTableFlags::PRESENT | paging::PageTableFlags::WRITABLE;
 		unsafe {
 			self.0.map_to(page.into(), frame.into(), flags, &mut frame_allocator.0)
-				.unwrap()
+				.expect("Page mapping resulted in error")
 				.flush();
 		}
 	}

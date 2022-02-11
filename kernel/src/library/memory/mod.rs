@@ -60,6 +60,7 @@ pub fn initialize(boot_information: &boot::Information)
 		});
 
 		virtual_::KERNEL_PAGE_TABLE
+			.lock()
 			.call_once(|| architecture_memory::virtual_::PageTable::new(kernel_page_table));
 	}
 
