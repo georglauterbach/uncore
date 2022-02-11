@@ -31,7 +31,8 @@ pub(super) static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Alloca
 #[alloc_error_handler]
 fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
 {
-	panic!("allocation error (layout: {:?})", layout);
+	log_error!("allocation error (layout: {:?})", layout);
+	exit_kernel(kernel_types::ExitCode::Failure);
 }
 
 /// ## Simple Fixed-Block-Size Allocator
@@ -65,6 +66,7 @@ mod fixed_block_size
 	///
 	/// A simple node that holds a "pointer" to the next free node (for the same block
 	/// size).
+	#[derive(Debug)]
 	struct ListNode
 	{
 		/// The next "pointer" pointing to the next node.
@@ -177,6 +179,32 @@ mod fixed_block_size
 			}
 		}
 	}
+}
+
+#[test_case]
+fn boxing_does_not_panic()
+{
+	use alloc::boxed;
+
+	log_debug!("Trying to box a value");
+
+	let heap_value_1 = boxed::Box::new(41);
+	let heap_value_2 = boxed::Box::new(13);
+	assert_eq!(*heap_value_1, 41);
+	assert_eq!(*heap_value_2, 13);
+}
+
+#[test_case]
+fn large_vector()
+{
+	let vector_size = 1000;
+	let mut vec = alloc::vec::Vec::new();
+
+	for i in 0..vector_size {
+		vec.push(i);
+	}
+
+	assert_eq!(vec.iter().sum::<u64>(), (vector_size - 1) * vector_size / 2);
 }
 
 #[test_case]

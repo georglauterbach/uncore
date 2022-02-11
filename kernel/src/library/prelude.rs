@@ -32,7 +32,7 @@ pub use log::error as log_error;
 ///
 /// This function is just a nice abstraction of the call to `loop
 /// {...}`, making it absolutely clear what the intend of calling this
-/// function is, using its name.
+/// function is.
 ///
 /// We use the `hlt` instruction to "halt" the CPU to not burn through
 /// CPU time, as a call to `loop {}` would do.

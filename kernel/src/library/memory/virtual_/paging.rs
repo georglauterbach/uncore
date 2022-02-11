@@ -17,8 +17,9 @@ impl<S: memory::ChunkSize> Page<S>
 {
 	/// ### Create a New Page
 	///
-	/// This function creates a new page.
-	pub fn new(start_address: memory::VirtualAddress) -> Self
+	/// This function creates a new page. **The start address is aligned** before the
+	/// page is created.
+	pub fn new(mut start_address: memory::VirtualAddress) -> Self
 	{
 		Self {
 			start_address,

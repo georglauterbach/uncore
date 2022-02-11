@@ -75,29 +75,3 @@ pub fn initialize(boot_information: &boot::Information)
 	log_debug!("Initialized allocator");
 	log_info!("Finished memory initialization");
 }
-
-#[test_case]
-fn boxing_does_not_panic()
-{
-	use alloc::boxed;
-
-	log_debug!("Trying to box a value");
-
-	let heap_value_1 = boxed::Box::new(41);
-	let heap_value_2 = boxed::Box::new(13);
-	assert_eq!(*heap_value_1, 41);
-	assert_eq!(*heap_value_2, 13);
-}
-
-#[test_case]
-fn large_vector()
-{
-	let vector_size = 1000;
-	let mut vec = alloc::vec::Vec::new();
-
-	for i in 0..vector_size {
-		vec.push(i);
-	}
-
-	assert_eq!(vec.iter().sum::<u64>(), (vector_size - 1) * vector_size / 2);
-}

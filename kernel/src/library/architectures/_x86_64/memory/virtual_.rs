@@ -65,6 +65,11 @@ impl<'a> memory::paging::PageAllocation for PageTable<'a>
 	}
 }
 
+impl From<usize> for memory::VirtualAddress
+{
+	fn from(address_value: usize) -> Self { Self::new(address_value) }
+}
+
 impl From<u64> for memory::VirtualAddress
 {
 	fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
@@ -73,6 +78,11 @@ impl From<u64> for memory::VirtualAddress
 impl From<i64> for memory::VirtualAddress
 {
 	fn from(address_value: i64) -> Self { Self::new(address_value as usize) }
+}
+
+impl From<memory::VirtualAddress> for usize
+{
+	fn from(address: memory::VirtualAddress) -> Self { address.inner() }
 }
 
 impl From<memory::VirtualAddress> for u64
