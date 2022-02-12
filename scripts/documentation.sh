@@ -140,7 +140,7 @@ function main
   fi
 
   DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY}/documentation"
-  MKDOCS_MATERIAL_TAG='8.1.6'
+  MKDOCS_MATERIAL_TAG='8.1.11'
   MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
   CRI='docker'
 

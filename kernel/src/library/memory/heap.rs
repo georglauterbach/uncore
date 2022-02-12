@@ -8,7 +8,7 @@ use crate::prelude::*;
 /// This structure implements the [`::core::alloc::GlobalAlloc`] trait to allocator kernel
 /// heap memory.
 #[global_allocator]
-static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
+pub(super) static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
 	kernel_types::lock::Locked::from(fixed_block_size::Allocator::new());
 
 /// ### Kernel Heap Error Handler
@@ -18,21 +18,8 @@ static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
 #[alloc_error_handler]
 fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
 {
-	panic!("allocation error (layout: {:?})", layout);
-}
-
-/// ### Initialize a Global Allocator
-///
-/// Initializes a simple global kernel heap memory allocator.
-pub fn initialize()
-{
-	log_info!("Initializing a simple global memory allocator");
-	unsafe {
-		ALLOCATOR
-			.lock()
-			.initialize(super::KERNEL_HEAP_START, super::KERNEL_HEAP_SIZE);
-	}
-	log_debug!("Initialized allocator");
+	log_error!("allocation error (layout: {:?})", layout);
+	exit_kernel(kernel_types::ExitCode::Failure);
 }
 
 /// ## Simple Fixed-Block-Size Allocator
@@ -42,6 +29,19 @@ mod fixed_block_size
 {
 	use crate::prelude::kernel_types::lock;
 	use alloc::alloc;
+
+	/// ### (Temporary) Kernel Heap Start
+	///
+	/// This value marks the temporary virtual start address of the kernel heap. **In
+	/// the future, a proper paging implementation will render this obsolete!**
+	const KERNEL_HEAP_START: usize = 0x0000_4444_4444_0000;
+
+	/// ### (Temporary) Kernel Heap Size
+	///
+	/// The size of the kernel heap. **In the future, a proper paging implementation
+	/// will render this obsolete!** The size of the kernel heap equals the default
+	/// page size times the value given to this variable.
+	const KERNEL_HEAP_PAGE_COUNT: usize = 200;
 
 	/// ### The Block Sizes to Use
 	///
@@ -66,6 +66,7 @@ mod fixed_block_size
 	///
 	/// A simple node that holds a "pointer" to the next free node (for the same block
 	/// size).
+	#[derive(Debug)]
 	struct ListNode
 	{
 		/// The next "pointer" pointing to the next node.
@@ -94,9 +95,13 @@ mod fixed_block_size
 		/// This function is unsafe because the caller must guarantee that the
 		/// given heap bounds are valid and that the heap is unused. This method
 		/// must be called only once.
-		pub unsafe fn initialize(&mut self, heap_start: usize, heap_size: usize)
+		pub unsafe fn initialize(&mut self)
 		{
-			self.fallback_allocator.init(heap_start, heap_size);
+			use crate::prelude::*;
+
+			log_debug!("Initializing (fallback) kernel heap memory");
+			let size = memory::paging::allocate_range(KERNEL_HEAP_START, KERNEL_HEAP_PAGE_COUNT);
+			self.fallback_allocator.init(KERNEL_HEAP_START, size);
 		}
 
 		/// ### Fallback Allocation
@@ -106,7 +111,7 @@ mod fixed_block_size
 		fn allocate_with_fallback_allocator(&mut self, layout: alloc::Layout) -> *mut u8
 		{
 			crate::prelude::log_warning!(
-				"Had to allocator kernel heap memory with the fallback allocator"
+				"Had to allocate kernel heap memory with fallback allocator"
 			);
 			match self.fallback_allocator.allocate_first_fit(layout) {
 				Ok(ptr) => ptr.as_ptr(),
@@ -171,4 +176,39 @@ mod fixed_block_size
 			}
 		}
 	}
+
+	#[test_case]
+	fn many_boxes()
+	{
+		for i in 0..KERNEL_HEAP_PAGE_COUNT {
+			let box_ = ::alloc::boxed::Box::new(i);
+			assert_eq!(*box_, i);
+		}
+	}
+}
+
+#[test_case]
+fn boxing_does_not_panic()
+{
+	use alloc::boxed;
+
+	log_debug!("Trying to box a value");
+
+	let heap_value_1 = boxed::Box::new(41);
+	let heap_value_2 = boxed::Box::new(13);
+	assert_eq!(*heap_value_1, 41);
+	assert_eq!(*heap_value_2, 13);
+}
+
+#[test_case]
+fn large_vector()
+{
+	let vector_size = 1000;
+	let mut vec = alloc::vec::Vec::new();
+
+	for i in 0..vector_size {
+		vec.push(i);
+	}
+
+	assert_eq!(vec.iter().sum::<u64>(), (vector_size - 1) * vector_size / 2);
 }

@@ -33,12 +33,10 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
 
           ERROR_ON_MISSING_EXEC_BIT: true
-          VALIDATE_JSCPD_ALL_CODEBASE: false
           VALIDATE_BASH: true
           VALIDATE_BASH_EXEC: true
           VALIDATE_EDITORCONFIG: true
           VALIDATE_GITHUB_ACTIONS: true
-          VALIDATE_JSCPD: true
           VALIDATE_JSON: true
           VALIDATE_MARKDOWN: true
           VALIDATE_YAML: true

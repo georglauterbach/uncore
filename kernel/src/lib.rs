@@ -45,6 +45,7 @@
 #![feature(const_fn_trait_bound)]
 #![feature(const_mut_refs)]
 #![feature(maybe_uninit_slice)]
+#![feature(negative_impls)]
 #![feature(panic_info_message)]
 #![feature(type_alias_impl_trait)]
 

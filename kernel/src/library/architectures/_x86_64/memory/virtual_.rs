@@ -1,0 +1,92 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright 2022 The unCORE Kernel Organization
+
+use crate::prelude::*;
+
+use x86_64::structures::paging;
+
+impl memory::ChunkSize for memory::ChunkSizeDefault
+{
+	const SIZE: usize = usize::pow(2, 12);
+	const SIZE_AS_DEBUG_STRING: &'static str = "4KiB (4096Byte)";
+}
+
+impl memory::ChunkSize for memory::ChunkSizeHuge
+{
+	const SIZE: usize = usize::pow(2, 21);
+	const SIZE_AS_DEBUG_STRING: &'static str = "2MiB (2097152Byte)";
+}
+
+impl memory::ChunkSize for memory::ChunkSizeGiant
+{
+	const SIZE: usize = usize::pow(2, 30);
+	const SIZE_AS_DEBUG_STRING: &'static str = "1GiB (1073741824 Byte)";
+}
+
+/// ### A Page Table
+///
+/// This structure represent the page table used by the kernel.
+#[derive(Debug)]
+pub struct PageTable<'a>(pub paging::OffsetPageTable<'a>);
+
+impl<'a> PageTable<'a>
+{
+	/// ### Create a New Page Table
+	///
+	/// Constructs a new page table given an architecture specific page table.
+	#[must_use]
+	pub const fn new(page_table: paging::OffsetPageTable<'a>) -> Self { Self(page_table) }
+}
+
+impl<'a> memory::paging::PageAllocation for PageTable<'a>
+{
+	fn allocate_page(&mut self, address: memory::VirtualAddress)
+	{
+		use memory::FrameAllocation;
+		use x86_64::structures::paging::Mapper;
+
+		let frame_allocator = unsafe { memory::get_frame_allocator() };
+
+		let frame: memory::Frame<memory::ChunkSizeDefault> = match frame_allocator.allocate_frame() {
+			Ok(frame) => frame,
+			Err(error) => {
+				log_error!(
+					"Could not allocate frame during page allocation (error: {:?}",
+					error
+				);
+				exit_kernel(kernel_types::ExitCode::Failure);
+			},
+		};
+
+		let page = paging::Page::containing_address(address.into());
+		let flags = paging::PageTableFlags::PRESENT | paging::PageTableFlags::WRITABLE;
+
+		let frame = match frame.try_into() {
+			Ok(frame) => frame,
+			Err(error) => {
+				log_error!(
+					"Could not convert frame during page allocation (error: {:?})",
+					error
+				);
+				exit_kernel(kernel_types::ExitCode::Failure)
+			},
+		};
+
+		unsafe {
+			self.0.map_to(page, frame, flags, &mut frame_allocator.0)
+				.expect("Page mapping resulted in error")
+				.flush();
+		}
+	}
+}
+
+impl From<x86_64::VirtAddr> for memory::VirtualAddress
+{
+	#[allow(clippy::cast_possible_truncation)]
+	fn from(address: x86_64::VirtAddr) -> Self { Self::new(address.as_u64() as usize) }
+}
+
+impl From<memory::VirtualAddress> for x86_64::VirtAddr
+{
+	fn from(address: memory::VirtualAddress) -> Self { Self::new(address.inner() as u64) }
+}

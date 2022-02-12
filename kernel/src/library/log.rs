@@ -17,6 +17,7 @@ const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
 ///
 /// This structure holds associated function that provide logging. The
 /// [`log::Log`] trait is implemented for this structure.
+#[derive(Debug)]
 pub struct KernelLogger
 {
 	/// We use the QEMU `debugcon` feature to log to a file
@@ -186,6 +187,7 @@ mod serial
 	///
 	/// This structure abstracts over the serial port and logs
 	/// messages on this port.
+	#[derive(Debug)]
 	pub struct Logger;
 
 	impl Logger
@@ -258,6 +260,7 @@ mod qemu
 	/// Implementation of a logger for the [`log`] crate, that
 	/// writes everything to QEMU's "debugcon" feature, i.e. x86
 	/// i/o-port 0xe9.
+	#[derive(Debug)]
 	pub struct Logger;
 
 	impl Logger
@@ -304,7 +307,7 @@ mod qemu
 			};
 
 			let result = writeln!(
-				&mut buf,
+				buf,
 				"[ {} ] {:>40.*}@{:<4.*} | {}",
 				log_level,
 				40,
