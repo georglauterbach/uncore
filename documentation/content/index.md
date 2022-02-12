@@ -48,7 +48,7 @@ The documentation is written in Markdown, built with [MkDocs] and found under `d
 
 ## Vision
 
-_unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in _UNIX_ / _GNU-Linux_. But, we acknowledge that modern software development is heavily benefitting of CI pipelines, GIT platforms (such as _GitHub_) and collaboration in the form of issues, pull requests, projects and other actions. While we know that mailing lists work, we belief that modern software development can do better. One aspect we heavily focus on is code quality. The motto here is: **We either do it right or not at all**. Please also read the [conventions set by this project](development.md#miscellaneous) to ensure you're up-to-date when it comes to writing real code.
+_unCORE_ is not trying to invent the wheel anew. As of now, _unCORE_ is an educational project that does not run real software. We want to change this in the future. _unCORE_ shall make use of well-known and common concepts used in _UNIX_ and _GNU-Linux_. But, we acknowledge that modern software development is heavily benefitting of CI pipelines, GIT (and its platforms such as _GitHub_) and collaboration in the form of issues, pull requests, projects and other actions. While we know that mailing lists work, we belief that modern software development can do better. One aspect we heavily focus on is code quality. The motto here is: **We either do it right or not at all**. Please also read the [conventions set by this project](development.md#miscellaneous) to ensure you're up-to-date when it comes to writing real code.
 
 ## Goals
 
@@ -62,6 +62,26 @@ _unCORE_ has set itself some more goals, of course:
 1. Performance - _Rust_ provides C++ / C performance.
 2. Correctness - _unCORE_ has high test standards, see [the documentation and testing advise](./development.md#code-documentation-testing).
 3. Simplicity - We want to make use of _Rust_'s high level of abstraction to write clean and concise code.
+
+## Principles
+
+Our vision and goals are guided by a few ((software) development) principles, such as
+
+1. _[K.I.S.S.]_ - Keep it simple, stupid
+2. _[Convention over Configuration]_ - Only specify unconventional aspects of the application
+3. _[Ockham's Razor]_ - Entities should not be multiplied beyond necessity
+4. _[D.R.Y.]_ - Don't repeat yourself
+5. _[Law of Demeter]_ - Loose coupling
+6. _[Software Craftsmanship]_ - A response by software developers to the perceived ills of the mainstream software industry
+7. _[Principle of Least Surprise]_ - A component of a system should behave in a way that most users will expect it to behave
+
+[K.I.S.S.]: https://en.wikipedia.org/wiki/KISS_principle
+[Convention over Configuration]: https://en.wikipedia.org/wiki/Convention_over_configuration
+[Ockham's Razor]: https://en.wikipedia.org/wiki/Occam%27s_razor
+[D.R.Y.]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+[Law of Demeter]: https://en.wikipedia.org/wiki/Law_of_Demeter
+[Software Craftsmanship]: https://en.wikipedia.org/wiki/Software_craftsmanship
+[Principle of Least Surprise]: https://en.wikipedia.org/wiki/Principle_of_least_astonishment
 
 ## Architecture
 
