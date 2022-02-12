@@ -243,6 +243,34 @@ pub mod kernel_types
 	unsafe impl<T> Send for GlobalStaticMut<T> {}
 	unsafe impl<T> Sync for GlobalStaticMut<T> {}
 
+	/// ## Kernel Error Types
+	///
+	/// Contains various error abstractions for different parts of the kernel,
+	/// including errors when handling virtual memory, etc.
+	///
+	/// The **idea of this module** is to provide types that make using the `?`
+	/// operator easy. Using the `?` operator makes life easy and code nice. Moreover,
+	/// one does not need to bother with checking every error at all level, but let
+	/// the caller decide what to do: propagate the error again, or handle it.
+	pub mod errors
+	{
+		/// ### Errors for Virtual Memory
+		///
+		/// Contains variants needed when dealing with virtual memory.
+		#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+		pub enum VirtualMemory
+		{
+			/// For address alignment issues.
+			AddressNotAligned,
+			/// A frame could not be allocated.
+			FrameAllocationFailed,
+			/// A page could not be mapped.
+			PageMappingError,
+			/// A page could not be allocated.
+			PageAllocationFailed,
+		}
+	}
+
 	/// ## Kernel Wide Locking Abstraction
 	///
 	/// This module abstracts over a specific locking mechanism to provide unified

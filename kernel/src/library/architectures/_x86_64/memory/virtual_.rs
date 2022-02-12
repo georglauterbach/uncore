@@ -2,7 +2,6 @@
 // Copyright 2022 The unCORE Kernel Organization
 
 use crate::prelude::*;
-
 use x86_64::structures::paging;
 
 impl memory::ChunkSize for memory::ChunkSizeDefault
@@ -40,7 +39,10 @@ impl<'a> PageTable<'a>
 
 impl<'a> memory::paging::PageAllocation for PageTable<'a>
 {
-	fn allocate_page(&mut self, address: memory::VirtualAddress)
+	fn allocate_page(
+		&mut self,
+		address: memory::VirtualAddress,
+	) -> Result<(), kernel_types::errors::VirtualMemory>
 	{
 		use memory::FrameAllocation;
 		use x86_64::structures::paging::Mapper;
@@ -58,24 +60,21 @@ impl<'a> memory::paging::PageAllocation for PageTable<'a>
 			},
 		};
 
+		let frame = frame.try_into()?;
 		let page = paging::Page::containing_address(address.into());
 		let flags = paging::PageTableFlags::PRESENT | paging::PageTableFlags::WRITABLE;
 
-		let frame = match frame.try_into() {
-			Ok(frame) => frame,
-			Err(error) => {
-				log_error!(
-					"Could not convert frame during page allocation (error: {:?})",
-					error
-				);
-				exit_kernel(kernel_types::ExitCode::Failure)
-			},
-		};
-
 		unsafe {
-			self.0.map_to(page, frame, flags, &mut frame_allocator.0)
-				.expect("Page mapping resulted in error")
-				.flush();
+			match self.0.map_to(page, frame, flags, &mut frame_allocator.0) {
+				Ok(flush) => {
+					flush.flush();
+					Ok(())
+				},
+				Err(error) => {
+					log_error!("Page mapping resulted in error (error: {:?}", error);
+					Err(kernel_types::errors::VirtualMemory::PageMappingError)
+				},
+			}
 		}
 	}
 }

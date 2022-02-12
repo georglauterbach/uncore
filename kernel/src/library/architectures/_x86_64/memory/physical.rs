@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use crate::prelude::memory;
-
+use crate::prelude::{
+	*,
+	memory,
+};
 use x86_64::structures::paging;
 
 /// ### A Frame Allocator
@@ -30,14 +32,14 @@ impl From<x86_64::PhysAddr> for memory::PhysicalAddress
 
 impl TryFrom<memory::Frame<memory::ChunkSizeDefault>> for paging::PhysFrame<paging::Size4KiB>
 {
-	type Error = memory::ChunkError;
+	type Error = kernel_types::errors::VirtualMemory;
 
 	fn try_from(frame: memory::Frame<memory::ChunkSizeDefault>) -> Result<Self, Self::Error>
 	{
 		if let Ok(frame) = Self::from_start_address(x86_64::PhysAddr::new(frame.start().into())) {
 			Ok(frame)
 		} else {
-			Err(memory::ChunkError::NotAligned)
+			Err(kernel_types::errors::VirtualMemory::AddressNotAligned)
 		}
 	}
 }
@@ -51,14 +53,14 @@ impl memory::FrameAllocation<memory::ChunkSizeDefault> for FrameAllocator
 {
 	fn allocate_frame(
 		&mut self,
-	) -> Result<memory::Frame<memory::ChunkSizeDefault>, memory::FrameAllocationError>
+	) -> Result<memory::Frame<memory::ChunkSizeDefault>, kernel_types::errors::VirtualMemory>
 	{
 		use paging::FrameAllocator;
 
-		self.0.allocate_frame()
-			.map_or(Err(memory::FrameAllocationError::Unknown), |frame| {
-				Ok(frame.into())
-			})
+		self.0.allocate_frame().map_or(
+			Err(kernel_types::errors::VirtualMemory::FrameAllocationFailed),
+			|frame| Ok(frame.into()),
+		)
 	}
 }
 

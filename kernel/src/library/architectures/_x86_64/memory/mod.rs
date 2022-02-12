@@ -16,7 +16,6 @@ mod virtual_;
 pub(crate) use virtual_::PageTable;
 
 use crate::prelude::*;
-
 use x86_64::structures::paging;
 
 /// ### Architecture Specific Virtual Memory Initialization

@@ -59,8 +59,6 @@ impl<S: memory::ChunkSize> ::core::cmp::Ord for Page<S>
 	fn cmp(&self, other: &Self) -> core::cmp::Ordering { self.start().cmp(&other.start()) }
 }
 
-// TODO pointer widths for pages
-
 impl<S: memory::ChunkSize> ::core::ops::Add<u64> for Page<S>
 {
 	type Output = Self;
@@ -83,7 +81,16 @@ pub trait PageAllocation
 	/// ### Allocate a Single Page
 	///
 	/// The method with which a single page is allocated.
-	fn allocate_page(&mut self, address: memory::VirtualAddress);
+	///
+	/// #### Errors
+	///
+	/// Page allocation can suffer from various issues, such as address alignment,
+	/// issues during frame allocation or mapping problems. These errors are
+	/// propagated to the caller.
+	fn allocate_page(
+		&mut self,
+		address: memory::VirtualAddress,
+	) -> Result<(), kernel_types::errors::VirtualMemory>;
 }
 
 /// ### Representation of Multiple Pages
@@ -208,22 +215,37 @@ impl<S: memory::ChunkSize> Iterator for PageRangeIntoIterator<S>
 /// ### Allocate a Single Page
 ///
 /// This function takes a virtual address and allocates a single page for it.
-pub fn allocate_page(address: memory::VirtualAddress)
+///
+/// #### Errors
+///
+/// If there is an issue during allocation, it is propagated upwards to the caller of this
+/// function who can then decide what to do. The possible errors can be seen in
+/// [`crate::prelude::kernel_types::errors::VirtualMemory`].
+pub fn allocate_page(address: memory::VirtualAddress) -> Result<(), kernel_types::errors::VirtualMemory>
 {
 	unsafe { super::KERNEL_PAGE_TABLE.lock() }
 		.get_mut()
 		.expect("Could not acquire kernel page table")
-		.allocate_page(address);
+		.allocate_page(address)
 }
 
 /// ### Allocate Multiple Pages At Once
 ///
 /// This function allocates a page for the virtual address given and `page_count` pages
 /// afterwards.
-pub fn allocate_range(start: impl Into<memory::VirtualAddress>, page_count: usize) -> usize
+///
+/// #### Errors
+///
+/// If there is an issue during allocation, it is propagated upwards to the caller of this
+/// function who can then decide what to do. The possible errors can be seen in
+/// [`crate::prelude::kernel_types::errors::VirtualMemory`].
+pub fn allocate_range(
+	start: impl Into<memory::VirtualAddress>,
+	page_count: usize,
+) -> Result<usize, kernel_types::errors::VirtualMemory>
 {
 	let address = start.into();
-	log_debug!(
+	log_trace!(
 		"Allocating range at {:?} for {} default-sized pages",
 		address,
 		page_count
@@ -233,8 +255,8 @@ pub fn allocate_range(start: impl Into<memory::VirtualAddress>, page_count: usiz
 
 	let size = page_range.size_in_bytes();
 	for page in page_range {
-		allocate_page(page.start());
+		allocate_page(page.start())?;
 	}
 
-	size
+	Ok(size)
 }

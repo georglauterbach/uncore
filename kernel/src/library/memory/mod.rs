@@ -15,7 +15,6 @@ mod physical;
 pub use physical::{
 	Frame,
 	FrameAllocation,
-	FrameAllocationError,
 };
 pub(crate) use physical::get_frame_allocator;
 
@@ -35,7 +34,6 @@ pub use virtual_::{
 		ChunkSizeDefault,
 		ChunkSizeHuge,
 		ChunkSizeGiant,
-		ChunkError,
 	},
 	paging,
 };
@@ -71,7 +69,10 @@ pub fn initialize(boot_information: &boot::Information)
 	log_debug!("Initializing a simple global memory allocator");
 
 	unsafe {
-		heap::ALLOCATOR.lock().initialize();
+		if let Err(error) = heap::ALLOCATOR.lock().initialize() {
+			log_error!("Failed to initialize the kernel heap (error: {:?}", error);
+			exit_kernel(kernel_types::ExitCode::Failure);
+		};
 	}
 
 	log_debug!("Initialized allocator");

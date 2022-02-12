@@ -74,16 +74,5 @@ pub trait FrameAllocation<S: super::ChunkSize>
 	/// If a frame could not be allocated, an [`Err`] is retuned. As the reasons for
 	/// the errors are not known or not reveiled by the implementing crate, the type
 	/// inside the error is `()`.
-	fn allocate_frame(&mut self) -> Result<Frame<S>, FrameAllocationError>;
-}
-
-/// ### Frame Allocation Problems
-///
-/// If an error occurred during the allocation of a frame, this enum indicates the
-/// reason. **Note** that actually, no errors should happen for the allocation of a frame!
-#[derive(Debug)]
-pub enum FrameAllocationError
-{
-	/// If the error cannot be known, use this variant.
-	Unknown,
+	fn allocate_frame(&mut self) -> Result<Frame<S>, kernel_types::errors::VirtualMemory>;
 }

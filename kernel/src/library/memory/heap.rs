@@ -27,7 +27,10 @@ fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
 /// Contains an allocator that implements the fixed-block-allocation procedure.
 mod fixed_block_size
 {
-	use crate::prelude::kernel_types::lock;
+	use crate::prelude::{
+		*,
+		kernel_types::lock,
+	};
 	use alloc::alloc;
 
 	/// ### (Temporary) Kernel Heap Start
@@ -95,13 +98,13 @@ mod fixed_block_size
 		/// This function is unsafe because the caller must guarantee that the
 		/// given heap bounds are valid and that the heap is unused. This method
 		/// must be called only once.
-		pub unsafe fn initialize(&mut self)
+		pub unsafe fn initialize(&mut self) -> Result<(), kernel_types::errors::VirtualMemory>
 		{
-			use crate::prelude::*;
-
 			log_debug!("Initializing (fallback) kernel heap memory");
-			let size = memory::paging::allocate_range(KERNEL_HEAP_START, KERNEL_HEAP_PAGE_COUNT);
+			let size = memory::paging::allocate_range(KERNEL_HEAP_START, KERNEL_HEAP_PAGE_COUNT)?;
 			self.fallback_allocator.init(KERNEL_HEAP_START, size);
+			log_debug!("Finished initializing (fallback) kernel heap memory");
+			Ok(())
 		}
 
 		/// ### Fallback Allocation
