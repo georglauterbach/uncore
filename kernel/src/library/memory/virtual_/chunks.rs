@@ -39,3 +39,14 @@ pub struct ChunkSizeHuge;
 /// This is the biggest page size available for an architecture.
 #[derive(Debug, Clone, Copy)]
 pub struct ChunkSizeGiant;
+
+/// ### Miscellaneous Errors
+///
+/// This type is very generic over the actual errors it represents. Most likely, alignment
+/// errors are expresses with it.
+#[derive(Debug)]
+pub enum ChunkError
+{
+	/// If the address given was not aligned to the chunk size, use this.
+	NotAligned,
+}

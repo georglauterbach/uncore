@@ -25,11 +25,18 @@ mod virtual_
 		/// ### Get the Inner Value
 		///
 		/// Returns the inner value, i.e. content that is wrapped by this type.
-		pub fn inner(&self) -> usize { self.0 }
+		#[must_use]
+		pub const fn inner(&self) -> usize { self.0 }
 
 		/// ### Align an Address Down
 		///
 		/// Takes the address and aligns it down to the given `chunk_size`.
+		///
+		/// #### Panics
+		///
+		/// This function will [`panic!`] if
+		///
+		/// 1. `chunk_size` is not a power of two
 		pub fn align_down(&mut self, chunk_size: usize)
 		{
 			assert!(
@@ -38,12 +45,18 @@ mod virtual_
 				 disallowed"
 			);
 
-			self.0 = self.0 & !(chunk_size - 1)
+			self.0 &= !(chunk_size - 1);
 		}
 
 		/// ### Align an Address Up
 		///
 		/// Takes the address and aligns it up to the given `chunk_size`.
+		///
+		/// #### Panics
+		///
+		/// This function will [`panic!`] if
+		///
+		/// 1. `chunk_size` is not a power of two
 		pub fn align_up(&mut self, chunk_size: usize)
 		{
 			assert!(
@@ -54,7 +67,7 @@ mod virtual_
 
 			let chunk_size_mask = chunk_size - 1;
 			if self.0 & chunk_size_mask != 0 {
-				self.0 = (self.0 | chunk_size_mask) + 1
+				self.0 = (self.0 | chunk_size_mask) + 1;
 			}
 		}
 	}
@@ -73,18 +86,13 @@ mod virtual_
 		fn add(self, rhs: usize) -> Self::Output { Self::new(self.0 + rhs) }
 	}
 
+	#[cfg(target_pointer_width = "64")]
 	impl ::core::ops::Add<u64> for Address
 	{
 		type Output = Self;
 
+		#[allow(clippy::cast_possible_truncation)]
 		fn add(self, rhs: u64) -> Self::Output { Self::new(self.0 + rhs as usize) }
-	}
-
-	impl ::core::ops::Add<i64> for Address
-	{
-		type Output = Self;
-
-		fn add(self, rhs: i64) -> Self::Output { Self::new(self.0 + rhs as usize) }
 	}
 
 	impl ::core::ops::Sub for Address
@@ -101,18 +109,13 @@ mod virtual_
 		fn sub(self, rhs: usize) -> Self::Output { Self::new(self.0 - rhs) }
 	}
 
+	#[cfg(target_pointer_width = "64")]
 	impl ::core::ops::Sub<u64> for Address
 	{
 		type Output = Self;
 
+		#[allow(clippy::cast_possible_truncation)]
 		fn sub(self, rhs: u64) -> Self::Output { Self::new(self.0 - rhs as usize) }
-	}
-
-	impl ::core::ops::Sub<i64> for Address
-	{
-		type Output = Self;
-
-		fn sub(self, rhs: i64) -> Self::Output { Self::new(self.0 - rhs as usize) }
 	}
 
 	impl ::core::ops::AddAssign for Address
@@ -125,14 +128,11 @@ mod virtual_
 		fn add_assign(&mut self, rhs: usize) { self.0 += rhs; }
 	}
 
+	#[cfg(target_pointer_width = "64")]
 	impl ::core::ops::AddAssign<u64> for Address
 	{
+		#[allow(clippy::cast_possible_truncation)]
 		fn add_assign(&mut self, rhs: u64) { self.0 += rhs as usize; }
-	}
-
-	impl ::core::ops::AddAssign<i64> for Address
-	{
-		fn add_assign(&mut self, rhs: i64) { self.0 += rhs as usize; }
 	}
 
 	impl ::core::ops::SubAssign for Address
@@ -145,14 +145,34 @@ mod virtual_
 		fn sub_assign(&mut self, rhs: usize) { self.0 -= rhs; }
 	}
 
+	#[cfg(target_pointer_width = "64")]
 	impl ::core::ops::SubAssign<u64> for Address
 	{
+		#[allow(clippy::cast_possible_truncation)]
 		fn sub_assign(&mut self, rhs: u64) { self.0 -= rhs as usize; }
 	}
 
-	impl ::core::ops::SubAssign<i64> for Address
+	impl From<usize> for Address
 	{
-		fn sub_assign(&mut self, rhs: i64) { self.0 -= rhs as usize; }
+		fn from(address_value: usize) -> Self { Self::new(address_value) }
+	}
+
+	#[cfg(target_pointer_width = "64")]
+	impl From<u64> for Address
+	{
+		#[allow(clippy::cast_possible_truncation)]
+		fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
+	}
+
+	impl From<Address> for usize
+	{
+		fn from(address: Address) -> Self { address.0 }
+	}
+
+	#[cfg(target_pointer_width = "64")]
+	impl From<Address> for u64
+	{
+		fn from(address: Address) -> Self { address.0 as Self }
 	}
 }
 
@@ -178,11 +198,18 @@ mod physical
 		/// ### Get the Inner Value
 		///
 		/// Returns the inner value, i.e. content that is wrapped by this type.
-		pub fn inner(&self) -> usize { self.0 }
+		#[must_use]
+		pub const fn inner(&self) -> usize { self.0 }
 
 		/// ### Align an Address Down
 		///
 		/// Takes the address and aligns it down to the given `chunk_size`.
+		///
+		/// #### Panics
+		///
+		/// This function will [`panic!`] if
+		///
+		/// 1. `chunk_size` is not a power of two
 		pub fn align_down(&mut self, chunk_size: usize)
 		{
 			assert!(
@@ -191,12 +218,18 @@ mod physical
 				 disallowed"
 			);
 
-			self.0 = self.0 & !(chunk_size - 1)
+			self.0 &= !(chunk_size - 1);
 		}
 
 		/// ### Align an Address Up
 		///
 		/// Takes the address and aligns it up to the given `chunk_size`.
+		///
+		/// #### Panics
+		///
+		/// This function will [`panic!`] if
+		///
+		/// 1. `chunk_size` is not a power of two
 		pub fn align_up(&mut self, chunk_size: usize)
 		{
 			assert!(
@@ -207,7 +240,7 @@ mod physical
 
 			let chunk_size_mask = chunk_size - 1;
 			if self.0 & chunk_size_mask != 0 {
-				self.0 = (self.0 | chunk_size_mask) + 1
+				self.0 = (self.0 | chunk_size_mask) + 1;
 			}
 		}
 	}
@@ -226,18 +259,13 @@ mod physical
 		fn add(self, rhs: usize) -> Self::Output { Self::new(self.0 + rhs) }
 	}
 
+	#[cfg(target_pointer_width = "64")]
 	impl ::core::ops::Add<u64> for Address
 	{
 		type Output = Self;
 
+		#[allow(clippy::cast_possible_truncation)]
 		fn add(self, rhs: u64) -> Self::Output { Self::new(self.0 + rhs as usize) }
-	}
-
-	impl ::core::ops::Add<i64> for Address
-	{
-		type Output = Self;
-
-		fn add(self, rhs: i64) -> Self::Output { Self::new(self.0 + rhs as usize) }
 	}
 
 	impl ::core::ops::Sub for Address
@@ -254,18 +282,13 @@ mod physical
 		fn sub(self, rhs: usize) -> Self::Output { Self::new(self.0 - rhs) }
 	}
 
+	#[cfg(target_pointer_width = "64")]
 	impl ::core::ops::Sub<u64> for Address
 	{
 		type Output = Self;
 
+		#[allow(clippy::cast_possible_truncation)]
 		fn sub(self, rhs: u64) -> Self::Output { Self::new(self.0 - rhs as usize) }
-	}
-
-	impl ::core::ops::Sub<i64> for Address
-	{
-		type Output = Self;
-
-		fn sub(self, rhs: i64) -> Self::Output { Self::new(self.0 - rhs as usize) }
 	}
 
 	impl ::core::ops::AddAssign for Address
@@ -278,14 +301,11 @@ mod physical
 		fn add_assign(&mut self, rhs: usize) { self.0 += rhs; }
 	}
 
+	#[cfg(target_pointer_width = "64")]
 	impl ::core::ops::AddAssign<u64> for Address
 	{
+		#[allow(clippy::cast_possible_truncation)]
 		fn add_assign(&mut self, rhs: u64) { self.0 += rhs as usize; }
-	}
-
-	impl ::core::ops::AddAssign<i64> for Address
-	{
-		fn add_assign(&mut self, rhs: i64) { self.0 += rhs as usize; }
 	}
 
 	impl ::core::ops::SubAssign for Address
@@ -298,13 +318,33 @@ mod physical
 		fn sub_assign(&mut self, rhs: usize) { self.0 -= rhs; }
 	}
 
+	#[cfg(target_pointer_width = "64")]
 	impl ::core::ops::SubAssign<u64> for Address
 	{
+		#[allow(clippy::cast_possible_truncation)]
 		fn sub_assign(&mut self, rhs: u64) { self.0 -= rhs as usize; }
 	}
 
-	impl ::core::ops::SubAssign<i64> for Address
+	impl From<usize> for Address
 	{
-		fn sub_assign(&mut self, rhs: i64) { self.0 -= rhs as usize; }
+		fn from(address_value: usize) -> Self { Self::new(address_value) }
+	}
+
+	#[cfg(target_pointer_width = "64")]
+	impl From<u64> for Address
+	{
+		#[allow(clippy::cast_possible_truncation)]
+		fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
+	}
+
+	impl From<Address> for usize
+	{
+		fn from(address: Address) -> Self { address.0 }
+	}
+
+	#[cfg(target_pointer_width = "64")]
+	impl From<Address> for u64
+	{
+		fn from(address: Address) -> Self { address.0 as Self }
 	}
 }

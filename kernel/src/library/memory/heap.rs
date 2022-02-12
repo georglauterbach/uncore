@@ -3,19 +3,6 @@
 
 use crate::prelude::*;
 
-/// ### (Temporary) Kernel Heap Start
-///
-/// This value marks the temporary virtual start address of the kernel heap. **In the
-/// future, a proper paging implementation will render this obsolete!**
-const KERNEL_HEAP_START: usize = 0x0000_4444_4444_0000;
-
-/// ### (Temporary) Kernel Heap Size
-///
-/// The size of the kernel heap. **In the future, a proper paging implementation will
-/// render this obsolete!** The size of the kernel heap equals the default page size times
-/// the value given to this variable.
-const KERNEL_HEAP_PAGE_COUNT: usize = 200;
-
 /// ### The Global Kernel Allocator
 ///
 /// This structure implements the [`::core::alloc::GlobalAlloc`] trait to allocator kernel
@@ -42,6 +29,19 @@ mod fixed_block_size
 {
 	use crate::prelude::kernel_types::lock;
 	use alloc::alloc;
+
+	/// ### (Temporary) Kernel Heap Start
+	///
+	/// This value marks the temporary virtual start address of the kernel heap. **In
+	/// the future, a proper paging implementation will render this obsolete!**
+	const KERNEL_HEAP_START: usize = 0x0000_4444_4444_0000;
+
+	/// ### (Temporary) Kernel Heap Size
+	///
+	/// The size of the kernel heap. **In the future, a proper paging implementation
+	/// will render this obsolete!** The size of the kernel heap equals the default
+	/// page size times the value given to this variable.
+	const KERNEL_HEAP_PAGE_COUNT: usize = 200;
 
 	/// ### The Block Sizes to Use
 	///
@@ -100,11 +100,8 @@ mod fixed_block_size
 			use crate::prelude::*;
 
 			log_debug!("Initializing (fallback) kernel heap memory");
-			let size = memory::paging::allocate_range(
-				super::KERNEL_HEAP_START,
-				super::KERNEL_HEAP_PAGE_COUNT,
-			);
-			self.fallback_allocator.init(super::KERNEL_HEAP_START, size);
+			let size = memory::paging::allocate_range(KERNEL_HEAP_START, KERNEL_HEAP_PAGE_COUNT);
+			self.fallback_allocator.init(KERNEL_HEAP_START, size);
 		}
 
 		/// ### Fallback Allocation
@@ -179,6 +176,15 @@ mod fixed_block_size
 			}
 		}
 	}
+
+	#[test_case]
+	fn many_boxes()
+	{
+		for i in 0..KERNEL_HEAP_PAGE_COUNT {
+			let box_ = ::alloc::boxed::Box::new(i);
+			assert_eq!(*box_, i);
+		}
+	}
 }
 
 #[test_case]
@@ -205,13 +211,4 @@ fn large_vector()
 	}
 
 	assert_eq!(vec.iter().sum::<u64>(), (vector_size - 1) * vector_size / 2);
-}
-
-#[test_case]
-fn many_boxes()
-{
-	for i in 0..KERNEL_HEAP_PAGE_COUNT {
-		let x = alloc::boxed::Box::new(i);
-		assert_eq!(*x, i);
-	}
 }

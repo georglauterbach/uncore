@@ -27,7 +27,7 @@ impl memory::ChunkSize for memory::ChunkSizeGiant
 ///
 /// This structure represent the page table used by the kernel.
 #[derive(Debug)]
-pub(crate) struct PageTable<'a>(pub paging::OffsetPageTable<'a>);
+pub struct PageTable<'a>(pub paging::OffsetPageTable<'a>);
 
 impl<'a> PageTable<'a>
 {
@@ -47,95 +47,46 @@ impl<'a> memory::paging::PageAllocation for PageTable<'a>
 
 		let frame_allocator = unsafe { memory::get_frame_allocator() };
 
-		let frame: memory::Frame<memory::ChunkSizeDefault> =
-			if let Ok(frame) = frame_allocator.allocate_frame() {
-				frame
-			} else {
-				log_error!("Could not allocate frame during page allocation");
+		let frame: memory::Frame<memory::ChunkSizeDefault> = match frame_allocator.allocate_frame() {
+			Ok(frame) => frame,
+			Err(error) => {
+				log_error!(
+					"Could not allocate frame during page allocation (error: {:?}",
+					error
+				);
 				exit_kernel(kernel_types::ExitCode::Failure);
-			};
+			},
+		};
 
-		let page: memory::paging::Page<memory::ChunkSizeDefault> = memory::paging::Page::new(address);
-
+		let page = paging::Page::containing_address(address.into());
 		let flags = paging::PageTableFlags::PRESENT | paging::PageTableFlags::WRITABLE;
+
+		let frame = match frame.try_into() {
+			Ok(frame) => frame,
+			Err(error) => {
+				log_error!(
+					"Could not convert frame during page allocation (error: {:?})",
+					error
+				);
+				exit_kernel(kernel_types::ExitCode::Failure)
+			},
+		};
+
 		unsafe {
-			self.0.map_to(page.into(), frame.into(), flags, &mut frame_allocator.0)
+			self.0.map_to(page, frame, flags, &mut frame_allocator.0)
 				.expect("Page mapping resulted in error")
 				.flush();
 		}
 	}
 }
 
-impl From<usize> for memory::VirtualAddress
-{
-	fn from(address_value: usize) -> Self { Self::new(address_value) }
-}
-
-impl From<u64> for memory::VirtualAddress
-{
-	fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
-}
-
-impl From<i64> for memory::VirtualAddress
-{
-	fn from(address_value: i64) -> Self { Self::new(address_value as usize) }
-}
-
-impl From<memory::VirtualAddress> for usize
-{
-	fn from(address: memory::VirtualAddress) -> Self { address.inner() }
-}
-
-impl From<memory::VirtualAddress> for u64
-{
-	fn from(address: memory::VirtualAddress) -> Self { address.inner() as u64 }
-}
-
-impl From<memory::VirtualAddress> for i64
-{
-	fn from(address: memory::VirtualAddress) -> Self { address.inner() as i64 }
-}
-
 impl From<x86_64::VirtAddr> for memory::VirtualAddress
 {
+	#[allow(clippy::cast_possible_truncation)]
 	fn from(address: x86_64::VirtAddr) -> Self { Self::new(address.as_u64() as usize) }
 }
 
-impl From<memory::paging::Page<memory::ChunkSizeDefault>> for paging::Page<paging::Size4KiB>
+impl From<memory::VirtualAddress> for x86_64::VirtAddr
 {
-	fn from(page: memory::paging::Page<memory::ChunkSizeDefault>) -> Self
-	{
-		Self::from_start_address(x86_64::VirtAddr::new(page.start().into())).unwrap()
-	}
-}
-
-impl From<memory::paging::Page<memory::ChunkSizeHuge>> for paging::Page<paging::Size2MiB>
-{
-	fn from(page: memory::paging::Page<memory::ChunkSizeHuge>) -> Self
-	{
-		Self::from_start_address(x86_64::VirtAddr::new(page.start().into())).unwrap()
-	}
-}
-
-impl From<memory::paging::Page<memory::ChunkSizeGiant>> for paging::Page<paging::Size1GiB>
-{
-	fn from(page: memory::paging::Page<memory::ChunkSizeGiant>) -> Self
-	{
-		Self::from_start_address(x86_64::VirtAddr::new(page.start().into())).unwrap()
-	}
-}
-
-impl From<paging::Page<paging::Size4KiB>> for memory::paging::Page<memory::ChunkSizeDefault>
-{
-	fn from(page: paging::Page<paging::Size4KiB>) -> Self { Self::new(page.start_address().into()) }
-}
-
-impl From<paging::Page<paging::Size2MiB>> for memory::paging::Page<memory::ChunkSizeHuge>
-{
-	fn from(page: paging::Page<paging::Size2MiB>) -> Self { Self::new(page.start_address().into()) }
-}
-
-impl From<paging::Page<paging::Size1GiB>> for memory::paging::Page<memory::ChunkSizeGiant>
-{
-	fn from(page: paging::Page<paging::Size1GiB>) -> Self { Self::new(page.start_address().into()) }
+	fn from(address: memory::VirtualAddress) -> Self { Self::new(address.inner() as u64) }
 }

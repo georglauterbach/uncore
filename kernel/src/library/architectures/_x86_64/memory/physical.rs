@@ -10,7 +10,7 @@ use x86_64::structures::paging;
 /// This structure enables frame allocation (i.e. handling of physical addresses and
 /// "selection" of physical memory regions).
 #[derive(Debug)]
-pub(crate) struct FrameAllocator(pub frame_allocation::BootInfoFrameAllocator);
+pub struct FrameAllocator(pub frame_allocation::BootInfoFrameAllocator);
 
 impl FrameAllocator
 {
@@ -24,14 +24,21 @@ impl FrameAllocator
 
 impl From<x86_64::PhysAddr> for memory::PhysicalAddress
 {
+	#[allow(clippy::cast_possible_truncation)]
 	fn from(address: x86_64::PhysAddr) -> Self { Self::new(address.as_u64() as usize) }
 }
 
-impl From<memory::Frame<memory::ChunkSizeDefault>> for paging::PhysFrame<paging::Size4KiB>
+impl TryFrom<memory::Frame<memory::ChunkSizeDefault>> for paging::PhysFrame<paging::Size4KiB>
 {
-	fn from(frame: memory::Frame<memory::ChunkSizeDefault>) -> Self
+	type Error = memory::ChunkError;
+
+	fn try_from(frame: memory::Frame<memory::ChunkSizeDefault>) -> Result<Self, Self::Error>
 	{
-		Self::from_start_address(x86_64::PhysAddr::new(frame.start().into())).unwrap()
+		if let Ok(frame) = Self::from_start_address(x86_64::PhysAddr::new(frame.start().into())) {
+			Ok(frame)
+		} else {
+			Err(memory::ChunkError::NotAligned)
+		}
 	}
 }
 
@@ -42,46 +49,17 @@ impl From<paging::PhysFrame<paging::Size4KiB>> for memory::Frame<memory::ChunkSi
 
 impl memory::FrameAllocation<memory::ChunkSizeDefault> for FrameAllocator
 {
-	fn allocate_frame(&mut self) -> Result<memory::Frame<memory::ChunkSizeDefault>, ()>
+	fn allocate_frame(
+		&mut self,
+	) -> Result<memory::Frame<memory::ChunkSizeDefault>, memory::FrameAllocationError>
 	{
 		use paging::FrameAllocator;
 
-		if let Some(frame) = self.0.allocate_frame() {
-			Ok(frame.into())
-		} else {
-			Err(())
-		}
+		self.0.allocate_frame()
+			.map_or(Err(memory::FrameAllocationError::Unknown), |frame| {
+				Ok(frame.into())
+			})
 	}
-}
-
-impl From<usize> for memory::PhysicalAddress
-{
-	fn from(address_value: usize) -> Self { Self::new(address_value) }
-}
-
-impl From<u64> for memory::PhysicalAddress
-{
-	fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
-}
-
-impl From<i64> for memory::PhysicalAddress
-{
-	fn from(address_value: i64) -> Self { Self::new(address_value as usize) }
-}
-
-impl From<memory::PhysicalAddress> for usize
-{
-	fn from(address: memory::PhysicalAddress) -> Self { address.inner() }
-}
-
-impl From<memory::PhysicalAddress> for u64
-{
-	fn from(address: memory::PhysicalAddress) -> Self { address.inner() as u64 }
-}
-
-impl From<memory::PhysicalAddress> for i64
-{
-	fn from(address: memory::PhysicalAddress) -> Self { address.inner() as i64 }
 }
 
 /// ## Physical Frame Allocation

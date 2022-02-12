@@ -307,7 +307,7 @@ mod qemu
 			};
 
 			let result = writeln!(
-				&mut buf,
+				buf,
 				"[ {} ] {:>40.*}@{:<4.*} | {}",
 				log_level,
 				40,

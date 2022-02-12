@@ -28,6 +28,16 @@ pub mod log;
 ///
 /// This module handles virtual memory, that is (demand) paging,
 /// allocations, etc. for the user- and kernel-space.
+///
+/// ### About Heap Allocations
+///
+/// Be especially careful in this section of the kernel to not accidentally use the
+/// allocator
+///
+/// 1. before it was initialized or when you cannot be sure whether it is already
+///    initialized
+/// 2. in contexts where it is inappropriate or where it could lead to
+///    allocation loops
 pub mod memory;
 
 /// ## The Kernel Prelude

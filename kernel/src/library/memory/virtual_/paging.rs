@@ -9,7 +9,10 @@ use crate::prelude::*;
 #[derive(Debug, Copy, Clone)]
 pub struct Page<S: memory::ChunkSize>
 {
+	/// The (virtual) start address of the page. This address is an alignment of the
+	/// address that was given to create the page.
 	start_address: memory::VirtualAddress,
+	/// The size of the page in bytes.
 	size:          ::core::marker::PhantomData<S>,
 }
 
@@ -17,8 +20,9 @@ impl<S: memory::ChunkSize> Page<S>
 {
 	/// ### Create a New Page
 	///
-	/// This function creates a new page. **The start address is aligned** before the
-	/// page is created.
+	/// This function creates a new page. **The start address is always aligned**
+	/// before the page is created.
+	#[must_use]
 	pub fn new(mut start_address: memory::VirtualAddress) -> Self
 	{
 		start_address.align_down(S::SIZE);
@@ -31,6 +35,7 @@ impl<S: memory::ChunkSize> Page<S>
 	/// ### Start Address of a Page
 	///
 	/// Returns the starts address of the given page.
+	#[must_use]
 	pub fn start(&self) -> memory::VirtualAddress { self.start_address }
 }
 
@@ -54,11 +59,14 @@ impl<S: memory::ChunkSize> ::core::cmp::Ord for Page<S>
 	fn cmp(&self, other: &Self) -> core::cmp::Ordering { self.start().cmp(&other.start()) }
 }
 
+// TODO pointer widths for pages
+
 impl<S: memory::ChunkSize> ::core::ops::Add<u64> for Page<S>
 {
 	type Output = Self;
 
-	fn add(self, rhs: u64) -> Self::Output { Page::new(self.start() + rhs as usize * S::SIZE) }
+	#[allow(clippy::cast_possible_truncation)]
+	fn add(self, rhs: u64) -> Self::Output { Self::new(self.start() + rhs as usize * S::SIZE) }
 }
 
 impl<S: memory::ChunkSize> ::core::ops::AddAssign<u64> for Page<S>
@@ -88,7 +96,7 @@ pub struct PageRange<S: memory::ChunkSize = memory::ChunkSizeDefault>
 	start: Page<S>,
 	/// The last page (inclusive) in the range.
 	end:   Page<S>,
-	// The size of the range in bytes.
+	/// The size of the range in bytes.
 	size:  usize,
 }
 
@@ -99,6 +107,13 @@ impl<S: memory::ChunkSize> PageRange<S>
 	/// This function takes the start address and the amount of pages one
 	/// needs. This constructor does not take a specific `end` page to avoid
 	/// common mistakes such as the end being before the start, etc.
+	///
+	/// #### Panics
+	///
+	/// This function will [`panic!`] if
+	///
+	/// 1. `page_count` is zero
+	#[must_use]
 	pub fn new(start: Page<S>, page_count: usize) -> Self
 	{
 		assert_ne!(
@@ -110,18 +125,71 @@ impl<S: memory::ChunkSize> PageRange<S>
 		Self { start, end, size }
 	}
 
+	/// ### Get the First Page
+	///
+	/// Returns a copy of the first page.
+	fn start(&self) -> Page<S> { self.start }
+
+	/// ### Get the Last Page
+	///
+	/// Returns a copy of the last page.
+	fn end(&self) -> Page<S> { self.end }
+
 	/// ### The Page Range's Size
 	///
 	/// Returns the Size of the page range in bytes.
+	#[must_use]
 	pub fn size_in_bytes(&self) -> usize { self.size }
 
 	/// ### Number of Pages
 	///
 	/// Returns the number of pages the range contains.
+	#[must_use]
 	pub fn page_count(&self) -> usize { (self.size + 1) / S::SIZE }
 }
 
-impl<S: memory::ChunkSize> Iterator for PageRange<S>
+impl<S: memory::ChunkSize> memory::ChunkSize for Page<S>
+{
+	const SIZE: usize = S::SIZE;
+	const SIZE_AS_DEBUG_STRING: &'static str = S::SIZE_AS_DEBUG_STRING;
+}
+
+impl<S: memory::ChunkSize> IntoIterator for PageRange<S>
+{
+	type IntoIter = PageRangeIntoIterator<S>;
+	type Item = Page<S>;
+
+	fn into_iter(self) -> Self::IntoIter { self.into() }
+}
+
+/// ### [`Iterator`] for a [`Copy`] Type
+///
+/// See <https://rust-lang.github.io/rust-clippy/master/index.html#copy_iterator>.
+/// Since [`PageRange`] is [`Copy`], we explicitly implement [`IntoIterator`], and not
+/// [`Iterator`]. Then [`PageRangeIntoIterator`] implements [`Iterator`].
+#[derive(Debug)]
+pub struct PageRangeIntoIterator<S: memory::ChunkSize>
+{
+	/// The first page in the range.
+	start: Page<S>,
+	/// The last page (inclusive) in the range.
+	end:   Page<S>,
+}
+
+impl<S: memory::ChunkSize> !Copy for PageRangeIntoIterator<S> {}
+
+impl<S: memory::ChunkSize> From<PageRange<S>> for PageRangeIntoIterator<S>
+{
+	fn from(page_range: PageRange<S>) -> Self
+	{
+		Self {
+			start: page_range.start(),
+			end:   page_range.end(),
+		}
+	}
+}
+
+impl<S: memory::ChunkSize> Iterator for PageRangeIntoIterator<S>
 {
 	type Item = Page<S>;
 

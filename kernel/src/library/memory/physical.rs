@@ -19,7 +19,7 @@ pub(super) static mut KERNEL_FRAME_ALLOCATOR: spin::once::Once<architecture_memo
 ///
 /// This function is `unsafe` as it returns a mutable reference from a `static mut`
 /// variable. This function will panic if the allocator is not initialized.
-pub(crate) unsafe fn get_frame_allocator() -> &'static mut architecture_memory::FrameAllocator
+pub unsafe fn get_frame_allocator() -> &'static mut architecture_memory::FrameAllocator
 {
 	KERNEL_FRAME_ALLOCATOR
 		.get_mut()
@@ -44,6 +44,7 @@ impl<S: super::ChunkSize> Frame<S>
 	/// ### Create a New Frame
 	///
 	/// Creates a new physical frame instance.
+	#[must_use]
 	pub fn new(start_address: memory::PhysicalAddress) -> Self
 	{
 		Self {
@@ -55,6 +56,7 @@ impl<S: super::ChunkSize> Frame<S>
 	/// ### Start Address of a Frame
 	///
 	/// Returns the starts address of the given frame.
+	#[must_use]
 	pub fn start(&self) -> memory::PhysicalAddress { self.start_address }
 }
 
@@ -66,5 +68,22 @@ pub trait FrameAllocation<S: super::ChunkSize>
 	/// ### Allocate a Single Frame
 	///
 	/// The method with which a single frame is allocated.
-	fn allocate_frame(&mut self) -> Result<Frame<S>, ()>;
+	///
+	/// #### Errors
+	///
+	/// If a frame could not be allocated, an [`Err`] is retuned. As the reasons for
+	/// the errors are not known or not reveiled by the implementing crate, the type
+	/// inside the error is `()`.
+	fn allocate_frame(&mut self) -> Result<Frame<S>, FrameAllocationError>;
+}
+
+/// ### Frame Allocation Problems
+///
+/// If an error occurred during the allocation of a frame, this enum indicates the
+/// reason. **Note** that actually, no errors should happen for the allocation of a frame!
+#[derive(Debug)]
+pub enum FrameAllocationError
+{
+	/// If the error cannot be known, use this variant.
+	Unknown,
 }

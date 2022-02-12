@@ -15,6 +15,7 @@ mod physical;
 pub use physical::{
 	Frame,
 	FrameAllocation,
+	FrameAllocationError,
 };
 pub(crate) use physical::get_frame_allocator;
 
@@ -34,6 +35,7 @@ pub use virtual_::{
 		ChunkSizeDefault,
 		ChunkSizeHuge,
 		ChunkSizeGiant,
+		ChunkError,
 	},
 	paging,
 };

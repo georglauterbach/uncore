@@ -75,14 +75,6 @@ Our vision and goals are guided by a few ((software) development) principles, su
 6. _[Software Craftsmanship]_ - A response by software developers to the perceived ills of the mainstream software industry
 7. _[Principle of Least Surprise]_ - A component of a system should behave in a way that most users will expect it to behave
 
-[K.I.S.S.]: https://en.wikipedia.org/wiki/KISS_principle
-[Convention over Configuration]: https://en.wikipedia.org/wiki/Convention_over_configuration
-[Ockham's Razor]: https://en.wikipedia.org/wiki/Occam%27s_razor
-[D.R.Y.]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
-[Law of Demeter]: https://en.wikipedia.org/wiki/Law_of_Demeter
-[Software Craftsmanship]: https://en.wikipedia.org/wiki/Software_craftsmanship
-[Principle of Least Surprise]: https://en.wikipedia.org/wiki/Principle_of_least_astonishment
-
 ## Architecture
 
 _unCORE_ is neither a microkernel -- in the sense that there is no policy in the kernel -- not a complete monolithic kernel. This has several reasons: Firstly, we think that some of the ideas of microkernels are worthwhile using, such as concepts like POLA (Principle of Least Authority). On the other hand, there is currently not enough development power to make _unCORE_ a monolithic kernel.
@@ -148,6 +140,14 @@ This work was and is heavily inspired by [_Phillip Oppermann_'s _BlogOS_][blog-o
 [Podman]: https://podman.io/
 
 [QEMU]: https://www.qemu.org/
+
+[K.I.S.S.]: https://en.wikipedia.org/wiki/KISS_principle
+[Convention over Configuration]: https://en.wikipedia.org/wiki/Convention_over_configuration
+[Ockham's Razor]: https://en.wikipedia.org/wiki/Occam%27s_razor
+[D.R.Y.]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+[Law of Demeter]: https://en.wikipedia.org/wiki/Law_of_Demeter
+[Software Craftsmanship]: https://en.wikipedia.org/wiki/Software_craftsmanship
+[Principle of Least Surprise]: https://en.wikipedia.org/wiki/Principle_of_least_astonishment
 
 [blog-os]: https://os.phil-opp.com/
 [GNU General Public License v3]: https://www.gnu.org/licenses/gpl-3.0.txt

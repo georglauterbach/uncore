@@ -64,7 +64,7 @@ pub fn initialize(
 /// to avoid aliasing `&mut` references (which is undefined behavior)."
 ///
 ///   -- Stolen From
-/// "https://os.phil-opp.com/paging-implementation/#accessing-the-page-tables"
+/// <https://os.phil-opp.com/paging-implementation/#accessing-the-page-tables>
 unsafe fn get_active_level_4_table(physical_memory_offset: x86_64::VirtAddr)
 	-> &'static mut paging::PageTable
 {
