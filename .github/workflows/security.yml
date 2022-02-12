@@ -28,7 +28,7 @@ jobs:
         uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
-          toolchain: nightly-2021-12-02
+          toolchain: nightly-2022-02-12
           override: true
 
       - name: Install `cargo audit`
