@@ -91,6 +91,20 @@ pub trait PageAllocation
 		&mut self,
 		address: memory::VirtualAddress,
 	) -> Result<(), kernel_types::errors::VirtualMemory>;
+
+	/// ### Deallocate a Single Page
+	///
+	/// This function deallocates a single page, effectively removing a page from the
+	/// page table and freeing (a / multiple) frame(s).
+	///
+	/// #### Errors
+	///
+	/// If the address was not actually mapped, the appropriate error code
+	/// [`kernel_types::errors::VirtualMemory::PageDeallocationPageWasNotMapped`].
+	fn deallocate_page(
+		&mut self,
+		address: memory::VirtualAddress,
+	) -> Result<(), kernel_types::errors::VirtualMemory>;
 }
 
 /// ### Representation of Multiple Pages
@@ -229,6 +243,23 @@ pub fn allocate_page(address: memory::VirtualAddress) -> Result<(), kernel_types
 		.allocate_page(address)
 }
 
+/// ### Deallocate a Single Page
+///
+/// This function takes a virtual address and deallocates a single page for it.
+///
+/// #### Errors
+///
+/// If there is an issue during deallocation, it is propagated upwards to the caller of
+/// this function who can then decide what to do. The possible errors can be seen in
+/// [`crate::prelude::kernel_types::errors::VirtualMemory`].
+pub fn deallocate_page(address: memory::VirtualAddress) -> Result<(), kernel_types::errors::VirtualMemory>
+{
+	unsafe { super::KERNEL_PAGE_TABLE.lock() }
+		.get_mut()
+		.expect("Could not acquire kernel page table")
+		.deallocate_page(address)
+}
+
 /// ### Allocate Multiple Pages At Once
 ///
 /// This function allocates a page for the virtual address given and `page_count` pages
@@ -242,7 +273,7 @@ pub fn allocate_page(address: memory::VirtualAddress) -> Result<(), kernel_types
 pub fn allocate_range(
 	start: impl Into<memory::VirtualAddress>,
 	page_count: usize,
-) -> Result<usize, kernel_types::errors::VirtualMemory>
+) -> Result<memory::paging::PageRange, kernel_types::errors::VirtualMemory>
 {
 	let address = start.into();
 	log_trace!(
@@ -252,11 +283,36 @@ pub fn allocate_range(
 	);
 
 	let page_range: PageRange<memory::ChunkSizeDefault> = PageRange::new(Page::new(address), page_count);
-
-	let size = page_range.size_in_bytes();
 	for page in page_range {
 		allocate_page(page.start())?;
 	}
 
-	Ok(size)
+	Ok(page_range)
+}
+
+/// ### Deallocate Multiple Pages At Once
+///
+/// This function deallocates a page for the virtual address given and `page_count` pages
+/// afterwards.
+///
+/// #### Errors
+///
+/// If there is an issue during deallocation, it is propagated upwards to the caller of
+/// this function who can then decide what to do. The possible errors can be seen in
+/// [`crate::prelude::kernel_types::errors::VirtualMemory`].
+pub fn _deallocate_range(
+	page_range: memory::paging::PageRange,
+) -> Result<(), kernel_types::errors::VirtualMemory>
+{
+	log_trace!(
+		"Deallocating range at {:?} and {} more page",
+		page_range.start(),
+		page_range.page_count() - 1
+	);
+
+	for page in page_range {
+		deallocate_page(page.start())?;
+	}
+
+	Ok(())
 }

@@ -120,7 +120,8 @@ mod fixed_block_size
 			let size = memory::paging::allocate_range(
 				FALLBACK_HEAP_START,
 				FALLBACK_HEAP_PAGE_COUNT,
-			)?;
+			)?
+			.size_in_bytes();
 			self.fallback_allocator.init(FALLBACK_HEAP_START, size);
 			log_debug!("Finished initializing (fallback) kernel heap memory");
 			Ok(())

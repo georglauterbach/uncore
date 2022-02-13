@@ -2,7 +2,10 @@
 // Copyright 2022 The unCORE Kernel Organization
 
 use crate::prelude::*;
-use x86_64::structures::paging;
+use x86_64::structures::paging::{
+	self,
+	Mapper,
+};
 
 impl memory::ChunkSize for memory::ChunkSizeDefault
 {
@@ -45,7 +48,6 @@ impl<'a> memory::paging::PageAllocation for PageTable<'a>
 	) -> Result<(), kernel_types::errors::VirtualMemory>
 	{
 		use memory::FrameAllocation;
-		use x86_64::structures::paging::Mapper;
 
 		let frame_allocator = unsafe { memory::get_frame_allocator() };
 
@@ -76,6 +78,23 @@ impl<'a> memory::paging::PageAllocation for PageTable<'a>
 				},
 			}
 		}
+	}
+
+	fn deallocate_page(
+		&mut self,
+		_address: memory::VirtualAddress,
+	) -> Result<(), kernel_types::errors::VirtualMemory>
+	{
+		// let page = x86_64::structures::paging::Page::containing_address(address.into());
+		// unsafe {
+		// 	match self.0.unmap(page)
+		// 	{
+		// 		_ => {}
+		// 	}
+		// }
+
+		// TODO
+		todo!("page deallocation");
 	}
 }
 
