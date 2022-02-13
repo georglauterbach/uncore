@@ -232,7 +232,7 @@ pub fn allocate_page(address: memory::VirtualAddress) -> Result<(), kernel_types
 /// ### Allocate Multiple Pages At Once
 ///
 /// This function allocates a page for the virtual address given and `page_count` pages
-/// afterwards.
+/// afterwards. Returns the size of the range in bytes.
 ///
 /// #### Errors
 ///
