@@ -254,6 +254,37 @@ pub mod kernel_types
 	/// the caller decide what to do: propagate the error again, or handle it.
 	pub mod errors
 	{
+		use ::core::fmt;
+
+		/// ### Kernel Errors
+		///
+		/// All error structures / enumerations of the kernel must implement this
+		/// trait. It requires [`::core::fmt::Debug`] and [`::core::fmt::Display`]
+		/// to be implemented on the type.
+		pub trait Error: fmt::Debug + fmt::Display
+		{
+			/// ### Whether Another Error is the Cause
+			///
+			/// If the error itself is caused by another error, this method
+			/// can be used to obtain it. Returns [`None`] is there is no
+			/// other error source.
+			fn source(&self) -> Option<&(dyn Error + 'static)> { None }
+
+			/// ### Error Backtrace
+			///
+			/// Provides a "backtrace" of the error to see where is
+			/// originated.
+			///
+			/// #### The Default Implementation
+			///
+			/// The default implementation will just [`panic!`] by calling the
+			/// [`todo!`] macro.
+			fn backtrace(&self)
+			{
+				todo!("error backtracing");
+			}
+		}
+
 		/// ### Errors for Virtual Memory
 		///
 		/// Contains variants needed when dealing with virtual memory.
@@ -268,7 +299,30 @@ pub mod kernel_types
 			PageMappingError,
 			/// A page could not be allocated.
 			PageAllocationFailed,
+			/// A soft-error during page deallocation that indicates that the
+			/// address was not actually mapped.
+			PageDeallocationPageWasNotMapped,
 		}
+
+		impl fmt::Display for VirtualMemory
+		{
+			fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
+			{
+				let variant = match &self {
+					Self::AddressNotAligned => "address is not aligned",
+					Self::FrameAllocationFailed => "frame allocation failed",
+					Self::PageMappingError => "page could not be mapped",
+					Self::PageAllocationFailed => "page allocation failed",
+					Self::PageDeallocationPageWasNotMapped => {
+						"no deallocation as page was not mapped"
+					},
+				};
+
+				write!(f, "virtual memory error (issue: {})", variant)
+			}
+		}
+
+		impl Error for VirtualMemory {}
 	}
 
 	/// ## Kernel Wide Locking Abstraction
