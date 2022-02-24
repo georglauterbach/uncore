@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
+        with:
+          submodules: true
 
       - name: Check if deploy is for a `v<major>.<minor>` tag version instead of `edge`
         if: startsWith(github.ref, 'refs/tags/')
@@ -73,6 +75,8 @@ jobs:
     steps:
       - name: Checkout the tagged commit (shallow clone)
         uses: actions/checkout@v2.4.0
+        with:
+          submodules: true
 
       - name: Checkout the documentation deployment branch to a subdirectory
         uses: actions/checkout@v2.4.0

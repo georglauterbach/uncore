@@ -42,14 +42,14 @@ mod fixed_block_size
 	///
 	/// This value marks the temporary virtual start address of the kernel heap. **In
 	/// the future, a proper paging implementation will render this obsolete!**
-	const FALLBACK_HEAP_START: usize = 0x0000_4444_4444_0000;
+	const KERNEL_HEAP_START: usize = 0x0000_4444_4444_0000;
 
 	/// ### (Temporary) Kernel Heap Size
 	///
 	/// The size of the kernel heap. **In the future, a proper paging implementation
 	/// will render this obsolete!** The size of the kernel heap equals the default
 	/// page size times the value given to this variable.
-	const FALLBACK_HEAP_PAGE_COUNT: usize = 500;
+	const KERNEL_HEAP_PAGE_COUNT: usize = 500;
 
 	/// ### Maximum Fixed Block Size
 	///
@@ -72,6 +72,7 @@ mod fixed_block_size
 	/// Please **note** that the allocator is **initialized lazily**, that is, the
 	/// fallback allocator will take care of growing the list of the fixed block size
 	/// allocator first.
+	#[allow(missing_debug_implementations)]
 	pub struct Allocator
 	{
 		/// The head pointers for each block size.
@@ -117,12 +118,9 @@ mod fixed_block_size
 		pub unsafe fn initialize(&mut self) -> Result<(), kernel_types::errors::VirtualMemory>
 		{
 			log_debug!("Initializing (fallback) kernel heap memory");
-			let size = memory::paging::allocate_range(
-				FALLBACK_HEAP_START,
-				FALLBACK_HEAP_PAGE_COUNT,
-			)?
-			.size_in_bytes();
-			self.fallback_allocator.init(FALLBACK_HEAP_START, size);
+			let size = memory::paging::allocate_range(KERNEL_HEAP_START, KERNEL_HEAP_PAGE_COUNT)?
+				.size_in_bytes();
+			self.fallback_allocator.init(KERNEL_HEAP_START, size);
 			log_debug!("Finished initializing (fallback) kernel heap memory");
 			Ok(())
 		}
@@ -216,7 +214,7 @@ mod fixed_block_size
 	#[test_case]
 	fn many_boxes()
 	{
-		for i in 0..FALLBACK_HEAP_PAGE_COUNT {
+		for i in 0..KERNEL_HEAP_PAGE_COUNT {
 			let box_ = ::alloc::boxed::Box::new(i);
 			assert_eq!(*box_, i);
 		}

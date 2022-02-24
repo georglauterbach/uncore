@@ -28,10 +28,16 @@ nav:
       - Contributing: development.md
       - Security: community/security.md
 
+plugins:
+  - search
+  - tags
+
 theme:
   name: material
   language: en
-  font: false
+  font:
+    text: Source Sans Pro
+    code: DejaVu Sans Mono
   logo: images/logo.ico
   favicon: images/logo.ico
   icon:
@@ -55,9 +61,9 @@ theme:
         name: Switch to dark mode
     # dark mode
     - media: '(prefers-color-scheme: dark)'
-      scheme: dark
-      primary: teal
-      accent: amber
+      scheme: slate
+      primary: red
+      accent: pink
       toggle:
         icon: material/lightbulb
         name: Switch to light mode

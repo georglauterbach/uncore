@@ -4,9 +4,9 @@
 # executed by   Just, manually or in CI
 # task          runs kernel unit- and integration tests
 
-# shellcheck source=scripts/lib/init.sh
-source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh" 'kernel'
-SCRIPT='tests'
+# shellcheck source=scripts/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/init.sh" 'kernel' 'errors' 'log'
+SCRIPT='tests@bash'
 
 function check_kernel
 {

@@ -1,3 +1,8 @@
+---
+tags:
+  - community
+---
+
 # Community-Related Documents
 
 This section of the documentation contains information on community-related information, such as

@@ -4,13 +4,23 @@
 # executed by   shell scripts under scripts/
 # task          performs script initialization
 
-SCRIPT='initialization'
+if [[ ${1:-} == 'kernel' ]]
+then
+  IS_KERNEL_SETUP=true
+  shift 1
+else
+  IS_KERNEL_SETUP=false
+fi
+
+# shellcheck source=scripts/libbash/load
+source "$(dirname "${BASH_SOURCE[0]}")/libbash/load" "${@}"
+SCRIPT='uncore initialization@bash'
 
 function basic_setup
 {
-  export LOG_LEVEL ROOT_DIRECTORY SCRIPT
+  local GUESSED_ROOT_DIRECTORY
+  export ROOT_DIRECTORY
 
-  LOG_LEVEL=${LOG_LEVEL:-inf}
   GUESSED_ROOT_DIRECTORY="$(realpath -eL "$(dirname "$(realpath -eL "${0}")")/..")"
   ROOT_DIRECTORY=${ROOT_DIRECTORY:-${GUESSED_ROOT_DIRECTORY}}
 
@@ -22,9 +32,6 @@ function basic_setup
       >&2
     exit 1
   fi
-
-  source scripts/lib/log.sh
-  source scripts/lib/errors.sh
 
   notify 'tra' 'Performed basic script intialization'
 }
@@ -109,24 +116,10 @@ function set_build_target
 function main
 {
   basic_setup
-
-  while [[ -n ${1:-} ]]
-  do
-    case "${1:-}" in
-      ( 'kernel' )
-        setup_kernel_environment
-        shift 1
-        ;;
-      
-      ( * )
-        shift 1
-        continue
-        ;;
-    esac
-  done
+  ${IS_KERNEL_SETUP} && setup_kernel_environment
 
   export -f set_build_target
   notify 'tra' 'Finished script intialization'
 }
 
-main "${@}"
+main

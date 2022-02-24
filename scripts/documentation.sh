@@ -4,10 +4,9 @@
 # executed by   manually or in CI
 # task          builds and serves the documentation
 
-# shellcheck source=scripts/lib/init.sh
-source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh"
-source scripts/lib/cri.sh
-SCRIPT='documentation'
+# shellcheck source=scripts/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/init.sh" 'kernel' 'errors' 'log' 'cri'
+SCRIPT='documentation@bash'
 
 function build_documentation
 {
@@ -140,7 +139,7 @@ function main
   fi
 
   DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY}/documentation"
-  MKDOCS_MATERIAL_TAG='8.1.11'
+  MKDOCS_MATERIAL_TAG='8.2.1'
   MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
   CRI='docker'
 

@@ -1,57 +1,21 @@
 [data-md-color-scheme="light"] {
-  --md-default-fg-color:               #1D1A23;
-  --md-default-fg-color--light:        #1D1A23EE;
-  --md-default-fg-color--lighter:      #1D1A2355;
-  --md-default-fg-color--lightest:     #EBEBEB33;
   --md-default-bg-color:               #EBEBEB;
   --md-default-bg-color--light:        #EBEBEB;
   --md-default-bg-color--lighter:      #EBEBEB;
   --md-default-bg-color--lightest:     #EBEBEB;
 
-  --md-primary-fg-color:               #EC9832;
-  --md-primary-fg-color--light:        #EC9832;
-  --md-primary-fg-color--dark:         #EC9832;
-  --md-primary-bg-color:               #EBEBEB;
-  --md-primary-bg-color--light:        #EBEBEB;
-  
-  --md-accent-fg-color:                #B3CBB9;
-  --md-accent-fg-color--transparent:   #B3CBB966;
-  --md-accent-bg-color:                #EBEBEB;
-  --md-accent-bg-color--light:         #B3CBB9;
-
   --md-code-fg-color:                  #1D1A23;
   --md-code-bg-color:                  #EBEBEB;
   --md-code-hl-comment-color:          #1D1A2355;
-
-  --md-admonition-fg-color:            #1D1A23;
-  --md-admonition-bg-color:            #F5F5F5;
 }
 
 [data-md-color-scheme="dark"] {
-  --md-default-fg-color:               #EBEBEB;
-  --md-default-fg-color--light:        #EBEBEB;
-  --md-default-fg-color--lighter:      #EBEBEB77;
-  --md-default-fg-color--lightest:     #EBEBEB;
   --md-default-bg-color:               #1D1A23;
   --md-default-bg-color--light:        #1D1A23;
   --md-default-bg-color--lighter:      #1D1A23;
   --md-default-bg-color--lightest:     #1D1A23;
 
-  --md-primary-fg-color:               #BA5B4F;
-  --md-primary-fg-color--light:        #BA5B4F;
-  --md-primary-fg-color--dark:         #BA5B4F;
-  --md-primary-bg-color:               #1D1A23;
-  --md-primary-bg-color--light:        #EBEBEB;
-  
-  --md-accent-fg-color:                #B3CBB9;
-  --md-accent-fg-color--transparent:   #B3CBB966;
-  --md-accent-bg-color:                #1D1A23;
-  --md-accent-bg-color--light:         #B3CBB9;
-
   --md-code-fg-color:                  #EBEBEB;
   --md-code-bg-color:                  #1D1A23;
   --md-code-hl-comment-color:          #B3CBB966;
-
-  --md-admonition-fg-color:            #EBEBEB;
-  --md-admonition-bg-color:            #221E29;
 }

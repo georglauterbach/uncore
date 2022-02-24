@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
+        with:
+          submodules: true
 
       - name: Build with mkdocs-material with Docker
         run: scripts/documentation.sh build

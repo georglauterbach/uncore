@@ -1,3 +1,11 @@
+---
+tags:
+  - building
+  - compilation
+  - running
+  - executing
+---
+
 # Building and Running _unCORE_
 
 The `kernel/` directory contains all kernel code (and therefore the complete _Rust_ code of _unCORE_). It is, at the same time, package and a Cargo workspace. That means, the `kernel/` directory contains a binary -- the kernel with all its source code located under `kernel/src/` -- and **possibly** other workspace members in the future. The final binary is obviously built from the source code located at `kernel/src/`.

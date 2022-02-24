@@ -24,7 +24,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
         with:
-          fetch-depth: 0
+          submodules: true
 
       - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1.0.7
@@ -47,7 +47,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
         with:
-          fetch-depth: 0
+          submodules: true
 
       - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1.0.7
