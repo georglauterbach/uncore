@@ -4,9 +4,9 @@
 # executed by   Just, manually or in CI
 # task          builds the kernel
 
-# shellcheck source=scripts/lib/init.sh
-source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh" 'kernel'
-SCRIPT='build'
+# shellcheck source=scripts/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/init.sh" 'kernel' 'errors' 'log'
+SCRIPT='build@bash'
 
 function build_kernel
 {

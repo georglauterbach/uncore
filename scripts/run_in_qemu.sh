@@ -4,9 +4,9 @@
 # executed by   Just, manually or in CI
 # task          runs the kernel in QEMU
 
-# shellcheck source=scripts/lib/init.sh
-source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh" 'kernel'
-SCRIPT='QEMU runner'
+# shellcheck source=scripts/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/init.sh" 'kernel' 'errors' 'log'
+SCRIPT='QEMU runner@bash'
 
 function run
 {
