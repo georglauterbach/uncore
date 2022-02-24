@@ -1,3 +1,11 @@
+---
+tags:
+  - testing
+  - tests
+  - unit tests
+  - integration tests
+---
+
 # Testing the Kernel
 
 _unCORE_ provides unit- and integration-tests. All unit-test are located "inside" the kernel itself (as members of the `lib.rs` "crate"), all integration tests are found under `kernel/tests/`. Note that linting the kernel is an important part of code quality analysis as well - your code is checked against the guidelines set in `kernel/.rustfmt.toml`.

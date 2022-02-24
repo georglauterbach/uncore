@@ -1,3 +1,11 @@
+---
+tags:
+  - kernel
+  - kernel architecture
+  - architecture
+  - modules
+---
+
 # The Internal Kernel Structure
 
 ## Architecture

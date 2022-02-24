@@ -1,3 +1,9 @@
+---
+tags:
+  - bootstrapping
+  - boot
+---
+
 # Bootstrapping _unCORE_
 
 !!! missing "Incomplete Documentation"

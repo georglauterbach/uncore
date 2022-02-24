@@ -1,3 +1,8 @@
+---
+tags:
+  - changelog
+---
+
 # Changelog
 
 ## Major Version 0
