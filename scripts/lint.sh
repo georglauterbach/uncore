@@ -39,13 +39,19 @@ function lint_editorconfig
 }
 
 function lint_shellcheck
-{  
+{
   declare -a ARGUMENTS
   local VERSION IMAGE FILES
 
   VERSION='0.8.0'
   IMAGE="docker.io/koalaman/shellcheck:v${VERSION}"
-  readarray -d '' FILES < <(find . -type f -iname "*.sh" -print0)
+  readarray -d '' FILES < <(find  \
+    "${ROOT_DIRECTORY}/scripts/"  \
+    -maxdepth 1                   \
+    -type f                       \
+    -regextype egrep              \
+    -iregex ".*\.sh$"             \
+    -print0)
 
   ARGUMENTS=(
     '--shell=bash'
@@ -55,8 +61,6 @@ function lint_shellcheck
     '--wiki-link-count=5'
     '--check-sourced'
     '--external-sources'
-    '--exclude=SC2310'
-    '--exclude=SC2312'
     "--source-path=${ROOT_DIRECTORY}"
   )
 
@@ -67,8 +71,8 @@ function lint_shellcheck
     --rm \
     --cap-drop=ALL \
     --user=999 \
-    --volume "${ROOT_DIRECTORY}/scripts:/ci/scripts:ro" \
-    --workdir "/ci" \
+    --volume "${ROOT_DIRECTORY}:${ROOT_DIRECTORY}:ro" \
+    --workdir "${ROOT_DIRECTORY}" \
     "${IMAGE}" \
       "${ARGUMENTS[@]}" \
       "${FILES[@]}"
