@@ -72,7 +72,7 @@ mod fixed_block_size
 	/// Please **note** that the allocator is **initialized lazily**, that is, the
 	/// fallback allocator will take care of growing the list of the fixed block size
 	/// allocator first.
-    #[allow(missing_debug_implementations)]
+	#[allow(missing_debug_implementations)]
 	pub struct Allocator
 	{
 		/// The head pointers for each block size.

@@ -92,13 +92,11 @@ impl<'a> memory::paging::PageAllocation for PageTable<'a>
 				// TODO we should probably deallocate the frame as well...
 				Ok(())
 			},
-			Err(error) => {
-				use paging::mapper::UnmapError;
-				match error {
-					UnmapError::PageNotMapped => Err(kernel_types::errors::VirtualMemory::PageDeallocationPageWasNotMapped),
-					UnmapError::InvalidFrameAddress(_) => Err(kernel_types::errors::VirtualMemory::PageDeallocationPageWasNotMapped),
-					UnmapError::ParentEntryHugePage => Err(kernel_types::errors::VirtualMemory::PageDeallocationPageWasNotMapped),
-				}
+			// TODO
+			Err(_error) => {
+				// use paging::mapper::UnmapError;
+				use kernel_types::errors::VirtualMemory;
+				Err(VirtualMemory::PageDeallocationPageWasNotMapped)
 			},
 		}
 	}
