@@ -2,6 +2,10 @@
 // Copyright 2022 The unCORE Kernel Organization
 
 use crate::prelude::*;
+use ::core::{
+	cmp,
+	ops,
+};
 
 /// ### Representation of a Page
 ///
@@ -39,27 +43,27 @@ impl<S: memory::ChunkSize> Page<S>
 	pub fn start(&self) -> memory::VirtualAddress { self.start_address }
 }
 
-impl<S: memory::ChunkSize> ::core::cmp::PartialEq for Page<S>
+impl<S: memory::ChunkSize> cmp::PartialEq for Page<S>
 {
 	fn eq(&self, other: &Self) -> bool { self.start_address == other.start_address }
 }
 
-impl<S: memory::ChunkSize> ::core::cmp::Eq for Page<S> {}
+impl<S: memory::ChunkSize> cmp::Eq for Page<S> {}
 
-impl<S: memory::ChunkSize> ::core::cmp::PartialOrd for Page<S>
+impl<S: memory::ChunkSize> cmp::PartialOrd for Page<S>
 {
 	fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering>
 	{
-		self.start_address.partial_cmp(&other.start_address)
+		self.start().partial_cmp(&other.start_address)
 	}
 }
 
-impl<S: memory::ChunkSize> ::core::cmp::Ord for Page<S>
+impl<S: memory::ChunkSize> cmp::Ord for Page<S>
 {
 	fn cmp(&self, other: &Self) -> core::cmp::Ordering { self.start().cmp(&other.start()) }
 }
 
-impl<S: memory::ChunkSize> ::core::ops::Add<u64> for Page<S>
+impl<S: memory::ChunkSize> ops::Add<u64> for Page<S>
 {
 	type Output = Self;
 
@@ -67,7 +71,7 @@ impl<S: memory::ChunkSize> ::core::ops::Add<u64> for Page<S>
 	fn add(self, rhs: u64) -> Self::Output { Self::new(self.start() + rhs as usize * S::SIZE) }
 }
 
-impl<S: memory::ChunkSize> ::core::ops::AddAssign<u64> for Page<S>
+impl<S: memory::ChunkSize> ops::AddAssign<u64> for Page<S>
 {
 	fn add_assign(&mut self, rhs: u64) { *self = *self + rhs; }
 }

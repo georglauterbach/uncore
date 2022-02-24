@@ -82,19 +82,25 @@ impl<'a> memory::paging::PageAllocation for PageTable<'a>
 
 	fn deallocate_page(
 		&mut self,
-		_address: memory::VirtualAddress,
+		address: memory::VirtualAddress,
 	) -> Result<(), kernel_types::errors::VirtualMemory>
 	{
-		// let page = x86_64::structures::paging::Page::containing_address(address.into());
-		// unsafe {
-		// 	match self.0.unmap(page)
-		// 	{
-		// 		_ => {}
-		// 	}
-		// }
-
-		// TODO
-		todo!("page deallocation");
+		let page: paging::Page<paging::Size4KiB> = paging::Page::containing_address(address.into());
+		match self.0.unmap(page) {
+			Ok((_frame, flush)) => {
+				flush.flush();
+				// TODO we should probably deallocate the frame as well...
+				Ok(())
+			},
+			Err(error) => {
+				use paging::mapper::UnmapError;
+				match error {
+					UnmapError::PageNotMapped => Err(kernel_types::errors::VirtualMemory::PageDeallocationPageWasNotMapped),
+					UnmapError::InvalidFrameAddress(_) => Err(kernel_types::errors::VirtualMemory::PageDeallocationPageWasNotMapped),
+					UnmapError::ParentEntryHugePage => Err(kernel_types::errors::VirtualMemory::PageDeallocationPageWasNotMapped),
+				}
+			},
+		}
 	}
 }
 
