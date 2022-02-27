@@ -39,7 +39,7 @@ jobs:
 
       - name: Run all kernel-related checks
         run: >-
-          source '{{ROOT_DIRECTORY}}/scripts/init.sh'
+          source /scripts/init.sh
           && cargo run --quiet --package helper -- check --is-ci -vv
 
   unit-and-integration-tests:
@@ -69,5 +69,5 @@ jobs:
 
       - name: Run `cargo test`
         run: >-
-          source '{{ROOT_DIRECTORY}}/scripts/init.sh'
+          source scripts/init.sh
           && cargo run --quiet --package helper -- test --is-ci -vv
