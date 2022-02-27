@@ -45,13 +45,16 @@ help:
 
 # compile the kernel
 @build *arguments:
-	bash "{{ROOT_DIRECTORY}}/scripts/build.sh" {{arguments}}
+	source '{{ROOT_DIRECTORY}}/scripts/init.sh' \
+	&& cargo run --quiet --package helper -- build {{arguments}}
 
 # run the kernel in QEMU
 run *arguments: (build arguments)
 	#! /bin/bash
 
-	bash "{{ROOT_DIRECTORY}}/scripts/run_in_qemu.sh" {{arguments}}
+	source '{{ROOT_DIRECTORY}}/scripts/init.sh'
+	cargo run --quiet --package helper -- run {{arguments}}
+	
 	EXIT_CODE=${?}
 	[[ ${EXIT_CODE} -gt 1 ]] && exit $((EXIT_CODE - 1)) 
 	exit 0
@@ -63,7 +66,8 @@ run *arguments: (build arguments)
 
 # run tests workspace members
 @test *arguments:
-	- bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} test
+	source '{{ROOT_DIRECTORY}}/scripts/init.sh' \
+	&& cargo run --quiet --package helper -- test {{arguments}}
 
 # -----------------------------------------------
 # ----  Format and Lint  ------------------------
@@ -77,7 +81,8 @@ alias fmt := format
 
 # lint against rustfmt and Clippy
 @check *arguments: format
-	- bash "{{ROOT_DIRECTORY}}/scripts/test_kernel.sh" {{arguments}} check
+	source '{{ROOT_DIRECTORY}}/scripts/init.sh' \
+	&& cargo run --quiet --package helper -- check {{arguments}}
 
 # generically lint the whole code base
 @lint *arguments:

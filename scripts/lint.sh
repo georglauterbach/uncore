@@ -4,8 +4,8 @@
 # executed by   just or manually
 # task          lints the codebase against various linters
 
-# shellcheck source=scripts/init.sh
-source "$(dirname "${BASH_SOURCE[0]}")/init.sh" 'errors' 'log' 'cri'
+# shellcheck source=scripts/libbash/load
+source "$(dirname "${BASH_SOURCE[0]}")/libbash/load" 'errors' 'log' 'cri'
 SCRIPT='linting@bash'
 
 # shellcheck disable=SC2154
