@@ -25,6 +25,7 @@ publish = false
 
 [dependencies]
 ansi_rgb = "0.2.0"
+bootloader-locator = "0.0.4"
 clap = { version = "3.1.2", features = ["derive"] }
 clap-cargo = "0.8.0"
 clap-verbosity-flag = "1.0.0"
