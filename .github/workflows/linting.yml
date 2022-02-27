@@ -3,10 +3,6 @@ name: Linting
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
-  pull_request:
-    types:
-      - opened
-      - reopened
   push:
     branches: ['**']
 
@@ -22,10 +18,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
         with:
-          fetch-depth: 0
+          submodules: true
 
       - name: Lint code base
-        uses: github/super-linter@v4.8.7
+        uses: github/super-linter@v4.9.0
         env:
           LOG_LEVEL: NOTICE
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -33,12 +29,10 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
 
           ERROR_ON_MISSING_EXEC_BIT: true
-          VALIDATE_JSCPD_ALL_CODEBASE: false
           VALIDATE_BASH: true
           VALIDATE_BASH_EXEC: true
           VALIDATE_EDITORCONFIG: true
           VALIDATE_GITHUB_ACTIONS: true
-          VALIDATE_JSCPD: true
           VALIDATE_JSON: true
           VALIDATE_MARKDOWN: true
           VALIDATE_YAML: true

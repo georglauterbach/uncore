@@ -70,7 +70,6 @@ fn should_panic(_panic_info: &::core::panic::PanicInfo) -> !
 ///         kernel::panic::callback(true, panic_info)
 /// }
 /// ```
-#[inline]
 pub fn callback(callback_should_panic: bool, panic_info: &::core::panic::PanicInfo) -> !
 {
 	if callback_should_panic {

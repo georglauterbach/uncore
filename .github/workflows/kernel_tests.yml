@@ -24,13 +24,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
         with:
-          fetch-depth: 0
+          submodules: true
 
       - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
-          toolchain: nightly-2022-01-01
+          toolchain: nightly-2022-02-12
           override: true
           components: rustfmt, clippy
 
@@ -38,7 +38,9 @@ jobs:
         run: rustup component add rust-src llvm-tools-preview
 
       - name: Run all kernel-related checks
-        run: ./scripts/test_kernel.sh --is-ci check
+        run: >-
+          source scripts/init.sh
+          && cargo run --quiet --package helper -- check --is-ci -vv
 
   unit-and-integration-tests:
     name: Run all unit- and integration-tests
@@ -47,13 +49,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
         with:
-          fetch-depth: 0
+          submodules: true
 
       - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1.0.7
         with:
           profile: minimal
-          toolchain: nightly-2021-12-10
+          toolchain: nightly-2022-02-12
           override: true
 
       - name: Install Rustup Components
@@ -66,4 +68,6 @@ jobs:
         run: qemu-system-x86_64 --version
 
       - name: Run `cargo test`
-        run: ./scripts/test_kernel.sh --is-ci test
+        run: >-
+          source scripts/init.sh
+          && cargo run --quiet --package helper -- test --is-ci -vv

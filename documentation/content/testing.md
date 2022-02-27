@@ -1,3 +1,11 @@
+---
+tags:
+  - testing
+  - tests
+  - unit tests
+  - integration tests
+---
+
 # Testing the Kernel
 
 _unCORE_ provides unit- and integration-tests. All unit-test are located "inside" the kernel itself (as members of the `lib.rs` "crate"), all integration tests are found under `kernel/tests/`. Note that linting the kernel is an important part of code quality analysis as well - your code is checked against the guidelines set in `kernel/.rustfmt.toml`.
@@ -125,29 +133,26 @@ These calls are wrappers for
 ``` CONSOLE
 $ pwd
 /uncore
-$ ./scripts/test_kernel.sh [--test <TEST>] test
+$ source scripts/init.sh && set +e && pwd
+/uncore/kernel
+$ cargo run --package helper -- test [--help]
 ```
 
 ## How Tests are Implemented
 
 Running kernel tests ist a bit more tricky than you might think. We will need to run them inside QEMU, and on top of that, `cargo` does not (yet) provide a nice interface to list the files it created for the tests. This is where `kernel/.cargo/config.toml` comes in handy.
 
-`cargo` creates a new binary for each integration test, i.e. for `main.rs`, for `lib.rs` and so on, and it does not tell us the file names in an easy way. We therefore rely on `kernel/.cargo/config.toml`. We provide a workspace member (`test_runner`) that will receive the produced binary as an argument. And because this repository has some fine Bash scripts in place, the workspace member is "just" a nice wrapper for running the `scripts/run_in_qemu.sh` script. Note that the wrapper does some very important things like testing for timeouts and checking whether the correct exit code (`0x3` for success) was provided. Moreover, it also handles creating a bootable image first by using the `boot` workspace member too!
+`cargo` creates a new binary for each integration test, i.e. for `main.rs`, for `lib.rs` and so on, and it does not tell us the file names in an easy way. We therefore rely on `kernel/.cargo/config.toml`. We provide a workspace member (`test_runner`) that will receive the path to the produced binary as an argument. The `test_runner` will then link the binary with the help of the `helper` workspace member and execute it (also with the help of the `helper` workspace member). This "wrapper" (provided by `helper`) does some very important things like testing for timeouts and checking whether the correct exit code (`0x3` for success) was provided. Moreover, it also handles creating a bootable image first by using the `boot` workspace member too!
 
 The whole test invocation is again wrapped by another script (mostly for convenience but also to provide needed environment variables), namely `scripts/test_kernel.sh`. The whole "call-stack" looks like this:
 
-``` BASH
-[just test] ──> scripts/test_kernel.sh ──> cargo test ... ────┐ # (1)
-                                                              │
-scripts/run_in_qemu.sh <────────────── kernel/test_runner <───┘
-                                        ^               │
-                                        └─ kernel/boot ─┘
+1. `just test` (optional)
+2. `cargo run -p helper -- test` which calls
+3. `cargo test ... ` which calls
+4. `kernel/test_runner` which calls
+5. `kernel/helper` to link the bootloader and to run the binary correctly
 
-```
-
-1. The `cargo test` command invokes the next programs multiple times, once for each test executable
-
-This looks overcomplicated, but integrates nicely with existing (shell) code and is currently the easiest approach.
+The `cargo test` command invokes the next steps multiple times, once for each test executable. This looks overcomplicated, but integrates nicely with existing code and is (currently) the easiest approach.
 
 [//]: # (Links)
 

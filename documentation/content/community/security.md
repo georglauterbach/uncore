@@ -1,3 +1,9 @@
+---
+tags:
+  - security
+  - security policy
+---
+
 # Security Policy
 
 **version 1.0**, 14 Jan 2022

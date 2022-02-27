@@ -24,6 +24,14 @@ const BUILD_TARGET: Option<&str> = option_env!("BUILD_TARGET");
 /// kernel was compiled.
 const COMPILATION_DATE_AND_TIME: Option<&str> = option_env!("COMPILATION_DATE_AND_TIME");
 
+/// ### Kernel Version
+///
+/// The `KERNEL_VERSION` variable contains the kernel version in the
+/// semantic versioning format, the git commit id the kernel was built
+/// with and the build date. If `KERNEL_VERSION` was not available
+/// during build-time, a default value is provided, namely "testing".
+const KERNEL_VERSION: Option<&str> = option_env!("KERNEL_VERSION");
+
 /// ### Rust Toolchain
 ///
 /// Holds the toolchain information that this version of the kernel
@@ -36,19 +44,12 @@ const RUST_TOOLCHAIN: Option<&str> = option_env!("RUST_TOOLCHAIN");
 /// kernel (stored in `KERNEL_VERSION`) was compiled with.
 const RUSTC_VERSION: Option<&str> = option_env!("RUSTC_VERSION");
 
-/// ### Kernel Version
-///
-/// The `KERNEL_VERSION` variable contains the kernel version in the
-/// semantic versioning format, the git commit id the kernel was built
-/// with and the build date. If `KERNEL_VERSION` was not available
-/// during build-time, a default value is provided, namely "testing".
-const KERNEL_VERSION: Option<&str> = option_env!("KERNEL_VERSION");
-
 /// ### Static Kernel Information
 ///
 /// This struct exists to call non-member ("static") function on it to
 /// obtain information about the kernel, such as its version or build
 /// target as a string.
+#[derive(Debug, Copy, Clone)]
 pub struct KernelInformation;
 
 impl KernelInformation
@@ -136,12 +137,13 @@ pub mod kernel_types
 	/// ### Kernel Exit Code
 	///
 	/// Shows whether the kernel exited successfully or not.
+	#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 	pub enum ExitCode
 	{
 		/// Exit with success
-		Success,
+		Success = 0,
 		/// Exit with failure
-		Failure,
+		Failure = 1,
 	}
 
 	/// ### Global Static Variables for Non-Thread-Safe Types
@@ -240,6 +242,88 @@ pub mod kernel_types
 
 	unsafe impl<T> Send for GlobalStaticMut<T> {}
 	unsafe impl<T> Sync for GlobalStaticMut<T> {}
+
+	/// ## Kernel Error Types
+	///
+	/// Contains various error abstractions for different parts of the kernel,
+	/// including errors when handling virtual memory, etc.
+	///
+	/// The **idea of this module** is to provide types that make using the `?`
+	/// operator easy. Using the `?` operator makes life easy and code nice. Moreover,
+	/// one does not need to bother with checking every error at all level, but let
+	/// the caller decide what to do: propagate the error again, or handle it.
+	pub mod errors
+	{
+		use ::core::fmt;
+
+		/// ### Kernel Errors
+		///
+		/// All error structures / enumerations of the kernel must implement this
+		/// trait. It requires [`::core::fmt::Debug`] and [`::core::fmt::Display`]
+		/// to be implemented on the type.
+		pub trait Error: fmt::Debug + fmt::Display
+		{
+			/// ### Whether Another Error is the Cause
+			///
+			/// If the error itself is caused by another error, this method
+			/// can be used to obtain it. Returns [`None`] is there is no
+			/// other error source.
+			fn source(&self) -> Option<&(dyn Error + 'static)> { None }
+
+			/// ### Error Backtrace
+			///
+			/// Provides a "backtrace" of the error to see where is
+			/// originated.
+			///
+			/// #### The Default Implementation
+			///
+			/// The default implementation will just [`panic!`] by calling the
+			/// [`todo!`] macro.
+			fn backtrace(&self)
+			{
+				todo!("error backtracing");
+			}
+		}
+
+		/// ### Errors for Virtual Memory
+		///
+		/// Contains variants needed when dealing with virtual memory.
+		#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+		pub enum VirtualMemory
+		{
+			/// For address alignment issues.
+			AddressNotAligned,
+			/// A frame could not be allocated.
+			FrameAllocationFailed,
+			/// A page could not be mapped.
+			PageMappingError,
+			/// A page could not be allocated.
+			PageAllocationFailed,
+			/// A soft-error during page deallocation that indicates that the
+			/// address was not actually mapped.
+			PageDeallocationPageWasNotMapped,
+		}
+
+		impl fmt::Display for VirtualMemory
+		{
+			fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
+			{
+				let variant = match &self {
+					Self::AddressNotAligned => "address is not aligned",
+					Self::FrameAllocationFailed => "frame allocation failed",
+					Self::PageMappingError => "page could not be mapped",
+					Self::PageAllocationFailed => "page allocation failed",
+					Self::PageDeallocationPageWasNotMapped => {
+						"no deallocation as page was not mapped"
+					},
+				};
+
+				write!(f, "virtual memory error (issue: {})", variant)
+			}
+		}
+
+		impl Error for VirtualMemory {}
+	}
 
 	/// ## Kernel Wide Locking Abstraction
 	///

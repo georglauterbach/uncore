@@ -1,0 +1,27 @@
+---
+name: Feature request
+description: Request a new feature
+title: '[FEATURE] '
+labels:
+  - area/features
+  - kind/new-feature
+  - priority/low
+
+body:
+  - type: checkboxes
+    id: initial-checks
+    attributes:
+      label: Initial checks
+      description: Please read these carefully.
+      options:
+        - label: I checked that the feature is now already implemented.
+          required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: State your request
+      placeholder: Can we have POSIX compatible code? (why not)
+      render: Markdown
+    validations:
+      required: true

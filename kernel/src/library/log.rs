@@ -17,6 +17,7 @@ const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
 ///
 /// This structure holds associated function that provide logging. The
 /// [`log::Log`] trait is implemented for this structure.
+#[derive(Debug)]
 pub struct KernelLogger
 {
 	/// We use the QEMU `debugcon` feature to log to a file
@@ -62,34 +63,37 @@ impl KernelLogger
 
 	/// ### Parse [`LOG_LEVEL`]
 	///
-	/// Check if the environment variable `LOG_LEVEL` is set and try to parse it.
-	/// Returns [`None`] the string could not be parsed or if the environment variable
-	/// is not present.
-	fn try_from_str() -> Option<log::Level>
+	/// Check if the environment variable `LOG_LEVEL` is set and try to parse
+	/// it. Returns [`log::Level::Info`] as the default (if the environment
+	/// variable is not present or when the `LOG_LEVEL` variables contains
+	/// invalid contents).
+	fn from_str() -> log::Level
 	{
-		LOG_LEVEL.and_then(|log_level| match log_level {
-			"err" => Some(log::Level::Error),
-			"war" => Some(log::Level::Warn),
-			"inf" => Some(log::Level::Info),
-			"deb" => Some(log::Level::Debug),
-			"tra" => Some(log::Level::Trace),
-			_ => None,
-		})
+		LOG_LEVEL.map_or_else(
+			|| log::Level::Info,
+			|log_level| match log_level {
+				"err" => log::Level::Error,
+				"war" => log::Level::Warn,
+				"deb" => log::Level::Debug,
+				"tra" => log::Level::Trace,
+				_ => log::Level::Info,
+			},
+		)
 	}
 
 	/// ### Set the Log Level
 	///
-	/// This function takes care of setting the correct log level.
-	fn set_log_level(log_level: log::Level)
+	/// This function takes care of setting the correct log level. If [`None`]
+	/// is provided, the "fallback" implementation [`KernelLogger::from_str`] is
+	/// used.
+	fn set_log_level(log_level: Option<log::Level>)
 	{
-		Self::try_from_str().map_or_else(
-			|| {
-				log::set_max_level(log_level.to_level_filter());
-			},
-			|log_level| {
-				log::set_max_level(log_level.to_level_filter());
-			},
-		);
+		if let Some(log_level) = log_level {
+			log::set_max_level(log_level.to_level_filter());
+			return;
+		}
+
+		log::set_max_level(Self::from_str().to_level_filter());
 	}
 }
 
@@ -120,7 +124,7 @@ impl log::Log for KernelLogger
 /// bootloader information.
 pub fn initialize(log_level: Option<log::Level>)
 {
-	KernelLogger::set_log_level(log_level.unwrap_or(log::Level::Debug));
+	KernelLogger::set_log_level(log_level);
 	log::set_logger(&LOGGER).expect("Log should not have already been set");
 	crate::prelude::log_debug!("Kernel logging enabled");
 }
@@ -186,6 +190,7 @@ mod serial
 	///
 	/// This structure abstracts over the serial port and logs
 	/// messages on this port.
+	#[derive(Debug)]
 	pub struct Logger;
 
 	impl Logger
@@ -258,6 +263,7 @@ mod qemu
 	/// Implementation of a logger for the [`log`] crate, that
 	/// writes everything to QEMU's "debugcon" feature, i.e. x86
 	/// i/o-port 0xe9.
+	#[derive(Debug)]
 	pub struct Logger;
 
 	impl Logger
@@ -304,7 +310,7 @@ mod qemu
 			};
 
 			let result = writeln!(
-				&mut buf,
+				buf,
 				"[ {} ] {:>40.*}@{:<4.*} | {}",
 				log_level,
 				40,

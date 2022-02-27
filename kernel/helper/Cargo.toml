@@ -1,11 +1,11 @@
 [package]
-name = "boot"
-version = "0.1.0"
+name = "helper"
+version = "1.0.0"
 edition = "2021"
 workspace = "../"
 
 authors = ["The unCORE Kernel Community"]
-description = "unCORE Bootimage Creation"
+description = "unCORE helper binary to wrap building, runnign and testing"
 documentation = "https://georglauterbach.github.io/uncore/edge/"
 license = "GPL-3.0"
 readme = "../../README.md"
@@ -17,15 +17,18 @@ keywords = [
   "operating-system",
   "os",
   "kernel",
-  "bootimage",
-  "creation",
+  "helper",
+  "common",
 ]
 
 publish = false
 
 [dependencies]
-workspace_helper = { path = "../workspace_helper/", version = "*" }
-
+ansi_rgb = "0.2.0"
 bootloader-locator = "0.0.4"
-clap = { version = "3.0.14", features = ["derive"] }
+clap = { version = "3.1.2", features = ["derive"] }
+clap-cargo = "0.8.0"
+clap-verbosity-flag = "1.0.0"
 log = "0.4.14"
+once_cell = "1.9.0"
+rgb = "0.8.31"

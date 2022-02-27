@@ -4,9 +4,9 @@
 # executed by   just or manually
 # task          installs needed dependencies
 
-# shellcheck source=scripts/lib/init.sh
-source "$(dirname "$(realpath -eL "${0}")")/lib/init.sh" 'kernel'
-SCRIPT='tools'
+# shellcheck source=scripts/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/init.sh" 'kernel' 'errors' 'log'
+SCRIPT='tools@bash'
 
 # -->                   -->                   --> START
 

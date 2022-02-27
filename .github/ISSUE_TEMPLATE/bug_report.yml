@@ -1,0 +1,85 @@
+---
+name: Bug report
+description: File a bug report
+title: '[BUG] '
+labels:
+  - kind/bug
+  - meta/needs triage
+  - priority/medium
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Filing a report
+
+        Thank you for participating in this project and reporting a bug. _unCORE_
+        is a community-driven project, and each contribution counts.
+
+        Please **fill out all the fields and checkboxes of this form** to make it
+        easier for maintainers to understand the problem and to solve it. The
+        maintainers and moderators are volunteers that need you to fill this template
+        with accurate informations in order to help you in the best and quickest way.
+        We will have to label your request with `meta/no template - no support` if
+        your request is sloppy and provides no way to help you correctly.
+
+        **Make sure** you read through the whole
+        [README](https://github.com/georglauterbach/uncore/blob/main/README.md) and
+        the [issue tracker](https://github.com/georglauterbach/uncore/issues) before
+        opening a new bug report.
+
+        **This issue template is not finished!**
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Paste all information in here for now
+      description: Describe the issue here
+      placeholder: 0 != 1
+      render: Markdown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: experience
+    attributes:
+      label: What level of experience do you have with Rust?
+      description: >
+        **You are not obliged to answer this question**.
+        We do encourage answering though as it provides context to better assist you.
+        Less experienced users tend to make common mistakes, which is ok; by
+        letting us know we can spot those more easily.
+      options:
+        - I'm very inexperienced with Rust
+        - I'm inexperienced with Rust
+        - I'm somewhat comfortable with Rust
+        - I'm very comfortable with Rust
+        - I'm an expert when it comes to Rust
+        - I'm a experienced, well-versed veteran when it comes to Rust (please tell us more :D)
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms-code-of-conduct
+    attributes:
+      label: Code of conduct
+      options:
+        - label: >
+            I agree to follow the
+            [code of conduct](https://georglauterbach.github.io/uncore/edge/community/code_of_conduct/).
+            set by this project.
+          required: true
+        - label: >
+            I have read the [README](https://github.com/georglauterbach/uncore/blob/main/README.md)
+            and I searched the [issue tracker](https://github.com/georglauterbach/uncore/issues)
+            but could not find a solution.
+          required: true
+
+  - type: textarea
+    id: form-improvements
+    attributes:
+      label: Improvements to this form?
+      description: >
+        If you have criticism or general feedback about this issue form, feel free
+        to tell us so we can enhance the experience for everyone.
+      render: Markdown

@@ -1,3 +1,8 @@
+---
+tags:
+  - code of conduct
+---
+
 # Code of Conduct
 
 **version 1.1**, 25 Nov 2021

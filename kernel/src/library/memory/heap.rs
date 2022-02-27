@@ -8,7 +8,7 @@ use crate::prelude::*;
 /// This structure implements the [`::core::alloc::GlobalAlloc`] trait to allocator kernel
 /// heap memory.
 #[global_allocator]
-static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
+pub(super) static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
 	kernel_types::lock::Locked::from(fixed_block_size::Allocator::new());
 
 /// ### Kernel Heap Error Handler
@@ -18,41 +18,61 @@ static ALLOCATOR: kernel_types::lock::Locked<fixed_block_size::Allocator> =
 #[alloc_error_handler]
 fn allocator_error_handler(layout: ::alloc::alloc::Layout) -> !
 {
-	panic!("allocation error (layout: {:?})", layout);
-}
-
-/// ### Initialize a Global Allocator
-///
-/// Initializes a simple global kernel heap memory allocator.
-pub fn initialize()
-{
-	log_info!("Initializing a simple global memory allocator");
-	unsafe {
-		ALLOCATOR
-			.lock()
-			.initialize(super::KERNEL_HEAP_START, super::KERNEL_HEAP_SIZE);
-	}
-	log_debug!("Initialized allocator");
+	log_error!("allocation error (layout: {:?})", layout);
+	exit_kernel(kernel_types::ExitCode::Failure);
 }
 
 /// ## Simple Fixed-Block-Size Allocator
 ///
 /// Contains an allocator that implements the fixed-block-allocation procedure.
+///
+/// ### Todo - The Future
+///
+/// The fallback allocator should be able to use proper demand-paging. This is currently
+/// not supported / implemented.
 mod fixed_block_size
 {
-	use crate::prelude::kernel_types::lock;
+	use crate::prelude::{
+		*,
+		kernel_types::lock,
+	};
 	use alloc::alloc;
+
+	/// ### (Temporary) Kernel Heap Start
+	///
+	/// This value marks the temporary virtual start address of the kernel heap. **In
+	/// the future, a proper paging implementation will render this obsolete!**
+	const KERNEL_HEAP_START: usize = 0x0000_4444_4444_0000;
+
+	/// ### (Temporary) Kernel Heap Size
+	///
+	/// The size of the kernel heap. **In the future, a proper paging implementation
+	/// will render this obsolete!** The size of the kernel heap equals the default
+	/// page size times the value given to this variable.
+	const KERNEL_HEAP_PAGE_COUNT: usize = 500;
+
+	/// ### Maximum Fixed Block Size
+	///
+	/// This constant marks the maximum block size that is allocated by our
+	/// [`Allocator`]. If an allocation request is made for a larger block size, the
+	/// fallback allocator will take care.
+	const MAX_BLOCK_SIZE: usize = 2048;
 
 	/// ### The Block Sizes to Use
 	///
 	/// The sizes must each be power of 2 because they are also used as
 	/// the block alignment (alignments must be always powers of 2).
-	const BLOCK_SIZES: &[usize] = &[8, 16, 32, 64, 128, 256, 512, 1024, 2048];
+	const BLOCK_SIZES: &[usize] = &[8, 16, 32, 64, 128, 256, 512, 1024, MAX_BLOCK_SIZE];
 
 	/// ### The Module Allocator
 	///
 	/// The structure implementing the allocation algorithm of this module. See
-	/// <https://os.phil-opp.com/allocator-designs/#fixed-size-block-allocator>
+	/// <https://os.phil-opp.com/allocator-designs/#fixed-size-block-allocator>.
+	///
+	/// Please **note** that the allocator is **initialized lazily**, that is, the
+	/// fallback allocator will take care of growing the list of the fixed block size
+	/// allocator first.
+	#[allow(missing_debug_implementations)]
 	pub struct Allocator
 	{
 		/// The head pointers for each block size.
@@ -66,6 +86,7 @@ mod fixed_block_size
 	///
 	/// A simple node that holds a "pointer" to the next free node (for the same block
 	/// size).
+	#[derive(Debug)]
 	struct ListNode
 	{
 		/// The next "pointer" pointing to the next node.
@@ -94,9 +115,14 @@ mod fixed_block_size
 		/// This function is unsafe because the caller must guarantee that the
 		/// given heap bounds are valid and that the heap is unused. This method
 		/// must be called only once.
-		pub unsafe fn initialize(&mut self, heap_start: usize, heap_size: usize)
+		pub unsafe fn initialize(&mut self) -> Result<(), kernel_types::errors::VirtualMemory>
 		{
-			self.fallback_allocator.init(heap_start, heap_size);
+			log_debug!("Initializing (fallback) kernel heap memory");
+			let size = memory::paging::allocate_range(KERNEL_HEAP_START, KERNEL_HEAP_PAGE_COUNT)?
+				.size_in_bytes();
+			self.fallback_allocator.init(KERNEL_HEAP_START, size);
+			log_debug!("Finished initializing (fallback) kernel heap memory");
+			Ok(())
 		}
 
 		/// ### Fallback Allocation
@@ -105,9 +131,18 @@ mod fixed_block_size
 		/// allocator takes over.
 		fn allocate_with_fallback_allocator(&mut self, layout: alloc::Layout) -> *mut u8
 		{
-			crate::prelude::log_warning!(
-				"Had to allocator kernel heap memory with the fallback allocator"
-			);
+			// if !layout.size() > MAX_BLOCK_SIZE {
+			// 	log_trace!(
+			// 		"Allocating kernel heap with fallback allocator (block size: {})",
+			// 		layout.size()
+			// 	);
+			// } else {
+			// 	log_trace!(
+			// 		"Allocating kernel heap with fallback allocator (lazy \
+			// 		 initialization)"
+			// 	);
+			// };
+
 			match self.fallback_allocator.allocate_first_fit(layout) {
 				Ok(ptr) => ptr.as_ptr(),
 				Err(_) => ::core::ptr::null_mut(),
@@ -117,7 +152,8 @@ mod fixed_block_size
 		/// ### Choose the Correct Block Size
 		///
 		/// Choose an appropriate block size for the given layout. Returns an
-		/// index into the `BLOCK_SIZES` array.
+		/// index into the `BLOCK_SIZES` array. Returns [`None`] if no index was
+		/// found.
 		fn list_index(layout: &alloc::Layout) -> Option<usize>
 		{
 			let required_block_size = layout.size().max(layout.align());
@@ -129,6 +165,7 @@ mod fixed_block_size
 	{
 		unsafe fn alloc(&self, layout: alloc::Layout) -> *mut u8
 		{
+			log_trace!("allocating block of size {}", layout.size());
 			let mut allocator = self.lock();
 			if let Some(index) = Allocator::list_index(&layout) {
 				if let Some(node) = allocator.list_heads[index].take() {
@@ -150,6 +187,7 @@ mod fixed_block_size
 
 		unsafe fn dealloc(&self, ptr: *mut u8, layout: alloc::Layout)
 		{
+			log_trace!("deallocating block of size {}", layout.size());
 			let mut allocator = self.lock();
 			if let Some(index) = Allocator::list_index(&layout) {
 				let new_node = ListNode {
@@ -161,14 +199,50 @@ mod fixed_block_size
 				assert!(::core::mem::align_of::<ListNode>() <= BLOCK_SIZES[index]);
 
 				#[allow(clippy::cast_ptr_alignment)]
-				let new_node_ptr = ptr.cast::<ListNode>();
+				let new_node_pointer = ptr.cast::<ListNode>();
 
-				new_node_ptr.write(new_node);
-				allocator.list_heads[index] = Some(&mut *new_node_ptr);
+				new_node_pointer.write(new_node);
+				allocator.list_heads[index] = Some(&mut *new_node_pointer);
 			} else {
-				let ptr = ::core::ptr::NonNull::new(ptr).unwrap();
+				let ptr = ::core::ptr::NonNull::new(ptr)
+					.expect("dealloc was called in a NULL value");
 				allocator.fallback_allocator.deallocate(ptr, layout);
 			}
 		}
 	}
+
+	#[test_case]
+	fn many_boxes()
+	{
+		for i in 0..KERNEL_HEAP_PAGE_COUNT {
+			let box_ = ::alloc::boxed::Box::new(i);
+			assert_eq!(*box_, i);
+		}
+	}
+}
+
+#[test_case]
+fn boxing_does_not_panic()
+{
+	use alloc::boxed;
+
+	log_debug!("Trying to box a value");
+
+	let heap_value_1 = boxed::Box::new(41);
+	let heap_value_2 = boxed::Box::new(13);
+	assert_eq!(*heap_value_1, 41);
+	assert_eq!(*heap_value_2, 13);
+}
+
+#[test_case]
+fn large_vector()
+{
+	let vector_size = 1000;
+	let mut vec = alloc::vec::Vec::new();
+
+	for i in 0..vector_size {
+		vec.push(i);
+	}
+
+	assert_eq!(vec.iter().sum::<u64>(), (vector_size - 1) * vector_size / 2);
 }

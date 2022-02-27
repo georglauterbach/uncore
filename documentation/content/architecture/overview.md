@@ -1,3 +1,11 @@
+---
+tags:
+  - kernel
+  - kernel architecture
+  - architecture
+  - modules
+---
+
 # The Internal Kernel Structure
 
 ## Architecture
@@ -32,11 +40,10 @@ The `memory` module provides main memory management functionality. It is a kerne
 
 ### Other Files at the Top of the Kernel Library
 
-Next to the main modules, there are few files residing at the top of the kernel library. This includes `log.rs` for logging, `mod.rs` as the module file for the library, and `prelude.rs`, which provides the common [Rust] pattern of the [prelude][rust::prelude].
+Next to the main modules, there are few files residing at the top of the kernel library. This includes `log.rs` for logging, `mod.rs` as the module file for the library, and `prelude.rs`, which provides the common _Rust_ pattern of the [prelude][rust::prelude].
 
 [//]: # (Links)
 
 [docs::bootstrapping]: ./bootstrapping.md
 
-[Rust]: https://www.rust-lang.org/
 [rust::prelude]: https://stackoverflow.com/questions/36384840/what-is-the-prelude
