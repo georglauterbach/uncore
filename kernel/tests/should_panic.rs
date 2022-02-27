@@ -39,7 +39,7 @@ bootloader::entry_point!(kernel_test_main);
 
 fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
 {
-	library::log::initialize(Some(log::Level::Trace));
+	library::log::initialize(None);
 	library::log::display_initial_information();
 
 	log_info!("This is the 'should_panic' test");

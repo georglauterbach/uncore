@@ -1,11 +1,11 @@
 #! /bin/bash
 
-# version       0.1.0
+# version       0.1.1
 # executed by   manually or in CI
 # task          builds and serves the documentation
 
-# shellcheck source=scripts/init.sh
-source "$(dirname "${BASH_SOURCE[0]}")/init.sh" 'kernel' 'errors' 'log' 'cri'
+# shellcheck source=scripts/libbash/load
+source "$(dirname "${BASH_SOURCE[0]}")/libbash/load" 'errors' 'log' 'cri'
 SCRIPT='documentation@bash'
 
 function build_documentation
@@ -138,7 +138,7 @@ function main
     exit 1
   fi
 
-  DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY}/documentation"
+  DOCUMENTATION_DIRECTORY="${ROOT_DIRECTORY:-$(realpath -eL "$(dirname "${0}")/..")}/documentation"
   MKDOCS_MATERIAL_TAG='8.2.1'
   MKDOCS_MATERIAL_IMAGE="docker.io/squidfunk/mkdocs-material:${MKDOCS_MATERIAL_TAG}"
   CRI='docker'

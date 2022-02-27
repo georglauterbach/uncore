@@ -12,7 +12,10 @@ The `kernel/` directory contains all kernel code (and therefore the complete _Ru
 
 We highly recommend using [Just] when working with _unCORE_. The following steps will just (no pun intended) explain what [Just] does in the background. With [Just] installed, you do not need to run all these long and tedious and error-prone commands yourself.
 
-??? tip "The Bigger Picture"
+!!! tip "Use `--help`"
+    Almost all commands you come across support the `--help` option. Use it to get more information about the command.
+
+??? tldr "The Bigger Picture"
     This operating system kernel bases on and is heavily inspired by _Phillip Opperman_'s _BlogOS_ (version one and two). You can read all about it in [his blog](https://os.phil-opp.com/). **However**, due to _unCORE_'s goals of being concise and easy to understand, looking at the code base and the code comments will also help you in understanding how the kernel works and what it does.
 
 ## Compiling the Kernel
@@ -33,37 +36,36 @@ The LLVM target triple is explained again in `kernel/src/library/helper/miscella
 
 ### Actually Running the Kernel
 
-First of all, if you're using [Just], make yourself familiar with all recipes by running `#!bash just help`. The kernel itself is compiled by running
+First of all, if you're using [Just], make yourself familiar with all recipes by running `#!bash just help`.
 
-``` CONSOLE
-$ pwd
-/uncore/kernel
-$ cargo build --target .cargo/targets/x86_64-unknown-uncore.json -Z build-std=core,compiler_builtins -Z build-std-features=compiler-builtins-mem
-    Compiling kernel v0.1.0 (/uncore/kernel)
-    Building [=======================>   ] 20/22: kernel
-    ...
-```
-
-We specify the target and on top of that, which built-in function (that is, into the compiler `rustc`) we need. That's all. This will create a debug binary of our kernel. In case you want to build a release version, add `--release` after `cargo build`.
-
-The equivalent for this step with [Just] is
-
-``` CONSOLE
-$ just build
-    Compiling kernel v0.1.0 (/uncore/kernel)
-    Building [=======================>   ] 20/22: kernel
-    ...
-```
-
-or use the script located under `scripts/`:
+The kernel itself is compiled by running
 
 ``` CONSOLE
 $ pwd
 /uncore
-$ ./scripts/build.sh [target]
-    Compiling kernel v0.1.0 (/uncore/kernel)
-    Building [=======================>   ] 20/22: kernel
-    ...
+$ source scripts/init.sh && set +e && pwd
+/uncore/kernel
+$ cargo run --package helper -- build [--help]
+  Compiling helper v1.0.0 (.../uncore/kernel/helper)
+   Finished dev [unoptimized + debuginfo] target(s) in 3.19s
+    Running `target/debug/helper build`
+  Compiling kernel v0.4.6-pre (.../uncore/kernel)
+   Finished dev [unoptimized + debuginfo] target(s) in 4.85s
+  Compiling bootloader v0.10.12 (...)
+   Finished release [optimized + debuginfo] target(s) in 5.76s
+```
+
+The equivalent for this step with [Just] is
+
+``` CONSOLE
+$ just build [--help]
+  Compiling helper v1.0.0 (.../uncore/kernel/helper)
+   Finished dev [unoptimized + debuginfo] target(s) in 3.19s
+    Running `target/debug/helper build`
+  Compiling kernel v0.4.6-pre (.../uncore/kernel)
+   Finished dev [unoptimized + debuginfo] target(s) in 4.85s
+  Compiling bootloader v0.10.12 (...)
+   Finished release [optimized + debuginfo] target(s) in 5.76s
 ```
 
 ## Running in QEMU
@@ -71,20 +73,21 @@ $ ./scripts/build.sh [target]
 We can now use the kernel binary we built in the step above to run it in QEMU with UEFI. Using [Just] will automatically rebuilt the kernel - so you can just use `just run` to build and run the kernel. This has the additional advantage that you need not think about being on the most up-to-date build while developing.
 
 ``` CONSOLE
-$ just run
+$ just run [--help]
 ...
 ```
 
-Note how this requires you to have `qemu-system-x86_64` installed, and you must also have `ovmf` installed for UEFI to work. Executing the command above will open a new window. To achieve the same with a script, you can also run
+Note how this requires you to have `qemu-system-x86_64` installed, and you must also have `ovmf` installed for UEFI to work. To achieve the same without [Just], you can also run
 
 ``` CONSOLE
 $ pwd
 /uncore
-$ ./scripts/run_in_qemu.sh
-...
+$ source scripts/init.sh && set +e && pwd
+/uncore/kernel
+$ cargo run --package helper -- run [--help]
 ```
 
-Running these commands in your terminal will not open a new window unless you specify `graphical` as a parameter to [Just] or the `run_in_qemu.sh` script.
+Running these commands in your terminal will not open a new window unless you specify `graphical` as a parameter.
 
 [//]: # (Links)
 

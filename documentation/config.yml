@@ -20,6 +20,7 @@ nav:
   - Kernel Architecture:
       - Overview: architecture/overview.md
       - Bootstrapping: architecture/bootstrapping.md
+      - The Whole Workspace: architecture/workspace_members.md
   - Testing: testing.md
   - Community:
       - Overview: community/overview.md

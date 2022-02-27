@@ -1,11 +1,11 @@
 [package]
 name = "test_runner"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 workspace = "../"
 
 authors = ["The unCORE Kernel Community"]
-description = "unCORE Bootimage Creation"
+description = "unCORE Test Runner"
 documentation = "https://georglauterbach.github.io/uncore/edge/"
 license = "GPL-3.0"
 readme = "../../README.md"
@@ -24,7 +24,7 @@ keywords = [
 publish = false
 
 [dependencies]
-workspace_helper = { path = "../workspace_helper/", version = "*" }
+helper = { path = "../helper/", version = "*" }
 
 log = "0.4.14"
 runner-utils = "0.0.2"

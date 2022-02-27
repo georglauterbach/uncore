@@ -64,7 +64,7 @@ bootloader::entry_point!(kernel_test_main);
 
 fn kernel_test_main(_: &'static mut bootloader::BootInfo) -> !
 {
-	library::log::initialize(Some(log::Level::Trace));
+	library::log::initialize(None);
 	library::log::display_initial_information();
 
 	log_info!("This is the 'stack_overflow' test");

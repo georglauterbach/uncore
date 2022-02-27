@@ -131,17 +131,17 @@ mod fixed_block_size
 		/// allocator takes over.
 		fn allocate_with_fallback_allocator(&mut self, layout: alloc::Layout) -> *mut u8
 		{
-			if !layout.size() > MAX_BLOCK_SIZE {
-				log_trace!(
-					"Allocating kernel heap with fallback allocator (block size: {})",
-					layout.size()
-				);
-			} else {
-				log_trace!(
-					"Allocating kernel heap with fallback allocator (lazy \
-					 initialization)"
-				);
-			};
+			// if !layout.size() > MAX_BLOCK_SIZE {
+			// 	log_trace!(
+			// 		"Allocating kernel heap with fallback allocator (block size: {})",
+			// 		layout.size()
+			// 	);
+			// } else {
+			// 	log_trace!(
+			// 		"Allocating kernel heap with fallback allocator (lazy \
+			// 		 initialization)"
+			// 	);
+			// };
 
 			match self.fallback_allocator.allocate_first_fit(layout) {
 				Ok(ptr) => ptr.as_ptr(),
