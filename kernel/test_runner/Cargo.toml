@@ -24,7 +24,7 @@ keywords = [
 publish = false
 
 [dependencies]
-workspace_helper = { path = "../workspace_helper/", version = "*" }
+helper = { path = "../helper/", version = "*" }
 
 log = "0.4.14"
 runner-utils = "0.0.2"

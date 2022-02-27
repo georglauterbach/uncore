@@ -24,7 +24,7 @@ keywords = [
 publish = false
 
 [dependencies]
-workspace_helper = { path = "../workspace_helper/", version = "*" }
+helper = { path = "../helper/", version = "*" }
 
 bootloader-locator = "0.0.4"
 clap = { version = "3.0.14", features = ["derive"] }

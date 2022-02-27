@@ -56,7 +56,7 @@ mod arguments;
 /// ### Just `main`
 fn main()
 {
-	workspace_helper::logger::initialize(log::Level::Info);
+	helper::logger::initialize(log::Level::Info);
 	let arguments = arguments::Arguments::new();
 
 	architectures::link_with_bootloader(&arguments);

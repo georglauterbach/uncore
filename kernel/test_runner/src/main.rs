@@ -39,7 +39,7 @@ use std::{
 	time,
 };
 
-use workspace_helper::logger;
+use helper::logger;
 
 /// ### Compile Time Constant for Repository Root
 ///
