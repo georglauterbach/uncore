@@ -15,7 +15,6 @@ on: # yamllint disable-line rule:truthy
 defaults:
   run:
     shell: bash
-    working-directory: kernel
 
 jobs:
   linting:
@@ -39,7 +38,9 @@ jobs:
         run: rustup component add rust-src llvm-tools-preview
 
       - name: Run all kernel-related checks
-        run: cargo run --quiet --package helper -- check --is-ci -vv
+        run: >-
+          source '{{ROOT_DIRECTORY}}/scripts/init.sh'
+          && cargo run --quiet --package helper -- check --is-ci -vv
 
   unit-and-integration-tests:
     name: Run all unit- and integration-tests
@@ -67,4 +68,6 @@ jobs:
         run: qemu-system-x86_64 --version
 
       - name: Run `cargo test`
-        run: cargo run --quiet --package helper -- test --is-ci -vv
+        run: >-
+          source '{{ROOT_DIRECTORY}}/scripts/init.sh'
+          && cargo run --quiet --package helper -- test --is-ci -vv

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
+// see https://github.com/clap-rs/clap/blob/v3.1.2/examples/derive_ref/README.md
+// for the clap derive reference
+
 #[allow(clippy::missing_docs_in_private_items)]
 #[derive(clap::Parser, Debug)]
 #[clap(author, version, about, name = "unCORE Helper Binary")]
