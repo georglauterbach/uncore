@@ -33,7 +33,7 @@ Cloning into '.../uncore/scripts/libbash'...
 Submodule path 'scripts/libbash': checked out '...'
 ```
 
-Cloning submodules recursively is not needed and not wanted.
+Cloning submodules recursively is not needed and not desired.
 
 ## Git Flow
 

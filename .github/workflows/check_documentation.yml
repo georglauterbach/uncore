@@ -9,6 +9,10 @@ on: # yamllint disable-line rule:truthy
       - .github/workflows/documentation.yml
       - documentation/**
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   check-successful-build:
     name: Test if documentation can be build

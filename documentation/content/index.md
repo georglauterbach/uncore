@@ -37,7 +37,7 @@ uncore/
 ├── .github/        # GitHub's templates and CI workflows
 ├── documentation/  # full kernel documentation
 ├── kernel/         # kernel files including all Rust code
-└── scripts/        # holds all Bash scripts (building, running, administration, etc.)
+└── scripts/        # holds all Bash scripts (administration, setup, etc.)
 ```
 
 ### Tooling
