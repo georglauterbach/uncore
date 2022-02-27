@@ -114,7 +114,6 @@ map-physical-memory = true
 [workspace]
 
 members = [
-  "boot",
   "helper",
   "test_runner",
 ]

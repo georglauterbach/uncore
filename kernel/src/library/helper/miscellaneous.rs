@@ -24,6 +24,14 @@ const BUILD_TARGET: Option<&str> = option_env!("BUILD_TARGET");
 /// kernel was compiled.
 const COMPILATION_DATE_AND_TIME: Option<&str> = option_env!("COMPILATION_DATE_AND_TIME");
 
+/// ### Kernel Version
+///
+/// The `KERNEL_VERSION` variable contains the kernel version in the
+/// semantic versioning format, the git commit id the kernel was built
+/// with and the build date. If `KERNEL_VERSION` was not available
+/// during build-time, a default value is provided, namely "testing".
+const KERNEL_VERSION: Option<&str> = option_env!("KERNEL_VERSION");
+
 /// ### Rust Toolchain
 ///
 /// Holds the toolchain information that this version of the kernel
@@ -35,14 +43,6 @@ const RUST_TOOLCHAIN: Option<&str> = option_env!("RUST_TOOLCHAIN");
 /// This variable holds the compiler version that this version of the
 /// kernel (stored in `KERNEL_VERSION`) was compiled with.
 const RUSTC_VERSION: Option<&str> = option_env!("RUSTC_VERSION");
-
-/// ### Kernel Version
-///
-/// The `KERNEL_VERSION` variable contains the kernel version in the
-/// semantic versioning format, the git commit id the kernel was built
-/// with and the build date. If `KERNEL_VERSION` was not available
-/// during build-time, a default value is provided, namely "testing".
-const KERNEL_VERSION: Option<&str> = option_env!("KERNEL_VERSION");
 
 /// ### Static Kernel Information
 ///
