@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright 2022 The unCORE Kernel Organization
 
-use std::{env, process};
+use std::{
+	env,
+	process,
+};
 
 pub fn run(graphical: bool)
 {
@@ -11,7 +14,6 @@ pub fn run(graphical: bool)
 		"out/qemu".to_string()
 	};
 	let qemu_volume_directory = qemu_directory.clone() + "/kernel";
-
 
 	let mut qemu_arguments_one: Vec<&'static str> = vec![
 		// "-nodefaults",
@@ -27,8 +29,8 @@ pub fn run(graphical: bool)
 		"if=pflash,format=raw,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on",
 		"-device",
 		"isa-debug-exit,iobase=0xf4,iosize=0x04",
-		"-no-reboot"
-		];
+		"-no-reboot",
+	];
 
 	if graphical {
 		qemu_arguments_one.push("-vga");
@@ -41,14 +43,13 @@ pub fn run(graphical: bool)
 		qemu_arguments_one.push("stdio");
 		qemu_arguments_one.push("-display");
 		qemu_arguments_one.push("none");
-
 	}
 
 	let qemu_arguments_two = vec![
 		"-drive".to_string(),
 		format!("format=raw,file=fat:rw:{}", qemu_volume_directory),
 		"-debugcon".to_string(),
-		format!("file:{}/debugcon.txt", qemu_directory)
+		format!("file:{}/debugcon.txt", qemu_directory),
 	];
 
 	let exit_code = process::Command::new("qemu-system-x86_64")

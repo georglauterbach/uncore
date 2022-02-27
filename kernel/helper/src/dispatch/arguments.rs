@@ -9,7 +9,7 @@ pub struct Arguments
 	#[clap(short, long, default_value = "x86_64")]
 	pub target:    String,
 	#[clap(flatten)]
-	pub verbosity: clap_verbosity_flag::Verbosity,
+	pub verbosity: clap_verbosity_flag::Verbosity<clap_verbosity_flag::InfoLevel>,
 	#[clap(subcommand)]
 	command:       SubCommands,
 }
@@ -22,8 +22,9 @@ impl Arguments
 	{
 		match self.command {
 			SubCommands::Build => super::build::build(),
+			SubCommands::Check { is_ci } => super::test::check(is_ci),
 			SubCommands::Run { graphical } => super::run::run(graphical),
-			_ => panic!(),
+			SubCommands::Test { test, is_ci } => super::test::test(test, is_ci),
 		}
 	}
 }
@@ -32,14 +33,21 @@ impl Arguments
 enum SubCommands
 {
 	Build,
-	Check,
-	Run {
-		#[clap(short, long)]
-		graphical:     bool,
+	Check
+	{
+		#[clap(long)]
+		is_ci: bool,
+	},
+	Run
+	{
+		#[clap(long)]
+		graphical: bool,
 	},
 	Test
 	{
 		#[clap(long)]
-		test: String,
+		test:  Option<String>,
+		#[clap(long)]
+		is_ci: bool,
 	},
 }

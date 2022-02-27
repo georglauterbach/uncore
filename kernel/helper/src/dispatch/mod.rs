@@ -3,6 +3,5 @@
 
 pub mod arguments;
 pub mod build;
-pub mod environment;
 pub mod run;
 pub mod test;
