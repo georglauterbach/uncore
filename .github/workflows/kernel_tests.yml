@@ -39,7 +39,7 @@ jobs:
 
       - name: Run all kernel-related checks
         run: >-
-          source /scripts/init.sh
+          source scripts/init.sh
           && cargo run --quiet --package helper -- check --is-ci -vv
 
   unit-and-integration-tests:
