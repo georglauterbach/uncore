@@ -77,7 +77,7 @@ pub fn link_with_bootloader(arguments: &super::super::arguments::Arguments)
 
 	let exit_status = build_command
 		.status()
-		.expect("Build command did not produce a proper exit status");
+		.expect("Bootloader build command did not produce a proper exit status");
 	if !exit_status.success() {
 		eprintln!("Bootloader build failed");
 		process::exit(1);

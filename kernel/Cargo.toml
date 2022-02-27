@@ -115,8 +115,8 @@ map-physical-memory = true
 
 members = [
   "boot",
+  "helper",
   "test_runner",
-  "workspace_helper"
 ]
 
 # -----------------------------------------------
