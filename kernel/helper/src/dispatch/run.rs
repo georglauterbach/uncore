@@ -11,6 +11,8 @@ use std::{
 /// Runs the kernel image in QEMU.
 pub fn run(graphical: bool)
 {
+	log::debug!("Running unCORE in QEMU now");
+
 	let qemu_directory = if let Ok(directory) = env::var("QEMU_DIRECTORY") {
 		directory
 	} else {

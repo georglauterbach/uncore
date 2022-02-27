@@ -54,7 +54,7 @@ run *arguments: (build arguments)
 
 	source '{{ROOT_DIRECTORY}}/scripts/init.sh'
 	cargo run --quiet --package helper -- run {{arguments}}
-	
+
 	EXIT_CODE=${?}
 	[[ ${EXIT_CODE} -gt 1 ]] && exit $((EXIT_CODE - 1)) 
 	exit 0

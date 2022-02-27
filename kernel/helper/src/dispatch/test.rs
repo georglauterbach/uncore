@@ -91,11 +91,14 @@ pub fn test(test: Option<String>, is_ci: bool)
 
 	let command = if let Some(test) = test {
 		if test == "lib" {
+			log::info!("Running unit tests of lib.rs");
 			command.arg("--lib")
 		} else {
+			log::info!("Running integration test '{}'", test);
 			command.arg("--test").arg(test)
 		}
 	} else {
+		log::info!("Running all tests");
 		command.arg("--tests")
 	};
 

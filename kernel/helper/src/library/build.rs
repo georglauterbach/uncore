@@ -32,4 +32,6 @@ pub fn set_target(target: &String)
 		build_target
 	);
 	environment::set_kernel_binary(kernel_binary);
+
+	log::debug!("Adjusted target to {}", target);
 }

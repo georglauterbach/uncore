@@ -32,15 +32,14 @@ pub fn build()
 	};
 
 	log::debug!("Finished building the kernel");
-	log::debug!("Linking kernel with bootloader now");
 
 	bootloader::link(&None);
-
 	let bootloader_build_output = format!(
 		"{}/kernel/out/qemu/boot_output/boot-uefi-kernel.efi",
 		environment::get_root_directory().1
 	);
 
+	log::trace!("Copying kernel binary to correct location");
 	if !process::Command::new("cp")
 		.arg(&bootloader_build_output)
 		.arg(format!(
@@ -48,7 +47,7 @@ pub fn build()
 			environment::get_root_directory().1
 		))
 		.status()
-		.expect("Kernel build command did not produce a proper exit status")
+		.expect("Copy command did not produce a proper exit status")
 		.success()
 	{
 		log::error!(
@@ -57,6 +56,4 @@ pub fn build()
 		);
 		process::exit(1);
 	}
-
-	log::debug!("Created bootable kernel image(s)");
 }

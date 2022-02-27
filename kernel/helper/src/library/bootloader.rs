@@ -14,6 +14,8 @@ pub fn link(test: &Option<String>)
 		process,
 	};
 
+	log::debug!("Linking with bootloader now");
+
 	let root_directory = environment::get_root_directory().1;
 	let root_directory = path::Path::new(&root_directory);
 
@@ -71,9 +73,11 @@ pub fn link(test: &Option<String>)
 
 	let exit_status = build_command
 		.status()
-		.expect("Bootloader build command did not produce a proper exit status");
+		.expect("Bootloader link command did not produce a proper exit status");
 	if !exit_status.success() {
 		eprintln!("Bootloader build failed");
 		process::exit(1);
 	}
+
+	log::debug!("Created bootable kernel image(s)");
 }
