@@ -1,3 +1,15 @@
+---
+tags:
+  - home
+  - index
+  - introduction
+  - getting started
+  - vision
+  - goals
+  - principles
+  - architecture
+---
+
 # The _unCORE_ Operating System Kernel
 
 ## Introduction
@@ -14,7 +26,7 @@ Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_
 
 ### Overview
 
-Please read the full [`README`](https://github.com/georglauterbach/uncore/blob/master/README.md) of this project carefully. We expect you to have _some_ experience with _Rust_. You need not be an expert, but we require you to understand the basics. We highly recommend you to read the [official Rust book].
+Please read the full [`README`](https://github.com/georglauterbach/uncore/blob/master/README.md) of this project carefully. We expect you to have _some_ experience with _Rust_. You need not be an expert, but we require you to understand the basics. We highly recommend you to read the [official Rust book]. For proper development, and especially when it comes to cloning, read [the development guidelines][docs::development].
 
 ### Repository Structure
 
@@ -25,7 +37,7 @@ uncore/
 ├── .github/        # GitHub's templates and CI workflows
 ├── documentation/  # full kernel documentation
 ├── kernel/         # kernel files including all Rust code
-└── scripts/        # holds all Bash scripts (building, running, administration, etc.)
+└── scripts/        # holds all Bash scripts (administration, setup, etc.)
 ```
 
 ### Tooling

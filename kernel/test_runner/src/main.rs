@@ -16,13 +16,18 @@
 // Clippy lint target four. Enable lints for the cargo manifest
 // file, a.k.a. Cargo.toml.
 #![deny(clippy::cargo)]
+#![allow(clippy::multiple_crate_versions)]
 // Lint target for code documentation. This lint enforces code
 // documentation on every code item.
 #![deny(missing_docs)]
 #![deny(clippy::missing_docs_in_private_items)]
 // Lint target for code documentation. When running `rustdoc`,
 // show an error when using broken links.
-#![deny(rustdoc::broken_intra_doc_links)]
+#![deny(rustdoc::all)]
+#![allow(rustdoc::missing_doc_code_examples)]
+// All other, generic lint targets that were not
+// covered previously
+#![deny(missing_debug_implementations)]
 
 //! # The `unCORE` Test Runner Integration
 //!
@@ -39,40 +44,55 @@ use std::{
 	time,
 };
 
-use workspace_helper::logger;
-
-/// ### Compile Time Constant for Repository Root
-///
-/// When running the test runner, it is assumed this variable is set.
-/// If not, we try to fall back to using `pwd`.
-const ROOT_DIRECTORY: Option<&str> = option_env!("ROOT_DIRECTORY");
+use helper::{
+	bootloader,
+	environment,
+	logger,
+};
 
 /// ### Individual Test Run Timeout
 ///
 /// The time **in seconds** any individual test has before being
-/// terminated.
+/// terminated. This does not apply to the kernel main binary.
 const TIMEOUT: u64 = 30;
 
-/// # Entrypoint
+/// ### Entrypoint
 ///
 /// This is a simple, nice, beautiful `main` function, right?
 fn main()
 {
-	logger::initialize(log::Level::Info);
+	logger::initialize(None);
 	log::info!("Started test runner");
 
-	// skip executable name
-	let mut arguments = std::env::args().skip(1);
-
-	let kernel_test_binary_path_string = arguments.next().map_or_else(
+	let kernel_test_binary_path_string = std::env::args().nth(1).map_or_else(
 		|| {
 			log::error!("No path to the kernel binary provided.");
 			process::exit(1);
 		},
 		String::from,
 	);
-
 	let kernel_test_binary_path = path::PathBuf::from(kernel_test_binary_path_string.clone());
+
+	environment::set_build_target_path(
+		#[allow(clippy::option_env_unwrap)]
+		option_env!("BUILD_TARGET_PATH")
+			.expect("Expected environment variable 'BUILD_TARGET_PATH' to be set")
+			.to_string(),
+	);
+	environment::set_kernel_binary(
+		#[allow(clippy::option_env_unwrap)]
+		option_env!("KERNEL_BINARY")
+			.expect("Expected environment variable 'KERNEL_BINARY' to be set")
+			.to_string(),
+	);
+	environment::set_log_level(
+		#[allow(clippy::option_env_unwrap)]
+		option_env!("LOG_LEVEL")
+			.expect("Expected environment variable 'LOG_LEVEL' to be set")
+			.to_string(),
+	);
+
+	// miscellaneous checks and adjustments (path canonicalization, etc.)
 	let kernel_test_binary_path = if let Ok(path) = kernel_test_binary_path.canonicalize() {
 		path
 	} else {
@@ -99,76 +119,33 @@ fn main()
 		},
 	);
 
-	let root_directory = ROOT_DIRECTORY.map_or_else(
-		|| {
-			if let Ok(handle) = process::Command::new("pwd").output() {
-				if let Ok(path) = String::from_utf8(handle.stdout) {
-					path
-				} else {
-					log::error!("Could not parse `pwd` output");
-					process::exit(1);
-				}
-			} else {
-				log::error!("Could not run `pwd` and ROOT_DIRECTORY was not given");
-				process::exit(1);
-			}
-		},
-		String::from,
+	// linking tets binary with bootloader here
+	bootloader::link(&Some(kernel_test_binary_path_string.to_string()));
+
+	let bootloader_build_output = format!(
+		"{}/kernel/out/tests/boot_output/boot-uefi-{}.efi",
+		environment::get_root_directory().1,
+		kernel_test_binary_name
 	);
 
-	link_with_bootloader(
-		&root_directory,
-		&kernel_test_binary_path_string,
-		kernel_test_binary_name,
-	);
-
-	if kernel_test_binary_path_string.contains("uncore/debug/deps/kernel-") {
-		run_test(&root_directory, 120);
-	} else {
-		run_test(&root_directory, TIMEOUT);
-	}
-}
-
-/// ### Build a Bootable Test Binary
-///
-/// The kernel test binary needs to be linked with the bootloader before we can execute it
-/// in QEMU.
-fn link_with_bootloader(
-	root_directory: &str,
-	kernel_test_binary_path_string: &str,
-	kernel_test_binary_name: &str,
-)
-{
-	log::debug!("Linking with bootloader now");
-
-	let mut boot_build_command = process::Command::new(env!("CARGO"));
-	boot_build_command.current_dir(root_directory.to_string() + "/kernel/");
-	boot_build_command
-		.arg("run")
-		.arg("--package")
-		.arg("boot")
-		.arg("--quiet")
-		.arg("--");
-	boot_build_command
-		.arg("--test")
-		.arg(kernel_test_binary_path_string);
-	if boot_build_command.status().is_err() {
-		log::error!("Could not link the kernel test binary to the bootloader");
-		process::exit(1);
-	}
-
-	if process::Command::new("cp")
-		.current_dir(root_directory)
-		.arg(root_directory.to_string()
-			+ "/kernel/out/tests/boot_output/boot-uefi-"
-			+ kernel_test_binary_name
-			+ ".efi")
-		.arg("kernel/out/tests/kernel/EFI/BOOT/BOOTX64.EFI")
+	if !process::Command::new("cp")
+		.arg(bootloader_build_output)
+		.arg(format!(
+			"{}/kernel/out/tests/kernel/EFI/BOOT/BOOTX64.EFI",
+			environment::get_root_directory().1
+		))
 		.status()
-		.is_err()
+		.expect("Kernel test build command did not produce a proper exit status")
+		.success()
 	{
 		log::error!("Could not copy binary to test location");
 		process::exit(1);
+	}
+
+	if kernel_test_binary_path_string.contains("uncore/debug/deps/kernel-") {
+		run_test(120);
+	} else {
+		run_test(TIMEOUT);
 	}
 }
 
@@ -176,13 +153,13 @@ fn link_with_bootloader(
 ///
 /// This function runs the test binary in QEMU properly by calling the `run_in_qemu.sh`
 /// script with the correct environment and with proper timeout.
-fn run_test(root_directory: &str, timeout: u64)
+fn run_test(timeout: u64)
 {
 	log::debug!("Test runner runs test now");
-	let mut run_command = process::Command::new("bash");
+
+	let mut run_command = process::Command::new(env!("CARGO"));
 	run_command
-		.current_dir(root_directory)
-		.arg("scripts/run_in_qemu.sh")
+		.args(&["run", "--package", "helper", "--", "run"])
 		.env("QEMU_DIRECTORY", "out/tests");
 
 	match runner_utils::run_with_timeout(&mut run_command, time::Duration::from_secs(timeout)) {

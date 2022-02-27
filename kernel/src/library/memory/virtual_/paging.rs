@@ -2,6 +2,10 @@
 // Copyright 2022 The unCORE Kernel Organization
 
 use crate::prelude::*;
+use ::core::{
+	cmp,
+	ops,
+};
 
 /// ### Representation of a Page
 ///
@@ -39,29 +43,27 @@ impl<S: memory::ChunkSize> Page<S>
 	pub fn start(&self) -> memory::VirtualAddress { self.start_address }
 }
 
-impl<S: memory::ChunkSize> ::core::cmp::PartialEq for Page<S>
+impl<S: memory::ChunkSize> cmp::PartialEq for Page<S>
 {
 	fn eq(&self, other: &Self) -> bool { self.start_address == other.start_address }
 }
 
-impl<S: memory::ChunkSize> ::core::cmp::Eq for Page<S> {}
+impl<S: memory::ChunkSize> cmp::Eq for Page<S> {}
 
-impl<S: memory::ChunkSize> ::core::cmp::PartialOrd for Page<S>
+impl<S: memory::ChunkSize> cmp::PartialOrd for Page<S>
 {
 	fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering>
 	{
-		self.start_address.partial_cmp(&other.start_address)
+		self.start().partial_cmp(&other.start_address)
 	}
 }
 
-impl<S: memory::ChunkSize> ::core::cmp::Ord for Page<S>
+impl<S: memory::ChunkSize> cmp::Ord for Page<S>
 {
 	fn cmp(&self, other: &Self) -> core::cmp::Ordering { self.start().cmp(&other.start()) }
 }
 
-// TODO pointer widths for pages
-
-impl<S: memory::ChunkSize> ::core::ops::Add<u64> for Page<S>
+impl<S: memory::ChunkSize> ops::Add<u64> for Page<S>
 {
 	type Output = Self;
 
@@ -69,7 +71,7 @@ impl<S: memory::ChunkSize> ::core::ops::Add<u64> for Page<S>
 	fn add(self, rhs: u64) -> Self::Output { Self::new(self.start() + rhs as usize * S::SIZE) }
 }
 
-impl<S: memory::ChunkSize> ::core::ops::AddAssign<u64> for Page<S>
+impl<S: memory::ChunkSize> ops::AddAssign<u64> for Page<S>
 {
 	fn add_assign(&mut self, rhs: u64) { *self = *self + rhs; }
 }
@@ -83,7 +85,30 @@ pub trait PageAllocation
 	/// ### Allocate a Single Page
 	///
 	/// The method with which a single page is allocated.
-	fn allocate_page(&mut self, address: memory::VirtualAddress);
+	///
+	/// #### Errors
+	///
+	/// Page allocation can suffer from various issues, such as address alignment,
+	/// issues during frame allocation or mapping problems. These errors are
+	/// propagated to the caller.
+	fn allocate_page(
+		&mut self,
+		address: memory::VirtualAddress,
+	) -> Result<(), kernel_types::errors::VirtualMemory>;
+
+	/// ### Deallocate a Single Page
+	///
+	/// This function deallocates a single page, effectively removing a page from the
+	/// page table and freeing (a / multiple) frame(s).
+	///
+	/// #### Errors
+	///
+	/// If the address was not actually mapped, the appropriate error code
+	/// [`kernel_types::errors::VirtualMemory::PageDeallocationPageWasNotMapped`].
+	fn deallocate_page(
+		&mut self,
+		address: memory::VirtualAddress,
+	) -> Result<(), kernel_types::errors::VirtualMemory>;
 }
 
 /// ### Representation of Multiple Pages
@@ -208,33 +233,90 @@ impl<S: memory::ChunkSize> Iterator for PageRangeIntoIterator<S>
 /// ### Allocate a Single Page
 ///
 /// This function takes a virtual address and allocates a single page for it.
-pub fn allocate_page(address: memory::VirtualAddress)
+///
+/// #### Errors
+///
+/// If there is an issue during allocation, it is propagated upwards to the caller of this
+/// function who can then decide what to do. The possible errors can be seen in
+/// [`crate::prelude::kernel_types::errors::VirtualMemory`].
+pub fn allocate_page(address: memory::VirtualAddress) -> Result<(), kernel_types::errors::VirtualMemory>
 {
 	unsafe { super::KERNEL_PAGE_TABLE.lock() }
 		.get_mut()
 		.expect("Could not acquire kernel page table")
-		.allocate_page(address);
+		.allocate_page(address)
+}
+
+/// ### Deallocate a Single Page
+///
+/// This function takes a virtual address and deallocates a single page for it.
+///
+/// #### Errors
+///
+/// If there is an issue during deallocation, it is propagated upwards to the caller of
+/// this function who can then decide what to do. The possible errors can be seen in
+/// [`crate::prelude::kernel_types::errors::VirtualMemory`].
+pub fn deallocate_page(address: memory::VirtualAddress) -> Result<(), kernel_types::errors::VirtualMemory>
+{
+	unsafe { super::KERNEL_PAGE_TABLE.lock() }
+		.get_mut()
+		.expect("Could not acquire kernel page table")
+		.deallocate_page(address)
 }
 
 /// ### Allocate Multiple Pages At Once
 ///
 /// This function allocates a page for the virtual address given and `page_count` pages
-/// afterwards.
-pub fn allocate_range(start: impl Into<memory::VirtualAddress>, page_count: usize) -> usize
+/// afterwards. Returns the size of the range in bytes.
+///
+/// #### Errors
+///
+/// If there is an issue during allocation, it is propagated upwards to the caller of this
+/// function who can then decide what to do. The possible errors can be seen in
+/// [`crate::prelude::kernel_types::errors::VirtualMemory`].
+pub fn allocate_range(
+	start: impl Into<memory::VirtualAddress>,
+	page_count: usize,
+) -> Result<memory::paging::PageRange, kernel_types::errors::VirtualMemory>
 {
 	let address = start.into();
-	log_debug!(
+	log_trace!(
 		"Allocating range at {:?} for {} default-sized pages",
 		address,
 		page_count
 	);
 
 	let page_range: PageRange<memory::ChunkSizeDefault> = PageRange::new(Page::new(address), page_count);
-
-	let size = page_range.size_in_bytes();
 	for page in page_range {
-		allocate_page(page.start());
+		allocate_page(page.start())?;
 	}
 
-	size
+	Ok(page_range)
+}
+
+/// ### Deallocate Multiple Pages At Once
+///
+/// This function deallocates a page for the virtual address given and `page_count` pages
+/// afterwards.
+///
+/// #### Errors
+///
+/// If there is an issue during deallocation, it is propagated upwards to the caller of
+/// this function who can then decide what to do. The possible errors can be seen in
+/// [`crate::prelude::kernel_types::errors::VirtualMemory`].
+pub fn _deallocate_range(
+	page_range: memory::paging::PageRange,
+) -> Result<(), kernel_types::errors::VirtualMemory>
+{
+	log_trace!(
+		"Deallocating range at {:?} and {} more page",
+		page_range.start(),
+		page_range.page_count() - 1
+	);
+
+	for page in page_range {
+		deallocate_page(page.start())?;
+	}
+
+	Ok(())
 }

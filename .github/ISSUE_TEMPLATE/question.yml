@@ -1,0 +1,17 @@
+---
+name: Question
+description: As a question
+title: '[QUESTION] '
+labels:
+  - kind/question
+  - priority/low
+
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: State your question
+      placeholder: Is P = NP?
+      render: Markdown
+    validations:
+      required: true

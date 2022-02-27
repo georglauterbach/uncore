@@ -95,6 +95,13 @@ mod virtual_
 		fn add(self, rhs: u64) -> Self::Output { Self::new(self.0 + rhs as usize) }
 	}
 
+	impl ::core::ops::Add<u32> for Address
+	{
+		type Output = Self;
+
+		fn add(self, rhs: u32) -> Self::Output { Self::new(self.0 + rhs as usize) }
+	}
+
 	impl ::core::ops::Sub for Address
 	{
 		type Output = Self;
@@ -118,6 +125,13 @@ mod virtual_
 		fn sub(self, rhs: u64) -> Self::Output { Self::new(self.0 - rhs as usize) }
 	}
 
+	impl ::core::ops::Sub<u32> for Address
+	{
+		type Output = Self;
+
+		fn sub(self, rhs: u32) -> Self::Output { Self::new(self.0 - rhs as usize) }
+	}
+
 	impl ::core::ops::AddAssign for Address
 	{
 		fn add_assign(&mut self, rhs: Self) { self.0 += rhs.0; }
@@ -133,6 +147,11 @@ mod virtual_
 	{
 		#[allow(clippy::cast_possible_truncation)]
 		fn add_assign(&mut self, rhs: u64) { self.0 += rhs as usize; }
+	}
+
+	impl ::core::ops::AddAssign<u32> for Address
+	{
+		fn add_assign(&mut self, rhs: u32) { self.0 += rhs as usize; }
 	}
 
 	impl ::core::ops::SubAssign for Address
@@ -152,6 +171,11 @@ mod virtual_
 		fn sub_assign(&mut self, rhs: u64) { self.0 -= rhs as usize; }
 	}
 
+	impl ::core::ops::SubAssign<u32> for Address
+	{
+		fn sub_assign(&mut self, rhs: u32) { self.0 -= rhs as usize; }
+	}
+
 	impl From<usize> for Address
 	{
 		fn from(address_value: usize) -> Self { Self::new(address_value) }
@@ -164,6 +188,12 @@ mod virtual_
 		fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
 	}
 
+	impl From<u32> for Address
+	{
+		#[allow(clippy::cast_possible_truncation)]
+		fn from(address_value: u32) -> Self { Self::new(address_value as usize) }
+	}
+
 	impl From<Address> for usize
 	{
 		fn from(address: Address) -> Self { address.0 }
@@ -172,6 +202,13 @@ mod virtual_
 	#[cfg(target_pointer_width = "64")]
 	impl From<Address> for u64
 	{
+		fn from(address: Address) -> Self { address.0 as Self }
+	}
+
+	#[cfg(target_pointer_width = "32")]
+	impl From<Address> for u32
+	{
+		#[allow(clippy::cast_possible_truncation)]
 		fn from(address: Address) -> Self { address.0 as Self }
 	}
 }
@@ -268,6 +305,13 @@ mod physical
 		fn add(self, rhs: u64) -> Self::Output { Self::new(self.0 + rhs as usize) }
 	}
 
+	impl ::core::ops::Add<u32> for Address
+	{
+		type Output = Self;
+
+		fn add(self, rhs: u32) -> Self::Output { Self::new(self.0 + rhs as usize) }
+	}
+
 	impl ::core::ops::Sub for Address
 	{
 		type Output = Self;
@@ -291,6 +335,13 @@ mod physical
 		fn sub(self, rhs: u64) -> Self::Output { Self::new(self.0 - rhs as usize) }
 	}
 
+	impl ::core::ops::Sub<u32> for Address
+	{
+		type Output = Self;
+
+		fn sub(self, rhs: u32) -> Self::Output { Self::new(self.0 - rhs as usize) }
+	}
+
 	impl ::core::ops::AddAssign for Address
 	{
 		fn add_assign(&mut self, rhs: Self) { self.0 += rhs.0; }
@@ -306,6 +357,11 @@ mod physical
 	{
 		#[allow(clippy::cast_possible_truncation)]
 		fn add_assign(&mut self, rhs: u64) { self.0 += rhs as usize; }
+	}
+
+	impl ::core::ops::AddAssign<u32> for Address
+	{
+		fn add_assign(&mut self, rhs: u32) { self.0 += rhs as usize; }
 	}
 
 	impl ::core::ops::SubAssign for Address
@@ -325,6 +381,11 @@ mod physical
 		fn sub_assign(&mut self, rhs: u64) { self.0 -= rhs as usize; }
 	}
 
+	impl ::core::ops::SubAssign<u32> for Address
+	{
+		fn sub_assign(&mut self, rhs: u32) { self.0 -= rhs as usize; }
+	}
+
 	impl From<usize> for Address
 	{
 		fn from(address_value: usize) -> Self { Self::new(address_value) }
@@ -337,6 +398,12 @@ mod physical
 		fn from(address_value: u64) -> Self { Self::new(address_value as usize) }
 	}
 
+	impl From<u32> for Address
+	{
+		#[allow(clippy::cast_possible_truncation)]
+		fn from(address_value: u32) -> Self { Self::new(address_value as usize) }
+	}
+
 	impl From<Address> for usize
 	{
 		fn from(address: Address) -> Self { address.0 }
@@ -345,6 +412,13 @@ mod physical
 	#[cfg(target_pointer_width = "64")]
 	impl From<Address> for u64
 	{
+		fn from(address: Address) -> Self { address.0 as Self }
+	}
+
+	#[cfg(target_pointer_width = "32")]
+	impl From<Address> for u32
+	{
+		#[allow(clippy::cast_possible_truncation)]
 		fn from(address: Address) -> Self { address.0 as Self }
 	}
 }

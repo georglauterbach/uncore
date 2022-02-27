@@ -203,7 +203,7 @@ pub(super) mod handlers
 			x86_64::registers::control::Cr2::read(),
 			error_code
 		);
-		unimplemented!();
+		todo!("page fault handling");
 	}
 
 	/// ### CPU Exception - Security

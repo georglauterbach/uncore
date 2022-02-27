@@ -6,30 +6,27 @@
 /// This function links the kernel binary with the `x86_64` bootloader after the kernel
 /// was compiled. The bootloader crate can be found under
 /// <https://github.com/rust-osdev/bootloader>. It uses a custom linker script for ELF layout, etc.
-pub fn link_with_bootloader(arguments: &super::super::arguments::Arguments)
+pub fn link(test: &Option<String>)
 {
+	use super::environment;
 	use ::std::{
 		path,
 		process,
 	};
 
-	let root_directory = crate::ROOT_DIRECTORY.expect("Environment variable 'ROOT_DIRECTORY' is not set");
-	let root_directory = path::Path::new(root_directory);
+	log::debug!("Linking with bootloader now");
+
+	let root_directory = environment::get_root_directory().1;
+	let root_directory = path::Path::new(&root_directory);
 
 	// path to the bootloader code somewhere on disk
 	let bootloader_manifest = bootloader_locator::locate_bootloader("bootloader")
 		.expect("Could not locate bootloader manifest");
 
 	// path to the actual kernel binary
-	let kernel_binary = arguments.test.clone().map_or_else(
-		|| {
-			String::from(
-				crate::KERNEL_BINARY
-					.expect("Environment variable 'KERNEL_BINARY' is not set"),
-			)
-		},
-		|test| test,
-	);
+	let kernel_binary = test
+		.clone()
+		.map_or_else(|| environment::get_kernel_binary().1, |test| test);
 
 	let kernel_binary = path::Path::new(&kernel_binary)
 		.canonicalize()
@@ -50,7 +47,7 @@ pub fn link_with_bootloader(arguments: &super::super::arguments::Arguments)
 	let boot_build_target_directory = kernel_directory.join("target");
 
 	// place the resulting disk image next to our kernel binary
-	let disk_image_output_directory = if arguments.test.is_some() {
+	let disk_image_output_directory = if test.is_some() {
 		root_directory.join("kernel/out/tests/boot_output")
 	} else {
 		root_directory.join("kernel/out/qemu/boot_output")
@@ -68,7 +65,6 @@ pub fn link_with_bootloader(arguments: &super::super::arguments::Arguments)
 		.arg("--target-dir")
 		.arg(&boot_build_target_directory);
 	build_command.arg("--out-dir").arg(&disk_image_output_directory);
-	build_command.arg("--quiet");
 
 	let bootloader_directory = bootloader_manifest
 		.parent()
@@ -77,9 +73,11 @@ pub fn link_with_bootloader(arguments: &super::super::arguments::Arguments)
 
 	let exit_status = build_command
 		.status()
-		.expect("Build command did not produce a proper exit status");
+		.expect("Bootloader link command did not produce a proper exit status");
 	if !exit_status.success() {
 		eprintln!("Bootloader build failed");
 		process::exit(1);
 	}
+
+	log::debug!("Created bootable kernel image(s)");
 }

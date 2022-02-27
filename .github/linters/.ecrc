@@ -4,7 +4,11 @@
   "IgnoreDefaults": false,
   "SpacesAftertabs": true,
   "NoColor": false,
-  "Exclude": ["\\.xcf$", "\\.md$"],
+  "Exclude": [
+    "\\.xcf$",
+    "\\.md$",
+    "^\\.gitmodules$"
+  ],
   "AllowedContentTypes": [],
   "PassedFiles": [],
   "Disable": {

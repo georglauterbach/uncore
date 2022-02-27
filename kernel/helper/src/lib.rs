@@ -23,17 +23,25 @@
 #![deny(clippy::missing_docs_in_private_items)]
 // Lint target for code documentation. When running `rustdoc`,
 // show an error when using broken links.
-#![deny(rustdoc::broken_intra_doc_links)]
+#![deny(rustdoc::all)]
+#![allow(rustdoc::missing_doc_code_examples)]
+// All other, generic lint targets that were not
+// covered previously
+#![deny(missing_debug_implementations)]
 
-//! The `unCORE` Workspace-Commons Library
+//! The `unCORE` Workspace Commons Library
 //!
 //! This workspace member provides frequently used functionality for the whole project
 //! except the kernel itself, such as logging.
 
-// ? MODULES
-// ? ---------------------------------------------------------------------
-
-/// ## Provides Logging Functionality
+/// ## Module That Contains All Other Modules
 ///
-/// A shameless copy of the kernel logging implementation.
-pub mod logger;
+/// This module contains all the other modules fot the library for sanity's sake.
+mod library;
+
+pub use library::{
+	bootloader,
+	build,
+	environment,
+	logger,
+};

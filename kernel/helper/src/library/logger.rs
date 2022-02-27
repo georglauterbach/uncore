@@ -9,8 +9,8 @@ pub static LOGGER: Logger = Logger;
 
 /// ## The Kernel Log Level from the Environment
 ///
-/// This variable has a value if the kernel was executed in an environment where the
-/// `LOG_LEVEL` environment variable was set.
+/// This variable has a value if the kernel was executed in an environment where
+/// the `LOG_LEVEL` environment variable was set.
 const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
 
 /// ### The Main Test Runner Logger
@@ -18,40 +18,61 @@ const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
 /// This structure holds associated function that provide logging. The
 /// [`log::Log`] trait is implemented for this structure.
 #[allow(clippy::module_name_repetitions)]
+#[derive(Debug)]
 pub struct Logger;
 
 impl Logger
 {
 	/// ### Parse [`LOG_LEVEL`]
 	///
-	/// Check if the environment variable `LOG_LEVEL` is set and try to parse it.
-	/// Returns [`None`] the string could not be parsed or if the environment variable
-	/// is not present.
-	fn try_from_str() -> Option<log::Level>
+	/// Check if the environment variable `LOG_LEVEL` is set and try to parse
+	/// it. Returns [`log::Level::Info`] as the default (if the environment
+	/// variable is not present or when the `LOG_LEVEL` variables contains
+	/// invalid contents).
+	fn from_str() -> log::Level
 	{
-		LOG_LEVEL.and_then(|log_level| match log_level {
-			"err" => Some(log::Level::Error),
-			"war" => Some(log::Level::Warn),
-			"inf" => Some(log::Level::Info),
-			"deb" => Some(log::Level::Debug),
-			"tra" => Some(log::Level::Trace),
-			_ => None,
-		})
+		LOG_LEVEL.map_or_else(
+			|| log::Level::Info,
+			|log_level| match log_level {
+				"err" => log::Level::Error,
+				"war" => log::Level::Warn,
+				"deb" => log::Level::Debug,
+				"tra" => log::Level::Trace,
+				_ => log::Level::Info,
+			},
+		)
+	}
+
+	/// ### Convert [`log::Level`] to [`String`]
+	///
+	/// Takes a [`log::Level`] variant and converts it accordingly to a [`String`].
+	/// This is basically the inverse of [`Logger::from_str`].
+	#[must_use]
+	pub fn level_to_string(level: &log::Level) -> String
+	{
+		match level {
+			log::Level::Error => "err",
+			log::Level::Warn => "war",
+			log::Level::Info => "inf",
+			log::Level::Debug => "deb",
+			log::Level::Trace => "tra",
+		}
+		.to_string()
 	}
 
 	/// ### Set the Log Level
 	///
-	/// This function takes care of setting the correct log level.
-	fn set_log_level(log_level: log::Level)
+	/// This function takes care of setting the correct log level. If [`None`]
+	/// is provided, the "fallback" implementation [`Logger::from_str`] is
+	/// used.
+	fn set_log_level(log_level: Option<log::Level>)
 	{
-		Self::try_from_str().map_or_else(
-			|| {
-				log::set_max_level(log_level.to_level_filter());
-			},
-			|log_level| {
-				log::set_max_level(log_level.to_level_filter());
-			},
-		);
+		if let Some(log_level) = log_level {
+			log::set_max_level(log_level.to_level_filter());
+			return;
+		}
+
+		log::set_max_level(Self::from_str().to_level_filter());
 	}
 }
 
@@ -96,8 +117,9 @@ impl log::Log for Logger
 /// ### Show Initial Information
 ///
 /// This function sets the log level and displays version and
-/// bootloader information.
-pub fn initialize(log_level: log::Level)
+/// bootloader information. The default log level chosen if [`None`] is provided
+/// is "Info".
+pub fn initialize(log_level: Option<log::Level>)
 {
 	Logger::set_log_level(log_level);
 	log::set_logger(&LOGGER).expect("Log should not have already been set");

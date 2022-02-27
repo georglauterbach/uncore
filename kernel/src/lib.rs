@@ -28,7 +28,11 @@
 #![deny(clippy::missing_docs_in_private_items)]
 // Lint target for code documentation. When running `rustdoc`,
 // show an error when using broken links.
-#![deny(rustdoc::broken_intra_doc_links)]
+#![deny(rustdoc::all)]
+#![allow(rustdoc::missing_doc_code_examples)]
+// All other, generic lint targets that were not
+// covered previously
+#![deny(missing_debug_implementations)]
 // Use custom test runners. Since we cannot use the standard
 // library, we have to use our own test framework.
 #![feature(custom_test_frameworks)]
@@ -105,7 +109,7 @@ bootloader::entry_point!(library::architectures::kernel_main);
 /// This is the architecture-independent main function which handles kernel setup.
 pub(crate) fn kernel_main(boot_information: &boot::Information) -> !
 {
-	library::log::initialize(Some(log::Level::Trace));
+	library::log::initialize(None);
 	library::log::display_initial_information();
 
 	prelude::log_trace!("Bootloader information:\n\n{:#?}\n", boot_information);
