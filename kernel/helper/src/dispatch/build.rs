@@ -10,7 +10,10 @@ use std::{
 	process,
 };
 
-pub(crate) fn build()
+/// ### Build `unCORE`
+///
+/// Builds the kernel image and links it with the bootloader.
+pub fn build()
 {
 	log::debug!("Starting kernel build process");
 
@@ -19,7 +22,7 @@ pub(crate) fn build()
 		.arg("--target")
 		.arg(environment::get_build_target_path().1)
 		.args(environment::KERNEL_BUILD_FLAGS)
-		.envs(environment::kernel_environment())
+		.envs(environment::get_all_environment_variables())
 		.status()
 		.expect("Kernel build command did not produce a proper exit status")
 		.success()
@@ -31,7 +34,7 @@ pub(crate) fn build()
 	log::debug!("Finished building the kernel");
 	log::debug!("Linking kernel with bootloader now");
 
-	bootloader::link_with_bootloader(None);
+	bootloader::link(&None);
 
 	let bootloader_build_output = format!(
 		"{}/kernel/out/qemu/boot_output/boot-uefi-kernel.efi",

@@ -6,7 +6,7 @@
 /// This function links the kernel binary with the `x86_64` bootloader after the kernel
 /// was compiled. The bootloader crate can be found under
 /// <https://github.com/rust-osdev/bootloader>. It uses a custom linker script for ELF layout, etc.
-pub fn link_with_bootloader(test: Option<String>)
+pub fn link(test: &Option<String>)
 {
 	use super::environment;
 	use ::std::{

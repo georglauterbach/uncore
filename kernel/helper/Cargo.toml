@@ -1,11 +1,11 @@
 [package]
 name = "helper"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 workspace = "../"
 
 authors = ["The unCORE Kernel Community"]
-description = "unCORE Bootimage Creation"
+description = "unCORE helper binary to wrap building, runnign and testing"
 documentation = "https://georglauterbach.github.io/uncore/edge/"
 license = "GPL-3.0"
 readme = "../../README.md"

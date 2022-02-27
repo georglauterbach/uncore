@@ -18,6 +18,7 @@ const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
 /// This structure holds associated function that provide logging. The
 /// [`log::Log`] trait is implemented for this structure.
 #[allow(clippy::module_name_repetitions)]
+#[derive(Debug)]
 pub struct Logger;
 
 impl Logger
@@ -42,6 +43,11 @@ impl Logger
 		)
 	}
 
+	/// ### Convert [`log::Level`] to [`String`]
+	///
+	/// Takes a [`log::Level`] variant and converts it accordingly to a [`String`].
+	/// This is basically the inverse of [`Logger::from_str`].
+	#[must_use]
 	pub fn level_to_string(level: &log::Level) -> String
 	{
 		match level {

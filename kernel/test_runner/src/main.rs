@@ -64,7 +64,7 @@ fn main()
 	logger::initialize(None);
 	log::info!("Started test runner");
 
-	let kernel_test_binary_path_string = std::env::args().skip(1).next().map_or_else(
+	let kernel_test_binary_path_string = std::env::args().nth(1).map_or_else(
 		|| {
 			log::error!("No path to the kernel binary provided.");
 			process::exit(1);
@@ -74,16 +74,19 @@ fn main()
 	let kernel_test_binary_path = path::PathBuf::from(kernel_test_binary_path_string.clone());
 
 	environment::set_build_target_path(
+		#[allow(clippy::option_env_unwrap)]
 		option_env!("BUILD_TARGET_PATH")
 			.expect("Expected environment variable 'BUILD_TARGET_PATH' to be set")
 			.to_string(),
 	);
 	environment::set_kernel_binary(
+		#[allow(clippy::option_env_unwrap)]
 		option_env!("KERNEL_BINARY")
 			.expect("Expected environment variable 'KERNEL_BINARY' to be set")
 			.to_string(),
 	);
 	environment::set_log_level(
+		#[allow(clippy::option_env_unwrap)]
 		option_env!("LOG_LEVEL")
 			.expect("Expected environment variable 'LOG_LEVEL' to be set")
 			.to_string(),
@@ -117,7 +120,7 @@ fn main()
 	);
 
 	// linking tets binary with bootloader here
-	bootloader::link_with_bootloader(Some(kernel_test_binary_path_string.to_string()));
+	bootloader::link(&Some(kernel_test_binary_path_string.to_string()));
 
 	let bootloader_build_output = format!(
 		"{}/kernel/out/tests/boot_output/boot-uefi-{}.efi",

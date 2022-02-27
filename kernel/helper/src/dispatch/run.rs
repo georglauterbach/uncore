@@ -6,6 +6,9 @@ use std::{
 	process,
 };
 
+/// ### Run `unCORE`
+///
+/// Runs the kernel image in QEMU.
 pub fn run(graphical: bool)
 {
 	let qemu_directory = if let Ok(directory) = env::var("QEMU_DIRECTORY") {

@@ -4,6 +4,9 @@
 use helper::environment;
 use std::process;
 
+/// ### Run Checks
+///
+/// Runs all code against `clippy`, `rustfmt` and `rustdoc` to check it.
 pub fn check(is_ci: bool)
 {
 	log::info!("Running 'cargo check'");
@@ -11,7 +14,7 @@ pub fn check(is_ci: bool)
 		.args(&["check", "--target"])
 		.arg(environment::get_build_target_path().1)
 		.args(environment::KERNEL_BUILD_FLAGS)
-		.envs(environment::kernel_environment())
+		.envs(environment::get_all_environment_variables())
 		.status();
 
 	log::info!("Checking the source code documentation");
@@ -49,17 +52,21 @@ pub fn check(is_ci: bool)
 		])
 		.status();
 
-	check_result("default kernel", kernel_check, is_ci);
-	check_result("documentation", documentation_check, is_ci);
-	check_result("formatting", format_check, is_ci);
-	check_result("clippy library", clippy_lib, is_ci);
-	check_result("clippy test runner", clippy_test_runner, is_ci);
-	check_result("clippy helper", clippy_helper, is_ci);
+	check_result("default kernel", &kernel_check, is_ci);
+	check_result("documentation", &documentation_check, is_ci);
+	check_result("formatting", &format_check, is_ci);
+	check_result("clippy library", &clippy_lib, is_ci);
+	check_result("clippy test runner", &clippy_test_runner, is_ci);
+	check_result("clippy helper", &clippy_helper, is_ci);
 }
 
-fn check_result(name: &'static str, result: Result<process::ExitStatus, std::io::Error>, is_ci: bool)
+/// ### Check a Given Test Result
+///
+/// Shows information about the test outcome. Exits early with exit code 1 if `is_ci` is
+/// `true` and a tests failed.
+fn check_result(name: &'static str, result: &Result<process::ExitStatus, std::io::Error>, is_ci: bool)
 {
-	if result.is_ok_with(|status| status.success()) {
+	if result.is_ok_with(process::ExitStatus::success) {
 		log::info!("Check '{}' succeeded", name);
 	} else if is_ci {
 		log::error!("Check '{}' failed", name);
@@ -69,6 +76,10 @@ fn check_result(name: &'static str, result: Result<process::ExitStatus, std::io:
 	}
 }
 
+/// ### Run Tests
+///
+/// This function runs tests by using the `test_runner` workspace member. Of `test` is
+/// supplied, only unit tests or a single integration test is run.
 pub fn test(test: Option<String>, is_ci: bool)
 {
 	let mut command = process::Command::new(env!("CARGO"));
@@ -76,7 +87,7 @@ pub fn test(test: Option<String>, is_ci: bool)
 		.args(&["test", "--target"])
 		.arg(environment::get_build_target_path().1)
 		.args(environment::KERNEL_BUILD_FLAGS)
-		.envs(environment::kernel_environment());
+		.envs(environment::get_all_environment_variables());
 
 	let command = if let Some(test) = test {
 		if test == "lib" {
