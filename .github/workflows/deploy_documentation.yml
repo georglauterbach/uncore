@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -78,12 +78,12 @@ jobs:
     needs: deployment
     steps:
       - name: Checkout the tagged commit (shallow clone)
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
         with:
           submodules: true
 
       - name: Checkout the documentation deployment branch to a subdirectory
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
         with:
           ref: gh-pages
           path: gh-pages
