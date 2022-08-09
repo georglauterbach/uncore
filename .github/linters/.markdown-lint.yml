@@ -212,3 +212,5 @@ MD047: true
 MD048:
   # Code fence style
   style: consistent
+
+MD053: false
