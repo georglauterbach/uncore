@@ -61,7 +61,7 @@ jobs:
             sed -i "s|^\(.*<link rel=\"canonical\".*\)${DOCS_VERSION}|\1edge|" {} +
 
       - name: Deploy to Github Pages
-        uses: peaceiris/actions-gh-pages@v3.8.0
+        uses: peaceiris/actions-gh-pages@v3.9.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # Build directory contents to publish to the `gh-pages` branch:
