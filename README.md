@@ -1,62 +1,38 @@
-<p align="center">
-  <img
-    height="25%" width="25%"
-    alt="unCORE Operating System Kernel Logo"
-    src="./documentation/content/images/logo.png">
-</p>
-
 # unCORE
-
-[![License][badge::license]][badge::licence::link] [![Documentation][badge::documentation]][badge::documentation::link]
 
 [![CI][badge::ci::kernel-code-tests]][badge::ci::kernel-code-tests::link] [![CI Linting][badge::ci::security]][badge::ci::security::link] [![CI Linting][badge::ci::linting]][badge::ci::linting::link]
 
-## About
+## :page_with_curl: About
 
-_unCORE_ is an [operating system] [kernel] completely written in pure, idiomatic _[Rust]_. _unCORE_ makes use of the _Rust_ ecosystem, avoiding unnecessary complexity while being stable and performant.
+This project is
 
-## Getting Started
+- an educational, modern [**operating system kernel**][www::wiki::operating-system-kernel];
+- completely written in pure, idiomatic [**Rust**][www::homepage::rust] (and assembly where required);
+- licensed under the [**MIT License**][www::homepage::mit-license], except for those parts (lines of code from libraries used in this project) already licensed under other licenses;
+- **documented** in its entirety: the code via [Doc Comments][www::docs::rustdoc], the rest via [Markdown and GitHub Pages][docs::main-landing-page];
+- focused around [a few simple **concepts and principles**][docs::principles].
 
-The **documentation** has a dedicated **[Getting Started][docs::getting-started]** section. You will need to have _Rust_'s basic tools (in the form of `rustc`, `rustup` and `cargo`) installed. To run a pre-defined set of commands (building, linting, formatting, testing, etc.), you may use [Just], a command runner. It is highly recommended to install [Just] in order to make working with _unCORE_ easier. You can then run `just help` to get an overview of available commands to run.
+## :bulb: Getting Started
 
-To check whether you have all needed tools, and install them if you do not already have them installed, run
-
-``` CONSOLE
-$ pwd
-/uncore
-$ ./scripts/install_tools.sh
-[   INF   ]                     tools@bash | 'rustup' is installed
-[   INF   ]                     tools@bash | Your Rust installation is complete
-...
-```
-
-## Licensing
-
-This project is licensed under the [GNU General Public License v3], **except** for those parts (lines of code from libraries used in this project) already licensed under other licenses.
+The [documentation][docs::main-landing-page] provides a dedicated "[Getting Started][docs::getting-started]" section.
 
 [//]: # (Badges)
 
-[badge::license]: https://img.shields.io/github/license/georglauterbach/uncore.svg?label=LICENSE&color=informational&style=for-the-badge
-[badge::licence::link]: ./LICENSE
-[badge::documentation]: https://img.shields.io/badge/DOCUMENTATION-MKDOCS-informational?style=for-the-badge
-[badge::documentation::link]: https://georglauterbach.github.io/uncore/edge/
-
-[badge::ci::linting]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Linting?label=CI%20-%20Linting&logo=github&logoColor=white&style=for-the-badge
+[badge::ci::linting]: https://img.shields.io/github/actions/workflow/status/georglauterbach/uncore/linting.yml?branch=master&label=CI%20-%20Linting&logo=github&logoColor=white&style=for-the-badge
 [badge::ci::linting::link]: https://github.com/georglauterbach/uncore/actions/workflows/linting.yml
 
-[badge::ci::security]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Security%20Audit?label=CI%20-%20Security%20Audit&logo=github&logoColor=white&style=for-the-badge
+[badge::ci::security]: https://img.shields.io/github/actions/workflow/status/georglauterbach/uncore/security.yml?branch=master&label=CI%20-%20Security%20Audit&logo=github&logoColor=white&style=for-the-badge
 [badge::ci::security::link]: https://github.com/georglauterbach/uncore/actions/workflows/security.yml
 
-[badge::ci::kernel-code-tests]: https://img.shields.io/github/workflow/status/georglauterbach/uncore/Kernel%20Code%20Tests?label=CI%20-%20Kernel%20Code%20Tests&logo=github&logoColor=white&style=for-the-badge
+[badge::ci::kernel-code-tests]: https://img.shields.io/github/actions/workflow/status/georglauterbach/uncore/kernel_tests.yml?branch=master&label=CI%20-%20Kernel%20Code%20Tests&logo=github&logoColor=white&style=for-the-badge
 [badge::ci::kernel-code-tests::link]: https://github.com/georglauterbach/uncore/actions/workflows/kernel-tests.yml
 
 [//]: # (Links)
 
+[www::wiki::operating-system-kernel]: https://en.wikipedia.org/wiki/Kernel_(operating_system)
+[www::homepage::rust]: https://www.rust-lang.org/
+[www::homepage::mit-license]: https://opensource.org/license/mit/
+[www::docs::rustdoc]: https://doc.rust-lang.org/rustdoc/what-is-rustdoc.html
+[docs::main-landing-page]: https://georglauterbach.github.io/uncore/edge/
+[docs::principles]: https://georglauterbach.github.io/uncore/edge/#principles
 [docs::getting-started]: https://georglauterbach.github.io/uncore/edge/#getting-started
-
-[operating system]: https://en.wikipedia.org/wiki/Operating_system
-[kernel]: https://en.wikipedia.org/wiki/Kernel_(operating_system)
-[Rust]: https://www.rust-lang.org/
-[Just]: https://github.com/casey/just
-
-[GNU General Public License v3]: https://www.gnu.org/licenses/gpl-3.0.txt

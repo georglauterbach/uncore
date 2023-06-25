@@ -1,0 +1,13 @@
+[package]
+name = "management"
+version = "0.1.0"
+edition = "2021"
+
+workspace = "../"
+
+[dependencies]
+anyhow = "1.0.71"
+helper = { path = "../helper" }
+log = "0.4.17"
+cargo_metadata = "0.15.4"
+fancy-regex = "0.11.0"

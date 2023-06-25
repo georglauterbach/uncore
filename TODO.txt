@@ -1,0 +1,2 @@
+- lint EC with GitHub actions
+- lint yamllint with GitHub actions
