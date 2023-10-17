@@ -4,14 +4,14 @@
 # -----------------------------------------------
 
 # Create gitignore files automatically for with
-# https://www.toptal.com/developers/gitignore 
+# https://www.toptal.com/developers/gitignore
 
 # -----------------------------------------------
 # ----  IDEs  -----------------------------------
 # -----------------------------------------------
 
-.idea/
-.vscode/
+**/.idea/
+**/.vscode/
 
 # -----------------------------------------------
 # ----  Documentation  --------------------------
@@ -23,8 +23,15 @@ documentation/site
 # ----  Kernel ----------------------------------
 # -----------------------------------------------
 
-kernel/out/
+kernel/build/
 kernel/target/
 
 kernel/**/Cargo.lock
 kernel/**/*.rs.bk
+
+kernel_new/build/
+kernel_new/target/
+
+kernel_new/**/Cargo.lock
+kernel_new/**/*.rs.bk
+

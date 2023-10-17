@@ -1,39 +1,29 @@
 use anyhow::Context;
 
-macro_rules! __execute_command {
-	($command:expr) => {{
-		log::trace!("Executing command `{}`", $command);
-		let mut command: Vec<&str> = $command.split(" ").collect();
-		execute_command(command.remove(0), command)?
-	}};
-}
+use management::rush;
 
-fn main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<()>
+{
 	helper::logger::initialize(Some(log::Level::Trace));
-	log::debug!("Build started");
+	log::trace!("Management process started");
 
-	// calling `.unwrap()` here is fine since we know
-	// this path definitely ends with `/management`
-	let root_directory = env!("CARGO_MANIFEST_DIR")
+	let kernel_root_directory = env!("CARGO_MANIFEST_DIR")
 		.strip_suffix("/management")
-		.context("could not determine root directory by stripping suffix `management`")
-		.unwrap();
+		.context("could not determine root directory by stripping suffix `management`")?;
 
 	// parse the main `Cargo.toml` file
-	let kernel_cargo_toml_path = String::from(root_directory) + "/Cargo.toml";
-	let mut cargo_metadata_command = cargo_metadata::MetadataCommand::new();
-	cargo_metadata_command.manifest_path(kernel_cargo_toml_path);
-	let cargo_metadata = cargo_metadata_command
+	let cargo_metadata = cargo_metadata::MetadataCommand::new()
+		.manifest_path(format! {"{}/Cargo.toml", kernel_root_directory})
 		.exec()
 		.context("Could not extract Cargo metadata from Cargo.toml")?;
 
 	// prepare all environment variables that we need during build-time
-	let git_commit = __execute_command!("git rev-parse HEAD");
+	let git_commit = rush::execute("git rev-parse HEAD")?.stdout();
 	let kernel_version: String = cargo_metadata.root_package().unwrap().version.to_string();
 	let mut kernel_version_extended: String = kernel_version.clone();
 	kernel_version_extended.push_str(&git_commit);
 
-	let rust_host_toolchain = __execute_command!("rustc -vV");
+	let rust_host_toolchain = rush::execute("rustc -vV")?.stdout();
 	let rust_host_toolchain = rust_host_toolchain
 		.lines()
 		.filter(|line| {
@@ -48,6 +38,14 @@ fn main() -> anyhow::Result<()> {
 		.to_owned();
 
 	let build_environment_vars = [
+		// notify 'deb' 'Setting kernel environment variables'
+		// 		COMPILATION_DATE_AND_TIME="$(date +'%H:%M, %d %b %Y')"
+		//   GIT_REVISION_HEAD="$(git rev-parse --short HEAD)"
+		//   KERNEL_VERSION="$(grep -m 1 'version*' Cargo.toml | cut -d '"' -f 2)"
+		//   KERNEL_VERSION+=" (${GIT_REVISION_HEAD})"
+		//   RUST_DEFAULT_TARGET="$(rustc -Vv | grep 'host:' | cut -d ' ' -f 2)"
+		//   RUST_TOOLCHAIN="$(grep 'channel' rust-toolchain.toml | cut -d ' ' -f 3 | tr -d '"')"
+		//   RUSTC_VERSION="$(rustc --version)" ; RUSTC_VERSION=${RUSTC_VERSION#rustc }
 		// (
 		// 	"COMPILATION_DATE_AND_TIME",
 		// 	execute_command("date", &["+%H:%M, %d %b %Y"])?,
@@ -65,12 +63,13 @@ fn main() -> anyhow::Result<()> {
 		println!("{}{}='{}'", ENV_PREFIX, name, val);
 	}
 
-	Ok(())
-}
+	rush::execute(format!("mkdir -p {}/build/qemu/kernel/EFI/BOOT/", kernel_root_directory))?;
+	rush::execute(format!("mkdir -p {}/build/qemu/kernel/EFI/BOOT/", kernel_root_directory))?;
+	rush::execute(format!(
+		"mkdir -p {}/build/tests/kernel/EFI/BOOT/",
+		kernel_root_directory
+	))?;
+	rush::execute(format!("mkdir -p {}/build/tests/boot_output/", kernel_root_directory))?;
 
-fn execute_command(program: &str, arguments: Vec<&str>) -> anyhow::Result<String> {
-	let x = std::process::Command::new(program).args(arguments).output()?;
-	let mut output = String::from_utf8(x.stdout).unwrap();
-	output = output.trim().into();
-	Ok(output)
+	Ok(())
 }

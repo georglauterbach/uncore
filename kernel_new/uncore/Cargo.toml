@@ -1,0 +1,59 @@
+[package]
+name = "uncore"
+version = "1.0.0-alpha1"
+edition = "2021"
+workspace = "../"
+
+description = """
+This project is
+
+- an educational, modern operating system kernel
+- completely written in pure, idiomatic Rust (and assembly where required),
+- licensed under the GNU Public License v3 or later, except for parts already licensed under other licenses,
+- documented in its entirety (the code via Doc comments, the rest via Markdown and GitHub Pages),
+- focused around [a few simple concepts and principles.
+"""
+
+authors = ["The unCORE Kernel Community"]
+documentation = "https://georglauterbach.github.io/uncore/edge/"
+license = "GPL-3.0"
+readme = "../README.md"
+
+homepage = "https://georglauterbach.github.io/uncore/edge/"
+repository = "https://github.com/georglauterbach/uncore"
+
+keywords = [
+  "operating-system",
+  "os",
+  "kernel",
+  "no-std",
+]
+
+categories = [
+  "no-std",
+  "config",
+]
+
+publish = false
+
+# Cargo's auto-detection of library files is turned on. Therefore,
+# `src/lib.rs` is automatically detected by Cargo as a freestanding
+# library. We need to define some code segments twice, here as well
+# as an in `src/main.rs` as this file is tested by Cargo separately.
+# This file can then be used in integration tests as well.
+autobenches = true
+autobins = true
+autoexamples = true
+autotests = true
+
+# -----------------------------------------------
+# ----  Dependencies  ---------------------------
+# -----------------------------------------------
+
+[build-dependencies]
+anyhow = "1.0.75"
+which = "4.4.2"
+chrono = "0.4.31"
+const_format = "0.2.32"
+
+[dependencies]

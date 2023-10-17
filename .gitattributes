@@ -21,7 +21,6 @@
 
 *.rs     text    diff=rust
 *.toml   text    diff=toml
-*.asm    text    diff=asm
 *.S      text    diff=asm
 
 # -----------------------------------------------
