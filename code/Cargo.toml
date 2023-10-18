@@ -1,5 +1,5 @@
 [package]
-name = "uncore-runner"
+name = "uncore-helper"
 version = "1.0.0-alpha1"
 edition = "2021"
 
@@ -21,17 +21,9 @@ readme = "../README.md"
 homepage = "https://georglauterbach.github.io/uncore/edge/"
 repository = "https://github.com/georglauterbach/uncore"
 
-keywords = [
-  "operating-system",
-  "os",
-  "kernel",
-  "no-std",
-]
+keywords = ["operating-system", "os", "kernel", "no-std"]
 
-categories = [
-  "no-std",
-  "config",
-]
+categories = ["no-std", "config"]
 
 publish = false
 
@@ -68,13 +60,15 @@ lto = false
 # ----  Dependencies  ---------------------------
 # -----------------------------------------------
 
-[build-dependencies]
-anyhow = "1.0.75"
-which = "4.4.2"
-chrono = "0.4.31"
-const_format = "0.2.32"
-
 [dependencies]
+ansi_rgb = "0.2.0"
+anyhow = "1.0.75"
+chrono = "0.4.31"
+clap = { version = "4.4.6", features = ["derive"] }
+clap-verbosity-flag = "2.0.1"
+log = "0.4.20"
+rgb = "0.8.36"
+which = "5.0.0"
 
 # -----------------------------------------------
 # ----  Workspace  ------------------------------

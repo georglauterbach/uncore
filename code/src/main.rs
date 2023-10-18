@@ -1,22 +1,47 @@
-fn main() {
-  let args: Vec<String> = std::env::args().collect();
-  dbg!(args);
+// Preventing `unsafe` code in `main.rs` completely.
+#![forbid(unsafe_code)]
+// Clippy lint target one. Enables all lints that are on by
+// default (correctness, suspicious, style, complexity, perf).
+#![deny(clippy::all)]
+// Clippy lint target two. Enables lints which are rather strict
+// or have occasional false positives.
+#![deny(clippy::nursery)]
+// Clippy lint target three. Enables new lints that are still
+// under development
+#![deny(clippy::pedantic)]
+// Clippy lint target four. Enable lints for the cargo manifest
+// file, a.k.a. Cargo.toml.
+#![deny(clippy::cargo)]
+#![allow(clippy::multiple_crate_versions)]
+// Lint target for code documentation. This lint enforces code
+// documentation on every code item.
+#![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
+#![deny(clippy::missing_docs_in_private_items)]
+// Lint target for code documentation. When running `rustdoc`,
+// show an error when using broken links.
+#![deny(rustdoc::all)]
+#![allow(rustdoc::missing_doc_code_examples)]
+// All other, generic lint targets that were not
+// covered previously
+#![deny(missing_debug_implementations)]
 
-  let mut path = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-  path.push_str("/uncore/src/arch/risc-v/qemu.ld");
+//! ## `unCORE` Helper
+//!
+//! Helper program to ease building and running `unCORE`. This is the main binary in the
+//! workspace, which enabled a seamless integration of `cargo run --` into the workflow of
+//! `unCORE`.
 
-  std::env::set_var("RUSTFLAGS", format!("-Clink-arg=-T{}", path));
-  println!("RUSTFLAGS = {:?}", std::env::var("RUSTFLAGS"));
-  std::process::Command::new(env!("CARGO"))
-		.arg("build")
-		.arg("--target")
-		.arg("riscv64gc-unknown-none-elf")
-    .arg("--package")
-    .arg("uncore")
-    .env("RUSTFLAGS", format!("-Clink-arg=-T{}", path))
-		.status()
-		.expect("Kernel build command did not produce a proper exit status");
+mod arguments;
+mod logger;
 
-  std::process::Command::new("qemu-system-riscv64")
-  .args(&["-machine", "virt", "-cpu", "rv64", "-smp", "4", "-m", "128M", "-nographic", "-serial", "mon:stdio", "-device", "virtio-rng-device", "-device", "virtio-gpu-device", "-device", "virtio-net-device", "-device", "virtio-tablet-device", "-device", "virtio-keyboard-device", "-bios", "none", "-kernel", "/home/georg/documents/git/hub/uncore/kernel_new/target/riscv64gc-unknown-none-elf/debug/uncore"]).status().unwrap();
+/// A simple main function.
+fn main() -> anyhow::Result<()> {
+  let arguments = <arguments::Arguments as clap::Parser>::parse();
+
+  logger::initialize(arguments.get_log_level());
+  // log::info!("{}", chrono::offset::Local::now().format("%+").to_string());
+  arguments.dispatch_command()?;
+
+  Ok(())
 }

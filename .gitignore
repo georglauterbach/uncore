@@ -29,9 +29,5 @@ kernel/target/
 kernel/**/Cargo.lock
 kernel/**/*.rs.bk
 
-kernel_new/build/
-kernel_new/target/
-
-kernel_new/**/Cargo.lock
-kernel_new/**/*.rs.bk
-
+code/target/
+code/**/Cargo.lock

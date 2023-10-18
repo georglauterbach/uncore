@@ -1,3 +1,5 @@
+cargo-features = ["per-package-target"]
+
 [package]
 name = "uncore"
 version = "1.0.0-alpha1"
@@ -35,6 +37,7 @@ categories = [
 ]
 
 publish = false
+default-target = "riscv64gc-unknown-none-elf"
 
 # Cargo's auto-detection of library files is turned on. Therefore,
 # `src/lib.rs` is automatically detected by Cargo as a freestanding
@@ -44,16 +47,12 @@ publish = false
 autobenches = true
 autobins = true
 autoexamples = true
-autotests = true
+autotests = false
 
 # -----------------------------------------------
 # ----  Dependencies  ---------------------------
 # -----------------------------------------------
 
 [build-dependencies]
-anyhow = "1.0.75"
-which = "4.4.2"
-chrono = "0.4.31"
-const_format = "0.2.32"
 
 [dependencies]
