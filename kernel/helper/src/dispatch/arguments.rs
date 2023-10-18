@@ -31,9 +31,7 @@ impl Arguments
 	pub fn execute_command(self)
 	{
 		match self.command {
-			AvailableSubCommands::Build => super::build::build(),
 			AvailableSubCommands::Check { is_ci } => super::test::check(is_ci),
-			AvailableSubCommands::Run { graphical } => super::run::run(graphical),
 			AvailableSubCommands::Test { test, is_ci } => super::test::test(test, is_ci),
 		}
 	}

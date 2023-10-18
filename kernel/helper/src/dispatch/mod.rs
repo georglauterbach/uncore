@@ -5,16 +5,6 @@
 /// Manages the argument structure fot the helper binary.
 pub mod arguments;
 
-/// ## Builds `unCORE`
-///
-/// Contains the functions to build `unCORE` properly.
-pub mod build;
-
-/// ## Run `unCORE`
-///
-/// Contains the functions to run `unCORE` properly.
-pub mod run;
-
 /// ## Test `unCORE`
 ///
 /// Contains the functions to test `unCORE` and the other workspace members properly.

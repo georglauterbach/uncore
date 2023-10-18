@@ -55,7 +55,7 @@ mod subcommands {
   }
 
   impl Command {
-    /// TODO
+    /// Actually dispatches the given subcommand by matching on `Self`.
     pub(super) fn execute(self, architecture: super::Architecture) -> anyhow::Result<()> {
       check_dependencies(architecture)?;
       match self {
@@ -67,15 +67,15 @@ mod subcommands {
     }
   }
 
-  /// TODO
+  /// Holds information about all architecture-specific files and commands.
   struct ArchitectureSpecification {
-    /// TODO
+    /// The target triple
     pub target:             &'static str,
-    /// TODO
+    /// The QEMU command to execute
     pub qemu_command:       &'static str,
-    /// TODO
+    /// Path to the linker script
     pub linker_script_path: String,
-    /// TODO
+    /// The parameters of the QEMU command to execute
     pub qemu_arguments:     Vec<String>,
   }
 
@@ -120,11 +120,11 @@ mod subcommands {
     }
   }
 
-  /// TODO
+  /// Check all dependencies (libraries and binaries) given a specific architecture.
   fn check_dependencies(architecture: super::Architecture) -> anyhow::Result<()> {
     use anyhow::Context;
 
-    /// TODO
+    /// Short-hand for calling [`which`].
     macro_rules! check_bin {
       ($command:tt) => {
         which::which($command).context(format!("Package {} seems to be missing", $command))?;
@@ -144,7 +144,7 @@ mod subcommands {
     Ok(())
   }
 
-  /// TODO
+  /// Builds the kernel given an [`ArchitectureSpecification`].
   fn build(arch_specification: &ArchitectureSpecification) -> anyhow::Result<()> {
     std::process::Command::new(env!("CARGO"))
       .args([
@@ -163,7 +163,7 @@ mod subcommands {
     Ok(())
   }
 
-  /// TODO
+  /// Runs the kernel given an [`ArchitectureSpecification`].
   fn run(arch_specification: &ArchitectureSpecification) -> anyhow::Result<()> {
     std::process::Command::new(arch_specification.qemu_command)
       .args(&arch_specification.qemu_arguments)

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Preventing `unsafe` code in `main.rs` completely.
 #![forbid(unsafe_code)]
 // Clippy lint target one. Enables all lints that are on by

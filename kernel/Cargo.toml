@@ -124,7 +124,6 @@ map-physical-memory = true
 members = [
   "helper",
   "test_runner",
-  "management",
 ]
 
 # -----------------------------------------------

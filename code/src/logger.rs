@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! TODO
+//! This module provides logging functionality.
 
 /// ## The Global Test Runner Logger
 ///
