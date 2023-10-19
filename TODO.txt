@@ -1,2 +1,4 @@
 - lint EC with GitHub actions
 - lint yamllint with GitHub actions
+
+https://github.com/qemu/qemu/blob/v8.1.2/hw/riscv/virt.c

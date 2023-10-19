@@ -86,7 +86,7 @@ mod subcommands {
           target:             "riscv64gc-unknown-none-elf",
           qemu_command:       "qemu-system-riscv64",
           linker_script_path: std::env::var("CARGO_MANIFEST_DIR").expect("msg")
-            + "/uncore/src/arch/risc-v/qemu.ld",
+            + "/uncore/src/arch/risc_v/boot/qemu.ld",
           qemu_arguments:     vec![
             "-machine".to_string(),
             "virt".to_string(),
@@ -114,6 +114,8 @@ mod subcommands {
             "-kernel".to_string(),
             std::env::var("CARGO_MANIFEST_DIR").expect("msg")
               + "/target/riscv64gc-unknown-none-elf/debug/uncore",
+            // "-s".to_string(),
+            // "-S".to_string(),
           ],
         },
       }
@@ -146,6 +148,7 @@ mod subcommands {
 
   /// Builds the kernel given an [`ArchitectureSpecification`].
   fn build(arch_specification: &ArchitectureSpecification) -> anyhow::Result<()> {
+    log::debug!("Building unCORE now");
     std::process::Command::new(env!("CARGO"))
       .args([
         "build",
@@ -165,9 +168,14 @@ mod subcommands {
 
   /// Runs the kernel given an [`ArchitectureSpecification`].
   fn run(arch_specification: &ArchitectureSpecification) -> anyhow::Result<()> {
-    std::process::Command::new(arch_specification.qemu_command)
+    dbg!(&arch_specification.qemu_arguments);
+    if !std::process::Command::new(arch_specification.qemu_command)
       .args(&arch_specification.qemu_arguments)
-      .status()?;
+      .status()
+      .unwrap()
+      .success() {
+        anyhow::bail!("Lol");
+      }
 
     Ok(())
   }

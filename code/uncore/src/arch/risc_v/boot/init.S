@@ -76,8 +76,8 @@ _start:
   # - properly set the register that installed into pc when taking an exception
   #   - mepc = machine exception program counter (installed into pc when returning
   #     from an exception)
-  #   - kmain is defined in Rust (as a function)
-  la    t1, kmain # load address: t1 <- kmain
+  #   - _main is defined in Rust (as a function)
+  la    t1, _main # load address: t1 <- _main
   csrw  mepc, t1  # control status register write: t1 -> mepc
 
   # - properly set the address that is to be used when a trap (system call,
@@ -89,9 +89,9 @@ _start:
   # - (follow-up) with properly enabling interrupts
   #   - mie = machine interrupt enable (register)
   li    t3, (1 << 3) | (1 << 7) | (1 << 11) # load immediate: t3 <- bitfield
-  csrw  mie, t3                             # control status register write: t3 -> mie
+  # csrw  mie, t3                             # control status register write: t3 -> mie
 
-  # - set a return address after kmain has finished running
+  # - set a return address after _main has finished running
   #   - ra = return address
   la    ra, busy_loop
 

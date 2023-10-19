@@ -56,3 +56,4 @@ autotests = false
 [build-dependencies]
 
 [dependencies]
+log = "0.4.20"
