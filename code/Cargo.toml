@@ -61,13 +61,12 @@ lto = false
 # -----------------------------------------------
 
 [dependencies]
-ansi_rgb = "0.2.0"
 anyhow = "1.0.75"
 chrono = "0.4.31"
 clap = { version = "4.4.6", features = ["derive"] }
 clap-verbosity-flag = "2.0.1"
+colored = "2.0.4"
 log = "0.4.20"
-rgb = "0.8.36"
 which = "5.0.0"
 
 # -----------------------------------------------

@@ -34,16 +34,18 @@
 //! workspace, which enabled a seamless integration of `cargo run --` into the workflow of
 //! `unCORE`.
 
-mod arguments;
-mod logger;
+mod runtime;
+mod log;
 
 /// A simple main function.
-fn main() -> anyhow::Result<()> {
-  let arguments = <arguments::Arguments as clap::Parser>::parse();
+fn main() {
+  let arguments = <runtime::arguments::Arguments as clap::Parser>::parse();
 
-  logger::initialize(arguments.get_log_level());
-  // log::info!("{}", chrono::offset::Local::now().format("%+").to_string());
-  arguments.dispatch_command()?;
-
-  Ok(())
+  log::initialize(arguments.get_log_level());
+  if arguments.dispatch_command().is_err() {
+    ::log::error!("Execution terminated unsuccessfully");
+    std::process::exit(1);
+  } else {
+    ::log::trace!("Execution terminated successfully");
+  }
 }

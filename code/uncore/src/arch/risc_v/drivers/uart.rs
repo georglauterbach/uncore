@@ -93,73 +93,73 @@ impl Uart {
     }
   }
 
-  fn get(&mut self) -> Option<u8> {
-    let ptr = self.base_address as *mut u8;
-    unsafe {
-      if ptr.add(5).read_volatile() & 1 == 0 {
-        // The DR bit is 0, meaning no data
-        None
-      } else {
-        // The DR bit is 1, meaning data!
-        Some(ptr.add(0).read_volatile())
-      }
-    }
-  }
+  // fn get(&mut self) -> Option<u8> {
+  //   let ptr = self.base_address as *mut u8;
+  //   unsafe {
+  //     if ptr.add(5).read_volatile() & 1 == 0 {
+  //       // The DR bit is 0, meaning no data
+  //       None
+  //     } else {
+  //       // The DR bit is 1, meaning data!
+  //       Some(ptr.add(0).read_volatile())
+  //     }
+  //   }
+  // }
 
-  pub fn read_loop() -> ! {
-    let mut my_uart = Self::new(0x1000_0000);
-    // Now see if we can read stuff:
-    // Usually we can use #[test] modules in Rust, but it would convolute the
-    // task at hand. So, we'll just add testing snippets.
-    loop {
-      if let Some(c) = my_uart.get() {
-        match c {
-          8 => {
-            // This is a backspace, so we essentially have
-            // to write a space and backup again:
-            crate::print!("{}{}{}", 8 as char, ' ', 8 as char);
-          },
-          10 | 13 => {
-            // Newline or carriage-return
-            crate::println!();
-          },
-          0x1B => {
-            // Those familiar with ANSI escape sequences
-            // knows that this is one of them. The next
-            // thing we should get is the left bracket [
-            // These are multi-byte sequences, so we can take
-            // a chance and get from UART ourselves.
-            // Later, we'll button this up.
-            if let Some(next_byte) = my_uart.get() {
-              if next_byte == 91 {
-                // This is a right bracket! We're on our way!
-                if let Some(b) = my_uart.get() {
-                  match b as char {
-                    'A' => {
-                      crate::println!("That's the up arrow!");
-                    },
-                    'B' => {
-                      crate::println!("That's the down arrow!");
-                    },
-                    'C' => {
-                      crate::println!("That's the right arrow!");
-                    },
-                    'D' => {
-                      crate::println!("That's the left arrow!");
-                    },
-                    _ => {
-                      crate::println!("That's something else.....");
-                    },
-                  }
-                }
-              }
-            }
-          },
-          _ => {
-            crate::print!("{}", c as char);
-          },
-        }
-      }
-    }
-  }
+  // pub fn read_loop() -> ! {
+  //   let mut my_uart = Self::new(0x1000_0000);
+  //   // Now see if we can read stuff:
+  //   // Usually we can use #[test] modules in Rust, but it would convolute the
+  //   // task at hand. So, we'll just add testing snippets.
+  //   loop {
+  //     if let Some(c) = my_uart.get() {
+  //       match c {
+  //         8 => {
+  //           // This is a backspace, so we essentially have
+  //           // to write a space and backup again:
+  //           crate::print!("{}{}{}", 8 as char, ' ', 8 as char);
+  //         },
+  //         10 | 13 => {
+  //           // Newline or carriage-return
+  //           crate::println!();
+  //         },
+  //         0x1B => {
+  //           // Those familiar with ANSI escape sequences
+  //           // knows that this is one of them. The next
+  //           // thing we should get is the left bracket [
+  //           // These are multi-byte sequences, so we can take
+  //           // a chance and get from UART ourselves.
+  //           // Later, we'll button this up.
+  //           if let Some(next_byte) = my_uart.get() {
+  //             if next_byte == 91 {
+  //               // This is a right bracket! We're on our way!
+  //               if let Some(b) = my_uart.get() {
+  //                 match b as char {
+  //                   'A' => {
+  //                     crate::println!("That's the up arrow!");
+  //                   },
+  //                   'B' => {
+  //                     crate::println!("That's the down arrow!");
+  //                   },
+  //                   'C' => {
+  //                     crate::println!("That's the right arrow!");
+  //                   },
+  //                   'D' => {
+  //                     crate::println!("That's the left arrow!");
+  //                   },
+  //                   _ => {
+  //                     crate::println!("That's something else.....");
+  //                   },
+  //                 }
+  //               }
+  //             }
+  //           }
+  //         },
+  //         _ => {
+  //           crate::print!("{}", c as char);
+  //         },
+  //       }
+  //     }
+  //   }
+  // }
 }

@@ -1,3 +1,4 @@
+/// TODO
 #[macro_export]
 macro_rules! print
 {
@@ -7,20 +8,17 @@ macro_rules! print
 			});
 }
 
+/// TODO
 #[macro_export]
 macro_rules! println
 {
   () => ({
-    use crate::print;
-    print!("\r\n")
+    crate::print!("\r\n")
 		   });
 	($fmt:expr) => ({
-    use crate::print;
-    print!(concat!($fmt, "\r\n"))
+    crate::print!(concat!($fmt, "\r\n"))
 			});
 	($fmt:expr, $($args:tt)+) => ({
-			print!(concat!($fmt, "\r\n"), $($args)+)
+			crate::print!(concat!($fmt, "\r\n"), $($args)+)
 			});
 }
-
-
