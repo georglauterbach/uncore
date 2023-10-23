@@ -37,18 +37,17 @@ pub fn exit_kernel(code: u32) -> ! {
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
   if let Some(p) = info.location() {
-    crate::println!(
-      "thread 'X' paniced at {}:{}: {}",
-      p.file(),
-      p.line(),
-      if let Some(message) = info.message() {
-        message.as_str().unwrap_or("no message provided")
-      } else {
-        "no message provided"
-      }
-    );
+    if let Some(message) = info.message() {
+      log::error!("thread 'X' panicked at {}:{}: {:?}", p.file(), p.line(), message);
+    } else {
+      log::error!(
+        "thread 'X' panicked at {}:{}: no message provided",
+        p.file(),
+        p.line(),
+      );
+    };
   } else {
-    crate::println!("aborting due to panic (no information available)");
+    log::error!("thread 'X' panicked: no information available");
   }
 
   exit_kernel(10);

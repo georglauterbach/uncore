@@ -29,24 +29,32 @@
 // show an error when using broken links.
 #![deny(rustdoc::broken_intra_doc_links)]
 
-//! # The `unCORE` Operating System Kernel
+//! # The `unCORE` Operating System Kernel Library
 //!
-//! This is `unCORE`, an operating system kerne completely written in pure, idiomatic
-//! Rust.
+//! This is `unCORE`, an operating system kernel completely written in pure, idiomatic and
+//! clean Rust. This "crate" provides the library and actual modules for the kernel.
+
+// ? UNSTABLE FEATURES
+// ? ---------------------------------------------------------------------
+
+#![feature(panic_info_message)]
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-/// TODO
-#[no_mangle]
-extern "C" fn _main() -> ! {
-  use uncore::*;
+// extern crate alloc;
 
-  panic_on_error!(arch::drivers::init);
-  log::initialize();
-  log::display_initial_information();
+/// ### The Core Library
+///
+/// This module has been created to give the kernel source code a
+/// well-defined structure and layout. The `library` module is used as
+/// the child of the `src/lib.rs` "crate", not of `src/main.rs`. This
+/// is important, and we are not allowed to mix them up.
+mod library;
 
-  // drivers::uart::Uart::read_loop();
+pub use library::{
+  arch,
+  log,
+};
 
-  arch::exit_kernel(0);
-}
+pub use crate::panic_on_error as __must_not_fail;

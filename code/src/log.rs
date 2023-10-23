@@ -43,7 +43,7 @@ impl log::Log for Logger {
         println!(
           "{:<5} {}",
           record.level().as_str().truecolor($r, $g, $b),
-          record.args().to_string().truecolor($r, $g, $b)
+          record.args().to_string()
         )
       }};
     }

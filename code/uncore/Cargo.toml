@@ -56,4 +56,7 @@ autotests = false
 [build-dependencies]
 
 [dependencies]
+ansi_rgb = "0.2.0"
 log = "0.4.20"
+owo-colors = "3.5.0"
+rgb = "0.8.36"

@@ -1,10 +1,14 @@
 // uart.rs
 // UART routines and driver
 
+//! TODO
+
 use core::convert::TryInto;
 use core::fmt::Write;
 use core::fmt::Error;
 
+/// TODO
+#[derive(Debug)]
 pub struct Uart {
   base_address: usize,
 }
@@ -19,8 +23,10 @@ impl Write for Uart {
 }
 
 impl Uart {
-  pub fn new(base_address: usize) -> Self { Uart { base_address } }
+  /// TODO
+  pub const fn new(base_address: usize) -> Self { Uart { base_address } }
 
+  /// TODO
   pub fn init(&mut self) {
     let ptr = self.base_address as *mut u8;
     unsafe {
@@ -86,6 +92,7 @@ impl Uart {
     }
   }
 
+  /// TODO
   pub fn put(&mut self, c: u8) {
     let ptr = self.base_address as *mut u8;
     unsafe {

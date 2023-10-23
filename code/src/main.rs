@@ -31,7 +31,7 @@
 //! ## `unCORE` Helper
 //!
 //! Helper program to ease building and running `unCORE`. This is the main binary in the
-//! workspace, which enabled a seamless integration of `cargo run --` into the workflow of
+//! workspace, which enables a seamless integration of `cargo run --` into the workflow of
 //! `unCORE`.
 
 mod runtime;

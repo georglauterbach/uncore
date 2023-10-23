@@ -1,6 +1,7 @@
 set mi-async
 set architecture riscv
 set pagination off
+set print asm-demangle on
 
 file code/target/riscv64gc-unknown-none-elf/debug/uncore
 symbol-file code/target/riscv64gc-unknown-none-elf/debug/uncore

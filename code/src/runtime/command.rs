@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! Hols all functionality required for building, running, etc. unCORE.
+//! Hols all functionality required for building, running, etc. `unCORE`.
+
+use crate::runtime::environment;
 
 /// Specifies which sub-command are available, i.e. whether the user wants to build the
 /// kernel, run the kernel, etc.
@@ -14,19 +16,32 @@ pub enum Command {
   Test,
   /// Debug the kernel by allowing GDB to attach
   Debug,
+  /// Check the code (e.g. with `clippy`)
+  Check,
 }
 
 impl Command {
   /// Actually dispatches the given subcommand by matching on `Self`.
   pub fn execute(self, architecture: super::arguments::Architecture) -> anyhow::Result<()> {
     check_dependencies(architecture, self == Self::Debug)?;
-    build(&architecture.into())?;
 
     match self {
-      Self::Build => {},
-      Self::Run => run(&architecture.into())?,
-      Self::Test => anyhow::bail!("The test sub-command is not yet implemented"),
-      Self::Debug => debug(&mut architecture.into())?,
+      Self::Build => build(&architecture.into())?,
+      Self::Run => {
+        build(&architecture.into())?;
+        run(&architecture.into())?;
+      },
+      Self::Test => {
+        anyhow::bail!("The test sub-command is not yet implemented");
+        // build(&architecture.into())?;
+      },
+      Self::Debug => {
+        build(&architecture.into())?;
+        debug(&mut architecture.into())?;
+      },
+      Self::Check => {
+        check(&architecture.into())?;
+      },
     }
     Ok(())
   }
@@ -57,7 +72,7 @@ impl From<crate::runtime::arguments::Architecture> for ArchitectureSpecification
         target:             "riscv64gc-unknown-none-elf",
         qemu_command:       "qemu-system-riscv64",
         linker_script_path: std::env::var("CARGO_MANIFEST_DIR").expect("msg")
-          + "/uncore/src/arch/risc_v/boot/qemu.ld",
+          + "/uncore/src/library/arch/risc_v/boot/qemu.ld",
         qemu_arguments:     vec![
           "-machine".to_string(),
           "virt".to_string(),
@@ -163,6 +178,13 @@ macro_rules! run_command_and_check {
 /// Builds the kernel.
 fn build(arch_specification: &super::command::ArchitectureSpecification) -> anyhow::Result<()> {
   log::info!("Building unCORE");
+
+  let mut environment = super::environment::get_all_environment_variables()?;
+  environment.insert(
+    "RUSTFLAGS",
+    format!("-Clink-arg=-T{}", arch_specification.linker_script_path),
+  );
+
   run_command_and_check!(
     env!("CARGO"),
     [
@@ -172,16 +194,7 @@ fn build(arch_specification: &super::command::ArchitectureSpecification) -> anyh
       "--target",
       arch_specification.target,
     ],
-    [
-      (
-        "RUSTFLAGS",
-        format!("-Clink-arg=-T{}", arch_specification.linker_script_path),
-      ),
-      (
-        "__UNCORE__BUILD_TIME",
-        chrono::offset::Local::now().format("%+").to_string()
-      )
-    ]
+    environment
   );
 
   Ok(())
@@ -210,5 +223,50 @@ fn debug(arch_specification: &mut super::command::ArchitectureSpecification) -> 
     arch_specification.qemu_command,
     &arch_specification.qemu_arguments
   );
+  Ok(())
+}
+
+/// Performs miscellaneous code (quality) checks, like running Clippy, formatting,
+/// documentation, etc.
+fn check(arch_specification: &super::command::ArchitectureSpecification) -> anyhow::Result<()> {
+  /// A simple wrapper around [`run_command_and_check`] to ease calling checks.
+  macro_rules! check {
+    ($arguments:expr) => {{
+      run_command_and_check!(env!("CARGO"), $arguments);
+    }};
+  }
+
+  // clippy
+  check!(&["clippy", "--all-features", "--", "-D", "warnings"]);
+  check!(&[
+    "clippy",
+    "--lib",
+    "--target",
+    arch_specification.target,
+    "--package",
+    "uncore",
+    "--all-features",
+    "--",
+    "-D",
+    "warnings"
+  ]);
+
+  // documentation
+  check!(&["doc", "--document-private-items"]);
+  check!(&["doc", "--lib", "--package", "uncore", "--document-private-items"]);
+
+  // formatting
+  check!(&["fmt", "--all", "--message-format", "human", "--", "--check"]);
+  check!(&[
+    "fmt",
+    "--package",
+    "uncore",
+    "--all",
+    "--message-format",
+    "human",
+    "--",
+    "--check",
+  ]);
+
   Ok(())
 }
