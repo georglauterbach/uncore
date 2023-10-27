@@ -39,7 +39,7 @@
 
 /// TODO
 #[no_mangle]
-extern "C" fn _main() -> ! {
+extern "C" fn __function__main() -> ! {
   use uncore::*;
 
   panic_on_error!(arch::drivers::init);

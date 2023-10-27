@@ -2,8 +2,6 @@
 
 //! Hols all functionality required for building, running, etc. `unCORE`.
 
-use crate::runtime::environment;
-
 /// Specifies which sub-command are available, i.e. whether the user wants to build the
 /// kernel, run the kernel, etc.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, clap::Subcommand)]
@@ -14,7 +12,7 @@ pub enum Command {
   Run,
   /// Test the kernel
   Test,
-  /// Debug the kernel by allowing GDB to attach
+  /// Debug the kernel (by allowing GDB to attach)
   Debug,
   /// Check the code (e.g. with `clippy`)
   Check,
@@ -72,35 +70,17 @@ impl From<crate::runtime::arguments::Architecture> for ArchitectureSpecification
         target:             "riscv64gc-unknown-none-elf",
         qemu_command:       "qemu-system-riscv64",
         linker_script_path: std::env::var("CARGO_MANIFEST_DIR").expect("msg")
-          + "/uncore/src/library/arch/risc_v/boot/qemu.ld",
-        qemu_arguments:     vec![
-          "-machine".to_string(),
-          "virt".to_string(),
-          "-cpu".to_string(),
-          "rv64".to_string(),
-          "-smp".to_string(),
-          "4".to_string(),
-          "-m".to_string(),
-          "128M".to_string(),
-          "-nographic".to_string(),
-          "-serial".to_string(),
-          "mon:stdio".to_string(),
-          "-device".to_string(),
-          "virtio-rng-device".to_string(),
-          "-device".to_string(),
-          "virtio-gpu-device".to_string(),
-          "-device".to_string(),
-          "virtio-net-device".to_string(),
-          "-device".to_string(),
-          "virtio-tablet-device".to_string(),
-          "-device".to_string(),
-          "virtio-keyboard-device".to_string(),
-          "-bios".to_string(),
-          "none".to_string(),
-          "-kernel".to_string(),
+          + "/uncore/src/library/arch/risc_v/boot/ld.ld",
+        qemu_arguments:     format!(
+          "-machine virt -cpu rv64 -smp 1 -m 128M -nographic -serial mon:stdio -device virtio-rng-device \
+           -device virtio-gpu-device -device virtio-net-device -device virtio-tablet-device -device \
+           virtio-keyboard-device -bios none -kernel {}",
           std::env::var("CARGO_MANIFEST_DIR").expect("msg")
-            + "/target/riscv64gc-unknown-none-elf/debug/uncore",
-        ],
+            + "/target/riscv64gc-unknown-none-elf/debug/uncore"
+        )
+        .split(' ')
+        .map(|x| x.to_string())
+        .collect(),
       },
     }
   }
@@ -130,7 +110,7 @@ fn check_dependencies(architecture: super::arguments::Architecture, is_debug: bo
         log::trace!("  -> debug session detected - also checking debug dependencies");
         check_bin!("gdb-multiarch");
       } else {
-        log::trace!("  -> not a debug session - not checking debug dependencies");
+        log::trace!("Not a debug session - not checking debug dependencies");
       }
     },
   }
@@ -143,14 +123,11 @@ fn check_dependencies(architecture: super::arguments::Architecture, is_debug: bo
 fn evaluate_exit_status(exit_status: std::process::ExitStatus) -> anyhow::Result<()> {
   if let Some(status) = exit_status.code() {
     match status {
-      0 => {
-        log::trace!("  -> success");
-        Ok(())
-      },
-      _ => anyhow::bail!("  -> failure: command exited with status code {}", status),
+      0 => Ok(()),
+      _ => anyhow::bail!("Failure: command exited with status code {}", status),
     }
   } else {
-    anyhow::bail!("  -> failure: could not determine exit status - terminated by signal?")
+    anyhow::bail!("Failure: could not determine exit status - terminated by signal?")
   }
 }
 
@@ -179,7 +156,7 @@ macro_rules! run_command_and_check {
 fn build(arch_specification: &super::command::ArchitectureSpecification) -> anyhow::Result<()> {
   log::info!("Building unCORE");
 
-  let mut environment = super::environment::get_all_environment_variables()?;
+  let mut environment = super::environment::get_all_environment_variables_for_build()?;
   environment.insert(
     "RUSTFLAGS",
     format!("-Clink-arg=-T{}", arch_specification.linker_script_path),

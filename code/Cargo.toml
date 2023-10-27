@@ -67,6 +67,7 @@ clap = { version = "4.4.6", features = ["derive"] }
 clap-verbosity-flag = "2.0.1"
 colored = "2.0.4"
 log = "0.4.20"
+toml = "0.8.4"
 which = "5.0.0"
 
 # -----------------------------------------------

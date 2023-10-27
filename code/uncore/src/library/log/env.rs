@@ -30,7 +30,7 @@ const RUSTC_VERSION: Option<&str> = option_env!("RUSTC_VERSION");
 ///
 /// This variable has a value if the kernel was executed in an environment where the
 /// `LOG_LEVEL` environment variable was set.
-pub(super) const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
+const LOG_LEVEL: Option<&str> = option_env!("LOG_LEVEL");
 
 /// ### Static Kernel Information
 ///
@@ -76,10 +76,10 @@ impl KernelInformation {
     LOG_LEVEL.map_or_else(
       || log::Level::Info,
       |log_level| match log_level {
-        "err" => log::Level::Error,
-        "war" => log::Level::Warn,
-        "deb" => log::Level::Debug,
-        "tra" => log::Level::Trace,
+        "ERROR" => log::Level::Error,
+        "WARN" => log::Level::Warn,
+        "DEBUG" => log::Level::Debug,
+        "TRACE" => log::Level::Trace,
         _ => log::Level::Info,
       },
     )

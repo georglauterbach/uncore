@@ -11,16 +11,16 @@ pub enum Architecture {
   Riscv64,
 }
 
-/// Helper program to ease building and running `unCORE`.
+/// Workspace member that eases working with `unCORE`.
 #[derive(Debug, clap::Parser)]
-#[command(author, version, about, long_about, propagate_version = true)]
+#[command(author, version, about="Workspace member that eases working with unCORE.", long_about=None, propagate_version=true)]
 #[command(bin_name = "cargo run -q --")]
 pub struct Arguments {
   /// Specify the verbosity
   #[clap(flatten)]
   verbosity:    clap_verbosity_flag::Verbosity<clap_verbosity_flag::InfoLevel>,
   /// Specify the architecture unCORE is built for.
-  #[clap(value_enum, default_value_t=Architecture::Riscv64)]
+  #[clap(short, long, value_enum, default_value_t=Architecture::Riscv64)]
   architecture: Architecture,
   /// Specify what to do: build the kernel, run the kernel, etc.
   #[command(subcommand)]

@@ -3,14 +3,14 @@
 # ? INFO: instructions are opportunistically compressed by the RISC-V assembler
 # ?       when possible (but sometimes this behavior is not desirable.).
 # ! TASK: disable the generation of compressed instructions
-.option norvc
+# .option norvc
 
-.section .text.init
+.section .init, "ax"
 
 # ? INFO: _start is the first function that is executed
 # ! TASK: setup registers, set up memory & jump to Rust
-.global _start
-_start:
+.global __function__start
+__function__start:
   # ? INFO: any hardware threads (hart) that are not bootstrapping need to wait for an IPI
   # * REF:  3.1.5 of "Volume II: RISC-V Privileged Architectures V20211203"
   # ! TASK: read our hart identifier into the register t0 and see if it is 0;
@@ -41,28 +41,28 @@ _start:
   #   possible, the initial load of GP must not be relaxed
   .option norelax
   # - gp = global pointer (register)
-  la    gp, _global_pointer # load address: gp <- _global_pointer
+  la    gp, __global_pointer$ # load address: gp <- _global_pointer
   # - pops the current option stack (see .option push above)
   .option pop
   # -----------------------------------------------------------------------------------------------
 
-  # ? INFO: _bss_start & _bss_end are symbols set by the linker script
+  # ? INFO: __section__section___section___section__bss_start & __bss_end are symbols set by the linker script
   # ! TASK: initialize the BSS section, which is expected to be zero
   # -----------------------------------------------------------------------------------------------
-  la    a0, _bss_start # load address: a0 <- _bss_start
-  la    a1, _bss_end   # load address: a1 <- _bss_end
-  bgeu  a0, a1, 2f     # branch greater or equal unsigned: a0 >= a1 -> jump to 2 (forward)
-1:
-  sd    zero, (a0)     # store double (64bit): 0 -> address of a0
-  addi  a0, a0, 8      # add immediate: a0 <- a0 + 8
-  bltu  a0, a1, 1b     # branch less that unsigned: a0 < a1 -> jump to 1 (backward)
-2:
+#   la    a0, __section__bss_start # load address: a0 <- __bss_start
+#   la    a1, __section__bss_end   # load address: a1 <- __bss_end
+#   bgeu  a0, a1, 2f     # branch greater or equal unsigned: a0 >= a1 -> jump to 2 (forward)
+# 1:
+#   sd    zero, (a0)     # store double (64bit): 0 -> address of a0
+#   addi  a0, a0, 8      # add immediate: a0 <- a0 + 8
+#   bltu  a0, a1, 1b     # branch less that unsigned: a0 < a1 -> jump to 1 (backward)
+# 2:
   # -----------------------------------------------------------------------------------------------
 
   # ! TASK: set up control registers and jump to Rust
   # -----------------------------------------------------------------------------------------------
   # - load kernel stack pointer
-  la    sp, _stack_start # load address: sp <- _stack
+  la    sp, __stack_top # load address: sp <- _stack
 
   # - properly set the mstatus register
   #   - setting bits 12 & 11 to 0b11 (= "machine mode") gives us access to all
@@ -77,7 +77,7 @@ _start:
   #   - mepc = machine exception program counter (installed into pc when returning
   #     from an exception)
   #   - _main is defined in Rust (as a function)
-  la    t1, _main # load address: t1 <- _main
+  la    t1, __function__main # load address: t1 <- _main
   csrw  mepc, t1  # control status register write: t1 -> mepc
 
   # - properly set the address that is to be used when a trap (system call,
@@ -97,7 +97,7 @@ _start:
 
   # - re-enable the generation of compressed instructions (see .option norvc
   #   above)
-  .option rvc
+  # .option rvc
 
   # - "return" from an exception; we use mret at the end so that the mstatus register
   #   is properly updated

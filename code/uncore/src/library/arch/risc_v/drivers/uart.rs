@@ -24,11 +24,16 @@ impl Write for Uart {
 
 impl Uart {
   /// TODO
-  pub const fn new(base_address: usize) -> Self { Uart { base_address } }
+  const fn new(base_address: usize) -> Self { Uart { base_address } }
 
   /// TODO
-  pub fn init(&mut self) {
-    let ptr = self.base_address as *mut u8;
+  pub const fn new_well_known() -> Self {
+    Self::new(0x1000_0000)
+  }
+
+  /// TODO
+  pub fn init() {
+    let ptr = Self::new_well_known().base_address as *mut u8;
     unsafe {
       // First, set the word length, which
       // are bits 0 and 1 of the line control register (LCR)

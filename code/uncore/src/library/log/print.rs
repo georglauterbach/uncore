@@ -4,7 +4,6 @@
 ///
 /// This static variable is used by the [`log`] crate for
 /// logging kernel-wide.
-// TODO this can somehow not be `static mut`? (linker script?) -> can we use a Mutex?
 static LOGGER: KernelLogger = KernelLogger::new();
 
 /// ### The Main Kernel Logger
@@ -14,22 +13,16 @@ static LOGGER: KernelLogger = KernelLogger::new();
 #[derive(Debug)]
 pub struct KernelLogger {
   /// TODO
-  qemu_uart:         qemu_uart::Logger,
-  /// TODO
-  qemu_uart_enabled: bool,
+  qemu_uart: qemu_uart::Logger,
 }
 
 impl KernelLogger {
-  /// TODO
-  pub fn enable_or_disable_qemu_uart(&mut self, enabled: bool) { self.qemu_uart_enabled = enabled; }
-
   /// ### Create a New Global Logger for the Kernel
   ///
   /// Creates a new instance of the kernel-wide logger.
   const fn new() -> Self {
     Self {
-      qemu_uart:         qemu_uart::Logger::new(),
-      qemu_uart_enabled: true,
+      qemu_uart: qemu_uart::Logger,
     }
   }
 
@@ -49,9 +42,7 @@ impl log::Log for KernelLogger {
       return;
     }
 
-    if self.qemu_uart_enabled {
-      self.qemu_uart.log(record);
-    }
+    self.qemu_uart.log(record);
   }
 
   fn flush(&self) {}
@@ -59,24 +50,29 @@ impl log::Log for KernelLogger {
 
 /// TODO
 pub fn initialize() {
-  KernelLogger::set_log_level(log::Level::Trace);
-  log::set_logger(unsafe { &LOGGER }).expect("Log should not have already been set");
+  KernelLogger::set_log_level(super::env::KernelInformation::get_log_level());
+  log::set_logger(&LOGGER).expect("Log should not have already been set");
+  log::trace!("unCORE is booting");
   log::debug!("Kernel logging enabled");
+  log::debug!(
+    "Log level set to {}",
+    super::env::KernelInformation::get_log_level()
+  );
 }
 
 /// ### Print Initial Information
 ///
 /// TODO
 pub fn display_initial_information() {
-  log::error!(
+  log::info!(
     "Welcome to unCORE version {}",
     super::env::KernelInformation::get_kernel_version()
   );
-  log::debug!(
+  log::trace!(
     "unCORE was compiled at {}",
     super::env::KernelInformation::get_compilation_date_and_time()
   );
-  log::debug!(
+  log::trace!(
     "unCORE was compiled with {} and toolchain {}",
     super::env::KernelInformation::get_rustc_version(),
     super::env::KernelInformation::get_rust_toolchain()
@@ -85,62 +81,52 @@ pub fn display_initial_information() {
 
 /// TODO
 mod qemu_uart {
-  use owo_colors::OwoColorize;
+  /// TODO
+  static mut LOGGER: crate::arch::drivers::uart::Uart = crate::arch::drivers::uart::Uart::new_well_known();
+  static LOCK: spin::Mutex<(bool, crate::arch::drivers::uart::Uart)> = spin::Mutex::new((true, crate::arch::drivers::uart::Uart::new_well_known()));
 
   /// TODO
   #[derive(Debug)]
-  pub struct Logger {
-    uart: crate::arch::drivers::uart::Uart,
-  }
-
-  impl Logger {
-    /// ### Construct a New QEMU Logger
-    ///
-    /// This function creates a new instance of the QEMU
-    /// logger structure.
-    pub const fn new() -> Self {
-      Self {
-        uart: crate::arch::drivers::uart::Uart::new(0x1000_0000),
-      }
-    }
-  }
+  pub struct Logger;
 
   impl log::Log for Logger {
+    // This function is not used because the global logger instance already checks whether the
+    // log is enabled or not.
     fn enabled(&self, _: &log::Metadata) -> bool { true }
 
     fn flush(&self) {}
 
     fn log(&self, record: &log::Record) {
-      use core::fmt::Write;
+      let mut lock = LOCK.lock();
 
-      if !self.enabled(record.metadata()) {
-        return;
+      if lock.0 {
+        use core::fmt::Write;
+        use owo_colors::OwoColorize;
+
+        /// Shortens the log sequence (writing via `println!`).
+        macro_rules! log_with_color {
+          ($string:expr, $r:expr, $g:expr, $b:expr) => {{
+            if let Err(_) = writeln!(
+              // SAFETY: TODO
+              lock.1,
+              "{} {}",
+              $string.fg_rgb::<$r, $g, $b>(),
+              record.args()
+            ) {
+              lock.0 = false;
+            }
+          }};
+        }
+
+        // https://coolors.co/fb4934-fabd2f-458588-83a598-8f8f8f
+        match record.level() {
+          log::Level::Error => log_with_color!("ERROR", 251, 73, 52),
+          log::Level::Warn => log_with_color!("WARN ", 250, 189, 47),
+          log::Level::Info => log_with_color!("INFO ", 69, 133, 136),
+          log::Level::Debug => log_with_color!("DEBUG", 131, 165, 152),
+          log::Level::Trace => log_with_color!("TRACE", 143, 143, 143),
+        };
       }
-
-      /// Shortens the log sequence (writing via `println!`).
-      macro_rules! log_with_color {
-        ($r:expr, $g:expr, $b:expr) => {{
-          if let Err(_) = writeln!(
-            crate::arch::drivers::uart::Uart::new(0x1_000_0000),
-            "{} {}",
-            record.level().as_str().fg_rgb::<$r, $g, $b>(),
-            record.args()
-          ) {
-            // unsafe {
-            //   super::LOGGER.enable_or_disable_qemu_uart(false);
-            // }
-          }
-        }};
-      }
-
-      // https://coolors.co/fb4934-fabd2f-458588-83a598-8f8f8f
-      match record.level() {
-        log::Level::Error => log_with_color!(251, 73, 52),
-        log::Level::Warn => log_with_color!(250, 189, 47),
-        log::Level::Info => log_with_color!(69, 133, 136),
-        log::Level::Debug => log_with_color!(131, 165, 152),
-        log::Level::Trace => log_with_color!(143, 143, 143),
-      };
     }
   }
 }

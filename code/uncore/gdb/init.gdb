@@ -10,10 +10,11 @@ layout asm
 layout regs
 focus cmd
 
-br _main
+br __function__main
+br *0x80003664
 
 define kq
-  #kill
+  kill
   quit 5
 end
 
