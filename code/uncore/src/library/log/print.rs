@@ -52,10 +52,9 @@ impl log::Log for KernelLogger {
 pub fn initialize() {
   KernelLogger::set_log_level(super::env::KernelInformation::get_log_level());
   log::set_logger(&LOGGER).expect("Log should not have already been set");
-  log::trace!("unCORE is booting");
   log::debug!("Kernel logging enabled");
   log::debug!(
-    "Log level set to {}",
+    "Log level set to '{}'",
     super::env::KernelInformation::get_log_level()
   );
 }

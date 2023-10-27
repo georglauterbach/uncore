@@ -10,6 +10,7 @@ use core::fmt::Error;
 /// TODO
 #[derive(Debug)]
 pub struct Uart {
+  /// TODO
   base_address: usize,
 }
 
@@ -27,6 +28,7 @@ impl Uart {
   const fn new(base_address: usize) -> Self { Uart { base_address } }
 
   /// TODO
+  #[must_use]
   pub const fn new_well_known() -> Self {
     Self::new(0x1000_0000)
   }
@@ -41,8 +43,8 @@ impl Uart {
       // We can easily write the value 3 here or 0b11, but I'm
       // extending it so that it is clear we're setting two individual
       // fields
-      //                         Word 0     Word 1
-      //                         ~~~~~~     ~~~~~~
+      //                                    Word 0     Word 1
+      //                                    ~~~~~~     ~~~~~~
       ptr.add(3).write_volatile((1 << 0) | (1 << 1));
 
       // Now, enable the FIFO, which is bit index 0 of the FIFO

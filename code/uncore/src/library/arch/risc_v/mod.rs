@@ -1,5 +1,6 @@
-mod boot;
+
 pub mod drivers;
+mod ld;
 
 #[no_mangle]
 extern "C" fn eh_personality() {}
@@ -38,6 +39,7 @@ unsafe fn __abort() -> ! {
 /// TODO
 pub fn exit_kernel(code: u32) -> ! {
   log::info!("Exiting unCORE with exit code {}", code);
+  log::warn!("Heap size set to {:?}", ld::get_heap_bottom_and_size());
 
   unsafe {
     core::arch::asm!(

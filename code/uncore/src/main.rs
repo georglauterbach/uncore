@@ -38,7 +38,7 @@
 // ? ---------------------------------------------------------------------
 
 /// TODO
-
+#[cfg(target_arch = "riscv64")]
 #[riscv_rt::entry]
 fn __function__main() -> ! {
   use uncore::*;

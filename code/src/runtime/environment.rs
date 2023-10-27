@@ -2,6 +2,7 @@
 
 //! This module provides functions to work efficiently with environment variables.
 
+/// TODO
 const CARGO_MANIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
 
 /// Returns the version of `rustc` used for compiling `unCORE`.
@@ -55,7 +56,6 @@ fn get_toolchain() -> anyhow::Result<String> {
 /// Returns a [`std::collections::HashMap`] that contains environment variables names as
 /// keys and their respective values are the values of the map. This is used when
 /// building, as the map is provided to [`std::process::Command`].
-#[must_use]
 pub fn get_all_environment_variables_for_build(
 ) -> anyhow::Result<std::collections::HashMap<&'static str, String>> {
   let mut environment = std::collections::HashMap::new();
