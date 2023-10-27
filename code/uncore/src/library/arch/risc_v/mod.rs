@@ -27,7 +27,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 /// TODO
 #[no_mangle]
 #[inline(always)]
-unsafe fn abort() -> ! {
+unsafe fn __abort() -> ! {
   loop {
     unsafe {
       core::arch::asm!("wfi", options(nomem, nostack));
@@ -50,7 +50,7 @@ pub fn exit_kernel(code: u32) -> ! {
     // this function here is the last expression in the `panic!()` handler
     // itself. This prevents a possible infinite loop.
     loop {
-      abort();
+      __abort();
     }
   }
 }
