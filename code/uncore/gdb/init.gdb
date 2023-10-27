@@ -10,8 +10,8 @@ layout asm
 layout regs
 focus cmd
 
+br __function__start
 br __function__main
-br *0x80003664
 
 define kq
   kill

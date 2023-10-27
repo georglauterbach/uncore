@@ -82,8 +82,8 @@ pub fn display_initial_information() {
 /// TODO
 mod qemu_uart {
   /// TODO
-  static mut LOGGER: crate::arch::drivers::uart::Uart = crate::arch::drivers::uart::Uart::new_well_known();
-  static LOCK: spin::Mutex<(bool, crate::arch::drivers::uart::Uart)> = spin::Mutex::new((true, crate::arch::drivers::uart::Uart::new_well_known()));
+  static LOCK: spin::Mutex<(bool, crate::arch::drivers::uart::Uart)> =
+    spin::Mutex::new((true, crate::arch::drivers::uart::Uart::new_well_known()));
 
   /// TODO
   #[derive(Debug)]

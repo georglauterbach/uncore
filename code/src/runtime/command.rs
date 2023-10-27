@@ -65,18 +65,17 @@ pub struct ArchitectureSpecification {
 
 impl From<crate::runtime::arguments::Architecture> for ArchitectureSpecification {
   fn from(val: crate::runtime::arguments::Architecture) -> Self {
+    let base_dir = std::env::var("CARGO_MANIFEST_DIR").expect("LOL");
     match val {
       crate::runtime::arguments::Architecture::Riscv64 => Self {
         target:             "riscv64gc-unknown-none-elf",
         qemu_command:       "qemu-system-riscv64",
-        linker_script_path: std::env::var("CARGO_MANIFEST_DIR").expect("msg")
-          + "/uncore/src/library/arch/risc_v/boot/ld.ld",
+        linker_script_path: base_dir.clone() + "/uncore/src/library/arch/risc_v/boot/ld.ld",
         qemu_arguments:     format!(
           "-machine virt -cpu rv64 -smp 1 -m 128M -nographic -serial mon:stdio -device virtio-rng-device \
            -device virtio-gpu-device -device virtio-net-device -device virtio-tablet-device -device \
            virtio-keyboard-device -bios none -kernel {}",
-          std::env::var("CARGO_MANIFEST_DIR").expect("msg")
-            + "/target/riscv64gc-unknown-none-elf/debug/uncore"
+           base_dir + "/target/riscv64gc-unknown-none-elf/debug/uncore"
         )
         .split(' ')
         .map(|x| x.to_string())
