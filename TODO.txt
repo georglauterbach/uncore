@@ -2,3 +2,5 @@
 - lint yamllint with GitHub actions
 
 https://github.com/qemu/qemu/blob/v8.1.2/hw/riscv/virt.c
+https://mcyoung.xyz/2021/06/01/linker-script/#memory-regions-and-section-allocation
+https://blog.henrygressmann.de/rust-os/1-hello-riscv/#hello-world
