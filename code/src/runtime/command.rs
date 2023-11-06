@@ -70,7 +70,7 @@ impl From<crate::runtime::arguments::Architecture> for ArchitectureSpecification
       crate::runtime::arguments::Architecture::Riscv64 => Self {
         target:             "riscv64gc-unknown-none-elf",
         qemu_command:       "qemu-system-riscv64",
-        linker_script_path: base_dir.clone() + "/uncore/src/library/arch/risc_v/ld/linker.x",
+        linker_script_path: base_dir.clone() + "/uncore/src/library/arch/risc_v/ld/new.x",
         qemu_arguments:     format!(
           "-machine virt -cpu rv64 -smp 1 -m 128M -nographic -serial mon:stdio -device virtio-rng-device \
            -device virtio-gpu-device -device virtio-net-device -device virtio-tablet-device -device \
@@ -159,7 +159,7 @@ fn build(arch_specification: &super::command::ArchitectureSpecification) -> anyh
   environment.insert(
     "RUSTFLAGS",
     format!(
-      "-Clink-arg=-T{}",
+      "-C link-arg=-T{}",
       arch_specification.linker_script_path
     ),
   );

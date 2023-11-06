@@ -28,6 +28,8 @@ SEARCH_DIR(/usr/lib/riscv64-unknown-elf/lib)
 /* their job is to get to this point.                                        */
 MEMORY
 {
+  /* TODO */
+  FLASH (rx) : ORIGIN = 0x20000000, LENGTH = 16M
   /* The RAM region is defined to be read-write ('rw'), executable           */
   /* ('x'), and allocatable ('a'). The RAM memory starts at adress           */
   /* '0x8000_0000'. Technically, the size is arbitrary, and only             */
@@ -37,16 +39,20 @@ MEMORY
   RAM (rwxa) : ORIGIN = 0x80200000, LENGTH = 16M
 }
 
-REGION_ALIAS("REGION_TEXT", RAM);
-REGION_ALIAS("REGION_RODATA", RAM);
-REGION_ALIAS("REGION_DATA", RAM);
-REGION_ALIAS("REGION_BSS", RAM);
-REGION_ALIAS("REGION_HEAP", RAM);
-REGION_ALIAS("REGION_STACK", RAM);
+/* TODO */
+REGION_ALIAS("REGION_TEXT",   FLASH);
+REGION_ALIAS("REGION_RODATA", FLASH);
+REGION_ALIAS("REGION_DATA",   RAM);
+REGION_ALIAS("REGION_BSS",    RAM);
+REGION_ALIAS("REGION_HEAP",   RAM);
+REGION_ALIAS("REGION_STACK",  RAM);
 
+/* TODO */
 PROVIDE(_max_hart_id = 0);
+/* TODO */
 PROVIDE(_hart_stack_size = 2K);
-PROVIDE(_heap_size = 1M);
+/* TODO */
+PROVIDE(_heap_size = 2K);
 
 /* Pre-initialization function. If the user overrides this using the         */
 /* `#[pre_init]` attribute or by creating a `__pre_init` function, then the  */
@@ -87,18 +93,29 @@ SECTIONS
   PROVIDE(_stext = ORIGIN(REGION_TEXT) + SIZEOF_HEADERS);
   . = ABSOLUTE(_stext);
 
-  .text          _stext : {
-    /* Put reset handler first in .text section so it ends up as the entry   */
-    /* point of the program.                                                 */
+  .text          _stext :
+  {
+    /* Put reset handler first in .text section so it ends up as the entry */
+    /* point of the program. */
     KEEP(*(SORT_NONE(.init)));
     KEEP(*(SORT_NONE(.init.rust)));
-
     . = ALIGN(4);
     *(.trap);
     *(.trap.rust);
-
+    *(.text.abort);
     *(.text .text.*);
-  } >REGION_TEXT
+  } > REGION_TEXT
+
+  .rodata : ALIGN(4)
+  {
+    *(.srodata .srodata.*);
+    *(.rodata .rodata.*);
+
+    /* 4-byte align the end (VMA) of this section.
+       This is required by LLD to ensure the LMA of the following .data
+       section will have the correct alignment. */
+    . = ALIGN(4);
+  } > REGION_RODATA
 
   .rodata               : ALIGN(4) {
     *(.srodata .srodata.*);
@@ -149,6 +166,7 @@ SECTIONS
     . = ABSOLUTE(_stack_start);
     _sstack = .;
   } >REGION_STACK
+
 
   /* "Fake" output .got section.                                             */
   /* Dynamic relocations are unsupported. This section is only used to       */
