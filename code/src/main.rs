@@ -33,12 +33,14 @@
 //! workspace, which enables a seamless integration of `cargo run --` into the workflow of
 //! `unCORE`.
 
-mod runtime;
+mod arguments;
+mod command;
+mod environment;
 mod log;
 
 /// A simple main function.
 fn main() {
-  let arguments = <runtime::arguments::Arguments as clap::Parser>::parse();
+  let arguments = <arguments::Arguments as clap::Parser>::parse();
 
   log::initialize(arguments.get_log_level());
   if arguments.dispatch_command().is_err() {

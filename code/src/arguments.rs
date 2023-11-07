@@ -123,9 +123,9 @@ impl ArchitectureSpecification {
 }
 
 impl From<Architecture> for ArchitectureSpecification {
-  fn from(val: crate::runtime::arguments::Architecture) -> Self {
+  fn from(val: crate::arguments::Architecture) -> Self {
     match val {
-      crate::runtime::arguments::Architecture::Riscv64 => Self::riscv64(),
+      crate::arguments::Architecture::Riscv64 => Self::riscv64(),
     }
   }
 }
