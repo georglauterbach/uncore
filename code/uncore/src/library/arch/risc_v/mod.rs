@@ -2,6 +2,12 @@
 pub mod drivers;
 mod ld;
 
+/// TODO
+#[inline(always)]
+pub fn main() -> ! {
+  crate::main();
+}
+
 #[no_mangle]
 extern "C" fn eh_personality() {}
 

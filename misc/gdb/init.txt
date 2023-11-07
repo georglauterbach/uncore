@@ -10,7 +10,7 @@ layout asm
 layout regs
 focus cmd
 
-br uncore::__risc_v_rt__main
+br uncore::main
 
 define kq
   kill

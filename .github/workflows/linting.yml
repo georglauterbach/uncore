@@ -6,27 +6,27 @@ on: # yamllint disable-line rule:truthy
   push:
     branches: ['**']
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
-  lint:
-    name: Lint against GitHub's Super-Linter
-    runs-on: ubuntu-20.04
+  linting:
+    name: Run
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.4.0
-        with:
-          submodules: true
+        uses: actions/checkout@v4
 
       - name: Lint code base
-        uses: github/super-linter@v4.9.0
+        uses: super-linter/super-linter/slim@v5.6.1
         env:
+          # TODO https://github.com/marketplace/actions/super-linter#add-super-linter-badge-in-your-repository-readme
           LOG_LEVEL: NOTICE
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SUPPRESS_POSSUM: true
           VALIDATE_ALL_CODEBASE: true
+
 
           ERROR_ON_MISSING_EXEC_BIT: true
           VALIDATE_BASH: true

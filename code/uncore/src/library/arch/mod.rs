@@ -6,5 +6,6 @@ use risc_v as architecture;
 
 pub use architecture::{
   drivers,
-  exit_kernel
+  exit_kernel,
+  main
 };

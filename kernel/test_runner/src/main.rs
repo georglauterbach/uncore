@@ -118,7 +118,7 @@ fn main()
 		},
 	);
 
-	// linking tets binary with bootloader here
+	// linking test binary with bootloader here
 	bootloader::link(&Some(kernel_test_binary_path_string.to_string()));
 
 	let bootloader_build_output = format!(

@@ -71,12 +71,13 @@ impl From<crate::runtime::arguments::Architecture> for ArchitectureSpecification
         target:             "riscv64gc-unknown-none-elf",
         qemu_command:       "qemu-system-riscv64",
         linker_script_path: base_dir.clone() + "/uncore/src/library/arch/risc_v/ld/new.x",
+        // editorconfig-checker-disable
         qemu_arguments:     format!(
           "-machine virt -cpu rv64 -smp 1 -m 128M -nographic -serial mon:stdio -device virtio-rng-device \
-           -device virtio-gpu-device -device virtio-net-device -device virtio-tablet-device -device \
-           virtio-keyboard-device -kernel {}",
+           -device virtio-gpu-device -device virtio-net-device -device virtio-keyboard-device -kernel {}",
           base_dir + "/target/riscv64gc-unknown-none-elf/debug/uncore"
         )
+        // editorconfig-checker-enable
         .split(' ')
         .map(std::string::ToString::to_string)
         .collect(),
@@ -158,10 +159,7 @@ fn build(arch_specification: &super::command::ArchitectureSpecification) -> anyh
   let mut environment = super::environment::get_all_environment_variables_for_build()?;
   environment.insert(
     "RUSTFLAGS",
-    format!(
-      "-C link-arg=-T{}",
-      arch_specification.linker_script_path
-    ),
+    format!("-C link-arg=-T{}", arch_specification.linker_script_path),
   );
 
   run_command_and_check!(
@@ -192,8 +190,8 @@ fn run(arch_specification: &super::command::ArchitectureSpecification) -> anyhow
 /// Runs the kernel given an [`ArchitectureSpecification`] with debug attributes.
 fn debug(arch_specification: &mut super::command::ArchitectureSpecification) -> anyhow::Result<()> {
   log::info!("Debugging unCORE");
-  log::debug!("You may use 'gdb-multiarch -q -x code/uncore/gdb/init.gdb' to attach now");
-  log::debug!("Remeber: 'Ctrl-A x' will exit QEMU");
+  log::debug!("You may use 'gdb-multiarch -q -x misc/gdb/init.txt' to attach now");
+  log::debug!("Remember: 'Ctrl-A x' will exit QEMU");
 
   arch_specification.qemu_arguments.push("-s".to_string());
   arch_specification.qemu_arguments.push("-S".to_string());

@@ -56,11 +56,7 @@ autotests = false
 [build-dependencies]
 
 [dependencies]
-ansi_rgb = "0.2.0"
 log = "0.4.20"
-no-std-async = "1.1.0"
 owo-colors = "3.5.0"
-rgb = "0.8.36"
 riscv-rt = { git = "https://github.com/rust-embedded/riscv-rt.git", branch = "master", features = ["s-mode"] }
-sbi = "0.2.0"
 spin = "0.9.8"

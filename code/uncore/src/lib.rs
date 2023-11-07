@@ -57,4 +57,13 @@ pub use library::{
   log,
 };
 
-pub use crate::panic_on_error as __must_not_fail;
+#[inline(always)]
+fn main() -> ! {
+  panic_on_error!(arch::drivers::init);
+  log::initialize();
+  log::display_initial_information();
+
+  // drivers::uart::Uart::read_loop();
+
+  arch::exit_kernel(0);
+}

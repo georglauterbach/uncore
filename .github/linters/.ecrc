@@ -5,8 +5,6 @@
   "SpacesAftertabs": true,
   "NoColor": false,
   "Exclude": [
-    "\\.xcf$",
-    "\\.md$",
     "^\\.gitmodules$"
   ],
   "AllowedContentTypes": [],

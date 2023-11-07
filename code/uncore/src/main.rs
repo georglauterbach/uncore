@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// ? GLOBAL CRATE ATTRIBUTES AND DOCUMENTATION
-// ? ---------------------------------------------------------------------
-
 // This crate does not and cannot use the standard library.
 #![no_std]
 // As this is no ordinary program, we have a special entry-point,
@@ -34,20 +31,8 @@
 //! This is `unCORE`, an operating system kerne completely written in pure, idiomatic
 //! Rust.
 
-// ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
-// ? ---------------------------------------------------------------------
-
-/// TODO
+/// The RISC-V 64bit entrypoint, called by the [`riscv-rt`] runtime after SBI has set up
+/// the machine.
 #[cfg(target_arch = "riscv64")]
 #[riscv_rt::entry]
-fn __function__main() -> ! {
-  use uncore::*;
-
-  panic_on_error!(arch::drivers::init);
-  log::initialize();
-  log::display_initial_information();
-
-  // drivers::uart::Uart::read_loop();
-
-  arch::exit_kernel(0);
-}
+fn riscv64_entry() -> ! { uncore::arch::main() }

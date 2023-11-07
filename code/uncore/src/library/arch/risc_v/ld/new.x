@@ -1,19 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-/* This linker script was created by merging the information of multipple    */
-/* different linker scripts:                                                 */
-/* - `riscv64-unknown-elf-ld --verbose`
-/* - https://mcyoung.xyz/2021/06/01/linker-script                            */
-/* - https://github.com/twilco/riscv-from-scratch                            */
-/* - https://github.com/sgmarz/osblog                                        */
-/* - https://github.com/rust-embedded/riscv-rt/blob/master/link-rv64.x       */
-
 /* This script needs to be synchronized with                                 */
 /* https://github.com/rust-embedded/riscv-rt/blob/28b916dc400caef2b3bfd4c5e66130a162e21f26/link-rv64.x */
-/* and updates to this commit need to be synchronized with the updates       */
-/* the script gets on GitHub.                                                */
+/* and updates to the riscv-rt crate need to be synchronized with            */
+/* the updates the script gets on GitHub.                                    */
 
-/* We define that the architecture we are building for is RISC-V.            */
+/* We define the architecture we are building for to be RISC-V.              */
 /* The value we use if valid for the 32bit and 64bit versions.               */
 OUTPUT_ARCH(elf64-littleriscv)
 OUTPUT_FORMAT(elf64-littleriscv)
@@ -28,32 +20,32 @@ SEARCH_DIR(/usr/lib/riscv64-unknown-elf/lib)
 /* their job is to get to this point.                                        */
 MEMORY
 {
-  /* TODO */
-  FLASH (rx) : ORIGIN = 0x20000000, LENGTH = 16M
-  /* The RAM region is defined to be read-write ('rw'), executable           */
+  /* This is a read-only section of memory that is used to place the text    */
+  /* and read-only data into it.                                             */
+  REGION_FLASH  (rx) : ORIGIN = 0x20000000, LENGTH = 64M
+  /* The DRAM region is defined to be read-write ('rw'), executable          */
   /* ('x'), and allocatable ('a'). The RAM memory starts at adress           */
   /* '0x8000_0000'. Technically, the size is arbitrary, and only             */
   /* bounded by the parameter that QEMU received for '-m'. By                */
   /* specifying the size, the linker can double-check that                   */
   /* everything fits.                                                        */
-  RAM (rwxa) : ORIGIN = 0x80200000, LENGTH = 16M
+  REGION_DRAM (rwxa) : ORIGIN = 0x80200000, LENGTH = 16M
 }
 
-/* TODO */
-REGION_ALIAS("REGION_TEXT",   FLASH);
-REGION_ALIAS("REGION_RODATA", FLASH);
-REGION_ALIAS("REGION_DATA",   RAM);
-REGION_ALIAS("REGION_BSS",    RAM);
-REGION_ALIAS("REGION_HEAP",   RAM);
-REGION_ALIAS("REGION_STACK",  RAM);
+/* These aliases can be used instead of the memory regions defined in        */
+/* MEMORY. These aliases are sued to relocate sections.                      */
+REGION_ALIAS(REGION_TEXT,   REGION_FLASH);
+REGION_ALIAS(REGION_RODATA, REGION_FLASH);
+REGION_ALIAS(REGION_DATA,   REGION_DRAM);
+REGION_ALIAS(REGION_BSS,    REGION_DRAM);
+REGION_ALIAS(REGION_HEAP,   REGION_DRAM);
+REGION_ALIAS(REGION_STACK,  REGION_DRAM);
 
-/* TODO */
+/* Maximum number of supported hardware threads and their stack size.        */
 PROVIDE(_max_hart_id = 0);
-/* TODO */
 PROVIDE(_hart_stack_size = 2K);
-/* TODO */
-PROVIDE(_heap_size = 2K);
 
+/* TODO START remove and put into .../ld/mod.rs                               */
 /* Pre-initialization function. If the user overrides this using the         */
 /* `#[pre_init]` attribute or by creating a `__pre_init` function, then the  */
 /* function this points to will be called before the RAM is initialized.     */
@@ -87,37 +79,26 @@ PROVIDE(MachineExternal = DefaultHandler);
 
 PROVIDE(DefaultHandler = DefaultInterruptHandler);
 PROVIDE(ExceptionHandler = DefaultExceptionHandler);
+/* TODO END remove and put into .../ld/mod.rs                                */
 
 SECTIONS
 {
-  PROVIDE(_stext = ORIGIN(REGION_TEXT) + SIZEOF_HEADERS);
-  . = ABSOLUTE(_stext);
-
-  .text          _stext :
+  .text                 :
   {
-    /* Put reset handler first in .text section so it ends up as the entry */
+    /* Put reset handler first in .text section so it ends up as the entry   */
     /* point of the program. */
     KEEP(*(SORT_NONE(.init)));
     KEEP(*(SORT_NONE(.init.rust)));
+
     . = ALIGN(4);
     *(.trap);
     *(.trap.rust);
     *(.text.abort);
     *(.text .text.*);
-  } > REGION_TEXT
+  } >REGION_TEXT
 
-  .rodata : ALIGN(4)
+  .rodata               : ALIGN(4)
   {
-    *(.srodata .srodata.*);
-    *(.rodata .rodata.*);
-
-    /* 4-byte align the end (VMA) of this section.
-       This is required by LLD to ensure the LMA of the following .data
-       section will have the correct alignment. */
-    . = ALIGN(4);
-  } > REGION_RODATA
-
-  .rodata               : ALIGN(4) {
     *(.srodata .srodata.*);
     *(.rodata .rodata.*);
 
@@ -127,56 +108,54 @@ SECTIONS
     . = ALIGN(4);
   } >REGION_RODATA
 
-  .data : ALIGN(4)
+  .data                 : ALIGN(4)
   {
-    _sidata = LOADADDR(.data);
-    _sdata = .;
+    _sidata = LOADADDR(.data); /* required by riscv-rt */
+    _sdata = .;                /* required by riscv-rt */
 
-    /* Must be called __global_pointer$ for linker relaxations to work.     */
+    /* Must be called __global_pointer$ for linker relaxations to work.      */
     __global_pointer$ = MIN(_sdata + 0x800, MAX(_sdata + 0x800, _ebss - 0x800));
 
     *(.sdata .sdata.* .sdata2 .sdata2.*);
     *(.data .data.*);
     . = ALIGN(4);
-    _edata = .;
+    _edata = .;                /* required by riscv-rt */
   } >REGION_DATA AT>REGION_RODATA
 
-  .bss         (NOLOAD) : {
-    _sbss = .;
+  /* "Fictitious" region that represents the memory available for            */
+  /* zero-initialized data.                                                  */
+  .bss         (NOLOAD) :
+  {
+    _sbss = .;                 /* required by riscv-rt */
     *(.sbss .sbss.* .bss .bss.*);
     . = ALIGN(4);
-    _ebss = .;
+    _ebss = .;                 /* required by riscv-rt */
   } >REGION_BSS
 
   /* "Fictitious" region that represents the memory available for the heap.  */
-  .heap        (NOLOAD) : {
-    _sheap = .;
-    . += _heap_size;
+  .heap        (NOLOAD) : ALIGN(4)
+  {
+    __heap__start = .;
+    __heap__size = 2K;
+    . += __heap__size;
     . = ALIGN(4);
-    _eheap = .;
   } >REGION_HEAP
 
   /* "Fictitious" region that represents the memory available for the stack. */
   /* Note that `_stack_start` denotes the end of RAM, and our stack grows,   */
   /* just like the RISC-V calling convention demands, from a higher to a     */
   /* lower address.                                                          */
-  .stack       (NOLOAD) : {
-    _estack = .;
-    PROVIDE(_stack_start = ORIGIN(REGION_STACK) + LENGTH(REGION_STACK));
+  .stack       (NOLOAD) : ALIGN(16) {
+    /* required by riscv-rt */
+    _stack_start = ORIGIN(REGION_STACK) + LENGTH(REGION_STACK);
     . = ABSOLUTE(_stack_start);
-    _sstack = .;
   } >REGION_STACK
-
 
   /* "Fake" output .got section.                                             */
   /* Dynamic relocations are unsupported. This section is only used to       */
   /* detect relocatable code in the input files and raise an error if        */
   /* relocatable code is found.                                              */
   .got           (INFO) : { KEEP(*(.got .got.*)); }
-
-  /* TODO */
-  .eh_frame      (INFO) : { KEEP(*(.eh_frame))    }
-  .eh_frame_hdr  (INFO) : { *(.eh_frame_hdr)      }
 
   /* DWARF debug sections. Symbols in the DWARF debugging sections           */
   /* are relative to the beginning of the section so we begin them at 0.     */
@@ -209,86 +188,36 @@ SECTIONS
   .debug_rnglists     0 : { *(.debug_rnglists) }
   .debug_str_offsets  0 : { *(.debug_str_offsets) }
   .debug_sup          0 : { *(.debug_sup) }
-  .ARM.attributes     0 : { KEEP (*(.ARM.attributes)) KEEP (*(.gnu.attributes)) }
-  .note.gnu.arm.ident 0 : { KEEP (*(.note.gnu.arm.ident)) }
 
-  /DISCARD/             : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
+  /DISCARD/             : { *(.note.*) *(.gnu.*) *(.eh_frame) *(.eh_frame_hdr) }
 }
 
-/* Last but not least, we perform some assertions.                           */
-/* Do not exceed this mark in the error messages above                                    | */
+/* Last but not least, we perform assertions.                                */
+
+ASSERT(ORIGIN(REGION_DRAM)  % 4 == 0, "The memory region REGION_RAM is not 4-byte aligned");
+ASSERT(ORIGIN(REGION_FLASH) % 4 == 0, "The memory region REGION_FLASH is not 4-byte aligned");
+
+ASSERT(ADDR(.text) % 4 == 0,               "The section .text is not 4-byte aligned");
+ASSERT(_sdata % 4 == 0 && _edata % 4 == 0, "The section .data is not 4-byte aligned");
+ASSERT(_sidata % 4 == 0,                   "The LMA of the section .data is not 4-byte aligned");
+ASSERT(_sbss % 4 == 0 && _ebss % 4 == 0,   "The section .bss is not 4-byte aligned");
+ASSERT(ADDR(.heap) % 4 == 0,               "The section .heap is not 4-byte aligned");
+
 ASSERT(
-  ORIGIN(REGION_TEXT) % 4 == 0, "
-  linker-error: the start of the REGION_TEXT must be 4-byte aligned"
+  ADDR(.text) + SIZEOF(.text) < ORIGIN(REGION_TEXT) + LENGTH(REGION_TEXT),
+  "The .text section does not seem to fit inside the REGION_TEXT region."
 );
 
 ASSERT(
-  ORIGIN(REGION_RODATA) % 4 == 0, "
-  linker-error: the start of the REGION_RODATA must be 4-byte aligned"
-);
-
-ASSERT(
-  ORIGIN(REGION_DATA) % 4 == 0, "
-  linker-error: the start of the REGION_DATA must be 4-byte aligned"
-);
-
-ASSERT(
-  ORIGIN(REGION_HEAP) % 4 == 0, "
-  linker-error: the start of the REGION_HEAP must be 4-byte aligned"
-);
-
-ASSERT(
-  ORIGIN(REGION_TEXT) % 4 == 0, "
-  linker-error: the start of the REGION_TEXT must be 4-byte aligned"
-);
-
-ASSERT(
-  ORIGIN(REGION_STACK) % 4 == 0, "
-  linker-error: the start of the REGION_STACK must be 4-byte aligned"
-);
-
-ASSERT(
-  _stext % 4 == 0, "
-  linker-error: `_stext` must be 4-byte aligned"
-);
-
-ASSERT(
-  _sdata % 4 == 0 && _edata % 4 == 0, "
-  linker-error:  .data is not 4-byte aligned"
-);
-
-ASSERT(
-  _sidata % 4 == 0, "
-  linker-error:  the LMA of .data is not 4-byte aligned"
-);
-
-ASSERT(
-  _sbss % 4 == 0 && _ebss % 4 == 0, "
-  linker-error:  .bss is not 4-byte aligned"
-);
-
-ASSERT(
-  _sheap % 4 == 0, "
-  linker-error:  start of .heap is not 4-byte aligned"
-);
-
-ASSERT(
-  _stext + SIZEOF(.text) < ORIGIN(REGION_TEXT) + LENGTH(REGION_TEXT), "
-  linker-error: The .text section must be placed inside the REGION_TEXT region.
-  Set _stext to an address smaller than 'ORIGIN(REGION_TEXT) + LENGTH(REGION_TEXT)'"
-);
-
-ASSERT(
-  SIZEOF(.stack) > (_max_hart_id + 1) * _hart_stack_size, "
-  linker-error: .stack section is too small for allocating stacks for all the harts.
+  SIZEOF(.stack) > (_max_hart_id + 1) * _hart_stack_size,
+  ".stack section is too small for allocating stacks for all the harts.
   Consider changing `_max_hart_id` or `_hart_stack_size`."
 );
 
 ASSERT(
-  SIZEOF(.got) == 0, "
-  linker-error: .got section detected in the input files. Dynamic relocations are
+  SIZEOF(.got) == 0,
+  ".got section detected in the input files. Dynamic relocations are
   not supported. If you are linking to C code compiled using the `gcc` crate
   then modify your build script to compile the C code _without_ the
   -fPIC flag. See the documentation of the `gcc::Config.fpic` method for details."
 );
-/* Do not exceed this mark in the error messages above                                    | */
