@@ -19,8 +19,7 @@ impl Logger {
   /// ### Set the Log Level
   ///
   /// This function takes care of setting the correct log level. If [`None`]
-  /// is provided, the "fallback" implementation [`Logger::from_str`] is
-  /// used.
+  /// is provided, the default [`log::Level::Info`] is used.
   fn set_log_level<'a>(log_level: Option<log::Level>) -> &'a str {
     let level_filter = log_level.map_or(log::LevelFilter::Info, |log_level| log_level.to_level_filter());
     log::set_max_level(level_filter);

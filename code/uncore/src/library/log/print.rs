@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+//! This module is responsible for the kernel log.
+
 /// ## The Global Kernel Logger
 ///
 /// This static variable is used by the [`log`] crate for
@@ -28,9 +30,7 @@ impl KernelLogger {
 
   /// ### Set the Log Level
   ///
-  /// This function takes care of setting the correct log level. If [`None`]
-  /// is provided, the "fallback" implementation [`KernelLogger::from_str`] is
-  /// used.
+  /// This function takes care of setting the correct log level.
   fn set_log_level(log_level: log::Level) { log::set_max_level(log_level.to_level_filter()); }
 }
 
@@ -48,11 +48,17 @@ impl log::Log for KernelLogger {
   fn flush(&self) {}
 }
 
-/// TODO
+/// Initializes the log by setting the global kernel logger and the correct log level.
+///
+/// #### Panics
+///
+/// If this function is called twice, the kernel panics, because we want to avoid code
+/// that initializes the logger twice.
 pub fn initialize() {
+  crate::library::panic_on_error!(log::set_logger, &LOGGER);
   KernelLogger::set_log_level(super::env::KernelInformation::get_log_level());
-  log::set_logger(&LOGGER).expect("Log should not have already been set");
   log::debug!("Kernel logging enabled");
+
   log::debug!(
     "Log level set to '{}'",
     super::env::KernelInformation::get_log_level()

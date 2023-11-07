@@ -1,5 +1,4 @@
-// uart.rs
-// UART routines and driver
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 //! TODO
 
@@ -25,14 +24,16 @@ impl Write for Uart {
 
 impl Uart {
   /// TODO
-  const fn new(base_address: usize) -> Self { Uart { base_address } }
+  const fn new(base_address: usize) -> Self { Self { base_address } }
 
   /// TODO
   #[must_use]
-  pub const fn new_well_known() -> Self {
-    Self::new(0x1000_0000)
-  }
+  pub const fn new_well_known() -> Self { Self::new(0x1000_0000) }
 
+  /// TODO
+  ///
+  /// #### Panics
+  ///
   /// TODO
   pub fn init() {
     let ptr = Self::new_well_known().base_address as *mut u8;

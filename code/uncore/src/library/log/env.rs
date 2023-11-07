@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+//! Contains code to work with environment variables supplied at build-time.
+
 /// ### Compilation Date and Time
 ///
 /// Contains the output of `date +'%H:%M, %d %b %Y'` right before the
@@ -72,6 +74,9 @@ impl KernelInformation {
   #[must_use]
   pub fn get_rustc_version() -> &'static str { RUSTC_VERSION.unwrap_or("unknown") }
 
+  /// Returns the log level defined by the environment variable `LOG_LEVEL` that was
+  /// supplied at build-time. If a value was not supplied, [`log::Level::Info`] is
+  /// returned as a default.
   pub fn get_log_level() -> log::Level {
     LOG_LEVEL.map_or_else(
       || log::Level::Info,

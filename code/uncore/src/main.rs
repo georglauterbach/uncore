@@ -21,7 +21,13 @@
 // Lint target for code documentation. This lint enforces code
 // documentation on every code item.
 #![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
 #![deny(clippy::missing_docs_in_private_items)]
+// Lint target for code documentation. When running `rustdoc`,
+// show an error when using broken links.
+#![deny(rustdoc::all)]
+#![deny(rustdoc::broken_intra_doc_links)]
+#![allow(rustdoc::private_intra_doc_links)]
 // Lint target for code documentation. When running `rustdoc`,
 // show an error when using broken links.
 #![deny(rustdoc::broken_intra_doc_links)]

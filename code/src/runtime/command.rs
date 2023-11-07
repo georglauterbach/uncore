@@ -10,7 +10,7 @@ pub enum Command {
   Build,
   /// Run the kernel
   Run,
-  /// Test the kernel
+  /// Test the kernel by running unit tests
   Test,
   /// Debug the kernel (by allowing GDB to attach)
   Debug,
@@ -22,23 +22,23 @@ impl Command {
   /// Actually dispatches the given subcommand by matching on `Self`.
   pub fn execute(self, architecture: super::arguments::Architecture) -> anyhow::Result<()> {
     check_dependencies(architecture, self == Self::Debug)?;
+    let architecture: &super::arguments::ArchitectureSpecification = &architecture.into();
 
     match self {
-      Self::Build => build(&architecture.into())?,
+      Self::Build => build(architecture)?,
       Self::Run => {
-        build(&architecture.into())?;
-        run(&architecture.into())?;
+        build(architecture)?;
+        run(architecture)?;
       },
       Self::Test => {
-        anyhow::bail!("The test sub-command is not yet implemented");
-        // build(&architecture.into())?;
+        test(architecture)?;
       },
       Self::Debug => {
-        build(&architecture.into())?;
-        debug(&mut architecture.into())?;
+        build(architecture)?;
+        debug(architecture)?;
       },
       Self::Check => {
-        check(&architecture.into())?;
+        check(architecture)?;
       },
     }
     Ok(())
@@ -48,41 +48,6 @@ impl Command {
 impl std::fmt::Display for Command {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     write!(f, "{}", format!("{self:?}").to_lowercase())
-  }
-}
-
-/// Holds information about all architecture-specific files and commands.
-pub struct ArchitectureSpecification {
-  /// The target triple
-  pub target:             &'static str,
-  /// The QEMU command to execute
-  pub qemu_command:       &'static str,
-  /// Path to the linker script
-  pub linker_script_path: String,
-  /// The parameters of the QEMU command to execute
-  pub qemu_arguments:     Vec<String>,
-}
-
-impl From<crate::runtime::arguments::Architecture> for ArchitectureSpecification {
-  fn from(val: crate::runtime::arguments::Architecture) -> Self {
-    let base_dir = std::env::var("CARGO_MANIFEST_DIR").expect("LOL");
-    match val {
-      crate::runtime::arguments::Architecture::Riscv64 => Self {
-        target:             "riscv64gc-unknown-none-elf",
-        qemu_command:       "qemu-system-riscv64",
-        linker_script_path: base_dir.clone() + "/uncore/src/library/arch/risc_v/ld/new.x",
-        // editorconfig-checker-disable
-        qemu_arguments:     format!(
-          "-machine virt -cpu rv64 -smp 1 -m 128M -nographic -serial mon:stdio -device virtio-rng-device \
-           -device virtio-gpu-device -device virtio-net-device -device virtio-keyboard-device -kernel {}",
-          base_dir + "/target/riscv64gc-unknown-none-elf/debug/uncore"
-        )
-        // editorconfig-checker-enable
-        .split(' ')
-        .map(std::string::ToString::to_string)
-        .collect(),
-      },
-    }
   }
 }
 
@@ -103,6 +68,8 @@ fn check_dependencies(architecture: super::arguments::Architecture, is_debug: bo
     };
   }
 
+  check_bin!("jq");
+
   match architecture {
     super::arguments::Architecture::Riscv64 => {
       check_bin!("qemu-system-riscv64");
@@ -118,42 +85,34 @@ fn check_dependencies(architecture: super::arguments::Architecture, is_debug: bo
   Ok(())
 }
 
-/// A wrapper that taken a [`std::process::ExitStatus`] and evaluates it properly. This
-/// function is used in the macro [`run_command_and_check`].
-fn evaluate_exit_status(exit_status: std::process::ExitStatus) -> anyhow::Result<()> {
-  if let Some(status) = exit_status.code() {
-    match status {
-      0 => Ok(()),
-      _ => anyhow::bail!("Failure: command exited with status code {}", status),
-    }
-  } else {
-    anyhow::bail!("Failure: could not determine exit status - terminated by signal?")
-  }
-}
-
 /// Runs a given command, taking arguments and environment variables if necessary, and
-/// evaluates the exit status in the end using [`evaluate_exit_status`].
+/// evaluates the exit status in the end.
 macro_rules! run_command_and_check {
-  ($command_name:expr, $arguments:expr) => {{
-    let exit_status = std::process::Command::new($command_name)
-      .args($arguments)
-      .status()?;
-
-    evaluate_exit_status(exit_status)?;
-  }};
+  ($command_name:expr, $arguments:expr) => {
+    run_command_and_check!($command_name, $arguments, [("__unused", "")])
+  };
 
   ($command_name:expr, $arguments:expr, $envs:expr) => {{
-    let exit_status = std::process::Command::new($command_name)
+    let __special: anyhow::Result<()> = if let Some(status) = std::process::Command::new($command_name)
       .args($arguments)
       .envs($envs)
-      .status()?;
-
-    evaluate_exit_status(exit_status)?;
+      .status()?
+      .code()
+    {
+      if status == 0 {
+        Ok(())
+      } else {
+        anyhow::bail!("Command exited with status code {}", status)
+      }
+    } else {
+      anyhow::bail!("Failure: could not determine exit status - terminated by signal?")
+    };
+    __special
   }};
 }
 
 /// Builds the kernel.
-fn build(arch_specification: &super::command::ArchitectureSpecification) -> anyhow::Result<()> {
+fn build(arch_specification: &super::arguments::ArchitectureSpecification) -> anyhow::Result<()> {
   log::info!("Building unCORE");
 
   let mut environment = super::environment::get_all_environment_variables_for_build()?;
@@ -172,51 +131,91 @@ fn build(arch_specification: &super::command::ArchitectureSpecification) -> anyh
       arch_specification.target,
     ],
     environment
-  );
-
-  Ok(())
+  )
 }
 
-/// Runs the kernel given an [`ArchitectureSpecification`].
-fn run(arch_specification: &super::command::ArchitectureSpecification) -> anyhow::Result<()> {
+/// Runs the kernel given an [`super::arguments::ArchitectureSpecification`].
+fn run(arch_specification: &super::arguments::ArchitectureSpecification) -> anyhow::Result<()> {
   log::info!("Running unCORE now");
+
   run_command_and_check!(
     arch_specification.qemu_command,
-    &arch_specification.qemu_arguments
-  );
-  Ok(())
+    &arch_specification.qemu_arguments_with_kernel()
+  )
 }
 
-/// Runs the kernel given an [`ArchitectureSpecification`] with debug attributes.
-fn debug(arch_specification: &mut super::command::ArchitectureSpecification) -> anyhow::Result<()> {
+/// Runs the kernel given an [`super::arguments::ArchitectureSpecification`] with debug
+/// attributes.
+fn debug(arch_specification: &super::arguments::ArchitectureSpecification) -> anyhow::Result<()> {
   log::info!("Debugging unCORE");
   log::debug!("You may use 'gdb-multiarch -q -x misc/gdb/init.txt' to attach now");
   log::debug!("Remember: 'Ctrl-A x' will exit QEMU");
 
-  arch_specification.qemu_arguments.push("-s".to_string());
-  arch_specification.qemu_arguments.push("-S".to_string());
+  let mut arguments = arch_specification.qemu_arguments_with_kernel();
+  arguments.append(&mut vec!["-s", "-S"]);
 
-  run_command_and_check!(
-    arch_specification.qemu_command,
-    &arch_specification.qemu_arguments
+  run_command_and_check!(arch_specification.qemu_command, arguments)
+}
+
+/// TODO
+fn test(arch_specification: &super::arguments::ArchitectureSpecification) -> anyhow::Result<()> {
+  log::info!("Testing unCORE now");
+
+  let mut environment = super::environment::get_all_environment_variables_for_build()?;
+  environment.insert(
+    "RUSTFLAGS",
+    format!("-C link-arg=-T{}", arch_specification.linker_script_path),
   );
-  Ok(())
+
+  let cargo = std::process::Command::new(env!("CARGO"))
+    .args([
+      "test",
+      "--lib",
+      "--package",
+      "uncore",
+      "--target",
+      arch_specification.target,
+      "--no-run",
+      "--message-format=json",
+    ])
+    .envs(&environment)
+    .stdout(std::process::Stdio::piped())
+    .stderr(std::process::Stdio::null())
+    .spawn()?;
+
+  let jq = std::process::Command::new("jq")
+    .args(["-r", "select(.profile.test == true) | .filenames[]"])
+    .stdin(std::process::Stdio::from(cargo.stdout.unwrap()))
+    .stdout(std::process::Stdio::piped())
+    .spawn()?
+    .wait_with_output()?;
+
+  let kernel_test_binary = std::str::from_utf8(&jq.stdout)?.trim();
+  if kernel_test_binary.is_empty() {
+    anyhow::bail!("Cargo did not create a test binary");
+  }
+
+  let mut arguments = arch_specification.qemu_arguments();
+  arguments.append(&mut vec!["-kernel", std::str::from_utf8(&jq.stdout)?.trim()]);
+
+  run_command_and_check!(arch_specification.qemu_command, arguments)
 }
 
 /// Performs miscellaneous code (quality) checks, like running Clippy, formatting,
 /// documentation, etc.
-fn check(arch_specification: &super::command::ArchitectureSpecification) -> anyhow::Result<()> {
+fn check(arch_specification: &super::arguments::ArchitectureSpecification) -> anyhow::Result<()> {
   /// A simple wrapper around [`run_command_and_check`] to ease calling checks.
   macro_rules! check {
     ($arguments:expr) => {{
-      run_command_and_check!(env!("CARGO"), $arguments);
+      run_command_and_check!(env!("CARGO"), $arguments)?;
     }};
   }
 
   // clippy
-  check!(&["clippy", "--all-features", "--", "-D", "warnings"]);
+  check!(&["clippy", "-q", "--all-features", "--", "-D", "warnings"]);
   check!(&[
     "clippy",
+    "-q",
     "--lib",
     "--target",
     arch_specification.target,
@@ -229,8 +228,15 @@ fn check(arch_specification: &super::command::ArchitectureSpecification) -> anyh
   ]);
 
   // documentation
-  check!(&["doc", "--document-private-items"]);
-  check!(&["doc", "--lib", "--package", "uncore", "--document-private-items"]);
+  check!(&["doc", "-q", "--document-private-items"]);
+  check!(&[
+    "doc",
+    "-q",
+    "--lib",
+    "--package",
+    "uncore",
+    "--document-private-items"
+  ]);
 
   // formatting
   check!(&["fmt", "--all", "--message-format", "human", "--", "--check"]);

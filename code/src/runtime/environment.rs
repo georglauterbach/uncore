@@ -36,8 +36,8 @@ fn get_kernel_version() -> anyhow::Result<String> {
 
 /// Returns the kernels version as specified in `Cargo.toml`.
 fn get_toolchain() -> anyhow::Result<String> {
-  let cargo_toml =
-    std::fs::read_to_string(CARGO_MANIFEST_DIR.to_string() + "/rust-toolchain.toml")?.parse::<toml::Table>()?;
+  let cargo_toml = std::fs::read_to_string(CARGO_MANIFEST_DIR.to_string() + "/rust-toolchain.toml")?
+    .parse::<toml::Table>()?;
 
   Ok(
     cargo_toml
@@ -49,7 +49,7 @@ fn get_toolchain() -> anyhow::Result<String> {
       .expect("Could not convert array 'targets' in table 'package' to proper array")
       .get(0)
       .expect("Could not get first element of toolchain array")
-      .to_string()
+      .to_string(),
   )
 }
 

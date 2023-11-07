@@ -1,5 +1,3 @@
-cargo-features = ["per-package-target"]
-
 [package]
 name = "uncore"
 version = "1.0.0-alpha1"
@@ -37,7 +35,6 @@ categories = [
 ]
 
 publish = false
-default-target = "riscv64gc-unknown-none-elf"
 
 # Cargo's auto-detection of library files is turned on. Therefore,
 # `src/lib.rs` is automatically detected by Cargo as a freestanding
@@ -58,5 +55,6 @@ autotests = false
 [dependencies]
 log = "0.4.20"
 owo-colors = "3.5.0"
+panic-halt = "0.2.0"
 riscv-rt = { git = "https://github.com/rust-embedded/riscv-rt.git", branch = "master", features = ["s-mode"] }
 spin = "0.9.8"

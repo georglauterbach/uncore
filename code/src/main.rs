@@ -23,7 +23,6 @@
 // Lint target for code documentation. When running `rustdoc`,
 // show an error when using broken links.
 #![deny(rustdoc::all)]
-#![allow(rustdoc::missing_doc_code_examples)]
 // All other, generic lint targets that were not
 // covered previously
 #![deny(missing_debug_implementations)]

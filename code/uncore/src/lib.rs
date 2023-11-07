@@ -24,10 +24,19 @@
 // Lint target for code documentation. This lint enforces code
 // documentation on every code item.
 #![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
 #![deny(clippy::missing_docs_in_private_items)]
 // Lint target for code documentation. When running `rustdoc`,
 // show an error when using broken links.
+#![deny(rustdoc::all)]
 #![deny(rustdoc::broken_intra_doc_links)]
+#![allow(rustdoc::private_intra_doc_links)]
+// With our own test framework, we have to define which function
+// runs our tests.
+#![test_runner(crate::library::test::runner)]
+// We will have to re-export the actual test runner above with
+// a new name so cargo is not confused.
+#![reexport_test_harness_main = "__test_runner"]
 
 //! # The `unCORE` Operating System Kernel Library
 //!
@@ -37,6 +46,10 @@
 // ? UNSTABLE FEATURES
 // ? ---------------------------------------------------------------------
 
+// Use custom test runners. Since we cannot use the standard
+// library, we have to use our own test framework.
+#![feature(custom_test_frameworks)]
+// TODO
 #![feature(panic_info_message)]
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
@@ -52,18 +65,28 @@
 /// is important, and we are not allowed to mix them up.
 mod library;
 
+/// TODO
 pub use library::{
   arch,
   log,
 };
 
+/// TODO
+#[allow(clippy::inline_always)]
+#[cfg(all(target_arch = "riscv64", test))]
+#[riscv_rt::entry]
+fn riscv64_entry() -> ! { crate::arch::main() }
+
+#[allow(clippy::inline_always)]
 #[inline(always)]
 fn main() -> ! {
-  panic_on_error!(arch::drivers::init);
   log::initialize();
   log::display_initial_information();
 
   // drivers::uart::Uart::read_loop();
+
+  #[cfg(test)]
+  crate::__test_runner();
 
   arch::exit_kernel(0);
 }
