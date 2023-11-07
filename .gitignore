@@ -23,11 +23,5 @@ documentation/site
 # ----  Kernel ----------------------------------
 # -----------------------------------------------
 
-kernel/build/
-kernel/target/
-
-kernel/**/Cargo.lock
-kernel/**/*.rs.bk
-
 code/target/
 code/**/Cargo.lock
