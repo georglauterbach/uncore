@@ -68,23 +68,21 @@ mod library;
 /// TODO
 pub use library::{
   arch,
-  log,
+  Condition,
 };
 
 /// TODO
 #[cfg(all(target_arch = "riscv64", test))]
 #[riscv_rt::entry]
-fn riscv64_entry() -> ! { crate::arch::main() }
+fn riscv64_entry() -> ! {
+  crate::arch::initialize();
+  setup_kernel();
+  crate::__test_runner();
+  arch::exit_kernel(library::Condition::Success);
+}
 
 /// TODO
-fn main() -> ! {
-  log::initialize();
-  log::display_initial_information();
-
-  // drivers::uart::Uart::read_loop();
-
-  #[cfg(test)]
-  crate::__test_runner();
-
-  arch::exit_kernel(library::Condition::Success);
+pub fn setup_kernel() {
+  library::log::initialize();
+  library::log::display_initial_information();
 }

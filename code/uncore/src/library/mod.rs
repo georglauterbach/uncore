@@ -9,6 +9,9 @@ pub mod arch;
 pub mod log;
 
 /// TODO
+pub mod prelude;
+
+/// TODO
 pub mod test;
 
 /// TODO

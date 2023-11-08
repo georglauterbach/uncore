@@ -44,9 +44,6 @@ fn main() {
 
   log::initialize(arguments.get_log_level());
   if arguments.dispatch_command().is_err() {
-    ::log::error!("Execution terminated unsuccessfully");
     std::process::exit(1);
-  } else {
-    ::log::trace!("Execution terminated successfully");
   }
 }

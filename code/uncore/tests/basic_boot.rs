@@ -17,40 +17,33 @@
 // Clippy lint target three. Enables new lints that are still
 // under development
 #![deny(clippy::pedantic)]
+// Clippy lint target four. Enable lints for the cargo manifest
+// file, a.k.a. Cargo.toml.
+#![deny(clippy::cargo)]
+#![allow(clippy::multiple_crate_versions)]
 // Lint target for code documentation. This lint enforces code
 // documentation on every code item.
 #![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
 #![deny(clippy::missing_docs_in_private_items)]
 
-//! # Kernel Panic Test
-//!
-//! Checks whether the panic handler works as expected.
+//! TODO
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-use kernel::{
-  library,
-  prelude::*,
-};
+use uncore::*;
 
-bootloader::entry_point!(kernel_test_main);
+/// The RISC-V 64bit entrypoint, called by the [`riscv-rt`] runtime after SBI has set up
+/// the machine.
+#[cfg(target_arch = "riscv64")]
+#[riscv_rt::entry]
+fn riscv64_entry() -> ! {
+  arch::initialize();
+  setup_kernel();
 
-fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> ! {
-  library::log::initialize(None);
-  library::log::display_initial_information();
+  ::log::warn!("This is an integration test!");
+  ::log::info!("This integration test is called 'basic_boot'");
 
-  log_info!("This is the 'should_panic' test");
-
-  this_test_should_panic();
-
-  log_error!("Test did not panic but was expected to. FAILURE.");
-  exit_kernel(kernel_types::ExitCode::Failure)
+  arch::exit_kernel(Condition::Success);
 }
-
-fn this_test_should_panic() {
-  assert_eq!(0, 1);
-}
-
-#[panic_handler]
-fn panic(panic_info: &::core::panic::PanicInfo) -> ! { panic::callback(true, panic_info) }

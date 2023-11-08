@@ -3,12 +3,9 @@
 pub mod drivers;
 mod ld;
 
-/// Architecture-specific functionality before the actual main function [`crate::main`]
-/// can run.
-pub fn main() -> ! {
-  drivers::initialize();
-  crate::main();
-}
+/// Architecture-specific functionality before the kernel setup in [`crate::setup_kernel`]
+/// should run.
+pub fn initialize() { drivers::initialize(); }
 
 /// TODO
 #[panic_handler]

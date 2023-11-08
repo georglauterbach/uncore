@@ -68,10 +68,11 @@ spin = "0.9.8"
 # ----  Tests  ----------------------------------
 # -----------------------------------------------
 
-# [[test]]
-# name = "stack_overflow"
-# harness = false
+[[test]]
+name = "basic_boot"
+harness = false
 
-# [[test]]
-# name = "should_panic"
-# harness = false
+[[test]]
+name = "lol"
+harness = false
+

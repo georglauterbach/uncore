@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// ? GLOBAL CRATE ATTRIBUTES AND DOCUMENTATION
+// ? ---------------------------------------------------------------------
+
 // This crate does not and cannot use the standard library.
 #![no_std]
 // As this is no ordinary program, we have a special entry-point,
@@ -23,19 +26,11 @@
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 #![deny(clippy::missing_docs_in_private_items)]
-// Lint target for code documentation. When running `rustdoc`,
-// show an error when using broken links.
-#![deny(rustdoc::all)]
-#![deny(rustdoc::broken_intra_doc_links)]
-#![allow(rustdoc::private_intra_doc_links)]
-// Lint target for code documentation. When running `rustdoc`,
-// show an error when using broken links.
-#![deny(rustdoc::broken_intra_doc_links)]
 
-//! # The `unCORE` Operating System Kernel
-//!
-//! This is `unCORE`, an operating system kerne completely written in pure, idiomatic
-//! Rust.
+//! TODO
+
+// ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
+// ? ---------------------------------------------------------------------
 
 use uncore::*;
 
@@ -46,6 +41,9 @@ use uncore::*;
 fn riscv64_entry() -> ! {
   arch::initialize();
   setup_kernel();
-  // drivers::uart::Uart::read_loop();
+
+  ::log::warn!("This is an integration test!");
+  ::log::info!("This integration test is called 'lol'");
+
   arch::exit_kernel(Condition::Success);
 }

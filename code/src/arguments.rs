@@ -29,7 +29,7 @@ pub struct Arguments {
   pub architecture: Architecture,
   /// Specify what to do: build the kernel, run the kernel, etc.
   #[command(subcommand)]
-  command:          super::command::Command,
+  pub command:      super::command::Command,
 }
 
 impl Arguments {
@@ -40,7 +40,7 @@ impl Arguments {
   /// sub-commands.
   pub fn dispatch_command(self) -> Result<(), ()> {
     log::debug!("Dispatching command '{}'", self.command);
-    match self.command.execute(&self) {
+    match super::command::Command::execute(&self) {
       Ok(()) => Ok(()),
       Err(error) => {
         log::error!(

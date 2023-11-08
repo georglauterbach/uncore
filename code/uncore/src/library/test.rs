@@ -41,7 +41,7 @@ pub fn runner(tests: &[&dyn Testable]) {
   }
 
   log::info!("Last test finished successfully");
-  crate::arch::exit_kernel(0);
+  crate::arch::exit_kernel(crate::library::Condition::Success);
 }
 
 /// ### Sanity Check

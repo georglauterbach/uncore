@@ -57,6 +57,7 @@ fn get_toolchain() -> anyhow::Result<String> {
 /// keys and their respective values are the values of the map. This is used when
 /// building, as the map is provided to [`std::process::Command`].
 pub fn get_all_environment_variables_for_build(
+  linker_script_path: &str,
 ) -> anyhow::Result<std::collections::HashMap<&'static str, String>> {
   let mut environment = std::collections::HashMap::new();
 
@@ -68,6 +69,8 @@ pub fn get_all_environment_variables_for_build(
     "COMPILATION_DATE_AND_TIME",
     chrono::offset::Local::now().format("%+").to_string(),
   );
+
+  environment.insert("RUSTFLAGS", format!("-C link-arg=-T{linker_script_path}"));
 
   Ok(environment)
 }
