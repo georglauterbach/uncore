@@ -30,28 +30,26 @@
 // ? ---------------------------------------------------------------------
 
 use kernel::{
-	library,
-	prelude::*,
+  library,
+  prelude::*,
 };
 
 bootloader::entry_point!(kernel_test_main);
 
-fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> !
-{
-	library::log::initialize(None);
-	library::log::display_initial_information();
+fn kernel_test_main(_boot_information: &'static mut bootloader::BootInfo) -> ! {
+  library::log::initialize(None);
+  library::log::display_initial_information();
 
-	log_info!("This is the 'should_panic' test");
+  log_info!("This is the 'should_panic' test");
 
-	this_test_should_panic();
+  this_test_should_panic();
 
-	log_error!("Test did not panic but was expected to. FAILURE.");
-	exit_kernel(kernel_types::ExitCode::Failure)
+  log_error!("Test did not panic but was expected to. FAILURE.");
+  exit_kernel(kernel_types::ExitCode::Failure)
 }
 
-fn this_test_should_panic()
-{
-	assert_eq!(0, 1);
+fn this_test_should_panic() {
+  assert_eq!(0, 1);
 }
 
 #[panic_handler]

@@ -2,6 +2,8 @@
 
 //! TODO
 
+use crate::library;
+
 extern "C" {
   static __heap__start: u8;
   static __heap__size: u8;
@@ -29,4 +31,4 @@ impl Heap {
 /// TODO
 #[no_mangle]
 #[allow(unused_variables, non_snake_case)]
-pub extern "C" fn DefaultHandler() { crate::arch::exit_kernel(8); }
+pub extern "C" fn DefaultHandler() { crate::arch::exit_kernel(library::Condition::Failure); }

@@ -12,6 +12,15 @@ pub mod log;
 pub mod test;
 
 /// TODO
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
+pub enum Condition {
+  /// TODO
+  Success,
+  /// TODO
+  Failure,
+}
+
+/// TODO
 macro_rules! panic_on_error {
   ($function_name:path) => {{
     if let Err(error) = $function_name() {

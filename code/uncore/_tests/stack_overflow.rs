@@ -33,58 +33,55 @@
 // ? ---------------------------------------------------------------------
 
 use kernel::{
-	library,
-	prelude::*,
+  library,
+  prelude::*,
 };
 
 use x86_64::structures::idt;
 
 lazy_static::lazy_static! {
-	static ref TEST_IDT: idt::InterruptDescriptorTable = {
-		let mut idt = idt::InterruptDescriptorTable::new();
+  static ref TEST_IDT: idt::InterruptDescriptorTable = {
+    let mut idt = idt::InterruptDescriptorTable::new();
 
-		unsafe {
-			idt.double_fault
-				.set_handler_fn(test_double_fault_handler)
-				.set_stack_index(0);
-		}
+    unsafe {
+      idt.double_fault
+        .set_handler_fn(test_double_fault_handler)
+        .set_stack_index(0);
+    }
 
-		idt
-	};
+    idt
+  };
 }
 
-extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> !
-{
-	log_info!("Received double fault - nice");
-	exit_kernel(kernel_types::ExitCode::Success)
+extern "x86-interrupt" fn test_double_fault_handler(_: idt::InterruptStackFrame, _: u64) -> ! {
+  log_info!("Received double fault - nice");
+  exit_kernel(kernel_types::ExitCode::Success)
 }
 
 bootloader::entry_point!(kernel_test_main);
 
-fn kernel_test_main(_: &'static mut bootloader::BootInfo) -> !
-{
-	library::log::initialize(None);
-	library::log::display_initial_information();
+fn kernel_test_main(_: &'static mut bootloader::BootInfo) -> ! {
+  library::log::initialize(None);
+  library::log::display_initial_information();
 
-	log_info!("This is the 'stack_overflow' test");
+  log_info!("This is the 'stack_overflow' test");
 
-	library::architectures::initialize();
+  library::architectures::initialize();
 
-	TEST_IDT.load();
-	log_info!("Initialized new (test) IDT.");
+  TEST_IDT.load();
+  log_info!("Initialized new (test) IDT.");
 
-	stack_overflow();
+  stack_overflow();
 
-	log_error!("Execution continued after kernel stack overflow");
-	exit_kernel(kernel_types::ExitCode::Failure)
+  log_error!("Execution continued after kernel stack overflow");
+  exit_kernel(kernel_types::ExitCode::Failure)
 }
 
 #[allow(unconditional_recursion)]
-fn stack_overflow()
-{
-	stack_overflow();
-	// prevent tail call optimization
-	volatile::Volatile::new(&0).read();
+fn stack_overflow() {
+  stack_overflow();
+  // prevent tail call optimization
+  volatile::Volatile::new(&0).read();
 }
 
 #[panic_handler]

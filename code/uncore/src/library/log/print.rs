@@ -87,8 +87,8 @@ pub fn display_initial_information() {
 /// TODO
 mod qemu_uart {
   /// TODO
-  static LOCK: spin::Mutex<(bool, crate::arch::drivers::uart::Uart)> =
-    spin::Mutex::new((true, crate::arch::drivers::uart::Uart::new_well_known()));
+  static LOCK: spin::Mutex<(bool, crate::arch::drivers::qemu_uart::Uart)> =
+    spin::Mutex::new((true, crate::arch::drivers::qemu_uart::Uart::new_well_known()));
 
   /// TODO
   #[derive(Debug)]

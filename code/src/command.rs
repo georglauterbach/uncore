@@ -9,33 +9,37 @@ pub enum Command {
   /// Build the kernel
   Build,
   /// Run the kernel
-  Run,
+  Run {
+    /// Specify whether you want to debug the kernel
+    #[clap(short, long)]
+    debug: bool,
+  },
   /// Test the kernel by running unit tests
-  Test,
-  /// Debug the kernel (by allowing GDB to attach)
-  Debug,
+  Test {
+    /// Specify whether you want to debug the kernel
+    #[clap(short, long)]
+    debug: bool,
+  },
   /// Check the code (e.g. with `clippy`)
   Check,
 }
 
 impl Command {
   /// Actually dispatches the given subcommand by matching on `Self`.
-  pub fn execute(self, architecture: super::arguments::Architecture) -> anyhow::Result<()> {
-    check_dependencies(architecture, self == Self::Debug)?;
-    let architecture: &super::arguments::ArchitectureSpecification = &architecture.into();
+  pub fn execute(self, arguments: &super::arguments::Arguments) -> anyhow::Result<()> {
+    let architecture = arguments.architecture;
+    check_dependencies(architecture)?;
+
+    let architecture: &super::arguments::ArchitectureSpecification = &arguments.architecture.into();
 
     match self {
       Self::Build => build(architecture)?,
-      Self::Run => {
+      Self::Run { debug } => {
         build(architecture)?;
-        run(architecture)?;
+        run(architecture, debug)?;
       },
-      Self::Test => {
-        test(architecture)?;
-      },
-      Self::Debug => {
-        build(architecture)?;
-        debug(architecture)?;
+      Self::Test { debug } => {
+        test(architecture, debug)?;
       },
       Self::Check => {
         check(architecture)?;
@@ -52,7 +56,7 @@ impl std::fmt::Display for Command {
 }
 
 /// Check all dependencies (libraries and binaries) given a specific architecture.
-fn check_dependencies(architecture: super::arguments::Architecture, is_debug: bool) -> anyhow::Result<()> {
+fn check_dependencies(architecture: super::arguments::Architecture) -> anyhow::Result<()> {
   use anyhow::Context;
 
   log::debug!("Checking dependencies");
@@ -73,12 +77,8 @@ fn check_dependencies(architecture: super::arguments::Architecture, is_debug: bo
   match architecture {
     super::arguments::Architecture::Riscv64 => {
       check_bin!("qemu-system-riscv64");
-      if is_debug {
-        log::trace!("  -> debug session detected - also checking debug dependencies");
-        check_bin!("gdb-multiarch");
-      } else {
-        log::trace!("Not a debug session - not checking debug dependencies");
-      }
+      log::trace!("Checking debug dependencies now");
+      check_bin!("gdb-multiarch");
     },
   }
 
@@ -135,31 +135,32 @@ fn build(arch_specification: &super::arguments::ArchitectureSpecification) -> an
 }
 
 /// Runs the kernel given an [`super::arguments::ArchitectureSpecification`].
-fn run(arch_specification: &super::arguments::ArchitectureSpecification) -> anyhow::Result<()> {
-  log::info!("Running unCORE now");
+fn run(
+  arch_specification: &super::arguments::ArchitectureSpecification,
+  is_debug: bool,
+) -> anyhow::Result<()> {
+  let arguments = if is_debug {
+    log::info!("Debugging unCORE");
+    log::debug!("You may use 'gdb-multiarch -q -x misc/gdb/init.txt' to attach now");
+    log::debug!("Remember: 'Ctrl-A x' will exit QEMU");
 
-  run_command_and_check!(
-    arch_specification.qemu_command,
-    &arch_specification.qemu_arguments_with_kernel()
-  )
-}
-
-/// Runs the kernel given an [`super::arguments::ArchitectureSpecification`] with debug
-/// attributes.
-fn debug(arch_specification: &super::arguments::ArchitectureSpecification) -> anyhow::Result<()> {
-  log::info!("Debugging unCORE");
-  log::debug!("You may use 'gdb-multiarch -q -x misc/gdb/init.txt' to attach now");
-  log::debug!("Remember: 'Ctrl-A x' will exit QEMU");
-
-  let mut arguments = arch_specification.qemu_arguments_with_kernel();
-  arguments.append(&mut vec!["-s", "-S"]);
+    let mut arguments = arch_specification.qemu_arguments_with_kernel();
+    arguments.append(&mut vec!["-s", "-S"]);
+    arguments
+  } else {
+    log::info!("Running unCORE");
+    arch_specification.qemu_arguments_with_kernel()
+  };
 
   run_command_and_check!(arch_specification.qemu_command, arguments)
 }
 
 /// TODO
-fn test(arch_specification: &super::arguments::ArchitectureSpecification) -> anyhow::Result<()> {
-  log::info!("Testing unCORE now");
+fn test(
+  arch_specification: &super::arguments::ArchitectureSpecification,
+  is_debug: bool,
+) -> anyhow::Result<()> {
+  log::info!("Building test binaries");
 
   let mut environment = super::environment::get_all_environment_variables_for_build()?;
   environment.insert(
@@ -192,10 +193,16 @@ fn test(arch_specification: &super::arguments::ArchitectureSpecification) -> any
 
   let kernel_test_binary = std::str::from_utf8(&jq.stdout)?.trim();
   if kernel_test_binary.is_empty() {
-    anyhow::bail!("Cargo did not create a test binary");
+    anyhow::bail!("Cargo did not create a test binary for the library");
   }
 
   let mut arguments = arch_specification.qemu_arguments();
+  if is_debug {
+    log::info!("Debugging unCORE unit tests");
+    arguments.append(&mut vec!["-s", "-S"]);
+  } else {
+    log::info!("Running unCORE unit tests");
+  }
   arguments.append(&mut vec!["-kernel", std::str::from_utf8(&jq.stdout)?.trim()]);
 
   run_command_and_check!(arch_specification.qemu_command, arguments)
@@ -232,6 +239,8 @@ fn check(arch_specification: &super::arguments::ArchitectureSpecification) -> an
   check!(&[
     "doc",
     "-q",
+    "--target",
+    arch_specification.target,
     "--lib",
     "--package",
     "uncore",

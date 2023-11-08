@@ -72,13 +72,11 @@ pub use library::{
 };
 
 /// TODO
-#[allow(clippy::inline_always)]
 #[cfg(all(target_arch = "riscv64", test))]
 #[riscv_rt::entry]
 fn riscv64_entry() -> ! { crate::arch::main() }
 
-#[allow(clippy::inline_always)]
-#[inline(always)]
+/// TODO
 fn main() -> ! {
   log::initialize();
   log::display_initial_information();
@@ -88,5 +86,5 @@ fn main() -> ! {
   #[cfg(test)]
   crate::__test_runner();
 
-  arch::exit_kernel(0);
+  arch::exit_kernel(library::Condition::Success);
 }

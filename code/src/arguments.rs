@@ -23,13 +23,13 @@ pub enum Architecture {
 pub struct Arguments {
   /// Specify the verbosity
   #[clap(flatten)]
-  verbosity:    clap_verbosity_flag::Verbosity<clap_verbosity_flag::InfoLevel>,
+  verbosity:        clap_verbosity_flag::Verbosity<clap_verbosity_flag::InfoLevel>,
   /// Specify the architecture unCORE is built for.
   #[clap(short, long, value_enum, default_value_t=Architecture::Riscv64)]
-  architecture: Architecture,
+  pub architecture: Architecture,
   /// Specify what to do: build the kernel, run the kernel, etc.
   #[command(subcommand)]
-  command:      super::command::Command,
+  command:          super::command::Command,
 }
 
 impl Arguments {
@@ -40,7 +40,7 @@ impl Arguments {
   /// sub-commands.
   pub fn dispatch_command(self) -> Result<(), ()> {
     log::debug!("Dispatching command '{}'", self.command);
-    match self.command.execute(self.architecture) {
+    match self.command.execute(&self) {
       Ok(()) => Ok(()),
       Err(error) => {
         log::error!(

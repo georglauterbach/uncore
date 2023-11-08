@@ -1,3 +1,5 @@
+cargo-features = ["per-package-target"]
+
 [package]
 name = "uncore"
 version = "1.0.0-alpha1"
@@ -18,6 +20,7 @@ authors = ["The unCORE Kernel Community"]
 documentation = "https://georglauterbach.github.io/uncore/edge/"
 license = "GPL-3.0"
 readme = "../README.md"
+publish = false
 
 homepage = "https://georglauterbach.github.io/uncore/edge/"
 repository = "https://github.com/georglauterbach/uncore"
@@ -34,7 +37,8 @@ categories = [
   "config",
 ]
 
-publish = false
+# TODO
+default-target = "riscv64gc-unknown-none-elf"
 
 # Cargo's auto-detection of library files is turned on. Therefore,
 # `src/lib.rs` is automatically detected by Cargo as a freestanding
@@ -56,5 +60,18 @@ autotests = false
 log = "0.4.20"
 owo-colors = "3.5.0"
 panic-halt = "0.2.0"
-riscv-rt = { git = "https://github.com/rust-embedded/riscv-rt.git", branch = "master", features = ["s-mode"] }
+riscv-rt = { git = "https://github.com/rust-embedded/riscv-rt.git", rev = "28b916d", features = ["s-mode"] }
+sbi = "0.2.0"
 spin = "0.9.8"
+
+# -----------------------------------------------
+# ----  Tests  ----------------------------------
+# -----------------------------------------------
+
+# [[test]]
+# name = "stack_overflow"
+# harness = false
+
+# [[test]]
+# name = "should_panic"
+# harness = false

@@ -2,10 +2,10 @@
 
 //! TODO
 
-pub mod uart;
+pub mod qemu_uart;
 
 /// TODO
 pub(super) fn initialize() {
   // TODO make this function callable only once!
-  uart::Uart::init();
+  qemu_uart::Uart::init();
 }
