@@ -1,7 +1,7 @@
 ---
 name: Question
-description: As a question
-title: '[QUESTION] '
+description: Ask a question
+title: 'question: '
 labels:
   - kind/question
   - priority/low
@@ -10,8 +10,7 @@ body:
   - type: textarea
     id: question
     attributes:
-      label: State your question
-      placeholder: Is P = NP?
-      render: Markdown
+      label: ':thought_balloon: State Your Question'
+      placeholder: Is coNP = PSpace?
     validations:
       required: true

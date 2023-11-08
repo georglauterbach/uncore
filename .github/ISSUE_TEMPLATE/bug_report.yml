@@ -1,85 +1,51 @@
 ---
-name: Bug report
+name: Bug Report
 description: File a bug report
-title: '[BUG] '
+title: 'bug: '
 labels:
   - kind/bug
   - meta/needs triage
   - priority/medium
 
 body:
-  - type: markdown
+  - type: checkboxes
+    id: preliminary-checks
     attributes:
-      value: |
-        # Filing a report
-
-        Thank you for participating in this project and reporting a bug. _unCORE_
-        is a community-driven project, and each contribution counts.
-
-        Please **fill out all the fields and checkboxes of this form** to make it
-        easier for maintainers to understand the problem and to solve it. The
-        maintainers and moderators are volunteers that need you to fill this template
-        with accurate informations in order to help you in the best and quickest way.
-        We will have to label your request with `meta/no template - no support` if
-        your request is sloppy and provides no way to help you correctly.
-
-        **Make sure** you read through the whole
-        [README](https://github.com/georglauterbach/uncore/blob/main/README.md) and
-        the [issue tracker](https://github.com/georglauterbach/uncore/issues) before
-        opening a new bug report.
-
-        **This issue template is not finished!**
-
+      label: ':memo: Preliminary Checks'
+      description: |
+        By submitting this issue, you agree to our [Code of Conduct](https://georglauterbach.github.io/uncore/edge/community/code_of_conduct/).
+      options:
+        - label: I tried searching for an existing issue and followed the debugging docs (TODO) advice, but still need assistance.
+          required: true
   - type: textarea
-    id: issue
+    id: what-happened
     attributes:
-      label: Paste all information in here for now
-      description: Describe the issue here
-      placeholder: 0 != 1
-      render: Markdown
+      label: ':eyes: What Happened?'
+      description: How did this differ from your expectations?
+      placeholder: Although `LOG_LEVEL=debug` is set, the logs are missing debug output.
     validations:
       required: true
-
-  - type: dropdown
-    id: experience
-    attributes:
-      label: What level of experience do you have with Rust?
-      description: >
-        **You are not obliged to answer this question**.
-        We do encourage answering though as it provides context to better assist you.
-        Less experienced users tend to make common mistakes, which is ok; by
-        letting us know we can spot those more easily.
-      options:
-        - I'm very inexperienced with Rust
-        - I'm inexperienced with Rust
-        - I'm somewhat comfortable with Rust
-        - I'm very comfortable with Rust
-        - I'm an expert when it comes to Rust
-        - I'm a experienced, well-versed veteran when it comes to Rust (please tell us more :D)
-    validations:
-      required: false
-
-  - type: checkboxes
-    id: terms-code-of-conduct
-    attributes:
-      label: Code of conduct
-      options:
-        - label: >
-            I agree to follow the
-            [code of conduct](https://georglauterbach.github.io/uncore/edge/community/code_of_conduct/).
-            set by this project.
-          required: true
-        - label: >
-            I have read the [README](https://github.com/georglauterbach/uncore/blob/main/README.md)
-            and I searched the [issue tracker](https://github.com/georglauterbach/uncore/issues)
-            but could not find a solution.
-          required: true
-
   - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: ':athletic_shoe: Reproduction Steps'
+      description: |
+        How did you trigger this bug? Please walk us through it step by step.
+        Please use [fenced code blocks](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#fenced-code-blocks) when pasting lots of text!
+      placeholder: The easier it is for us to reproduce your issue, the sooner we can help resolve it 😉
+  - type: textarea
+    id: relevant-log-output
+    attributes:
+      label: ':scroll: Relevant Log Output'
+      description: |
+        Show us relevant log output here.
+        - This field expects only plain text (_rendered as a fenced code block_).
+        - You can enable debug output by setting the environment variable `LOG_LEVEL` to `debug` or `trace`.
+      render: Text
+  - type: input
     id: form-improvements
     attributes:
-      label: Improvements to this form?
-      description: >
-        If you have criticism or general feedback about this issue form, feel free
-        to tell us so we can enhance the experience for everyone.
-      render: Markdown
+      label: Improvements To This Form?
+      description: If you have criticism or general feedback about this issue form, feel free to tell us so we can enhance the experience for everyone.
+    validations:
+      required: false

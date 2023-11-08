@@ -71,8 +71,3 @@ spin = "0.9.8"
 [[test]]
 name = "basic_boot"
 harness = false
-
-[[test]]
-name = "lol"
-harness = false
-

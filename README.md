@@ -1,8 +1,8 @@
 # unCORE
 
-[![CI][badge::ci::kernel-code-tests]][badge::ci::kernel-code-tests::link]
-[![CI Linting][badge::ci::security]][badge::ci::security::link]
-[![CI Linting][badge::ci::linting]][badge::ci::linting::link]
+[![Code Tests][badge::ci::code-tests]][badge::ci::code-tests::link]
+[![Linting][badge::ci::linting]][badge::ci::linting::link]
+[![Security Audit][badge::ci::security]][badge::ci::security::link]
 
 ## :page_with_curl: About
 
@@ -20,14 +20,14 @@ The [documentation][docs::main-landing-page] provides a dedicated "[Getting Star
 
 [//]: # (Badges)
 
-[badge::ci::linting]: https://img.shields.io/github/actions/workflow/status/georglauterbach/uncore/linting.yml?branch=master&label=CI%20-%20Linting&logo=github&logoColor=white&style=for-the-badge
+[badge::ci::code-tests]: https://github.com/georglauterbach/uncore/actions/workflows/code_tests.yml/badge.svg?branch=master
+[badge::ci::code-tests::link]: https://github.com/georglauterbach/uncore/actions/workflows/code_tests.yml
+
+[badge::ci::linting]: https://github.com/georglauterbach/uncore/actions/workflows/linting.yml/badge.svg?branch=master
 [badge::ci::linting::link]: https://github.com/georglauterbach/uncore/actions/workflows/linting.yml
 
-[badge::ci::security]: https://img.shields.io/github/actions/workflow/status/georglauterbach/uncore/security.yml?branch=master&label=CI%20-%20Security%20Audit&logo=github&logoColor=white&style=for-the-badge
+[badge::ci::security]: https://github.com/georglauterbach/uncore/actions/workflows/security.yml/badge.svg?branch=master
 [badge::ci::security::link]: https://github.com/georglauterbach/uncore/actions/workflows/security.yml
-
-[badge::ci::kernel-code-tests]: https://img.shields.io/github/actions/workflow/status/georglauterbach/uncore/kernel_tests.yml?branch=master&label=CI%20-%20Kernel%20Code%20Tests&logo=github&logoColor=white&style=for-the-badge
-[badge::ci::kernel-code-tests::link]: https://github.com/georglauterbach/uncore/actions/workflows/kernel-tests.yml
 
 [//]: # (Links)
 

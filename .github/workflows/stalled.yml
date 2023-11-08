@@ -4,7 +4,16 @@ name: Handle Stalled
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
   schedule:
-    - cron: 0 1 * * *
+    - cron: 0 1 * * 6
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+env:
+  DAYS_BEFORE_STALE: 20
+  DAYS_BEFORE_CLOSE: 10
 
 jobs:
   stale:
@@ -12,17 +21,19 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Close stale issues
-        uses: actions/stale@v4
+        uses: actions/stale@v8.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          days-before-stale: 20
-          days-before-close: 10
+          days-before-stale: ${{ env.DAYS_BEFORE_STALE }}
+          days-before-close: ${{ env.DAYS_BEFORE_CLOSE }}
 
           exempt-issue-labels: stale-bot/ignore
           stale-issue-label: meta/stale
           stale-issue-message: |
-            This issue has become stale because it has been open for 20 days without activity.
-            This issue will be closed in 10 days automatically unless:
+            This issue has become stale because it has been open for ${{ env.DAYS_BEFORE_STALE }}
+            days without activity. This issue will be closed in ${{ env.DAYS_BEFORE_CLOSE }} days
+            automatically unless:
+
             - a maintainer removes the `meta/stale` label or adds the `stale-bot/ignore` label
             - new activity occurs, such as a new comment
           close-issue-label: meta/closed due to age or inactivity
@@ -31,8 +42,10 @@ jobs:
           exempt-pr-labels: stale-bot/ignore
           stale-pr-label: meta/stale
           stale-pr-message: |
-            This pull request has become stale as it has been open for 20 days without activity.
-            This pull request will be closed in 10 days automatically unless:
+            This pull request has become stale as it has been open for ${{ env.DAYS_BEFORE_STALE }}
+            days without activity. This pull request will be closed in ${{ env.DAYS_BEFORE_CLOSE }}
+            days automatically unless:
+
             - a maintainer removes the `meta/stale` label or adds the `stale-bot/ignore` label
             - new activity occurs, such as a new comment
           close-pr-label: meta/closed due to age or inactivity
