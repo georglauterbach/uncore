@@ -59,7 +59,7 @@ jobs:
           sed -i "s|^\(site_url:.*\)edge|\1${DOCS_VERSION}|" config.yml
 
       - name: Deploy documentation
-        run: mkdocs gh-deploy --strict
+        run: mkdocs gh-deploy --strict --force
 
   add-version-to-documentation:
     name: Update `versions.json` if necessary
