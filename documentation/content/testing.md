@@ -42,7 +42,7 @@ To run unit tests, use `cargo run -- u-test`.
 
 ## Integration Tests
 
-Integration tests reside under `code/uncore/tests/`. They test bigger parts of the whole kernel to make sure all parts work together nicely. Some integration tests do not use a [test harness][cargo-tests].
+Integration tests reside under `code/uncore/tests/`. They test bigger parts of the whole kernel to make sure all parts work together nicely. Some integration tests do not use a [test harness](https://doc.rust-lang.org/cargo/commands/cargo-test.html).
 
 To run unit tests, use `cargo run -- i-test`.
 
