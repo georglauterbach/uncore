@@ -1,6 +1,6 @@
 ---
 # gratefully copied and adjusted from docker-mailserver/docker-mailserver
-name: Deploy Documentation
+name: Documentation
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
@@ -14,13 +14,17 @@ on: # yamllint disable-line rule:truthy
 permissions:
   contents: write
 
+defaults:
+  run:
+    working-directory: documentation
+
 env:
   DOCS_VERSION: edge
   CACHE_ID: unknown
 
 jobs:
   deployment:
-    name: Deploy documentation
+    name: Deployment
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
@@ -122,13 +126,13 @@ jobs:
 
       # If an actual change was made to `versions.json`, commit and push it.
       # Otherwise the step is skipped instead of reporting job failure.
-      - name: 'Push update for `versions.json`'
+      - name: Push update for `versions.json`
         if: ${{ steps.add-version.outcome == 'success' }}
         working-directory: gh-pages
         env:
           # Assign commit authorship to official Github Actions bot when pushing to the `gh-pages` branch:
-          GIT_USER: 'github-actions[bot]'
-          GIT_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com'
+          GIT_USER: github-actions[bot]
+          GIT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
           git config user.name ${{ env.GIT_USER }}
           git config user.email ${{ env.GIT_EMAIL }}

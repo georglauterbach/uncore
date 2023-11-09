@@ -5,6 +5,9 @@
 /* and updates to the riscv-rt crate need to be synchronized with            */
 /* the updates the script gets on GitHub.                                    */
 
+/* This linker script heavily benefitted from the article by Miguel          */
+/* Youn de la Sota: https://mcyoung.xyz/2021/06/01/linker-script/            */
+
 /* We define the architecture we are building for to be RISC-V.              */
 /* The value we use if valid for the 32bit and 64bit versions.               */
 OUTPUT_ARCH(elf64-littleriscv)

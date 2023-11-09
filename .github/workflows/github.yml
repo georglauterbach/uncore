@@ -1,5 +1,5 @@
 ---
-name: Handle Stalled
+name: GitHub
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
@@ -17,7 +17,7 @@ env:
 
 jobs:
   stale:
-    name: Close stale issues
+    name: Handle Stalled Issues and Oull Requests
     runs-on: ubuntu-20.04
     steps:
       - name: Close stale issues

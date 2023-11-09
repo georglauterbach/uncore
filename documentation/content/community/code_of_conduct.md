@@ -1,17 +1,16 @@
 ---
 tags:
+  - community
   - code of conduct
 ---
 
 # Code of Conduct
 
-**version 1.1**, 25 Nov 2021
+**version 1.2**, 09 Nov 2023
 
 ## Our Pledge
 
-We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
-
-We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.
+Computing professionals' actions change the world. To act responsibly, they should reflect upon the wider impacts of their work, consistently supporting the public good. We as members, contributors, and leaders pledge to make participation in this community a professional and welcoming experience for everyone.
 
 ## Responsibilities
 
@@ -28,7 +27,3 @@ This Code of Conduct applies within all community spaces, and also applies when 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement. All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the reporter of any incident.
-
-## Attribution
-
-This Code of Conduct is adapted from the [Contributor Covenant][cc_homepage], version 2.0, available [here](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html). Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcement ladder](https://github.com/mozilla/diversity).

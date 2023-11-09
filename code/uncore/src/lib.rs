@@ -68,6 +68,7 @@ mod library;
 /// TODO
 pub use library::{
   arch,
+  test,
   Condition,
 };
 

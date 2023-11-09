@@ -8,7 +8,9 @@
 # `.github/workflows/kernel_tests.yml` and to
 # `.github/workflows/security.yml`!
 
+# General information about the keys below can be found under
+# https://rust-lang.github.io/rustup/concepts/index.html
 [toolchain]
 channel = "nightly-2023-10-17"
-components = [ "cargo", "llvm-tools", "rustc", "rustfmt", "rust-std", "rust-src" ]
+components = [ "cargo", "llvm-tools", "rustc", "rustfmt", "rust-std", "rust-src", "clippy" ]
 targets = ["riscv64gc-unknown-none-elf"]
