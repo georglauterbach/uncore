@@ -16,7 +16,11 @@ This project is
 
 ## :bulb: Getting Started
 
-The [documentation][docs::main-landing-page] provides a dedicated "[Getting Started][docs::getting-started]" section.
+The [documentation][docs::main-landing-page] is hosted on [GitHub Pages][docs::github-pages] provides a dedicated "[Getting Started][docs::getting-started]" section. If you want to serve the documentation locally, you can run the following command from the repository root:
+
+```bash
+docker run --rm -it -v .documentation:/docs -p 8080:8080 docker.io/squidfunk/mkdocs-material:9.4.8 serve --dev-addr 0.0.0.0:8080
+```
 
 [//]: # (Badges)
 
@@ -37,4 +41,5 @@ The [documentation][docs::main-landing-page] provides a dedicated "[Getting Star
 [www::docs::rustdoc]: https://doc.rust-lang.org/rustdoc/what-is-rustdoc.html
 [docs::main-landing-page]: https://georglauterbach.github.io/uncore/edge/
 [docs::principles]: https://georglauterbach.github.io/uncore/edge/#principles
+[docs::github-pages]: https://pages.github.com/
 [docs::getting-started]: https://georglauterbach.github.io/uncore/edge/#getting-started

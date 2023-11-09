@@ -2,7 +2,7 @@
 site_name: unCORE
 site_description: unCORE Kernel Documentation
 site_author: The unCORE Kernel Community
-site_url: https://uncore-kernel.org
+site_url: https://georglauterbach.github.io/uncore/edge/
 
 copyright: >
   <p>&copy <em>The unCORE Kernel Community</em><br/><span>
