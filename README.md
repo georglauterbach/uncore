@@ -29,7 +29,7 @@ docker run --rm -it -v ./documentation:/docs -p 8080:8080 docker.io/squidfunk/mk
 [badge::ci::linting]: https://github.com/georglauterbach/uncore/actions/workflows/code_linting.yml/badge.svg?branch=master
 [badge::ci::linting::link]: https://github.com/georglauterbach/uncore/actions/workflows/code_linting.yml
 
-[badge::ci::security]: https://github.com/georglauterbach/uncore/actions/workflows/code_security.yml/badge.svg?branch=master
+[badge::ci::security]: https://github.com/georglauterbach/uncore/actions/workflows/code_security.yml/badge.svg
 [badge::ci::security::link]: https://github.com/georglauterbach/uncore/actions/workflows/code_security.yml
 
 [//]: # (Links)
