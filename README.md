@@ -24,14 +24,14 @@ docker run --rm -it -v .documentation:/docs -p 8080:8080 docker.io/squidfunk/mkd
 
 [//]: # (Badges)
 
-[badge::ci::code-tests]: https://github.com/georglauterbach/uncore/actions/workflows/code_tests.yml/badge.svg?branch=master
-[badge::ci::code-tests::link]: https://github.com/georglauterbach/uncore/actions/workflows/code_tests.yml
+[badge::ci::code-tests]: https://github.com/georglauterbach/uncore/actions/workflows/code_tests_and_check.yml/badge.svg?branch=master
+[badge::ci::code-tests::link]: https://github.com/georglauterbach/uncore/actions/workflows/code_tests_and_check.yml
 
-[badge::ci::linting]: https://github.com/georglauterbach/uncore/actions/workflows/linting.yml/badge.svg?branch=master
-[badge::ci::linting::link]: https://github.com/georglauterbach/uncore/actions/workflows/linting.yml
+[badge::ci::linting]: https://github.com/georglauterbach/uncore/actions/workflows/code_linting.yml/badge.svg?branch=master
+[badge::ci::linting::link]: https://github.com/georglauterbach/uncore/actions/workflows/code_linting.yml
 
-[badge::ci::security]: https://github.com/georglauterbach/uncore/actions/workflows/security.yml/badge.svg?branch=master
-[badge::ci::security::link]: https://github.com/georglauterbach/uncore/actions/workflows/security.yml
+[badge::ci::security]: https://github.com/georglauterbach/uncore/actions/workflows/code_security.yml/badge.svg?branch=master
+[badge::ci::security::link]: https://github.com/georglauterbach/uncore/actions/workflows/code_security.yml
 
 [//]: # (Links)
 

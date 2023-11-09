@@ -1,5 +1,5 @@
 ---
-name: Security Audit
+name: Code / Security
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:

@@ -1,5 +1,5 @@
 ---
-name: Linting
+name: Code / Linting
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
@@ -8,7 +8,7 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
   linting:
-    name: Run
+    name: Run SuperLinter
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -24,7 +24,7 @@ jobs:
           LOG_LEVEL: NOTICE
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SUPPRESS_POSSUM: true
-          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_ALL_CODEBASE: true
 
           VALIDATE_EDITORCONFIG: true
           VALIDATE_GITHUB_ACTIONS: true

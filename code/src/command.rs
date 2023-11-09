@@ -375,10 +375,11 @@ fn run_integration_tests(
 /// - `cargo fmt`: formatting
 /// - `cargo doc`: documentation
 fn check(arch_specification: &arguments::ArchitectureSpecification) -> anyhow::Result<()> {
+  let mut results = vec![];
   /// A simple wrapper around [`run_command_and_check`] to ease calling checks.
   macro_rules! check {
     ($arguments:expr) => {{
-      run_command_and_check!(env!("CARGO"), $arguments)?;
+      results.push(run_command_and_check!(env!("CARGO"), $arguments));
     }};
   }
 
@@ -424,5 +425,12 @@ fn check(arch_specification: &arguments::ArchitectureSpecification) -> anyhow::R
     "--check",
   ]);
 
+  for result in results {
+    if result.is_err() {
+      anyhow::bail!("Encountered issues while linting");
+    }
+  }
+
+  log::debug!("Linting completed successfully");
   Ok(())
 }

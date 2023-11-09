@@ -1,6 +1,6 @@
 ---
 # gratefully copied and adjusted from docker-mailserver/docker-mailserver
-name: Deploy Documentation
+name: Documentation
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
@@ -24,7 +24,7 @@ env:
 
 jobs:
   deployment:
-    name: Deploy documentation
+    name: Deployment
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code

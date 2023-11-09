@@ -1,5 +1,5 @@
 ---
-name: Code Tests
+name: Code / Tests and Checks
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
@@ -34,14 +34,15 @@ jobs:
   unit-and-integration-tests:
     name: Run unit- and integration-tests
     runs-on: ubuntu-22.04
-    needs: kernel-linting
+    # needs: kernel-linting
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        run:
-          apt-get -y install --no-install-recommends qemu-system-riscv64
+      - name: Install QEMU
+        run: |
+          sudo apt-get -y install --no-install-recommends qemu-system-riscv64
+          qemu-system-riscv64 --version
 
       - name: Install Rust
         run:  ../.github/scripts/install_rust.sh
