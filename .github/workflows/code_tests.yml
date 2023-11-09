@@ -34,14 +34,14 @@ jobs:
   unit-and-integration-tests:
     name: Run unit- and integration-tests
     runs-on: ubuntu-22.04
+    needs: kernel-linting
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: riscv64
+        run:
+          apt-get -y install --no-install-recommends qemu-system-riscv64
 
       - name: Install Rust
         run:  ../.github/scripts/install_rust.sh
