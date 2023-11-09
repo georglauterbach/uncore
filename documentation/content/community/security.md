@@ -1,5 +1,6 @@
 ---
 tags:
+  - community
   - security
   - security policy
 ---
