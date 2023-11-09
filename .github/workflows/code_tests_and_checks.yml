@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust
-        run:  ../.github/scripts/install_rust.sh
+        run: ../.github/scripts/install_rust.sh
 
       - name: Run all checks
         run: >-
@@ -45,7 +45,7 @@ jobs:
           qemu-system-riscv64 --version
 
       - name: Install Rust
-        run:  ../.github/scripts/install_rust.sh
+        run: ../.github/scripts/install_rust.sh
 
       - name: Run all unit-test
         run: >-
