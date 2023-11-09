@@ -1,0 +1,73 @@
+cargo-features = ["per-package-target"]
+
+[package]
+name = "uncore"
+version = "1.0.0-alpha1"
+edition = "2021"
+workspace = "../"
+
+description = """
+This project is
+
+- an educational, modern operating system kernel
+- completely written in pure, idiomatic Rust (and assembly where required),
+- licensed under the GNU Public License v3 or later, except for parts already licensed under other licenses,
+- documented in its entirety (the code via Doc comments, the rest via Markdown and GitHub Pages),
+- focused around [a few simple concepts and principles.
+"""
+
+authors = ["The unCORE Kernel Community"]
+documentation = "https://georglauterbach.github.io/uncore/edge/"
+license = "GPL-3.0"
+readme = "../README.md"
+publish = false
+
+homepage = "https://georglauterbach.github.io/uncore/edge/"
+repository = "https://github.com/georglauterbach/uncore"
+
+keywords = [
+  "operating-system",
+  "os",
+  "kernel",
+  "no-std",
+]
+
+categories = [
+  "no-std",
+  "config",
+]
+
+# TODO
+default-target = "riscv64gc-unknown-none-elf"
+
+# Cargo's auto-detection of library files is turned on. Therefore,
+# `src/lib.rs` is automatically detected by Cargo as a freestanding
+# library. We need to define some code segments twice, here as well
+# as an in `src/main.rs` as this file is tested by Cargo separately.
+# This file can then be used in integration tests as well.
+autobenches = true
+autobins = true
+autoexamples = true
+autotests = false
+
+# -----------------------------------------------
+# ----  Dependencies  ---------------------------
+# -----------------------------------------------
+
+[build-dependencies]
+
+[dependencies]
+log = "0.4.20"
+owo-colors = "3.5.0"
+panic-halt = "0.2.0"
+riscv-rt = { git = "https://github.com/rust-embedded/riscv-rt.git", rev = "28b916d", features = ["s-mode"] }
+sbi = "0.2.0"
+spin = "0.9.8"
+
+# -----------------------------------------------
+# ----  Tests  ----------------------------------
+# -----------------------------------------------
+
+[[test]]
+name = "basic_boot"
+harness = false

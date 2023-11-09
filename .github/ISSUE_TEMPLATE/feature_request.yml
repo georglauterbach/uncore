@@ -1,27 +1,17 @@
 ---
-name: Feature request
+name: Feature Request
 description: Request a new feature
-title: '[FEATURE] '
+title: 'feature request: '
 labels:
   - area/features
-  - kind/new-feature
+  - kind/new feature
   - priority/low
 
 body:
-  - type: checkboxes
-    id: initial-checks
-    attributes:
-      label: Initial checks
-      description: Please read these carefully.
-      options:
-        - label: I checked that the feature is now already implemented.
-          required: true
-
   - type: textarea
-    id: question
+    id: request
     attributes:
-      label: State your request
-      placeholder: Can we have POSIX compatible code? (why not)
-      render: Markdown
+      label: ':rocket: State Your Request'
+      placeholder: I would like to see unCORE running on ARMv9. Is that possible?
     validations:
       required: true

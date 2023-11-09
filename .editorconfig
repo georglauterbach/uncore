@@ -15,19 +15,9 @@ insert_final_newline = true
 charset              = utf-8
 indent_style         = space
 indent_size          = 2
-tab_width            = 8
+tab_width            = 2
 max_line_length      = 110
 insert_final_newline = true
-
-# -----------------------------------------------
-# ----  Rust  -----------------------------------
-# -----------------------------------------------
-
-[*.{rs,S,ld}]
-indent_style         = tab
-
-[Justfile]
-indent_style         = tab
 
 # -----------------------------------------------
 # ----  Shell (Bash)  ---------------------------

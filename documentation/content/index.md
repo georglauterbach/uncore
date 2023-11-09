@@ -24,6 +24,19 @@ Welcome to the official _unCORE_ operating system kernel documentation. _unCORE_
 
 ## Getting Started
 
+You will need to have _Rust_'s basic tools (in the form of `rustc`, `rustup` and `cargo`) installed. To run a pre-defined set of commands (building, linting, formatting, testing, etc.), you may use [Just], a command runner. It is highly recommended to install [Just] in order to make working with _unCORE_ easier. You can then run `just help` to get an overview of available commands to run.
+
+To check whether you have all needed tools, and install them if you do not already have them installed, run
+
+``` CONSOLE
+$ pwd
+/uncore
+$ ./scripts/install_tools.sh
+[   INF   ]                     tools@bash | 'rustup' is installed
+[   INF   ]                     tools@bash | Your Rust installation is complete
+...
+```
+
 ### Overview
 
 Please read the full [`README`](https://github.com/georglauterbach/uncore/blob/master/README.md) of this project carefully. We expect you to have _some_ experience with _Rust_. You need not be an expert, but we require you to understand the basics. We highly recommend you to read the [official Rust book]. For proper development, and especially when it comes to cloning, read [the development guidelines][docs::development].
