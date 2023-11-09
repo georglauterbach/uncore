@@ -49,16 +49,16 @@ impl Command {
     match &arguments.command {
       Self::Build => build(architecture_specification)?,
       Self::Run { debug } => {
-        check_run_time_dependencies(architecture)?;
+        check_run_time_dependencies(architecture, *debug)?;
         build(architecture_specification)?;
         run(architecture_specification, *debug)?;
       },
       Self::UTest { debug } => {
-        check_run_time_dependencies(architecture)?;
+        check_run_time_dependencies(architecture, *debug)?;
         run_unit_tests(architecture_specification, *debug)?;
       },
       Self::ITest { debug, test } => {
-        check_run_time_dependencies(architecture)?;
+        check_run_time_dependencies(architecture, *debug)?;
         run_integration_tests(architecture_specification, *debug, test)?;
       },
       Self::Check => {
@@ -98,16 +98,18 @@ fn check_build_time_dependencies(_architecture: arguments::Architecture) -> anyh
 }
 
 /// Checks all dependencies required to run `unCORE`.
-fn check_run_time_dependencies(architecture: arguments::Architecture) -> anyhow::Result<()> {
-  log::debug!("Checking build-time dependencies");
+fn check_run_time_dependencies(architecture: arguments::Architecture, is_debug: bool) -> anyhow::Result<()> {
+  log::debug!("Checking run-time dependencies");
 
   check_bin!("jq");
 
   match architecture {
     arguments::Architecture::Riscv64 => {
       check_bin!("qemu-system-riscv64");
-      log::trace!("Checking dependencies required for debugging");
-      check_bin!("gdb-multiarch");
+      if is_debug {
+        log::trace!("Checking run-time dependencies required for debugging");
+        check_bin!("gdb-multiarch");
+      }
     },
   }
 
