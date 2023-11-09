@@ -43,23 +43,26 @@ impl Command {
   /// running, debugging, etc.).
   pub fn execute(arguments: &arguments::Arguments) -> anyhow::Result<()> {
     let architecture = arguments.architecture;
-    check_dependencies(architecture)?;
-    let architecture: &arguments::ArchitectureSpecification = &arguments.architecture.into();
+    check_build_time_dependencies(architecture)?;
+    let architecture_specification: &arguments::ArchitectureSpecification = &arguments.architecture.into();
 
     match &arguments.command {
-      Self::Build => build(architecture)?,
+      Self::Build => build(architecture_specification)?,
       Self::Run { debug } => {
-        build(architecture)?;
-        run(architecture, *debug)?;
+        check_run_time_dependencies(architecture)?;
+        build(architecture_specification)?;
+        run(architecture_specification, *debug)?;
       },
       Self::UTest { debug } => {
-        run_unit_tests(architecture, *debug)?;
+        check_run_time_dependencies(architecture)?;
+        run_unit_tests(architecture_specification, *debug)?;
       },
       Self::ITest { debug, test } => {
-        run_integration_tests(architecture, *debug, test)?;
+        check_run_time_dependencies(architecture)?;
+        run_integration_tests(architecture_specification, *debug, test)?;
       },
       Self::Check => {
-        check(architecture)?;
+        check(architecture_specification)?;
       },
     }
     Ok(())
@@ -72,22 +75,31 @@ impl std::fmt::Display for Command {
   }
 }
 
-/// Check all dependencies (libraries and binaries) required for working with `unCORE`.
-fn check_dependencies(architecture: arguments::Architecture) -> anyhow::Result<()> {
-  use anyhow::Context;
+use anyhow::Context;
 
-  log::debug!("Checking dependencies");
+/// Short-hand for calling [`which`].
+macro_rules! check_bin {
+  ($command:tt) => {
+    which::which($command).context(format!("Package '{}' seems to be missing", $command))?;
+  };
 
-  /// Short-hand for calling [`which`].
-  macro_rules! check_bin {
-    ($command:tt) => {
-      which::which($command).context(format!("Package '{}' seems to be missing", $command))?;
-    };
+  ($command:expr, $package:expr) => {
+    which::which($command).context(format!("Package '{}' seems to be missing", $package))?;
+  };
+}
 
-    ($command:expr, $package:expr) => {
-      which::which($command).context(format!("Package '{}' seems to be missing", $package))?;
-    };
-  }
+/// Checks all dependencies required to build `unCORE`.
+#[allow(clippy::unnecessary_wraps)]
+fn check_build_time_dependencies(_architecture: arguments::Architecture) -> anyhow::Result<()> {
+  log::debug!("Checking build-time dependencies");
+
+  log::trace!("Build-time dependencies are satisfied");
+  Ok(())
+}
+
+/// Checks all dependencies required to run `unCORE`.
+fn check_run_time_dependencies(architecture: arguments::Architecture) -> anyhow::Result<()> {
+  log::debug!("Checking build-time dependencies");
 
   check_bin!("jq");
 
@@ -99,7 +111,7 @@ fn check_dependencies(architecture: arguments::Architecture) -> anyhow::Result<(
     },
   }
 
-  log::trace!("All dependencies are present");
+  log::trace!("Build-time dependencies are satisfied");
   Ok(())
 }
 
