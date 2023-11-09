@@ -13,7 +13,7 @@ body:
     attributes:
       label: ':memo: Preliminary Checks'
       description: |
-        By submitting this issue, you agree to our [Code of Conduct](https://georglauterbach.github.io/uncore/edge/community/code_of_conduct/).
+        By submitting this issue, you agree to our [Code of Conduct](https://georglauterbach.github.io/uncore/community/code_of_conduct/).
       options:
         - label: I tried searching for an existing issue and followed the debugging docs (TODO) advice, but still need assistance.
           required: true
