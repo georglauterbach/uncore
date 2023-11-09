@@ -377,6 +377,8 @@ fn run_integration_tests(
 /// - `cargo fmt`: formatting
 /// - `cargo doc`: documentation
 fn check(arch_specification: &arguments::ArchitectureSpecification) -> anyhow::Result<()> {
+  log::debug!("Starting the linting process");
+
   let mut results = vec![];
   /// A simple wrapper around [`run_command_and_check`] to ease calling checks.
   macro_rules! check {

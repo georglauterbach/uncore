@@ -47,12 +47,12 @@ $ source scripts/init.sh && set +e && pwd
 /uncore/kernel
 $ cargo run --package helper -- build [--help]
   Compiling helper v1.0.0 (.../uncore/kernel/helper)
-   Finished dev [unoptimized + debuginfo] target(s) in 3.19s
-    Running `target/debug/helper build`
+  Finished dev [unoptimized + debuginfo] target(s) in 3.19s
+  Running `target/debug/helper build`
   Compiling kernel v0.4.6-pre (.../uncore/kernel)
-   Finished dev [unoptimized + debuginfo] target(s) in 4.85s
+  Finished dev [unoptimized + debuginfo] target(s) in 4.85s
   Compiling bootloader v0.10.12 (...)
-   Finished release [optimized + debuginfo] target(s) in 5.76s
+  Finished release [optimized + debuginfo] target(s) in 5.76s
 ```
 
 The equivalent for this step with [Just] is
@@ -60,12 +60,12 @@ The equivalent for this step with [Just] is
 ``` CONSOLE
 $ just build [--help]
   Compiling helper v1.0.0 (.../uncore/kernel/helper)
-   Finished dev [unoptimized + debuginfo] target(s) in 3.19s
-    Running `target/debug/helper build`
+  Finished dev [unoptimized + debuginfo] target(s) in 3.19s
+  Running `target/debug/helper build`
   Compiling kernel v0.4.6-pre (.../uncore/kernel)
-   Finished dev [unoptimized + debuginfo] target(s) in 4.85s
+  Finished dev [unoptimized + debuginfo] target(s) in 4.85s
   Compiling bootloader v0.10.12 (...)
-   Finished release [optimized + debuginfo] target(s) in 5.76s
+  Finished release [optimized + debuginfo] target(s) in 5.76s
 ```
 
 ## Running in QEMU
