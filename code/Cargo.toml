@@ -14,11 +14,11 @@ This project is
 """
 
 authors = ["The unCORE Kernel Community"]
-documentation = "https://georglauterbach.github.io/uncore/edge/"
+documentation = "https://georglauterbach.github.io/uncore/"
 license = "GPL-3.0"
 readme = "../README.md"
 
-homepage = "https://georglauterbach.github.io/uncore/edge/"
+homepage = "https://georglauterbach.github.io/uncore/"
 repository = "https://github.com/georglauterbach/uncore"
 
 keywords = ["operating-system", "os", "kernel", "no-std"]

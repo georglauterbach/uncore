@@ -49,5 +49,5 @@ This project was and is heavily inspired by the following projects:
 [www::docs::rustdoc]: https://doc.rust-lang.org/rustdoc/what-is-rustdoc.html
 
 [docs::development]: ./development.md
-[docs::architecture]: ./architecture/overview.md
+[docs::architecture]: ./kernel_architecture.md
 [docs::testing]: ./testing.md

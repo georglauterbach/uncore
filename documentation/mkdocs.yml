@@ -2,7 +2,7 @@
 site_name: unCORE
 site_description: unCORE Kernel Documentation
 site_author: The unCORE Kernel Community
-site_url: https://georglauterbach.github.io/uncore/edge/
+site_url: https://georglauterbach.github.io/uncore/
 
 copyright: >
   <p>&copy The <tt>unCORE</tt> Kernel Community. This project is licensed under GPLv3.</p>
@@ -65,13 +65,6 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/georglauterbach/uncore
-
-  # We do not use `mike`, but enabling this will enable the version selector UI.
-  # It references `versions.json` on `gh-pages` branch,
-  # however we have a basic setup that only matches `version` to a subdirectory.
-  version:
-    provider: mike
-    default: edge
 
 markdown_extensions:
   - abbr

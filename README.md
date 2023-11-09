@@ -38,6 +38,6 @@ docker run --rm -it -v ./documentation:/docs -p 8080:8080 docker.io/squidfunk/mk
 [www::homepage::rust]: https://www.rust-lang.org/
 [www::homepage::gpl-v3-license]: https://opensource.org/license/gpl-3-0/
 [www::docs::rustdoc]: https://doc.rust-lang.org/rustdoc/what-is-rustdoc.html
-[docs::main-landing-page]: https://georglauterbach.github.io/uncore/edge/
+[docs::main-landing-page]: https://georglauterbach.github.io/uncore/
 [docs::github-pages]: https://pages.github.com/
-[docs::getting-started]: https://georglauterbach.github.io/uncore/edge/#getting-started
+[docs::getting-started]: https://georglauterbach.github.io/uncore/#getting-started
