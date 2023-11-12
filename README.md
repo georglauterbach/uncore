@@ -40,4 +40,3 @@ docker run --rm -it -v ./documentation:/docs -p 8080:8080 docker.io/squidfunk/mk
 [www::docs::rustdoc]: https://doc.rust-lang.org/rustdoc/what-is-rustdoc.html
 [docs::main-landing-page]: https://georglauterbach.github.io/uncore/
 [docs::github-pages]: https://pages.github.com/
-[docs::getting-started]: https://georglauterbach.github.io/uncore/#getting-started
