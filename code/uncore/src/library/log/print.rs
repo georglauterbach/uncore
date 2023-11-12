@@ -14,7 +14,7 @@ static LOGGER: KernelLogger = KernelLogger::new();
 /// [`log::Log`] trait is implemented for this structure.
 #[derive(Debug)]
 pub struct KernelLogger {
-  /// TODO
+  /// This field represents a UART provides by QEMU
   qemu_uart: qemu_uart::Logger,
 }
 
@@ -28,10 +28,12 @@ impl KernelLogger {
     }
   }
 
-  /// ### Set the Log Level
-  ///
   /// This function takes care of setting the correct log level.
   fn set_log_level(log_level: log::Level) { log::set_max_level(log_level.to_level_filter()); }
+
+  /// As the QEMU UART logger is disabled in the beginning, we need to enable it
+  /// explicitly after the UART has been initialed.
+  pub fn enable_qemu_logger() { qemu_uart::Logger::enable(); }
 }
 
 impl log::Log for KernelLogger {
@@ -55,8 +57,9 @@ impl log::Log for KernelLogger {
 /// If this function is called twice, the kernel panics, because we want to avoid code
 /// that initializes the logger twice.
 pub fn initialize() {
-  crate::library::panic_on_error!(log::set_logger, &LOGGER);
+  crate::panic_on_error!(log::set_logger, &LOGGER);
   KernelLogger::set_log_level(super::env::KernelInformation::get_log_level());
+
   log::debug!("Kernel logging enabled");
 
   log::debug!(
@@ -67,7 +70,8 @@ pub fn initialize() {
 
 /// ### Print Initial Information
 ///
-/// TODO
+/// This function displays initial information during startup of the kernel, like its
+/// version, when it was compiled, how it was compiled, etc.
 pub fn display_initial_information() {
   log::info!(
     "Welcome to unCORE version {}",
@@ -84,15 +88,32 @@ pub fn display_initial_information() {
   );
 }
 
-/// TODO
+/// This module contains code to work with the UART provided by the underlying
+/// architecture, see [`crate::arch::drivers::qemu_uart::Uart`].
 mod qemu_uart {
-  /// TODO
+  /// This lock ensure that simultaneous writers will be serialized when calling [`log`].
+  /// The logger is initialized in a way that logging has to be enabled explicitly later
+  /// (when the UART itself has been initialized), as logging before that is undefined
+  /// behavior.
+  ///
+  /// The first field indicates whether the logger is enabled or not. We have to store
+  /// this information in the same [`spin::Mutex`] to avoid race-conditions later when
+  /// locking the Mutex and checking whether the logger is enabled.
+  ///
+  /// We also not introduce a new filed on [`Logger`] because we would need to mutate
+  /// through a `&self` reference (to disable the logger is required) in
+  /// [`log::Log::log`], which is not allowed.
   static LOCK: spin::Mutex<(bool, crate::arch::drivers::qemu_uart::Uart)> =
-    spin::Mutex::new((true, crate::arch::drivers::qemu_uart::Uart::new_well_known()));
+    spin::Mutex::new((false, crate::arch::drivers::qemu_uart::UART));
 
-  /// TODO
+  /// An opaque type used to implement [`log::Log`] on.
   #[derive(Debug)]
   pub struct Logger;
+
+  impl Logger {
+    /// Enables this logger.
+    pub(super) fn enable() { LOCK.lock().0 = true; }
+  }
 
   impl log::Log for Logger {
     // This function is not used because the global logger instance already checks whether the
@@ -112,7 +133,6 @@ mod qemu_uart {
         macro_rules! log_with_color {
           ($string:expr, $r:expr, $g:expr, $b:expr) => {{
             if let Err(_) = writeln!(
-              // SAFETY: TODO
               lock.1,
               "{} {}",
               $string.fg_rgb::<$r, $g, $b>(),

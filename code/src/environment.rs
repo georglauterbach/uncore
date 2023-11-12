@@ -2,7 +2,8 @@
 
 //! This module provides functions to work efficiently with environment variables.
 
-/// TODO
+/// This constant stores the path of the directory containing the workspace's root
+/// `Cargo.toml`.
 const CARGO_MANIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
 
 /// Returns the version of `rustc` used for compiling `unCORE`.
@@ -47,7 +48,7 @@ fn get_toolchain() -> anyhow::Result<String> {
       .expect("Could not get array 'targets' in table 'package' from rust-toolchain.toml")
       .as_array()
       .expect("Could not convert array 'targets' in table 'package' to proper array")
-      .get(0)
+      .first()
       .expect("Could not get first element of toolchain array")
       .to_string(),
   )

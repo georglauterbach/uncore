@@ -67,7 +67,7 @@ pub struct ArchitectureSpecification {
   pub linker_script_path: String,
   /// The parameters of the QEMU command to execute
   qemu_arguments:         Vec<&'static str>,
-  /// TODO
+  /// Default path to the kernel binary when `main.rs` is used (i.e. no tests are run)
   kernel_binary_path:     String,
 }
 
@@ -95,7 +95,7 @@ impl ArchitectureSpecification {
     Self {
       target:             "riscv64gc-unknown-none-elf",
       qemu_command:       "qemu-system-riscv64",
-      linker_script_path: Self::append_to_base_dir("/uncore/src/library/arch/risc_v/ld/new.ld"),
+      linker_script_path: Self::append_to_base_dir("/uncore/src/library/arch/risc_v/linking.ld"),
       qemu_arguments:     vec![
         "-machine",
         "virt",

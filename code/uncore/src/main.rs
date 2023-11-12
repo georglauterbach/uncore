@@ -47,5 +47,5 @@ fn riscv64_entry() -> ! {
   arch::initialize();
   setup_kernel();
   // drivers::uart::Uart::read_loop();
-  arch::exit_kernel(Condition::Success);
+  arch::exit_kernel(UncoreResult::Ok);
 }

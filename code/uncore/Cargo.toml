@@ -37,7 +37,8 @@ categories = [
   "config",
 ]
 
-# TODO
+# Setting this is useful (but requires an entry in `cargo-features`)
+# because tools like rust-analyzer do not need extra setup this way.
 default-target = "riscv64gc-unknown-none-elf"
 
 # Cargo's auto-detection of library files is turned on. Therefore,
@@ -59,7 +60,6 @@ autotests = false
 [dependencies]
 log = "0.4.20"
 owo-colors = "3.5.0"
-panic-halt = "0.2.0"
 riscv-rt = { git = "https://github.com/rust-embedded/riscv-rt.git", rev = "28b916d", features = ["s-mode"] }
 sbi = "0.2.0"
 spin = "0.9.8"
