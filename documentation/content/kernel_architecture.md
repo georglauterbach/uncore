@@ -6,7 +6,7 @@ tags:
 
 # The Kernel Architecture
 
-!!! warning "This Section is TODO"
+!!! warning "This Page is TODO"
 
 ## Directory Structure
 

@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+//! This module contains all functionality required for unit-testing `unCORE`. It also
+//! contains the entrypoints of the unit-test binaries for every architecture.
+
 /// ### Streamlining Testing
 ///
 /// This trait provides the tests runner with the ability to `.run`
@@ -41,7 +44,7 @@ pub fn runner(tests: &[&dyn Testable]) {
   }
 
   log::info!("Last test finished successfully");
-  crate::arch::exit_kernel(crate::library::Condition::Success);
+  crate::arch::exit_kernel(crate::UncoreResult::Ok);
 }
 
 /// ### Sanity Check
@@ -53,4 +56,15 @@ fn trivial_assertion() {
   const ONE: u8 = 1;
   assert_eq!(1, ONE);
   assert_eq!(ONE, 1);
+}
+
+/// The unit-test entry point of `lib.rs`. This function is run when unit tests for
+/// `lib.rs` are run.
+#[cfg(all(target_arch = "riscv64", test))]
+#[riscv_rt::entry]
+fn riscv64_entry() -> ! {
+  crate::arch::initialize();
+  crate::setup_kernel();
+  crate::__test_runner();
+  crate::arch::exit_kernel(crate::UncoreResult::Ok);
 }

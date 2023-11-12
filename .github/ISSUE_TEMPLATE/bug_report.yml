@@ -15,7 +15,7 @@ body:
       description: |
         By submitting this issue, you agree to our [Code of Conduct](https://georglauterbach.github.io/uncore/community/code_of_conduct/).
       options:
-        - label: I tried searching for an existing issue and followed the debugging docs (TODO) advice, but still need assistance.
+        - label: I tried searching for existing issues and followed the debugging documentation advice, but still need assistance.
           required: true
   - type: textarea
     id: what-happened

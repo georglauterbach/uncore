@@ -125,15 +125,60 @@ macro_rules! run_command_and_check {
   };
 
   ($command_name:expr, $arguments:expr, $envs:expr) => {{
-    let __special: anyhow::Result<()> = if std::process::Command::new($command_name)
+    let __status = std::process::Command::new($command_name)
       .args($arguments)
       .envs($envs)
-      .status()?
-      .success()
-    {
+      .status()?;
+    let __special: anyhow::Result<()> = if __status.success() {
       Ok(())
     } else {
-      anyhow::bail!("Failure: could not determine exit status - terminated by signal?")
+      let message = if let Some(code) = __status.code() {
+        format!("Failure: command exited with exit code {}", code)
+      } else {
+        format!("Failure: could not determine exit status - terminated by signal?")
+      };
+
+      anyhow::bail!("{}", message);
+    };
+    __special
+  }};
+}
+
+/// Run a given command, taking arguments and environment variables if necessary, and
+/// evaluates the exit status in the end, while also checking for a given timeout, so that
+/// the command does not run forever.
+macro_rules! run_command_and_check_with_timeout {
+  ($command_name:expr, $arguments:expr, $timeout:expr) => {
+    run_command_and_check_with_timeout!($command_name, $arguments, [("__UNUSED", "")], $timeout)
+  };
+
+  ($command_name:expr, $arguments:expr, $envs:expr, $timeout_in_secs:expr) => {{
+    use wait_timeout::ChildExt;
+
+    let mut __child = std::process::Command::new($command_name)
+      .args($arguments)
+      .envs($envs)
+      .spawn()?;
+
+    let __timeout = std::time::Duration::from_secs($timeout_in_secs);
+    let __status = match __child.wait_timeout(__timeout)? {
+      Some(status) => status.code(),
+      None => {
+        // Child has not exited yet
+        __child.kill()?;
+        __child.wait()?;
+        anyhow::bail!("Failure: last command timed out");
+      },
+    };
+
+    let __special: anyhow::Result<()> = if let Some(code) = __status {
+      if code == 0 {
+        Ok(())
+      } else {
+        anyhow::bail!("Failure: command exited with exit code {}", code);
+      }
+    } else {
+      anyhow::bail!("Failure: last command terminated by signal?");
     };
     __special
   }};
@@ -250,7 +295,10 @@ where
   )
 }
 
-/// TODO
+/// When we parse Cargo's output (when `--message-format=json`) with `jq`, we get the
+/// paths on the file system to the test binaries. This function takes such a path and
+/// returns the test's name. This is useful for logging but also required when dynamically
+/// creating a GDB init script (see [`create_gdb_init_file`]).
 fn parse_binary_name(binary_name: &str) -> anyhow::Result<String> {
   let regex = regex::Regex::new(r".*/(.+)-.+")?;
   regex
@@ -258,10 +306,12 @@ fn parse_binary_name(binary_name: &str) -> anyhow::Result<String> {
     .map_or_else(|| Ok(String::from("unknown")), |name| Ok(name[1].to_string()))
 }
 
-/// TODO
+/// A GDB initialization file is useful when debugging with GDB. Such a file provides GDB
+/// with symbol information, architecture, breakpoints, definition, etc. We need to
+/// dynamically create it because test binary names are different for each test.
 fn create_gdb_init_file(binary_location: &String, test_name: &String) -> anyhow::Result<()> {
   use std::io::Write;
-  /// TODO
+  /// A constant location in `/tmp` for storing temporary GDB initialization files.
   const FILE_LOCATION: &str = "/tmp/init.gdb";
   let mut w = std::fs::File::create(FILE_LOCATION)?;
   writeln!(
@@ -305,22 +355,22 @@ fn run_unit_tests(
   is_debug: bool,
 ) -> anyhow::Result<()> {
   log::info!("Building unit test binary");
-  let test_binaries = create_test_binaries(arch_specification, ["--lib"])?;
-  let test_binary = test_binaries.get(0);
-  if let Some(binary) = test_binary {
+  let test_binary_path = create_test_binaries(arch_specification, ["--lib"])?;
+  let test_binary_path = test_binary_path.first();
+  if let Some(binary_path) = test_binary_path {
     let mut qemu_arguments = arch_specification.qemu_arguments();
-    qemu_arguments.append(&mut vec!["-kernel", binary]);
+    qemu_arguments.append(&mut vec!["-kernel", binary_path]);
 
     if is_debug {
       log::info!("Debugging unCORE unit tests");
       qemu_arguments.append(&mut vec!["-s", "-S"]);
-      create_gdb_init_file(&parse_binary_name(binary)?, binary)?;
+      create_gdb_init_file(&parse_binary_name(binary_path)?, binary_path)?;
     } else {
       log::info!("Running unCORE unit tests");
-      log::trace!("The unit test binary file is '{}'", binary);
+      log::trace!("The unit test binary file is '{}'", binary_path);
     }
 
-    run_command_and_check!(arch_specification.qemu_command, qemu_arguments)?;
+    run_command_and_check_with_timeout!(arch_specification.qemu_command, qemu_arguments, 1)?;
   } else {
     // This part is unreachable because [`test_helper`] does already check whether the vector
     // contains at least one element and returns an error otherwise; which is caught by the
@@ -342,7 +392,7 @@ fn run_integration_tests(
 ) -> anyhow::Result<()> {
   log::info!("Building integration test binaries");
   let mut qemu_arguments = arch_specification.qemu_arguments();
-  let test_binaries = if let Some(test) = test {
+  let test_binary_paths = if let Some(test) = test {
     // If a test name is supplied, we may debug it
     if is_debug {
       qemu_arguments.append(&mut vec!["-s", "-S"]);
@@ -353,7 +403,7 @@ fn run_integration_tests(
   };
 
   // Run every test in the list of integration tests
-  for binary in test_binaries {
+  for binary in test_binary_paths {
     let test_name = parse_binary_name(&binary)?;
     if is_debug {
       log::info!("Debugging integration test '{}'", test_name);
@@ -364,7 +414,7 @@ fn run_integration_tests(
     log::trace!("The integration test binary file is '{}'", binary);
     let mut current_arguments = qemu_arguments.clone();
     current_arguments.append(&mut vec!["-kernel", binary.as_str()]);
-    run_command_and_check!(arch_specification.qemu_command, current_arguments)?;
+    run_command_and_check_with_timeout!(arch_specification.qemu_command, current_arguments, 60)?;
     log::info!("Integration test '{}' finished successfully", test_name);
   }
 
@@ -383,7 +433,7 @@ fn check(arch_specification: &arguments::ArchitectureSpecification) -> anyhow::R
   /// A simple wrapper around [`run_command_and_check`] to ease calling checks.
   macro_rules! check {
     ($arguments:expr) => {{
-      results.push(run_command_and_check!(env!("CARGO"), $arguments));
+      results.push(run_command_and_check_with_timeout!(env!("CARGO"), $arguments, 60));
     }};
   }
 

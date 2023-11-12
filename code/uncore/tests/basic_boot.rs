@@ -27,7 +27,7 @@
 #![deny(missing_debug_implementations)]
 #![deny(clippy::missing_docs_in_private_items)]
 
-//! TODO
+//! This unit test tests whether unCORE can boot and bootstrap itself.
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
@@ -45,5 +45,5 @@ fn riscv64_entry() -> ! {
   ::log::warn!("This is an integration test!");
   ::log::info!("This integration test is called 'basic_boot'");
 
-  arch::exit_kernel(Condition::Success);
+  arch::exit_kernel(UncoreResult::Ok);
 }

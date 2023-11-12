@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust
-        run: ../.github/scripts/install_rust.sh
+        run: ../misc/scripts/install_rust.sh
 
       - name: Run all checks
         run: >-
@@ -34,7 +34,6 @@ jobs:
   unit-and-integration-tests:
     name: Run unit- and integration-tests
     runs-on: ubuntu-22.04
-    # needs: kernel-linting
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,7 +44,7 @@ jobs:
           qemu-system-riscv64 --version
 
       - name: Install Rust
-        run: ../.github/scripts/install_rust.sh
+        run: ../misc/scripts/install_rust.sh
 
       - name: Run all unit-test
         run: >-
@@ -53,4 +52,4 @@ jobs:
 
       - name: Run all integration-tests
         run: >-
-          cargo run -- -vv u-test
+          cargo run -- -vv i-test

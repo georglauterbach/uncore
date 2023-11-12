@@ -1,42 +1,40 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! TODO
+//! This module contains code to work with UART provided by QEMU on RISC-V when using
+//! `VirtIO`, see <https://github.com/qemu/qemu/blob/v8.1.2/hw/riscv/virt.c#L90>.
 
-use core::convert::TryInto;
 use core::fmt::Write;
 use core::fmt::Error;
 
-/// TODO
+/// This UART provides uniform access to the MMIO provided by QEMU. It is accessed by
+/// methods implemented on [`Uart`].
+pub const UART: Uart = Uart {
+  base_address: 0x1000_0000,
+};
+
+/// The UART.
 #[derive(Debug)]
 pub struct Uart {
-  /// TODO
+  /// It's base address, which is MMIO used for communicating with the device.
   base_address: usize,
 }
 
 impl Write for Uart {
   fn write_str(&mut self, out: &str) -> Result<(), Error> {
     for c in out.bytes() {
-      self.put(c);
+      Self::put(c);
     }
     Ok(())
   }
 }
 
 impl Uart {
-  /// TODO
-  const fn new(base_address: usize) -> Self { Self { base_address } }
+  /// Return the global UART's ([`UART`]) base address.
+  const fn get_base_address(&self) -> *mut u8 { self.base_address as *mut u8 }
 
-  /// TODO
-  #[must_use]
-  pub const fn new_well_known() -> Self { Self::new(0x1000_0000) }
-
-  /// TODO
-  ///
-  /// #### Panics
-  ///
-  /// TODO
+  /// Initializes the UART.
   pub fn init() {
-    let ptr = Self::new_well_known().base_address as *mut u8;
+    let ptr = UART.get_base_address();
     unsafe {
       // First, set the word length, which
       // are bits 0 and 1 of the line control register (LCR)
@@ -72,11 +70,11 @@ impl Uart {
 
       // The divisor register is two bytes (16 bits), so we need to split the value
       // 592 into two bytes. Typically, we would calculate this based on measuring
-      // the clock rate, but again, for our purposes [qemu], this doesn't really do
+      // the clock rate, but again, for our purposes (QEMU), this doesn't really do
       // anything.
       let divisor: u16 = 592;
-      let divisor_least: u8 = (divisor & 0xFF).try_into().unwrap();
-      let divisor_most: u8 = (divisor >> 8).try_into().unwrap();
+      let divisor_least: u8 = (divisor & 0xFF) as u8;
+      let divisor_most: u8 = (divisor >> 8) as u8;
 
       // Notice that the divisor register DLL (divisor latch least) and DLM (divisor latch most)
       // have the same base address as the receiver/transmitter and the interrupt enable
@@ -100,16 +98,16 @@ impl Uart {
     }
   }
 
-  /// TODO
-  pub fn put(&mut self, c: u8) {
-    let ptr = self.base_address as *mut u8;
+  /// Write a single character.
+  fn put(c: u8) {
+    let ptr = UART.get_base_address();
     unsafe {
       ptr.add(0).write_volatile(c);
     }
   }
 
   // fn get(&mut self) -> Option<u8> {
-  //   let ptr = self.base_address as *mut u8;
+  //   let ptr = UART.get_base_address();
   //   unsafe {
   //     if ptr.add(5).read_volatile() & 1 == 0 {
   //       // The DR bit is 0, meaning no data

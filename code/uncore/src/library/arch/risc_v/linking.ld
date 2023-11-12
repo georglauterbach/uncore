@@ -48,7 +48,6 @@ REGION_ALIAS(REGION_STACK,  REGION_DRAM);
 PROVIDE(_max_hart_id = 0);
 PROVIDE(_hart_stack_size = 2K);
 
-/* TODO START remove and put into .../ld/mod.rs                               */
 /* Pre-initialization function. If the user overrides this using the         */
 /* `#[pre_init]` attribute or by creating a `__pre_init` function, then the  */
 /* function this points to will be called before the RAM is initialized.     */
@@ -70,6 +69,7 @@ PROVIDE(_mp_hook = default_mp_hook);
 /* can override.                                                             */
 PROVIDE(_start_trap = default_start_trap);
 
+/* TODO START remove and put into .../interrupts.rs                          */
 PROVIDE(UserSoft = DefaultHandler);
 PROVIDE(SupervisorSoft = DefaultHandler);
 PROVIDE(MachineSoft = DefaultHandler);
@@ -79,10 +79,7 @@ PROVIDE(MachineTimer = DefaultHandler);
 PROVIDE(UserExternal = DefaultHandler);
 PROVIDE(SupervisorExternal = DefaultHandler);
 PROVIDE(MachineExternal = DefaultHandler);
-
-PROVIDE(DefaultHandler = DefaultInterruptHandler);
-PROVIDE(ExceptionHandler = DefaultExceptionHandler);
-/* TODO END remove and put into .../ld/mod.rs                                */
+/* TODO END remove and put into ../interrupts.rs                             */
 
 SECTIONS
 {

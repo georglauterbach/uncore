@@ -1,75 +1,46 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+//! The RISC-V 64bit architecture module file. This module file contains all other modules
+//! for the RISC-V 64bit target.
+
 pub mod drivers;
-mod ld;
+pub mod heap;
+mod interrupts;
 
 /// Architecture-specific functionality before the kernel setup in [`crate::setup_kernel`]
 /// should run.
 pub fn initialize() { drivers::initialize(); }
 
-/// TODO
-#[panic_handler]
-fn panic(info: &core::panic::PanicInfo) -> ! {
-  if let Some(location) = info.location() {
-    info.message().map_or_else(
-      || {
-        log::error!(
-          "thread 'X' panicked at {}:{}: no message provided",
-          location.file(),
-          location.line()
-        );
-      },
-      |message| {
-        log::error!(
-          "thread 'X' panicked at {}:{}: {:?}",
-          location.file(),
-          location.line(),
-          message
-        );
-      },
-    );
-  }
-
-  exit_kernel(crate::library::Condition::Failure);
-}
-
-/// TODO
-pub fn exit_kernel(condition: crate::library::Condition) -> ! {
+/// Architecture-specific kernel exit. This function uses [`sbi`] to stop the machine. In
+/// case of an error, we need to use the SiFive-Test device because the [`sbi`] crate does
+/// not exit QEMU in a way that an error is produced.
+pub fn exit_kernel(condition: crate::UncoreResult) -> ! {
   use sbi::system_reset;
 
-  let code = if condition == crate::library::Condition::Success {
+  if condition == crate::UncoreResult::Ok {
     log::info!("Terminating unCORE - execution successful");
     let _ = system_reset::system_reset(
       system_reset::ResetType::Shutdown,
       system_reset::ResetReason::NoReason,
     );
-
-    0
   } else {
     log::warn!("Terminating unCORE - execution unsuccessful");
-    let _ = system_reset::system_reset(
-      system_reset::ResetType::Shutdown,
-      system_reset::ResetReason::SbiSpecific((4 << 16) | 0x3333),
-    );
-
-    1
+    unsafe {
+      core::arch::asm!(
+          "sw {0}, 0({1})",
+          in(reg)(1 << 16) | 0x3333, in(reg)0x10_0000
+      );
+    }
   };
 
-  log::warn!("SBI shutdown unsuccessful - trying the SiFi-Test device");
+  log::error!("Shutdown unsuccessful - going into halt loop");
 
-  unsafe {
-    core::arch::asm!(
-        "sw {0}, 0({1})",
-        in(reg)(code << 16) | 0x3333, in(reg)0x10_0000
-    );
-
-    log::error!("Shutdown via SiFi-Test device unsuccessful - going into halt loop");
-
-    // For the case that the QEMU exit attempt did not work, transition into an infinite
-    // loop. Calling `panic!()` here is unfeasible, since there is a good chance
-    // this function here is the last expression in the `panic!()` handler
-    // itself. This prevents a possible infinite loop.
-    loop {
+  // For the case that the QEMU exit attempt did not work, transition into an infinite
+  // loop. Calling `panic!()` here is unfeasible, since there is a good chance
+  // this function here is the last expression in the `panic!()` handler
+  // itself. This prevents a possible infinite loop.
+  loop {
+    unsafe {
       core::arch::asm!("wfi", options(nomem, nostack));
     }
   }

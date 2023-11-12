@@ -49,7 +49,7 @@
 // Use custom test runners. Since we cannot use the standard
 // library, we have to use our own test framework.
 #![feature(custom_test_frameworks)]
-// TODO
+// Allows reading the message of a call to `panic!()`.
 #![feature(panic_info_message)]
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
@@ -65,24 +65,16 @@
 /// is important, and we are not allowed to mix them up.
 mod library;
 
-/// TODO
+/// Public re-exports that ought to be used by `main.rs`, by integration tests, or inside
+/// the kernel with `crate::`.
 pub use library::{
   arch,
   test,
-  Condition,
+  prelude::*,
 };
 
-/// TODO
-#[cfg(all(target_arch = "riscv64", test))]
-#[riscv_rt::entry]
-fn riscv64_entry() -> ! {
-  crate::arch::initialize();
-  setup_kernel();
-  crate::__test_runner();
-  arch::exit_kernel(library::Condition::Success);
-}
-
-/// TODO
+/// This function can be described as the kernel's "main" function. It usually runs after
+/// architecture-specific setup functions have run.
 pub fn setup_kernel() {
   library::log::initialize();
   library::log::display_initial_information();
