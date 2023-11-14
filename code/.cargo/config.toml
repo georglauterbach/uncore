@@ -1,0 +1,16 @@
+# For a reference to this file, see
+# https://doc.rust-lang.org/cargo/reference/config.html
+
+# ! Only use this file for aliases! Do not provide target information or
+# ! any other form of information in this file. This is because
+# ! configuration in this file are inflexible, see
+# ! https://georglauterbach.github.io/uncore/development/#about-the-workspace
+
+[alias]
+_help  = ["run", "-q", "--", "help"]
+_run   = ["run", "-q", "--", "run"]
+_debug = ["run", "-q", "--", "run", "--debug"]
+_check = ["run", "-q", "--", "check"]
+_doc   = ["run", "-q", "--", "doc", "--open"]
+_utest = ["run", "-q", "--", "u-test"]
+_itest = ["run", "-q", "--", "i-test"]

@@ -38,9 +38,9 @@ use uncore::*;
 /// the machine.
 #[cfg(target_arch = "riscv64")]
 #[riscv_rt::entry]
-fn riscv64_entry() -> ! {
-  arch::initialize();
-  setup_kernel();
+fn riscv64_entry(hart: usize) -> ! {
+  arch::initialize(hart);
+  setup_kernel(hart);
 
   ::log::warn!("This is an integration test!");
   ::log::info!("This integration test is called 'basic_boot'");

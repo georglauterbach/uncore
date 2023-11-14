@@ -10,3 +10,4 @@ This section of the documentation contains information on community-related info
 - [Changelog](./changelog.md)
 - [Code of Conduct](./code_of_conduct.md)
 - [Security](./security.md)
+- [References and Sources](./security.md)

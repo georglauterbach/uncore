@@ -49,8 +49,16 @@ macro_rules! transform_linker_symbol_to_value {
     unsafe { core::ptr::addr_of!($identifier) }
   };
 
+  (mut $identifier:ident) => {
+    unsafe { core::ptr::addr_of_mut!($identifier) }
+  };
+
   ($identifier:ident, $final_type:ty) => {
-    unsafe { core::ptr::addr_of!($identifier) as $final_type }
+    crate::transform_linker_symbol_to_value!($identifier) as $final_type
+  };
+
+  (mut $identifier:ident, $final_type:ty) => {
+    crate::transform_linker_symbol_to_value!(mut $identifier) as $final_type
   };
 }
 pub(crate) use transform_linker_symbol_to_value;

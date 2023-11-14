@@ -2,7 +2,7 @@ cargo-features = ["per-package-target"]
 
 [package]
 name = "uncore"
-version = "1.0.0-alpha2"
+version = "1.0.0-alpha3"
 edition = "2021"
 workspace = "../"
 
@@ -58,6 +58,7 @@ autotests = false
 [build-dependencies]
 
 [dependencies]
+linked_list_allocator = "0.10.5"
 log = "0.4.20"
 owo-colors = "3.5.0"
 riscv-rt = { git = "https://github.com/rust-embedded/riscv-rt.git", rev = "28b916d", features = ["s-mode"] }

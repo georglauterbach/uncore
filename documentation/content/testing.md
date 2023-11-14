@@ -16,7 +16,7 @@ tags:
 
 Unit tests for the kernel are associated with `lib.rs` and not with `main.rs`. Unit tests are declared via the `#!rust #[test_case]` directive above the test:
 
-``` RUST
+```rust linenums="1" hl_lines="5"
 /// ### Sanity Check
 ///
 /// This tests is just here for sanity's sake to make
@@ -31,8 +31,9 @@ fn trivial_assertion() {
 
 A simple test runner implementation (located in `code/uncore/src/library/test.rs`) executes all tests one after another when the unit-test binary is run in QEMU. Conditional compilation (with `#!rust #[cfg(test)]`) indicates code that only runs when the unit-test binary is created. Because the library part of _unCORE_ runs the unit tests, it has a pseudo entry function that acts like `main()`:
 
-```rust
-// For RISC-V, this is the kernel's entrypoint
+```rust hl_lines="5"
+/// The unit-test entry point of `lib.rs`. This function
+/// is run when unit tests for `lib.rs` are run.
 #[cfg(all(target_arch = "riscv64", test))]
 #[riscv_rt::entry]
 fn riscv64_entry() -> ! { ... }
@@ -50,7 +51,7 @@ To run unit tests, use `cargo run -- i-test`.
 
 If you want to run "unit-tests" inside an integration test, you require a test runner. The library part of _unCORE_ provides such a runner:
 
-```rust
+```rust linenums="1" hl_lines="3 6 9"
 // Use custom test runners. Since we cannot use the standard
 // library, we have to use our own test framework.
 #![feature(custom_test_frameworks)]

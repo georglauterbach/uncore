@@ -2,6 +2,9 @@
 
 //! The RISC-V 64bit architecture module file. This module file contains all other modules
 //! for the RISC-V 64bit target.
+//!
+//! The QEMU variant is based on this code:
+//! <https://github.com/qemu/qemu/blob/v8.1.2/hw/riscv/virt.c>.
 
 pub mod drivers;
 pub mod heap;
@@ -9,7 +12,11 @@ mod interrupts;
 
 /// Architecture-specific functionality before the kernel setup in [`crate::setup_kernel`]
 /// should run.
-pub fn initialize() { drivers::initialize(); }
+///
+/// #### Attention
+///
+/// No logging is available here yet.
+pub fn initialize(hart: usize) { drivers::initialize(hart); }
 
 /// Architecture-specific kernel exit. This function uses [`sbi`] to stop the machine. In
 /// case of an error, we need to use the SiFive-Test device because the [`sbi`] crate does
@@ -33,15 +40,16 @@ pub fn exit_kernel(condition: crate::UncoreResult) -> ! {
     }
   };
 
-  log::error!("Shutdown unsuccessful - going into halt loop");
+  // Happens on when there is a bug in the SBI implementation or when SBI is not present
+  // We need to ensure we do not panic again.
+  log::error!("Shutdown failed - this is undefined behavior");
 
   // For the case that the QEMU exit attempt did not work, transition into an infinite
   // loop. Calling `panic!()` here is unfeasible, since there is a good chance
   // this function here is the last expression in the `panic!()` handler
   // itself. This prevents a possible infinite loop.
-  loop {
-    unsafe {
-      core::arch::asm!("wfi", options(nomem, nostack));
-    }
+  unsafe {
+    core::arch::asm!("wfi", options(nomem, nostack));
+    core::hint::unreachable_unchecked();
   }
 }

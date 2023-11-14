@@ -3,7 +3,7 @@
 //! `unCORE` library module file that contains all other modules.
 
 pub mod arch;
-mod heap;
+pub mod mem;
 pub mod log;
 pub mod prelude;
 pub mod test;

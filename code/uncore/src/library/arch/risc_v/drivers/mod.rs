@@ -14,7 +14,11 @@ static mut INIT_WAS_CALLED: bool = false;
 ///
 /// If this function is called more than once, it panics, because initializing certain
 /// drivers more than once is undefined behavior.
-pub(super) fn initialize() {
+pub(super) fn initialize(hart: usize) {
+  if hart != 0 {
+    return;
+  }
+
   assert!(
     unsafe { !INIT_WAS_CALLED },
     "called library/arch/risc_v/drivers/mod.rs:initialize more than once"
