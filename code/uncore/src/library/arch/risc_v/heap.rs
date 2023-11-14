@@ -4,13 +4,13 @@
 //! address and its size.
 
 extern "C" {
-  static __heap__start: u8;
+  static mut __heap__start: u8;
   static __heap__size: u8;
 }
 
 /// Returns the starting address of the kernel heap.
 #[must_use]
-pub fn get_start() -> *const u8 { crate::transform_linker_symbol_to_value!(__heap__start) }
+pub fn get_start() -> *mut u8 { crate::transform_linker_symbol_to_value!(mut __heap__start) }
 
 /// Returns the size of the kernel heap.
 #[must_use]

@@ -55,7 +55,8 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-// extern crate alloc;
+/// Lol
+extern crate alloc;
 
 /// ### The Core Library
 ///
@@ -82,4 +83,8 @@ pub fn setup_kernel(hart: usize) {
   }
 
   log::info!("Running on HART {}", hart);
+
+  if hart == 0 {
+    library::mem::heap::Heap::initialize();
+  }
 }
