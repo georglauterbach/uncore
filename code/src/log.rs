@@ -2,14 +2,10 @@
 
 //! This module provides logging functionality.
 
-/// ## The Global Test Runner Logger
-///
 /// This static variable is used by the [`log`] crate for
-/// logging kernel-wide. Shamelessly copied from the kernel code.
+/// logging kernel-wide.
 static LOGGER: Logger = Logger;
 
-/// ### The Main Test Runner Logger
-///
 /// This structure holds associated function that provide logging. The
 /// [`log::Log`] trait is implemented for this structure.
 #[derive(Debug)]

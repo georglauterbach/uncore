@@ -28,7 +28,7 @@ pub enum Command {
   ITest {
     /// Specify whether you want to debug a test (only works when a specific test is
     /// supplied)
-    #[clap(short, long)]
+    #[clap(short, long, requires = "test")]
     debug: bool,
     /// Specify which test to run
     #[clap(short, long)]
@@ -36,6 +36,15 @@ pub enum Command {
   },
   /// Check the code (e.g. with `clippy`)
   Check,
+  /// Work with `unCORE`'s documentation
+  Doc {
+    /// Whether to open the documentation immediately
+    #[clap(short, long)]
+    open:  bool,
+    /// Whether to watch for changes (requires 'cargo-watch)
+    #[clap(short, long)]
+    watch: bool,
+  },
 }
 
 impl Command {
@@ -64,6 +73,9 @@ impl Command {
       Self::Check => {
         check(architecture_specification)?;
       },
+      Self::Doc { open, watch } => {
+        documentation(architecture_specification, *open, *watch)?;
+      },
     }
     Ok(())
   }
@@ -77,14 +89,24 @@ impl std::fmt::Display for Command {
 
 use anyhow::Context;
 
-/// Short-hand for calling [`which`].
+/// Short-hand for calling [`which`]. When only one argument is given, the command name
+/// and the package name are equal on Ubuntu. When two arguments are given, the first one
+/// is the command name to check, the second one is the package name on Ubuntu. When using
+/// "cargo" in the beginning, the command has to be installed via `cargo install`.
 macro_rules! check_bin {
   ($command:tt) => {
-    which::which($command).context(format!("Package '{}' seems to be missing", $command))?;
+    which::which($command).context(format!("Package '{}' seems to be missing", $command))
   };
 
   ($command:expr, $package:expr) => {
-    which::which($command).context(format!("Package '{}' seems to be missing", $package))?;
+    which::which($command).context(format!("Package '{}' seems to be missing", $package))
+  };
+
+  (cargo $command:expr) => {
+    which::which($command).context(format!(
+      "Package '{0}' seems to be missing (install with 'cargo install {0}')",
+      $command
+    ))
   };
 }
 
@@ -101,14 +123,14 @@ fn check_build_time_dependencies(_architecture: arguments::Architecture) -> anyh
 fn check_run_time_dependencies(architecture: arguments::Architecture, is_debug: bool) -> anyhow::Result<()> {
   log::debug!("Checking run-time dependencies");
 
-  check_bin!("jq");
+  check_bin!("jq")?;
 
   match architecture {
     arguments::Architecture::Riscv64 => {
-      check_bin!("qemu-system-riscv64");
+      check_bin!("qemu-system-riscv64")?;
       if is_debug {
         log::trace!("Checking run-time dependencies required for debugging");
-        check_bin!("gdb-multiarch");
+        check_bin!("gdb-multiarch")?;
       }
     },
   }
@@ -209,7 +231,7 @@ fn run(arch_specification: &arguments::ArchitectureSpecification, is_debug: bool
   let mut arguments = arch_specification.qemu_arguments_with_kernel();
   if is_debug {
     log::info!("Debugging unCORE");
-    log::debug!("You may use 'gdb-multiarch -q -x misc/gdb/init.txt' to attach now");
+    log::debug!("You may use 'gdb-multiarch -q -x ../misc/gdb/init.txt' to attach now");
     log::trace!("Remember: 'Ctrl-A x' will exit QEMU");
     arguments.append(&mut vec!["-s", "-S"]);
   } else {
@@ -487,4 +509,94 @@ fn check(arch_specification: &arguments::ArchitectureSpecification) -> anyhow::R
 
   log::debug!("Linting completed successfully");
   Ok(())
+}
+
+/// This function handles working with the code documentation, written in doc comments.
+fn documentation(
+  arch_specification: &arguments::ArchitectureSpecification,
+  open: bool,
+  watch: bool,
+) -> anyhow::Result<()> {
+  log::info!("Building documentation now");
+  if watch {
+    log::debug!("Changes to the documentation are watched");
+
+    check_bin!(cargo "cargo-watch")?;
+    check_bin!("xdg-open", "xdg-utils")?;
+
+    let mut arguments = vec!["watch", "-w", "uncore/src", "-s"]
+      .into_iter()
+      .map(std::string::ToString::to_string)
+      .collect::<Vec<String>>();
+
+    arguments.push(format!(
+      "cargo doc --package uncore --document-private-items --lib --target {}",
+      arch_specification.target
+    ));
+
+    if open {
+      log::trace!("Opening the documentation in the process");
+      let mut cargo_watch = std::process::Command::new(env!("CARGO"))
+        .args(arguments)
+        .stderr(std::process::Stdio::null())
+        .spawn()?;
+
+      let browser = std::process::Command::new("xdg-open")
+        .arg("target/riscv64gc-unknown-none-elf/doc/uncore/index.html")
+        .spawn();
+      if browser.is_err() {
+        cargo_watch.kill()?;
+      } else {
+        let browser = browser?.wait();
+        if browser.is_err() {
+          cargo_watch.kill()?;
+        }
+
+        if !browser?.success() {
+          cargo_watch.kill()?;
+        }
+      }
+
+      // A somewhat complicated piece of code that ensure we always call `cargo_watch.kill()` in
+      // case something went wrong.
+      let browser = std::process::Command::new("xdg-open")
+        .arg("target/riscv64gc-unknown-none-elf/doc/uncore/index.html")
+        .spawn();
+      if browser.is_err() {
+        cargo_watch.kill()?;
+      } else {
+        let browser = browser?.wait();
+        if browser.is_err() {
+          cargo_watch.kill()?;
+        }
+
+        if !browser?.success() {
+          cargo_watch.kill()?;
+        }
+      }
+
+      cargo_watch.wait()?;
+      Ok(())
+    } else {
+      log::debug!("Just watching changes, not opening");
+      run_command_and_check!(env!("CARGO"), arguments)
+    }
+  } else {
+    let mut arguments = vec![
+      "doc",
+      "--package",
+      "uncore",
+      "--document-private-items",
+      "--lib",
+      "--target",
+      arch_specification.target,
+    ];
+
+    if open {
+      log::debug!("Opening the documentation");
+      arguments.push("--open");
+    }
+
+    run_command_and_check!(env!("CARGO"), arguments)
+  }
 }
