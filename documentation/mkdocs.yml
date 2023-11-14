@@ -22,6 +22,7 @@ nav:
       - Changelog: community/changelog.md
       - Code of Conduct: community/code_of_conduct.md
       - Security: community/security.md
+      - References and Sources: community/references_and_sources.md
 
 plugins:
   - search
@@ -42,12 +43,13 @@ theme:
     - navigation.tracking
     - toc.integrate
     - content.code.annotate
+    - content.code.copy
   palette:
     # light mode
     - media: '(prefers-color-scheme: light)'
       scheme: light
-      primary: teal
-      accent: cyan
+      primary: blue
+      accent: pink
       toggle:
         icon: material/lightbulb-outline
         name: Switch to dark mode
@@ -80,7 +82,7 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - toc:
-      toc_depth: 2
+      toc_depth: 3
       permalink: ⚓︎
   - pymdownx.highlight:
       extend_pygments_lang:
