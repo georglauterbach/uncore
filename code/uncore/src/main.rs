@@ -43,9 +43,8 @@ use uncore::*;
 /// the machine.
 #[cfg(target_arch = "riscv64")]
 #[riscv_rt::entry]
-fn riscv64_entry() -> ! {
-  arch::initialize();
-  setup_kernel();
-  // drivers::uart::Uart::read_loop();
+fn riscv64_entry(hart: usize) -> ! {
+  arch::initialize(hart);
+  setup_kernel(hart);
   arch::exit_kernel(UncoreResult::Ok);
 }

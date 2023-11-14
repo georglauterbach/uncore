@@ -7,6 +7,11 @@
 //! "riscv64`) so that only one architecture is enabled at any given time.
 
 /// Re-exported intra-kernel API that any implementation of an architecture must satisfy.
+///
+/// #### Attention
+///
+/// Initialization functionality may not have a working logger available when the
+/// functions are called at run-time.
 pub use architecture::{
   drivers,
   heap,

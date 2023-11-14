@@ -69,18 +69,6 @@ PROVIDE(_mp_hook = default_mp_hook);
 /* can override.                                                             */
 PROVIDE(_start_trap = default_start_trap);
 
-/* TODO START remove and put into .../interrupts.rs                          */
-PROVIDE(UserSoft = DefaultHandler);
-PROVIDE(SupervisorSoft = DefaultHandler);
-PROVIDE(MachineSoft = DefaultHandler);
-PROVIDE(UserTimer = DefaultHandler);
-PROVIDE(SupervisorTimer = DefaultHandler);
-PROVIDE(MachineTimer = DefaultHandler);
-PROVIDE(UserExternal = DefaultHandler);
-PROVIDE(SupervisorExternal = DefaultHandler);
-PROVIDE(MachineExternal = DefaultHandler);
-/* TODO END remove and put into ../interrupts.rs                             */
-
 SECTIONS
 {
   .text                 :

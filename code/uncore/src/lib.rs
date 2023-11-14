@@ -75,7 +75,11 @@ pub use library::{
 
 /// This function can be described as the kernel's "main" function. It usually runs after
 /// architecture-specific setup functions have run.
-pub fn setup_kernel() {
-  library::log::initialize();
-  library::log::display_initial_information();
+pub fn setup_kernel(hart: usize) {
+  if hart == 0 {
+    library::log::initialize();
+    library::log::display_initial_information();
+  }
+
+  log::info!("Running on HART {}", hart);
 }
