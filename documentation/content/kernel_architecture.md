@@ -64,7 +64,7 @@ When running inside QEMU, a [Jump Address][www::documentation::qemu-fw-jump] (`0
 
     Such an architecture is not only simpler, but it also enables writing a single kernel for all RISC-V CPUs that implment SBI. SBI puts a layer of abstraction between the hardward and our kernel. SBI also provides functionality like printing and a Flattened Device Tree (FDT).
 
-    Interacting with SBI is handled by the [`sbi`][www::documentation::crate::sbi] crate. This crate utilizes the `ecall` instruction to trap into the SEE (which is OpenSBI on QEMU), where a handler will handle the trap and then return to the kernel. This is handled much in the same way that a system call is handled: first, you set up registers, then you execute `ecall`, and then you read out registers that contain return values.
+    Interacting with SBI is handled by the [`sbi`](https://crates.io/crates/sbi) crate. This crate utilizes the `ecall` instruction to trap into the SEE (which is OpenSBI on QEMU), where a handler will handle the trap and then return to the kernel. This is handled much in the same way that a system call is handled: first, you set up registers, then you execute `ecall`, and then you read out registers that contain return values.
 
 _unCORE_ currently uses [`riscv-rt`][www::documentation::crate::riscv-rt]. This crate provides a run-time for RISC-V and additionally handlers for interrupts and exceptions. The linker script currently in use for RISC-V 64bit is derived from the [linker script that `riscv-rt` ships](https://github.com/rust-embedded/riscv-rt/blob/738baf93dfcc2570931d0e52d1b6ee1ccc8a6067/link-rv64.x). QEMU takes an ELF file with the `-kernel` parameter. The ELF is built according to [our linker script][code::github::linker-script].
 
@@ -86,6 +86,5 @@ Kernel code resides in `code/uncore/src/`. The main kernel functionality can be 
 
 [www::github::open-sbi]: https://github.com/riscv-software-src/opensbi
 [www::documentation::qemu-fw-jump]: https://github.com/riscv-software-src/opensbi/blob/master/docs/firmware/fw_jump.md
-[www::documentation::crate::sbi]: https://crates.io/crates/sbi
 [www::documentation::crate::riscv-rt]: https://docs.rs/riscv-rt/latest/riscv_rt/
 [code::github::linker-script]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/library/arch/risc_v/linking.ld

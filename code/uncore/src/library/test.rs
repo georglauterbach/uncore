@@ -62,9 +62,9 @@ fn trivial_assertion() {
 /// `lib.rs` are run.
 #[cfg(all(target_arch = "riscv64", test))]
 #[riscv_rt::entry]
-fn riscv64_entry() -> ! {
-  crate::arch::initialize();
-  crate::setup_kernel();
+fn riscv64_entry(hart: usize) -> ! {
+  crate::arch::initialize(hart);
+  crate::setup_kernel(hart);
   crate::__test_runner();
   crate::arch::exit_kernel(crate::UncoreResult::Ok);
 }
