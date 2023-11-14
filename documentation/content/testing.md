@@ -14,7 +14,7 @@ tags:
 
 ## Unit Tests
 
-Unit tests for the kernel are associated with `lib.rs` and not with `main.rs`. Unit tests are declared via the `#!rust #[test_case]` directive above the test:
+Unit tests for the kernel are associated with [`lib.rs`][code::github::kernel-lib] and not with [`main.rs`][code::github::kernel-main]. Unit tests are declared via the `#!rust #[test_case]` directive above the test:
 
 ```rust linenums="1" hl_lines="5"
 /// ### Sanity Check
@@ -29,7 +29,7 @@ fn trivial_assertion() {
 }
 ```
 
-A simple test runner implementation (located in `code/uncore/src/library/test.rs`) executes all tests one after another when the unit-test binary is run in QEMU. Conditional compilation (with `#!rust #[cfg(test)]`) indicates code that only runs when the unit-test binary is created. Because the library part of _unCORE_ runs the unit tests, it has a pseudo entry function that acts like `main()`:
+A simple test runner implementation (located in [`code/uncore/src/library/test.rs`][code::github::tests]) executes all tests one after another when the unit-test binary is run in QEMU. Conditional compilation (with `#!rust #[cfg(test)]`) indicates code that only runs when the unit-test binary is created. Because the library part of _unCORE_ runs the unit tests, it has a pseudo entry function that acts like `main()`:
 
 ```rust hl_lines="5"
 /// The unit-test entry point of `lib.rs`. This function
@@ -43,7 +43,7 @@ To run unit tests, use `cargo run -- u-test`.
 
 ## Integration Tests
 
-Integration tests reside under `code/uncore/tests/`. They test bigger parts of the whole kernel to make sure all parts work together nicely. Some integration tests do not use a [test harness](https://doc.rust-lang.org/cargo/commands/cargo-test.html).
+Integration tests reside under [`code/uncore/tests/`][code::github::integration-tests]. They test bigger parts of the whole kernel to make sure all parts work together nicely. Some integration tests do not use a [test harness](https://doc.rust-lang.org/cargo/commands/cargo-test.html).
 
 To run unit tests, use `cargo run -- i-test`.
 
@@ -75,4 +75,9 @@ Continuous Integration (CI) is a critical part of modern software development. T
 
 !!! tip "Praise be Linters"
 
-    A linter that is probably going to be very annoying, nerve-wrecking, but also essential in the end is [`clippy`](https://github.com/rust-lang/rust-clippy). You may have noticed the many `#!rust #![deny(clippy::LINT_TARGET)]` lines in `kernel/src/lib.rs`. These lines enable linting targets for `clippy` for the whole kernel. If you do not want `clippy` to eat you alive during GitHub's CI, **fix the lints locally**. You can run `cargo run -- check` to check for all kinds of linting issues.
+    A linter that is probably going to be very annoying, nerve-wrecking, but also essential in the end is [`clippy`](https://github.com/rust-lang/rust-clippy). You may have noticed the many `#!rust #![deny(clippy::LINT_TARGET)]` lines in [`lib.rs`][code::github::kernel-lib]. These lines enable `clippy` linting targets for the whole kernel. If you do not want `clippy` to eat you alive during GitHub's CI, **fix the lints locally**. You can run `cargo run -- check` to check for all kinds of linting issues.
+
+[code::github::kernel-lib]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/lib.rs
+[code::github::kernel-main]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/main.rs
+[code::github::tests]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/library/test.rs
+[code::github::integration-tests]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/tests

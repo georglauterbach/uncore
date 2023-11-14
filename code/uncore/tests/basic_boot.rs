@@ -27,7 +27,7 @@
 #![deny(missing_debug_implementations)]
 #![deny(clippy::missing_docs_in_private_items)]
 
-//! This unit test tests whether unCORE can boot and bootstrap itself.
+//! This integration test tests whether unCORE can boot and bootstrap itself.
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
