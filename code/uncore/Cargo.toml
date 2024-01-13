@@ -51,6 +51,9 @@ autobins = true
 autoexamples = true
 autotests = false
 
+[lints]
+workspace = true
+
 # -----------------------------------------------
 # ----  Dependencies  ---------------------------
 # -----------------------------------------------

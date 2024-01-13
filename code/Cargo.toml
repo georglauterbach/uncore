@@ -37,6 +37,9 @@ autobins = true
 autoexamples = true
 autotests = true
 
+[lints]
+workspace = true
+
 # -----------------------------------------------
 # ----  Profiles  -------------------------------
 # -----------------------------------------------
@@ -78,3 +81,37 @@ which = "5.0.0"
 
 [workspace]
 members = ["uncore"]
+
+# General lints "inherent" in Rustlang.
+[workspace.lints.rust]
+# TODO
+missing_docs = "deny"
+# TODO
+missing_debug_implementations = "deny"
+
+# Lint target for code documentation. When running `rustdoc`,
+# show an error when using broken links.
+[workspace.lints.rustdoc]
+all = "deny"
+broken_intra_doc_links = "deny"
+private_intra_doc_links = "allow"
+
+# Lint target for Clippy ("A collection of lints to catch common
+# mistakes and improve your Rust code.", ref:
+# https://doc.rust-lang.org/nightly/clippy/)
+[workspace.lints.clippy]
+# Clippy lint target one. Enables all lints that are on by
+# default (correctness, suspicious, style, complexity, perf).
+all = "deny"
+# Clippy lint target two. Enables lints which are rather strict
+# or have occasional false positives.
+nursery = "deny"
+# Clippy lint target three. Enables new lints that are still
+# under development
+pedantic = "deny"
+# Clippy lint target four. Enable lints for the cargo manifest
+# file, a.k.a. Cargo.toml.
+cargo = "deny"
+# Individual lints go here now:
+multiple_crate_versions = "allow"
+missing_docs_in_private_items = "deny"
