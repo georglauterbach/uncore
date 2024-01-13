@@ -304,17 +304,15 @@ where
 
   // Create a list of all binaries to run
   let jq = jq.wait_with_output()?;
-  let test_binaries: Vec<&str> = std::str::from_utf8(&jq.stdout)?.trim().split('\n').collect();
+  let test_binaries: Vec<String> = std::str::from_utf8(&jq.stdout)?
+    .lines()
+    .map(std::string::ToString::to_string)
+    .collect();
   if test_binaries.is_empty() {
     anyhow::bail!("Cargo did not create a test binary?!");
   }
 
-  Ok(
-    test_binaries
-      .into_iter()
-      .map(std::string::ToString::to_string)
-      .collect(),
-  )
+  Ok(test_binaries)
 }
 
 /// When we parse Cargo's output (when `--message-format=json`) with `jq`, we get the
@@ -377,28 +375,23 @@ fn run_unit_tests(
   is_debug: bool,
 ) -> anyhow::Result<()> {
   log::info!("Building unit test binary");
-  let test_binary_path = create_test_binaries(arch_specification, ["--lib"])?;
-  let test_binary_path = test_binary_path.first();
-  if let Some(binary_path) = test_binary_path {
-    let mut qemu_arguments = arch_specification.qemu_arguments();
-    qemu_arguments.append(&mut vec!["-kernel", binary_path]);
+  let binary_path = create_test_binaries(arch_specification, ["--lib"])?;
+  let binary_path = binary_path
+    .first()
+    .expect("This is unreachable since create_test_binaries already checks for emptiness");
+  let mut qemu_arguments = arch_specification.qemu_arguments();
+  qemu_arguments.append(&mut vec!["-kernel", binary_path]);
 
-    if is_debug {
-      log::info!("Debugging unCORE unit tests");
-      qemu_arguments.append(&mut vec!["-s", "-S"]);
-      create_gdb_init_file(&parse_binary_name(binary_path)?, binary_path)?;
-    } else {
-      log::info!("Running unCORE unit tests");
-      log::trace!("The unit test binary file is '{}'", binary_path);
-    }
-
-    run_command_and_check_with_timeout!(arch_specification.qemu_command, qemu_arguments, 1)?;
+  if is_debug {
+    log::info!("Debugging unCORE unit tests");
+    qemu_arguments.append(&mut vec!["-s", "-S"]);
+    create_gdb_init_file(&parse_binary_name(binary_path)?, binary_path)?;
   } else {
-    // This part is unreachable because [`test_helper`] does already check whether the vector
-    // contains at least one element and returns an error otherwise; which is caught by the
-    // `?` operator in the line above.
-    unreachable!();
+    log::info!("Running unCORE unit tests");
+    log::trace!("The unit test binary file is '{}'", binary_path);
   }
+
+  run_command_and_check_with_timeout!(arch_specification.qemu_command, qemu_arguments, 1)?;
 
   log::info!("Unit tests finished successfully");
   Ok(())
@@ -435,7 +428,7 @@ fn run_integration_tests(
     }
     log::trace!("The integration test binary file is '{}'", binary);
     let mut current_arguments = qemu_arguments.clone();
-    current_arguments.append(&mut vec!["-kernel", binary.as_str()]);
+    current_arguments.append(&mut vec!["-kernel", &binary]);
     run_command_and_check_with_timeout!(arch_specification.qemu_command, current_arguments, 60)?;
     log::info!("Integration test '{}' finished successfully", test_name);
   }

@@ -8,6 +8,7 @@
 // As this is no ordinary program, we have a special entry-point,
 // which is not the `main()` function.
 #![no_main]
+// #![allow(clippy::multiple_crate_versions)]
 // With our own test framework, we have to define which function
 // runs our tests.
 #![test_runner(crate::library::test::runner)]

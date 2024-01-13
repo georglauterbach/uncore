@@ -64,14 +64,14 @@ lto = false
 # -----------------------------------------------
 
 [dependencies]
-anyhow = "1.0.75"
+anyhow = "1.0.79"
 chrono = "0.4.31"
-clap = { version = "4.4.6", features = ["derive"] }
-clap-verbosity-flag = "2.0.1"
-colored = "2.0.4"
+clap = { version = "4.4.16", features = ["derive"] }
+clap-verbosity-flag = "2.1.1"
+colored = "2.1.0"
 log = "0.4.20"
 regex = "1.10.2"
-toml = "0.8.4"
+toml = "0.8.8"
 wait-timeout = "0.2.0"
 which = "5.0.0"
 
@@ -84,9 +84,9 @@ members = ["uncore"]
 
 # General lints "inherent" in Rustlang.
 [workspace.lints.rust]
-# TODO
+# We require docs on all items
 missing_docs = "deny"
-# TODO
+# We require a debug implementation on all items
 missing_debug_implementations = "deny"
 
 # Lint target for code documentation. When running `rustdoc`,
@@ -113,5 +113,4 @@ pedantic = "deny"
 # file, a.k.a. Cargo.toml.
 cargo = "deny"
 # Individual lints go here now:
-multiple_crate_versions = "allow"
 missing_docs_in_private_items = "deny"
