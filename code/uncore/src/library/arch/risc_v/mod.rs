@@ -8,7 +8,7 @@
 
 pub mod drivers;
 pub mod heap;
-mod interrupts;
+mod interrupts_exceptions;
 
 /// Architecture-specific functionality before the kernel setup in [`crate::setup_kernel`]
 /// should run.
