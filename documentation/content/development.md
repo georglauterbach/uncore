@@ -19,13 +19,17 @@ When you want to start working on _unCORE_, go ahead and install Rust by running
 
 ## Workflow
 
+### About the Workspace
+
+The workspace that lives inside `code/` has two members: the default binary in `code/src/` and the "proper" member in `src/uncore/` where the kernel code resides. When using `cargo run -- <COMMAND>`, you invoke the default binary, which contains code to handle the other workspace members; and this is the trick to using only Rust and no build system. The default binary then likely invokes Cargo again with all the correct arguments and options to properly build the kernel. It also performs required checks (e.g., on dependencies) beforehand. With such a workspace, _unCORE_ does not require a build system or additional build configuration in files like `.cargo/config.toml` that are inflexible.
+
 ### Working with _unCORE_
 
 When working on _unCORE_, you use the workspace's main binary. You run it by executing `cargo run`, and you provide all arguments to it in the same command. To see which commands and options the binary supports, run the following commands:
 
 ```console
 $ cd code
-$ cargo run -- help
+$ cargo run -- help # (1)
 Compiling uncore-helper v1.0.0-alpha1 (/path/to/uncore/code)
 Finished dev [unoptimized + debuginfo] target(s) in 1.56s
 Running `target/debug/uncore-helper help`
@@ -34,17 +38,11 @@ Workspace member that eases working with unCORE.
 ...
 ```
 
+1. The `--` is used to separate arguments for Cargo from those that we want to pass our binary. In this case, `run` is an argument to Cargo, `help` is an argument to our binary.
+
 There are different commands available: The `run` command will run _unCORE_; when you use `run --debug`, you can attach GDB; when you use `u-test`, you run unit-tests. Using the `help` (or `--help` or `-h`) command will always show which commands you can run. These patterns are used ubiquitously; [CI][docs::ci] also makes use of these commands.
 
 To further ease the process, aliases are defined in [`code/.cargo/config.toml`][code::github::cargo-aliases]. Hence, to run the kernel, you may use `#!bash cargo _run`. Have a look at the file to see which other aliases are defined.
-
-### About the Workspace
-
-The workspace that lives inside `code/` has two members: the default binary in `code/src/` and the "proper" member in `src/uncore/` where the kernel code resides. When using `cargo run -- <COMMAND>`, you invoke the default binary, which contains code to handle the other workspace members; and this is the trick to using only Rust and no build system. The default binary then likely invokes Cargo again with all the correct arguments and options to properly build the kernel. It also performs required checks (e.g., on dependencies) beforehand. With such a workspace, _unCORE_ does not require a build system or additional configuration files like `.cargo/config.toml` that are inflexible.
-
-!!! tip "Documentation of Workspace Main Binary"
-
-    You can open the main workspace binary's documentation with `#!bash cd code && cargo doc --open`
 
 ## Conventions
 

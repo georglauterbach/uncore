@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
 /* This script needs to be synchronized with                                 */
-/* https://github.com/rust-embedded/riscv-rt/blob/28b916dc400caef2b3bfd4c5e66130a162e21f26/link-rv64.x */
+/* https://github.com/rust-embedded/riscv/blob/master/riscv-rt/link.x.in     */
 /* and updates to the riscv-rt crate need to be synchronized with            */
 /* the updates the script gets on GitHub.                                    */
 
@@ -47,6 +47,29 @@ REGION_ALIAS(REGION_STACK,  REGION_DRAM);
 /* Maximum number of supported hardware threads and their stack size.        */
 PROVIDE(_max_hart_id = 0);
 PROVIDE(_hart_stack_size = 2K);
+
+/* Provide default handlers for possible interrupts and exceptions .         */
+PROVIDE(InstructionMisaligned = ExceptionHandler);
+PROVIDE(InstructionFault = ExceptionHandler);
+PROVIDE(IllegalInstruction = ExceptionHandler);
+PROVIDE(Breakpoint = ExceptionHandler);
+PROVIDE(LoadMisaligned = ExceptionHandler);
+PROVIDE(LoadFault = ExceptionHandler);
+PROVIDE(StoreMisaligned = ExceptionHandler);
+PROVIDE(StoreFault = ExceptionHandler);;
+PROVIDE(UserEnvCall = ExceptionHandler);
+PROVIDE(SupervisorEnvCall = ExceptionHandler);
+PROVIDE(MachineEnvCall = ExceptionHandler);
+PROVIDE(InstructionPageFault = ExceptionHandler);
+PROVIDE(LoadPageFault = ExceptionHandler);
+PROVIDE(StorePageFault = ExceptionHandler);
+
+PROVIDE(SupervisorSoft = DefaultHandler);
+PROVIDE(MachineSoft = DefaultHandler);
+PROVIDE(SupervisorTimer = DefaultHandler);
+PROVIDE(MachineTimer = DefaultHandler);
+PROVIDE(SupervisorExternal = DefaultHandler);
+PROVIDE(MachineExternal = DefaultHandler);
 
 /* Pre-initialization function. If the user overrides this using the         */
 /* `#[pre_init]` attribute or by creating a `__pre_init` function, then the  */

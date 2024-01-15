@@ -68,7 +68,7 @@ When running inside QEMU, a [Jump Address][www::documentation::qemu-fw-jump] (`0
 
 _unCORE_ currently uses [`riscv-rt`][www::documentation::crate::riscv-rt]. This crate provides a run-time for RISC-V and additionally handlers for interrupts and exceptions. The linker script currently in use for RISC-V 64bit is derived from the [linker script that `riscv-rt` ships](https://github.com/rust-embedded/riscv-rt/blob/738baf93dfcc2570931d0e52d1b6ee1ccc8a6067/link-rv64.x). QEMU takes an ELF file with the `-kernel` parameter. The ELF is built according to [our linker script][code::github::linker-script].
 
-When [OpenSBI][www::github::open-sbi] and [`riscv-rt`][www::documentation::crate::riscv-rt] have finished running, _unCORE is entered_. The entry functions lives (as the only function) in `code/uncore/src/main.rs`:
+When [OpenSBI][www::github::open-sbi] and [`riscv-rt`][www::documentation::crate::riscv-rt] have finished running, _unCORE is entered_. The entry functions lives (as the only function) in [`code/uncore/src/main.rs`][code::github::kernel-main]:
 
 ```rust title="unCORE Entry Function Signature" hl_lines="5"
 /// The RISC-V 64bit entrypoint, called by the [`riscv-rt`]
@@ -88,3 +88,4 @@ Kernel code resides in `code/uncore/src/`. The main kernel functionality can be 
 [www::documentation::qemu-fw-jump]: https://github.com/riscv-software-src/opensbi/blob/master/docs/firmware/fw_jump.md
 [www::documentation::crate::riscv-rt]: https://docs.rs/riscv-rt/latest/riscv_rt/
 [code::github::linker-script]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/library/arch/risc_v/linking.ld
+[code::github::kernel-main]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/main.rs

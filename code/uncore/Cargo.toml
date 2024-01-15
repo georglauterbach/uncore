@@ -51,6 +51,9 @@ autobins = true
 autoexamples = true
 autotests = false
 
+[lints]
+workspace = true
+
 # -----------------------------------------------
 # ----  Dependencies  ---------------------------
 # -----------------------------------------------
@@ -60,8 +63,8 @@ autotests = false
 [dependencies]
 linked_list_allocator = "0.10.5"
 log = "0.4.20"
-owo-colors = "3.5.0"
-riscv-rt = { git = "https://github.com/rust-embedded/riscv-rt.git", rev = "28b916d", features = ["s-mode"] }
+riscv-rt = { version = "0.12.0", features = ["s-mode"] }
+owo-colors = "4.0.0"
 sbi = "0.2.0"
 spin = "0.9.8"
 
