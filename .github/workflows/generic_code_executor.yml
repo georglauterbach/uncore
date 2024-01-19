@@ -3,18 +3,25 @@ name: Generic Executor
 on:
   workflow_call:
     inputs:
+      # Set to true if you need `qemu`.
       install-qemu:
         required: false
         type: boolean
         default: false
+
+      # Set to true if you need `sccache`.
       install-sccache:
         required: false
         type: boolean
         default: false
+
+      # Set to true if you need `cargo-audit`.
       install-cargo-audit:
         required: false
         type: boolean
         default: false
+
+      # Provide a command that is run in the end.
       command:
         required: true
         type: string
@@ -29,13 +36,13 @@ defaults:
 
 jobs:
   generic-execute:
-    name: 'Execute'
+    name: Run
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Rust
+      - name: Install Rust and mold
         run: sudo ../misc/scripts/install_rust_and_mold.sh
 
       - name: Install QEMU
@@ -62,19 +69,19 @@ jobs:
           rustc --version
           mold --version
 
-      - name: Install `cargo audit`
+      - name: Install cargo-audit
         if: inputs.install-cargo-audit
         run: |
           cargo install cargo-audit
           cargo-audit --version
 
-      - name: Run command
+      - name: Run command (with `sccache`)
         if: inputs.install-sccache
         env:
           SCCACHE_GHA_ENABLED: 'true'
           RUSTC_WRAPPER: sccache
         run: ${{ inputs.command }}
 
-      - name: Run command
+      - name: Run command (without `sccache`)
         if: ${{ ! inputs.install-sccache }}
         run: ${{ inputs.command }}
