@@ -11,13 +11,13 @@ tags:
 
     We expect you to have _some_ experience with _Rust_: you need not be an expert, but _unCORE_ requires you to understand the basics of the programming language. If you are a complete beginner, we highly recommend you to read the [official Rust book](https://doc.rust-lang.org/book/).
 
-## Getting Started
+## :rocket: Getting Started
 
 After you have forked the repository, you can clone it. All Rust code resides in [`code/`][code::github::code/]. The documentation lives in [`documentation/`][code::github::documentation/]. [`misc/`][code::github::misc/] contains miscellaneous files, e.g., GDB initialization files, shell aliases, etc. In the [`.github/`][code::github::.github/] directory you can find CI/CD and GitHub-related configuration files. The [`code/`][code::github::code/] directory is a [_Cargo_ Workspace][www::docs::cargo-workspace].
 
 If you want to start working on _unCORE_, go ahead and install Rust by running [`./misc/scripts/install_rust.sh`][code::github::misc/scripts/install-rust.sh]. When you later work on this project, you will be told if you're missing other dependencies (like [`qemu-system-riscv64`][www::homepage::qemu-riscv], [`jq`][www::homepage::jq] or [`mold`][www::github::mold]).
 
-## Workflow
+## :toolbox: Workflow
 
 ### About the Workspace
 
@@ -52,11 +52,11 @@ As mentioned [earlier](#about-the-workspace), the kernel is actually built by th
 
 The "heavy lifting" is done by _Cargo_. The workspace main binary "only" takes care of checking dependencies and invoking _Cargo_ correctly, i.e., with the correct target (architecture), environment variables used when building, linker script (and linker), etc.
 
-## Conventions
+## :compass: Conventions
 
 Please stick to the style and naming conventions you encounter in this project. [Clippy][www::github::clippy] is used to check and lint the Rust code in this project. [rustfmt][www::github::rustfmt] is used to format (and check) the code. An appropriate [`code/.rustfmt.toml`][code::github::code/.rustfmt.toml] is already provided. Similarly, we use [EditorConfig][www::homepage::editorconfig]. Conventions are enforced by our [CI][docs::ci].
 
-## Debugging
+## :fire_extinguisher: Debugging
 
 The [workspace main binary](#about-the-workspace) provides an easy way to debug _unCORE_. Debugging is supported for running the plain kernel binary, the unit-, and the integration-tests. All you need to do is add the `--debug` flag to these targets:
 
@@ -80,29 +80,29 @@ You can then attach to QEMU with [GDB][www::homepage::gdb]. An example initializ
 
 [//]: # (Links)
 
-[code::github::code/]: https://github.com/georglauterbach/uncore/blob/master/code
-[code::github::documentation/]: https://github.com/georglauterbach/uncore/blob/master/documentation
-[code::github::misc/]: https://github.com/georglauterbach/uncore/blob/master/misc
-[code::github::.github/]: https://github.com/georglauterbach/uncore/blob/master/misc
+[code::github::code/]: https://github.com/georglauterbach/uncore/blob/master/code/
+[code::github::documentation/]: https://github.com/georglauterbach/uncore/blob/master/documentation/
+[code::github::misc/]: https://github.com/georglauterbach/uncore/blob/master/misc/
+[code::github::.github/]: https://github.com/georglauterbach/uncore/blob/master/.github/
 [www::docs::cargo-workspace]: https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html
 [code::github::misc/scripts/install-rust.sh]: https://github.com/georglauterbach/uncore/blob/master/misc/scripts/install_rust.sh
 [www::homepage::qemu-riscv]: https://www.qemu.org/docs/master/system/target-riscv.html
 [www::homepage::jq]: https://jqlang.github.io/jq/
 [www::github::mold]: https://github.com/rui314/mold
-[code::github::code/src]: https://github.com/georglauterbach/uncore/tree/master/code/src
-[code::github::code/uncore]: https://github.com/georglauterbach/uncore/tree/master/code/uncore
+[code::github::code/src]: https://github.com/georglauterbach/uncore/tree/master/code/src/
+[code::github::code/uncore]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/
 [www::documentation::cargo::configuration]: https://doc.rust-lang.org/cargo/reference/config.html
-[code::github::code/uncore/src]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src
+[code::github::code/uncore/src]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src/
 [code::github::code/uncore/src/main.rs]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src/main.rs
 [code::github::code/uncore/src/lib.rs]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src/lib.rs
-[code::github::code/uncore/src/library/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src/library
-[code::github::code/uncore/tests/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/tests
+[code::github::code/uncore/src/library/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src/library/
+[code::github::code/uncore/tests/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/tests/
 [code::github::code/.cargo/config.toml]: https://github.com/georglauterbach/uncore/blob/master/code/.cargo/config.toml
 [www::github::clippy]: https://github.com/rust-lang/rust-clippy
 [www::github::rustfmt]: https://github.com/rust-lang/rustfmt
 [code::github::code/.rustfmt.toml]: https://github.com/georglauterbach/uncore/blob/master/code/.rustfmt.toml
 [www::homepage::editorconfig]: https://editorconfig.org/
-[docs::ci]: ./testing.md#ci
+[docs::ci]: ./testing.md#continuous-integration-ci
 [www::homepage::gdb]: https://www.sourceware.org/gdb/
 [code::github::misc/gdb/init.txt]: https://github.com/georglauterbach/uncore/blob/master/misc/gdb/init.txt
 [code::github::code/src/command.rs:build]: https://github.com/georglauterbach/uncore/blob/master/code/src/command.rs#L210

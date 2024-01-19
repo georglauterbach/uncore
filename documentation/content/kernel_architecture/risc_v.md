@@ -1,20 +1,15 @@
 ---
 tags:
-  - architecture
-  - structure
+  - kernel architecture
+  - kernel architecture
+  - kernel structure
+  - kernel structure
+  - RISC-V
 ---
 
-# The Kernel Architecture
+# RISC-V
 
-## General
-
-There are aspects of the kernel code that are independent of the architecture: the file layout of the kernel source code, mechanisms above the [hardware abstraction layer (HAL)][www::wikipedia::hardware-abstraction] [^1], etc. Architecture-specific code resides in [`code/uncore/src/library/arch/`][code::github::code/uncore/src/library/arch/].
-
-[^1]: "Above" refers to using the [hardware abstraction layer (HAL)][www::wikipedia::hardware-abstraction] instead of providing functionality for it to work (which one would refer to as "below"). Drivers, for example, reside "below" the HAL.
-
-## RISC-V
-
-### Bootstrapping and Runtime
+## Bootstrapping
 
 The boot-flow is tied to the privilege modes on each architecture. For the purpose of simplicity, this documentation covers RISC-V exemplarily.
 
@@ -86,10 +81,8 @@ The entry function is called with one argument, the HART (CPU core; in RISC-V sl
 
 [//]: # (Links)
 
-[www::wikipedia::hardware-abstraction]: https://en.wikipedia.org/wiki/Hardware_abstraction
 [www::github::open-sbi]: https://github.com/riscv-software-src/opensbi
 [www::documentation::qemu-fw-jump]: https://github.com/riscv-software-src/opensbi/blob/master/docs/firmware/fw_jump.md
 [www::documentation::crate::riscv-rt]: https://docs.rs/riscv-rt/latest/riscv_rt/
-[code::github::code/uncore/src/library/arch/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src/library
 [code::github::code/uncore/src/library/arch/risc_v/linking.ld]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/library/arch/risc_v/linking.ld
 [code::github::code/uncore/src/main.rs]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/main.rs

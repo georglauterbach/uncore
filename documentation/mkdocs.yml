@@ -12,10 +12,15 @@ repo_url: https://github.com/georglauterbach/uncore
 
 docs_dir: content/
 
+watch:
+  - include
+
 nav:
   - Home: index.md
   - Development: development.md
-  - Kernel Architecture: kernel_architecture.md
+  - Kernel Architecture:
+      - Overview: kernel_architecture/overview.md
+      - RISC-V: kernel_architecture/risc_v.md
   - Testing: testing.md
   - Community:
       - Overview: community/overview.md
@@ -89,6 +94,8 @@ markdown_extensions:
       permalink: ⚓︎
   - pymdownx.snippets:
       url_download: true
+      auto_append:
+        - include/glossary.md
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg

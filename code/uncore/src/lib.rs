@@ -33,7 +33,8 @@
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
 
-/// Lol
+/// The `alloc` crate enables the kernel to dynamically allocate memory. The module
+/// [`mod@crate::library::mem::heap`] implements the corresponding allocators.
 extern crate alloc;
 
 /// ### The Core Library

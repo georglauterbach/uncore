@@ -41,7 +41,7 @@ pub enum Command {
     /// Whether to open the documentation immediately
     #[clap(short, long)]
     open:  bool,
-    /// Whether to watch for changes (requires 'cargo-watch)
+    /// Whether to watch for changes
     #[clap(short, long)]
     watch: bool,
   },
