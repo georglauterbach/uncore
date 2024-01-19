@@ -68,13 +68,13 @@ jobs:
           cargo install cargo-audit
           cargo-audit --version
 
-      - name: Run all checks
+      - name: Run command
         if: inputs.install-sccache
         env:
           SCCACHE_GHA_ENABLED: 'true'
           RUSTC_WRAPPER: sccache
         run: ${{ inputs.command }}
 
-      - name: Run all checks
-        if: ! inputs.install-sccache
+      - name: Run command
+        if: ${{ ! inputs.install-sccache }}
         run: ${{ inputs.command }}
