@@ -36,9 +36,6 @@ jobs:
           echo 'SCCACHE_GHA_ENABLED=true' >>"${GITHUB_ENV}"
           echo 'RUSTC_WRAPPER=sccache' >>"${GITHUB_ENV}"
 
-      - name: Run sccache stat for check
-        run: ${SCCACHE_PATH} --show-stats
-
       - name: Run all checks
         env:
           SCCACHE_GHA_ENABLED: 'true'
@@ -71,9 +68,6 @@ jobs:
         run: |
           echo 'SCCACHE_GHA_ENABLED=true' >>"${GITHUB_ENV}"
           echo 'RUSTC_WRAPPER=sccache' >>"${GITHUB_ENV}"
-
-      - name: Run sccache stat for check
-        run: ${SCCACHE_PATH} --show-stats
 
       - name: Run all unit-test
         env:

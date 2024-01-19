@@ -51,7 +51,7 @@ theme:
     - content.code.copy
   palette:
     # automatic mode
-    - media: "(prefers-color-scheme)"
+    - media: (prefers-color-scheme)
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
