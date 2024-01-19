@@ -43,7 +43,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust and mold
-        run: sudo ../misc/scripts/install_rust_and_mold.sh
+        run: |
+          sudo ../misc/scripts/install_rust_and_mold.sh
+          cargo --version
+          rustc --version
+          mold --version
 
       - name: Install QEMU
         if: inputs.install-qemu
@@ -59,15 +63,9 @@ jobs:
       - name: Setup sccache
         if: inputs.install-sccache
         run: |
-          sccache --version
           echo 'SCCACHE_GHA_ENABLED=true' >>"${GITHUB_ENV}"
           echo 'RUSTC_WRAPPER=sccache' >>"${GITHUB_ENV}"
-
-      - name: Print version information of build tools
-        run: |
-          cargo --version
-          rustc --version
-          mold --version
+          sccache --version
 
       - name: Install cargo-audit
         if: inputs.install-cargo-audit
@@ -83,5 +81,6 @@ jobs:
         run: ${{ inputs.command }}
 
       - name: Run command (without `sccache`)
+          # we need the `${{ }}` here because `!` is reserved in YAML
         if: ${{ ! inputs.install-sccache }}
         run: ${{ inputs.command }}
