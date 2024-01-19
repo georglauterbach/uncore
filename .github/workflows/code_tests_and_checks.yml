@@ -12,73 +12,21 @@ on: # yamllint disable-line rule:truthy
     paths: [code/**]
     branches: [master]
 
-defaults:
-  run:
-    shell: bash
-    working-directory: code
+permissions:
+  contents: read
 
 jobs:
   kernel-linting:
     name: Lint the kernel code
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust
-        run: sudo ../misc/scripts/install_rust_and_mold.sh
-
-      - name: Setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
-
-      - name: Setup sccache caching environment variables
-        run: |
-          echo 'SCCACHE_GHA_ENABLED=true' >>"${GITHUB_ENV}"
-          echo 'RUSTC_WRAPPER=sccache' >>"${GITHUB_ENV}"
-
-      - name: Run all checks
-        env:
-          SCCACHE_GHA_ENABLED: 'true'
-          RUSTC_WRAPPER: sccache
-        run: >-
-          cargo run -- -vv check
+    uses: georglauterbach/uncore/.github/workflows/generic_code_executor.yml@master
+    with:
+      install-sccache: true
+      command: cargo run -- -vv check
 
   unit-and-integration-tests:
     name: Run unit- and integration-tests
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install QEMU
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install --no-install-recommends qemu-system-riscv64
-          qemu-system-riscv64 --version
-
-      - name: Install Rust
-        run: sudo ../misc/scripts/install_rust_and_mold.sh
-
-      - name: Setup sccache
-        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-        uses: mozilla-actions/sccache-action@v0.0.3
-
-      - name: Setup sccache caching environment variables
-        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
-        run: |
-          echo 'SCCACHE_GHA_ENABLED=true' >>"${GITHUB_ENV}"
-          echo 'RUSTC_WRAPPER=sccache' >>"${GITHUB_ENV}"
-
-      - name: Run all unit-test
-        env:
-          SCCACHE_GHA_ENABLED: 'true'
-          RUSTC_WRAPPER: sccache
-        run: >-
-          cargo run -- -vv u-test
-
-      - name: Run all integration-tests
-        env:
-          SCCACHE_GHA_ENABLED: 'true'
-          RUSTC_WRAPPER: sccache
-        run: >-
-          cargo run -- -vv i-test
+    uses: georglauterbach/uncore/.github/workflows/generic_code_executor.yml@master
+    with:
+      install-qemu: true
+      install-sccache: true
+      command: cargo run -- -vv u-test && cargo run -- -vv i-test

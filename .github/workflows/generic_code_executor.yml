@@ -1,0 +1,80 @@
+name: Generic Executor
+
+on:
+  workflow_call:
+    inputs:
+      install-qemu:
+        required: false
+        type: boolean
+        default: false
+      install-sccache:
+        required: false
+        type: boolean
+        default: false
+      install-cargo-audit:
+        required: false
+        type: boolean
+        default: false
+      command:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+    working-directory: code
+
+jobs:
+  generic-execute:
+    name: 'Execute'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        run: sudo ../misc/scripts/install_rust_and_mold.sh
+
+      - name: Install QEMU
+        if: inputs.install-qemu
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install --no-install-recommends qemu-system-riscv64
+          qemu-system-riscv64 --version
+
+      - name: Install sccache
+        if: inputs.install-sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: Setup sccache
+        if: inputs.install-sccache
+        run: |
+          sccache --version
+          echo 'SCCACHE_GHA_ENABLED=true' >>"${GITHUB_ENV}"
+          echo 'RUSTC_WRAPPER=sccache' >>"${GITHUB_ENV}"
+
+      - name: Print version information of build tools
+        run: |
+          cargo --version
+          rustc --version
+          mold --version
+
+      - name: Install `cargo audit`
+        if: inputs.install-cargo-audit
+        run: |
+          cargo install cargo-audit
+          cargo-audit --version
+
+      - name: Run all checks
+        if: inputs.install-sccache
+        env:
+          SCCACHE_GHA_ENABLED: 'true'
+          RUSTC_WRAPPER: sccache
+        run: ${{ inputs.command }}
+
+      - name: Run all checks
+        if: ! inputs.install-sccache
+        run: ${{ inputs.command }}

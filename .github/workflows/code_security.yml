@@ -3,30 +3,15 @@ name: Code / Security
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
-  pull_request:
-    paths:
-      - .github/workflows/code_security.yml
-      - code/**/Cargo.toml
   schedule:
     - cron: 0 2 * * 6
 
-defaults:
-  run:
-    working-directory: code
+permissions:
+  contents: read
 
 jobs:
   cargo-audit:
     name: Audit dependencies
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust
-        run: sudo ../misc/scripts/install_rust_and_mold.sh
-
-      - name: Install `cargo audit`
-        run: cargo install cargo-audit
-
-      - name: Run `cargo audit`
-        run: cargo audit --deny warnings
+    uses: georglauterbach/uncore/.github/workflows/generic_code_executor.yml@master
+    with:
+      command: cargo audit --deny warnings
