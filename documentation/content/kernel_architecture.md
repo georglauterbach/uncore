@@ -1,12 +1,20 @@
 ---
 tags:
-  - kernel
   - architecture
+  - structure
 ---
 
 # The Kernel Architecture
 
-## Bootstrapping and Runtime
+## General
+
+There are aspects of the kernel code that are independent of the architecture: the file layout of the kernel source code, mechanisms above the [hardware abstraction layer (HAL)][www::wikipedia::hardware-abstraction] [^1], etc. Architecture-specific code resides in [`code/uncore/src/library/arch/`][code::github::code/uncore/src/library/arch/].
+
+[^1]: "Above" refers to using the [hardware abstraction layer (HAL)][www::wikipedia::hardware-abstraction] instead of providing functionality for it to work (which one would refer to as "below"). Drivers, for example, reside "below" the HAL.
+
+## RISC-V
+
+### Bootstrapping and Runtime
 
 The boot-flow is tied to the privilege modes on each architecture. For the purpose of simplicity, this documentation covers RISC-V exemplarily.
 
@@ -66,26 +74,22 @@ When running inside QEMU, a [Jump Address][www::documentation::qemu-fw-jump] (`0
 
     Interacting with SBI is handled by the [`sbi`](https://crates.io/crates/sbi) crate. This crate utilizes the `ecall` instruction to trap into the SEE (which is OpenSBI on QEMU), where a handler will handle the trap and then return to the kernel. This is handled much in the same way that a system call is handled: first, you set up registers, then you execute `ecall`, and then you read out registers that contain return values.
 
-_unCORE_ currently uses [`riscv-rt`][www::documentation::crate::riscv-rt]. This crate provides a run-time for RISC-V and additionally handlers for interrupts and exceptions. The linker script currently in use for RISC-V 64bit is derived from the [linker script that `riscv-rt` ships](https://github.com/rust-embedded/riscv-rt/blob/738baf93dfcc2570931d0e52d1b6ee1ccc8a6067/link-rv64.x). QEMU takes an ELF file with the `-kernel` parameter. The ELF is built according to [our linker script][code::github::linker-script].
+_unCORE_ currently uses [`riscv-rt`][www::documentation::crate::riscv-rt]. This crate provides a run-time for RISC-V and additionally handlers for interrupts and exceptions. The linker script currently in use for RISC-V 64bit is derived from the [linker script that `riscv-rt` ships](https://github.com/rust-embedded/riscv-rt/blob/738baf93dfcc2570931d0e52d1b6ee1ccc8a6067/link-rv64.x). QEMU takes an ELF file with the `-kernel` parameter. The ELF is built according to [our linker script][code::github::code/uncore/src/library/arch/risc_v/linking.ld].
 
-When [OpenSBI][www::github::open-sbi] and [`riscv-rt`][www::documentation::crate::riscv-rt] have finished running, _unCORE is entered_. The entry functions lives (as the only function) in [`code/uncore/src/main.rs`][code::github::kernel-main]:
+When [OpenSBI][www::github::open-sbi] and [`riscv-rt`][www::documentation::crate::riscv-rt] have finished running, _unCORE is entered_. The entry functions lives (as the only function) in [`code/uncore/src/main.rs`][code::github::code/uncore/src/main.rs]:
 
 ```rust title="unCORE Entry Function Signature" hl_lines="5"
-/// The RISC-V 64bit entrypoint, called by the [`riscv-rt`]
-/// runtime after SBI has set up the machine.
-#[cfg(target_arch = "riscv64")]
-#[riscv_rt::entry]
-fn riscv64_entry(hart: usize) -> ! { ... }
+--8<-- "https://raw.githubusercontent.com/georglauterbach/uncore/master/code/uncore/src/main.rs:16:20"
 ```
 
 The entry function is called with one argument, the HART (CPU core; in RISC-V slang "hardware thread", i.e., HART) on which the setup has been called. This will prove useful because some system initialization steps need to happen only once, and some have to happen for each HART.
 
-Kernel code resides in `code/uncore/src/`. The main kernel functionality can be listed by listing the contents of `code/uncore/src/library/`.
-
 [//]: # (Links)
 
+[www::wikipedia::hardware-abstraction]: https://en.wikipedia.org/wiki/Hardware_abstraction
 [www::github::open-sbi]: https://github.com/riscv-software-src/opensbi
 [www::documentation::qemu-fw-jump]: https://github.com/riscv-software-src/opensbi/blob/master/docs/firmware/fw_jump.md
 [www::documentation::crate::riscv-rt]: https://docs.rs/riscv-rt/latest/riscv_rt/
-[code::github::linker-script]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/library/arch/risc_v/linking.ld
-[code::github::kernel-main]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/main.rs
+[code::github::code/uncore/src/library/arch/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src/library
+[code::github::code/uncore/src/library/arch/risc_v/linking.ld]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/library/arch/risc_v/linking.ld
+[code::github::code/uncore/src/main.rs]: https://github.com/georglauterbach/uncore/blob/master/code/uncore/src/main.rs

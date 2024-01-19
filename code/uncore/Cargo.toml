@@ -2,7 +2,7 @@ cargo-features = ["per-package-target"]
 
 [package]
 name = "uncore"
-version = "1.0.0-alpha3"
+version = "1.0.0-alpha4"
 edition = "2021"
 workspace = "../"
 
