@@ -3,8 +3,8 @@
 <!--  Include a summary of the change.
       Please also include relevant motivation and context. -->
 
-<!-- Link the issue which will be fixed (if any) here: -->
-<!-- Fixes # -->
+<!--  Link the issue which will be fixed (if any) here: -->
+<!--  Fixes # -->
 
 ## Type of change
 
