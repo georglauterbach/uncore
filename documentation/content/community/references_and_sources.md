@@ -3,6 +3,7 @@ hide:
   - toc
 tags:
   - community
+  - references and sources
 ---
 
 # References and Sources
@@ -17,4 +18,4 @@ This project was and is heavily inspired by the following projects:
 Other good learning resources:
 
 1. _Stephen Marz_ | [_RISC-V Assembly Language_](https://web.eecs.utk.edu/~smarz1/courses/ece356/notes/assembly/)
-2. _RISC-V Non-ISA Specifications_ on _GitHub_ | [RISC-V Assembly Programmer's Manual](https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md)
+2. RISC-V Non-ISA Specifications on _GitHub_ | [RISC-V Assembly Programmer's Manual](https://github.com/riscv-non-isa/riscv-asm-manual/blob/master/riscv-asm.md)

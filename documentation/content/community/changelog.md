@@ -16,3 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changes
 
 ### Unreleased
+
+!!! note
+
+    Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.

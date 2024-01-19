@@ -46,7 +46,7 @@ jobs:
             mkdocs-material-
 
       - name: Install Python dependencies
-        run: pip install mkdocs-material
+        run: pip install mkdocs-material==9.5.4
 
       - name: Deploy documentation
         run: mkdocs gh-deploy --strict --force

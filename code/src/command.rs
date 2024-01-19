@@ -41,7 +41,7 @@ pub enum Command {
     /// Whether to open the documentation immediately
     #[clap(short, long)]
     open:  bool,
-    /// Whether to watch for changes (requires 'cargo-watch)
+    /// Whether to watch for changes
     #[clap(short, long)]
     watch: bool,
   },
@@ -94,7 +94,7 @@ use anyhow::Context;
 /// is the command name to check, the second one is the package name on Ubuntu. When using
 /// "cargo" in the beginning, the command has to be installed via `cargo install`.
 macro_rules! check_bin {
-  ($command:tt) => {
+  ($command:expr) => {
     which::which($command).context(format!("Package '{}' seems to be missing", $command))
   };
 
@@ -115,6 +115,8 @@ macro_rules! check_bin {
 fn check_build_time_dependencies(_architecture: arguments::Architecture) -> anyhow::Result<()> {
   log::debug!("Checking build-time dependencies");
 
+  check_bin!("mold")?;
+
   log::trace!("Build-time dependencies are satisfied");
   Ok(())
 }
@@ -129,7 +131,7 @@ fn check_run_time_dependencies(architecture: arguments::Architecture, is_debug: 
     arguments::Architecture::Riscv64 => {
       check_bin!("qemu-system-riscv64")?;
       if is_debug {
-        log::trace!("Checking run-time dependencies required for debugging");
+        log::debug!("Checking run-time dependencies required for debugging");
         check_bin!("gdb-multiarch")?;
       }
     },
@@ -213,9 +215,14 @@ fn build(arch_specification: &arguments::ArchitectureSpecification) -> anyhow::R
   let cargo_build_environment =
     super::environment::get_all_environment_variables_for_build(&arch_specification.linker_script_path)?;
 
+  // TODO Check that, when upgrading to Ubuntu 24.04, we may be able to use `-C
+  // link-arg=...` TODO instead of requiring mold to intercept calls to ld.lld via
+  // LD_PRELOAD
   run_command_and_check!(
-    env!("CARGO"),
+    "mold",
     [
+      "-run",
+      env!("CARGO"),
       "build",
       "--package",
       "uncore",

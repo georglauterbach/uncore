@@ -12,10 +12,15 @@ repo_url: https://github.com/georglauterbach/uncore
 
 docs_dir: content/
 
+watch:
+  - include
+
 nav:
   - Home: index.md
   - Development: development.md
-  - Kernel Architecture: kernel_architecture.md
+  - Kernel Architecture:
+      - Overview: kernel_architecture/overview.md
+      - RISC-V: kernel_architecture/risc_v.md
   - Testing: testing.md
   - Community:
       - Overview: community/overview.md
@@ -45,19 +50,24 @@ theme:
     - content.code.annotate
     - content.code.copy
   palette:
+    # automatic mode
+    - media: (prefers-color-scheme)
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
     # light mode
     - media: '(prefers-color-scheme: light)'
       scheme: light
       primary: blue
-      accent: pink
+      accent: deep purple
       toggle:
         icon: material/lightbulb-outline
         name: Switch to dark mode
     # dark mode
     - media: '(prefers-color-scheme: dark)'
       scheme: slate
-      primary: teal
-      accent: cyan
+      primary: amber
+      accent: orange
       toggle:
         icon: material/lightbulb
         name: Switch to light mode
@@ -71,23 +81,33 @@ extra:
 markdown_extensions:
   - abbr
   - attr_list
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - admonition
+  - footnotes
   - pymdownx.details
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.magiclink
   - pymdownx.keys
-  - pymdownx.snippets
-  - pymdownx.tabbed:
-      alternate_style: true
   - toc:
       toc_depth: 3
       permalink: ⚓︎
+  - pymdownx.snippets:
+      url_download: true
+      auto_append:
+        - include/glossary.md
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tabbed:
+      alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
   - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
       extend_pygments_lang:
         - name: yml
           lang: yaml
