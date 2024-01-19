@@ -1,5 +1,5 @@
 ---
-name: Code / Tests and Checks
+name: Code / Tests & Checks
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
