@@ -15,5 +15,17 @@ updates:
     labels:
       - area/ci
       - kind/update
-      - priority/low
-      - meta/needs-triage
+
+  - package-ecosystem: cargo
+    directory: code
+    target-branch: dev
+    rebase-strategy: auto
+    schedule:
+      interval: weekly
+    reviewers:
+      - georglauterbach
+    assignees:
+      - georglauterbach
+    labels:
+      - area/dependencies
+      - kind/update
