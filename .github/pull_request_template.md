@@ -10,7 +10,7 @@
 
 <!-- Delete options that are not relevant. -->
 
-- [x] Bug fix (non-breaking change which fixes an issue)
+- [x] Bug fix (non-breaking change which resolves an issue)
 - [x] New feature (non-breaking change which adds functionality)
 - [x] Improvement (non-breaking change that does improve existing functionality)
 - [x] Breaking change (fix or feature that would cause existing functionality to not work as expected)
@@ -20,7 +20,7 @@
 ## Checklist
 
 - [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
+- [ ] I have performed a self-review of my code
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation (README.md or the documentation under `documentation/`)
 - [ ] If necessary, I have added tests that prove my fix is effective or that my feature works
