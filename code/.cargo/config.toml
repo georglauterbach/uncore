@@ -8,6 +8,7 @@
 
 [alias]
 _help  = ["run", "-q", "--", "help"]
+_build = ["run", "-q", "--", "build"]
 _run   = ["run", "-q", "--", "run"]
 _debug = ["run", "-q", "--", "run", "--debug"]
 _check = ["run", "-q", "--", "check"]
