@@ -60,7 +60,7 @@ jobs:
 
       - name: Install sccache
         if: inputs.install-sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.4
 
       - name: Setup sccache
         if: inputs.install-sccache
