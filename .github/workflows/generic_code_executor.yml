@@ -43,13 +43,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust and mold
-        run: |
-          sudo ../misc/scripts/install_rust_and_mold.sh
-
-          source "${HOME}/.cargo/env"
-          cargo --version
-          rustc --version
-          mold --version
+        run: sudo ../misc/scripts/install_rust_and_mold.sh
 
       - name: Install QEMU
         if: inputs.install-qemu

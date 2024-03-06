@@ -1,36 +1,50 @@
 #! /usr/bin/env bash
 
-set -eE -u -o pipefail
-shopt -s inherit_errexit
-
-[[ ${EUID} -eq 0 ]] || { echo "Run this script as root!" ; exit 1 ; }
-
 # RUST ------------------------------------------------------------------------
 
-if ! command -v rustup &>/dev/null || ! command -v cargo &>/dev/null; then
-  RUSTUP_PARAMETERS=('--quiet' '-y' '--default-toolchain' 'none' '--profile' 'minimal' '--no-update-default-toolchain')
-  [[ ${#} -eq 0 ]] || readarray -t -d ' ' RUSTUP_PARAMETERS < <(printf "%s" "${*}")
+if [[ ${1} == '--container' ]]; then
+  # We set a temporary value here to have the Rust installer
+  # place the binaries and their configuration here. The values
+  # of these variables will be changed again later; this enabled
+  # caching the build, registry index and rustup components on
+  # the host's disk permanently, without the need to know what
+  # is needed exactly during build-time of this container.
+  export RUSTUP_HOME='/rustup'
+  export CARGO_HOME='/rustup'
+fi
 
-  curl -sSfL 'https://sh.rustup.rs' | sh -s -- "${RUSTUP_PARAMETERS[@]}"
+curl -sSfL 'https://sh.rustup.rs'   \
+  | bash -s --                      \
+    '-y'                            \
+    '--no-update-default-toolchain' \
+    '--profile' 'minimal'           \
+    '--default-toolchain' 'none'
+
+if [[ ${1} != '--container' ]]; then
+  cargo --version
+  rustc --version
 fi
 
 # MOLD ------------------------------------------------------------------------
 
-if ! command -v mold &>/dev/null; then
-  MOLD_VERSION='2.4.0'
-  MOLD_DIR="mold-${MOLD_VERSION}-$(uname -m)-linux"
-  MOLD_TARBALL="${MOLD_DIR}.tar.gz"
+MOLD_VERSION='2.4.0'
+MOLD_DIR="mold-${MOLD_VERSION}-$(uname -m)-linux"
+MOLD_TARBALL="${MOLD_DIR}.tar.gz"
 
-  (
-    cd /tmp
-    [[ -f ${MOLD_TARBALL} ]] && rm -rf "${MOLD_TARBALL}"
-    curl -sSfL -o "${MOLD_TARBALL}" \
-      "https://github.com/rui314/mold/releases/download/v${MOLD_VERSION}/${MOLD_DIR}.tar.gz"
+[[ -f ${MOLD_TARBALL} ]] && rm -rf "${MOLD_TARBALL}"
+[[ -d ${MOLD_DIR} ]] && rm -rf "${MOLD_DIR}"
 
-    [[ -d ${MOLD_DIR} ]] && rm -rf "${MOLD_DIR}"
-    tar xf "${MOLD_DIR}.tar.gz"
+curl --silent --show-error --fail --location --output "${MOLD_TARBALL}" \
+  "https://github.com/rui314/mold/releases/download/v${MOLD_VERSION}/${MOLD_DIR}.tar.gz"
+tar xf "${MOLD_DIR}.tar.gz"
 
-    cp "${MOLD_DIR}/bin/mold" /usr/local/bin/
-    cp "${MOLD_DIR}/lib/mold/mold-wrapper.so" /usr/local/bin/
-  )
+cp "${MOLD_DIR}/bin/mold" /usr/local/bin/
+cp "${MOLD_DIR}/bin/ld.mold" /usr/local/bin/
+cp "${MOLD_DIR}/lib/mold/mold-wrapper.so" /usr/local/bin/
+
+rm -rf "${MOLD_TARBALL}"
+rm -rf "${MOLD_DIR}"
+
+if [[ ${1} != '--container' ]]; then
+  mold --version
 fi

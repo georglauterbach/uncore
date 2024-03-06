@@ -25,3 +25,7 @@ documentation/site
 
 code/target/
 code/**/Cargo.lock
+
+code/target-build-container/
+code/.cargo/home/
+code/.cargo/rustup/
