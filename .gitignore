@@ -24,8 +24,7 @@ documentation/site
 # -----------------------------------------------
 
 code/target/
-code/**/Cargo.lock
+code/dev-container/
 
-code/target-build-container/
 code/.cargo/home/
 code/.cargo/rustup/
