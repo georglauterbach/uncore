@@ -66,8 +66,8 @@ theme:
     # dark mode
     - media: '(prefers-color-scheme: dark)'
       scheme: slate
-      primary: amber
-      accent: orange
+      primary: deep orange
+      accent: amber
       toggle:
         icon: material/lightbulb
         name: Switch to light mode

@@ -15,7 +15,7 @@ This project is
 
 ## :bulb: Getting Started
 
-The [documentation][docs::main-landing-page] is hosted on [GitHub Pages][docs::github-pages]. If you want to serve the documentation locally, you can run the following command from the repository root:
+The [documentation][docs::main-landing-page] is hosted on [GitHub Pages][docs::github-pages]; it contains instructions on how to get started. If you want to serve the documentation locally, you can run the following command from the repository root:
 
 ```bash
 docker run --rm -it -v ./documentation:/docs -p 8080:8080 docker.io/squidfunk/mkdocs-material:9.5.4 serve --dev-addr 0.0.0.0:8080
