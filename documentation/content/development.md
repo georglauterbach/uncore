@@ -13,9 +13,9 @@ tags:
 
 ## :rocket: Getting Started
 
-After you have forked the repository, you can clone it. All Rust code resides in [`code/`][code::github::code/]. The documentation lives in [`documentation/`][code::github::documentation/]. [`misc/`][code::github::misc/] contains miscellaneous files, e.g., GDB initialization files, shell aliases, etc. In the [`.github/`][code::github::.github/] directory you can find CI/CD and GitHub-related configuration files. The [`code/`][code::github::code/] directory is a [_Cargo_ Workspace][www::docs::cargo-workspace].
+After you have forked the repository, you can clone it. All Rust code resides in [`code/`][code::github::code/]. The documentation lives in [`documentation/`][code::github::documentation/]. [`misc/`][code::github::misc/] contains miscellaneous files, e.g., GDB initialization files, shell aliases, etc. In the [`.github/`][code::github::.github/] directory you can find CI/CD and GitHub-related configuration files. The [`code/`][code::github::code/] directory is a [_Cargo_ Workspace][www::documentation::cargo::workspaces].
 
-If you want to start working on _unCORE_, go ahead and install Rust and [`mold`][www::github::mold] by running [`sudo ./misc/scripts/install_rust_and_mold.sh`][code::github::misc/scripts/install-rust.sh]. When you later work on this project, you will be told if you're missing other dependencies (like [`qemu-system-riscv64`][www::homepage::qemu-riscv], [`jq`][www::homepage::jq] or [`mold`][www::github::mold]).
+If you want to start working on _unCORE_, go ahead and install [Rust][www::rust::install] and [`mold`][www::github::mold]. When you later work on this project, you will be told if you're missing other dependencies (like [`qemu-system-riscv64`][www::homepage::qemu-riscv] or [`jq`][www::homepage::jq]).
 
 ## :toolbox: Workflow
 
@@ -97,9 +97,9 @@ You can then attach to QEMU with [GDB][www::homepage::gdb]. An example initializ
 [code::github::documentation/]: https://github.com/georglauterbach/uncore/blob/master/documentation/
 [code::github::misc/]: https://github.com/georglauterbach/uncore/blob/master/misc/
 [code::github::.github/]: https://github.com/georglauterbach/uncore/blob/master/.github/
-[www::docs::cargo-workspace]: https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html
+[www::documentation::cargo::workspaces]: https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html
+[www::rust::install]: https://www.rust-lang.org/tools/install
 [www::github::mold]: https://github.com/rui314/mold
-[code::github::misc/scripts/install-rust.sh]: https://github.com/georglauterbach/uncore/blob/master/misc/scripts/install_rust_and_mold.sh
 [www::homepage::qemu-riscv]: https://www.qemu.org/docs/master/system/target-riscv.html
 [www::homepage::jq]: https://jqlang.github.io/jq/
 [code::github::code/src]: https://github.com/georglauterbach/uncore/tree/master/code/src/
