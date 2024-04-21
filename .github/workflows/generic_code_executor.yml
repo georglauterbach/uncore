@@ -44,12 +44,27 @@ jobs:
 
       - name: Install Rust and mold
         run: |
-          sudo ../misc/scripts/install_rust_and_mold.sh
+          # RUST ------------------------------------------------------------------------
 
-          source "${HOME}/.cargo/env"
-          cargo --version
-          rustc --version
-          mold --version
+          (
+            RUSTUP_PARAMETERS=('--quiet' '-y' '--default-toolchain' 'none' '--profile' 'minimal' '--no-update-default-toolchain')
+            [[ ${#} -eq 0 ]] || readarray -t -d ' ' RUSTUP_PARAMETERS < <(printf "%s" "${*}")
+            curl -sSfL 'https://sh.rustup.rs' | sudo sh -s -- "${RUSTUP_PARAMETERS[@]}"
+          )
+
+          # MOLD ------------------------------------------------------------------------
+
+          (
+            MOLD_VERSION='2.4.0'
+            MOLD_DIR="mold-${MOLD_VERSION}-$(uname -m)-linux"
+
+            cd /tmp
+            curl -sSfL "https://github.com/rui314/mold/releases/download/v${MOLD_VERSION}/${MOLD_DIR}.tar.gz" | tar xz
+
+            sudo cp "${MOLD_DIR}/bin/mold" /usr/local/bin/
+            sudo cp "${MOLD_DIR}/lib/mold/mold-wrapper.so" /usr/local/bin/
+            sudo ln -s /usr/local/bin/mold /usr/local/bin/ld.mold
+          )
 
       - name: Install QEMU
         if: inputs.install-qemu
@@ -60,7 +75,7 @@ jobs:
 
       - name: Install sccache
         if: inputs.install-sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.4
 
       - name: Setup sccache
         if: inputs.install-sccache
@@ -83,6 +98,6 @@ jobs:
         run: ${{ inputs.command }}
 
       - name: Run command (without `sccache`)
-          # we need the `${{ }}` here because `!` is reserved in YAML
+        # we need the `${{ }}` here because `!` is reserved in YAML
         if: ${{ ! inputs.install-sccache }}
         run: ${{ inputs.command }}

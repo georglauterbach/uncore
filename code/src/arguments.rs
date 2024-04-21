@@ -40,6 +40,11 @@ impl Arguments {
   /// sub-commands.
   pub fn dispatch_command(self) -> Result<(), ()> {
     log::debug!("Dispatching command '{}'", self.command);
+    if crate::environment::is_inside_container() {
+      log::debug!("Running inside a container");
+    } else {
+      log::debug!("Running outside a container");
+    }
     match super::command::Command::execute(&self) {
       Ok(()) => Ok(()),
       Err(error) => {
@@ -92,6 +97,12 @@ impl ArchitectureSpecification {
   /// Returns an instance of [`ArchitectureSpecification`] that is suitable for RISC-V
   /// 64bit.
   fn riscv64() -> Self {
+    let mut kernel_binary_path = Self::append_to_base_dir("/");
+    if crate::environment::is_inside_container() {
+      kernel_binary_path.push_str("dev-container/")
+    };
+    kernel_binary_path.push_str("target/riscv64gc-unknown-none-elf/debug/uncore");
+
     Self {
       target:             "riscv64gc-unknown-none-elf",
       qemu_command:       "qemu-system-riscv64",
@@ -117,7 +128,7 @@ impl ArchitectureSpecification {
         "-device",
         "virtio-keyboard-device",
       ],
-      kernel_binary_path: Self::append_to_base_dir("/target/riscv64gc-unknown-none-elf/debug/uncore"),
+      kernel_binary_path,
     }
   }
 }

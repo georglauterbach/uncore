@@ -9,6 +9,11 @@ use super::arguments;
 /// kernel, run the kernel, etc.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, clap::Subcommand)]
 pub enum Command {
+  /// Configure
+  Configure {
+    #[clap(short, long, default_value = "riscv64gc-unknown-none-elf")]
+    target: String,
+  },
   /// Build the kernel
   Build,
   /// Run the kernel
@@ -56,6 +61,9 @@ impl Command {
     let architecture_specification: &arguments::ArchitectureSpecification = &arguments.architecture.into();
 
     match &arguments.command {
+      Self::Configure { target } => {
+        configure(target)?;
+      },
       Self::Build => build(architecture_specification)?,
       Self::Run { debug } => {
         check_run_time_dependencies(architecture, *debug)?;
@@ -208,6 +216,13 @@ macro_rules! run_command_and_check_with_timeout {
   }};
 }
 
+/// Build the build setup.
+fn configure(target: &String) -> anyhow::Result<()> {
+  run_command_and_check!("which", ["rustup"])?;
+  run_command_and_check!("rustup", ["target", "add", target])?;
+  Ok(())
+}
+
 /// Build the kernel.
 fn build(arch_specification: &arguments::ArchitectureSpecification) -> anyhow::Result<()> {
   log::info!("Building unCORE");
@@ -230,7 +245,10 @@ fn build(arch_specification: &arguments::ArchitectureSpecification) -> anyhow::R
       arch_specification.target,
     ],
     cargo_build_environment
-  )
+  )?;
+
+  log::trace!("Finished building unCORE");
+  Ok(())
 }
 
 /// Run the kernel.
@@ -238,7 +256,7 @@ fn run(arch_specification: &arguments::ArchitectureSpecification, is_debug: bool
   let mut arguments = arch_specification.qemu_arguments_with_kernel();
   if is_debug {
     log::info!("Debugging unCORE");
-    log::debug!("You may use 'gdb-multiarch -q -x ../misc/gdb/init.txt' to attach now");
+    log::debug!("You may use 'gdb-multiarch -q -x code/misc/gdb/<FILE>' to attach now");
     log::trace!("Remember: 'Ctrl-A x' will exit QEMU");
     arguments.append(&mut vec!["-s", "-S"]);
   } else {

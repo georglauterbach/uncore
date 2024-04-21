@@ -13,17 +13,24 @@ tags:
 
 ## :rocket: Getting Started
 
-After you have forked the repository, you can clone it. All Rust code resides in [`code/`][code::github::code/]. The documentation lives in [`documentation/`][code::github::documentation/]. [`misc/`][code::github::misc/] contains miscellaneous files, e.g., GDB initialization files, shell aliases, etc. In the [`.github/`][code::github::.github/] directory you can find CI/CD and GitHub-related configuration files. The [`code/`][code::github::code/] directory is a [_Cargo_ Workspace][www::docs::cargo-workspace].
+After you have forked the repository, you can clone it. All Rust code resides in [`code/`][code::github::code/]. The documentation lives in [`documentation/`][code::github::documentation/]. [`misc/`][code::github::misc/] contains miscellaneous files, e.g., GDB initialization files, shell aliases, etc. In the [`.github/`][code::github::.github/] directory you can find CI/CD and GitHub-related configuration files. The [`code/`][code::github::code/] directory is a [_Cargo_ Workspace][www::documentation::cargo::workspaces].
 
-If you want to start working on _unCORE_, go ahead and install Rust and [`mold`][www::github::mold] by running [`sudo ./misc/scripts/install_rust_and_mold.sh`][code::github::misc/scripts/install-rust.sh]. When you later work on this project, you will be told if you're missing other dependencies (like [`qemu-system-riscv64`][www::homepage::qemu-riscv], [`jq`][www::homepage::jq] or [`mold`][www::github::mold]).
+If you want to start working on _unCORE_, go ahead and install [Rust][www::rust::install] and [`mold`][www::github::mold]. When you later work on this project, you will be told if you're missing other dependencies (like [`qemu-system-riscv64`][www::homepage::qemu-riscv] or [`jq`][www::homepage::jq]).
 
 ## :toolbox: Workflow
 
 ### About the Workspace
 
-The workspace that lives inside [`code/`][code::github::code/] has a "main" binary and "proper" workspace members. The main binary lives in [`code/src/`][code::github::code/src]. An example for a workspace member is [`code/uncore/`][code::github::code/uncore]; this is where the kernel code resides. When using `#!bash cargo run -- <COMMAND>`, the main binary is invoked, which contains code to handle the other workspace members; and this is the trick to using only Rust and no build system (other than _Cargo_). The default binary, when invoked, likely invokes _Cargo_ again with all the correct arguments and options to properly build the kernel. It also performs required checks (e.g., on dependencies) beforehand. With such a workspace, _unCORE_ does not require a build system or additional build configuration in files like [`.cargo/config.toml`][www::documentation::cargo::configuration] that are inflexible.
+The workspace that lives inside [`code/`][code::github::code/] has a "main" binary and "proper" workspace members. The main binary lives in [`code/src/`][code::github::code/src]. An example for a workspace member is [`code/uncore/`][code::github::code/uncore]; this is where the kernel code resides.
 
-The actual kernel code lives in [`code/uncore/src/`][code::github::code/uncore/src]. In this directory, you fill find [`main.rs`][code::github::code/uncore/src/main.rs], [`lib.rs`][code::github::code/uncore/src/lib.rs] and [`library/`][code::github::code/uncore/src/library/]. [`main.rs`][code::github::code/uncore/src/main.rs] is recognized by _Cargo_ automatically as a binary. It contains the kernel's entry point (called by a bootloader). [`lib.rs`][code::github::code/uncore/src/lib.rs] is automatically recognized by _Cargo_ as a library target. This is useful because we can put all kernel code in the library, whose root is [code::github::code/uncore/src/lib.rs], and just call it from binaries - such binaries are not only [`main.rs`][code::github::code/uncore/src/main.rs], but integration tests (in [`code/uncore/tests/`][code::github::code/uncore/tests/]) as well! [`library/`][code::github::code/uncore/src/library/] is the top-level directory that is used by [`lib.rs`][code::github::code/uncore/src/lib.rs] as a module (i.e., with `#!rust mod library;`); [`library/`][code::github::code/uncore/src/library/] exists in order to not have all top-level modules in the top-level directory.
+You now have two options:
+
+1. When using `#!bash cargo run -- <COMMAND>`, the main binary is invoked, which contains code to handle the other workspace members; and this is the trick to using only Rust and no build system (other than _Cargo_). The default binary, when invoked, invokes _Cargo_ again with all the correct arguments and options to properly build the kernel. It also performs required checks (e.g., on dependencies) beforehand.
+2. When you do not want to install Rust, you can also use a build container. This is also used in the CI to build and test unCORE.
+
+With such a workspace, _unCORE_ does not require a build system or additional build configuration in files like [`.cargo/config.toml`][www::documentation::cargo::configuration] that are inflexible.
+
+The actual kernel code lives in [`code/uncore/src/`][code::github::code/uncore/src]. In this directory, you fill find [`main.rs`][code::github::code/uncore/src/main.rs], [`lib.rs`][code::github::code/uncore/src/lib.rs] and [`library/`][code::github::code/uncore/src/library/]. [`main.rs`][code::github::code/uncore/src/main.rs] is recognized by _Cargo_ automatically as a binary. It contains the kernel's entry point (called by a bootloader). [`lib.rs`][code::github::code/uncore/src/lib.rs] is automatically recognized by _Cargo_ as a library target. This is useful because we can put all kernel code in the library, whose root is [`lib.rs`][code::github::code/uncore/src/lib.rs], and just call it from binaries - such binaries are not only [`main.rs`][code::github::code/uncore/src/main.rs], but integration tests (in [`code/uncore/tests/`][code::github::code/uncore/tests/]) as well! [`library/`][code::github::code/uncore/src/library/] is the top-level directory that is used by [`lib.rs`][code::github::code/uncore/src/lib.rs] as a module (i.e., with `#!rust mod library;`); [`library/`][code::github::code/uncore/src/library/] exists in order to not have all top-level modules in the top-level directory.
 
 ### Working with _unCORE_
 
@@ -46,11 +53,19 @@ There are different commands available: The `#!bash run` command will run _unCOR
 
 To further ease the process, aliases are defined in [`code/.cargo/config.toml`][code::github::code/.cargo/config.toml]. Hence, to run the kernel, you may use `#!bash cargo _run`. Have a look at the file to see which other aliases are defined.
 
-### Build-Time
+??? question "How Is the Kernel Actually Built?"
 
-As mentioned [earlier](#about-the-workspace), the kernel is actually built by the main workspace binary (residing in [`code/src/`][code::github::code/src]). The function that invokes _Cargo_ is [`code/src/command.rs:build`][code::github::code/src/command.rs:build]. _Cargo_ then builds the kernel whose code resides in [`code/uncore/src/`][code::github::code/uncore/src].
+    As mentioned [earlier](#about-the-workspace), the kernel is actually built by the main workspace binary (residing in [`code/src/`][code::github::code/src]). The function that invokes _Cargo_ is [`code/src/command.rs:build`][code::github::code/src/command.rs:build]. _Cargo_ then builds the kernel whose code resides in [`code/uncore/src/`][code::github::code/uncore/src].
 
-The "heavy lifting" is done by _Cargo_. The workspace main binary "only" takes care of checking dependencies and invoking _Cargo_ correctly, i.e., with the correct target (architecture), environment variables used when building, linker script (and linker), etc.
+    The "heavy lifting" is done by _Cargo_. The workspace main binary "only" takes care of checking dependencies and invoking _Cargo_ correctly, i.e., with the correct target (architecture), environment variables used when building, linker script (and linker), etc.
+
+    [code::github::code/src/command.rs:build]: https://github.com/georglauterbach/uncore/blob/master/code/src/command.rs#L210
+
+### Development Container
+
+We strongly recommend you to use the [_Development Container_][www::development-container] that ships with the repository. This way, all dependencies come with the container image and you do not need to install anything manually on your host. You will need to have an [OCI][www::oci]-compatible container runtime (e.g., _Docker_ with _Containerd_, _Podman_ with _crun_, etc.) installed and an IDE that supports the Development Container standard (e.g., [Visual Studio Code][www::visual-studio-code] with the `ms-vscode-remote.remote-containers` ("Dev Containers") extension installed). Using _Development Containers_ has the additional upside that common tasks (like building or running _unCORE_) can then easily be handled by the IDE as well, because the appropriate configurations will be placed in the correct locations.
+
+The configuration for the _Development Container_ is located in the `.devcontainer/` directory.
 
 ## :compass: Conventions
 
@@ -67,7 +82,7 @@ DEBUG Checking run-time dependencies
 TRACE Checking run-time dependencies required for debugging
 ...
 INFO  Debugging unCORE
-DEBUG You may use 'gdb-multiarch -q -x ../misc/gdb/init.txt' to attach now
+DEBUG You may use 'gdb-multiarch -q -x code/misc/gdb/<FILE>' to attach now
 TRACE Remember: 'Ctrl-A x' will exit QEMU
 ...
 ```
@@ -84,9 +99,9 @@ You can then attach to QEMU with [GDB][www::homepage::gdb]. An example initializ
 [code::github::documentation/]: https://github.com/georglauterbach/uncore/blob/master/documentation/
 [code::github::misc/]: https://github.com/georglauterbach/uncore/blob/master/misc/
 [code::github::.github/]: https://github.com/georglauterbach/uncore/blob/master/.github/
-[www::docs::cargo-workspace]: https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html
+[www::documentation::cargo::workspaces]: https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html
+[www::rust::install]: https://www.rust-lang.org/tools/install
 [www::github::mold]: https://github.com/rui314/mold
-[code::github::misc/scripts/install-rust.sh]: https://github.com/georglauterbach/uncore/blob/master/misc/scripts/install_rust_and_mold.sh
 [www::homepage::qemu-riscv]: https://www.qemu.org/docs/master/system/target-riscv.html
 [www::homepage::jq]: https://jqlang.github.io/jq/
 [code::github::code/src]: https://github.com/georglauterbach/uncore/tree/master/code/src/
@@ -98,6 +113,9 @@ You can then attach to QEMU with [GDB][www::homepage::gdb]. An example initializ
 [code::github::code/uncore/src/library/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src/library/
 [code::github::code/uncore/tests/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/tests/
 [code::github::code/.cargo/config.toml]: https://github.com/georglauterbach/uncore/blob/master/code/.cargo/config.toml
+[www::development-container]: https://containers.dev/
+[www::oci]: https://opencontainers.org/
+[www::visual-studio-code]: https://code.visualstudio.com/
 [www::github::clippy]: https://github.com/rust-lang/rust-clippy
 [www::github::rustfmt]: https://github.com/rust-lang/rustfmt
 [code::github::code/.rustfmt.toml]: https://github.com/georglauterbach/uncore/blob/master/code/.rustfmt.toml
@@ -105,4 +123,3 @@ You can then attach to QEMU with [GDB][www::homepage::gdb]. An example initializ
 [docs::ci]: ./testing.md#continuous-integration-ci
 [www::homepage::gdb]: https://www.sourceware.org/gdb/
 [code::github::misc/gdb/init.txt]: https://github.com/georglauterbach/uncore/blob/master/misc/gdb/init.txt
-[code::github::code/src/command.rs:build]: https://github.com/georglauterbach/uncore/blob/master/code/src/command.rs#L210

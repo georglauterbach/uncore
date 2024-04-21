@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "type": "gdb",
+      "request": "attach",
+      "name": "Debug unCORE",
+      "remote": true,
+      "target": ":1234",
+      "cwd": "${workspaceFolder}",
+      "valuesFormatting": "parseText",
+      "preLaunchTask": "Debug unCORE (verbose)",
+      "internalConsoleOptions": "neverOpen",
+      "debugger_args": [
+        "-q",
+        "-x",
+        "${workspaceFolder}/code/misc/gdb/container/vscode.txt"
+      ],
+      "executable": "${workspaceFolder}/code/dev-container/target/riscv64gc-unknown-none-elf/debug/uncore",
+      "gdbpath": "/usr/bin/gdb-multiarch"
+    }
+  ]
+}

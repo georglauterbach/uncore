@@ -5,7 +5,8 @@
   "SpacesAftertabs": true,
   "NoColor": false,
   "Exclude": [
-    "^\\.gitmodules$"
+    "^\\.gitmodules$",
+    "^code/Cargo\\.lock$"
   ],
   "AllowedContentTypes": [],
   "PassedFiles": [],

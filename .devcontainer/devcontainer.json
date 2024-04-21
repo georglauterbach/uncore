@@ -1,0 +1,71 @@
+// ref: https://code.visualstudio.com/docs/devcontainers/create-dev-container
+// ref: https://containers.dev/implementors/json_schema/
+{
+  "name": "unCORE",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "updateRemoteUserUID": true,
+  "remoteUser": "ubuntu",
+  "containerUser": "ubuntu",
+  "containerEnv": {
+    "UNCORE_DEV_CONTAINER": "true"
+  },
+  // The repository root directory is mounted to `/workspaces/uncore`
+  // implicitly (by the dev-container spec), and we want to navigate there and
+  // then into the code sub-directory to immediately download the correct components
+  // (that Cargo detects from the workspace setup in this directory).
+  "postStartCommand": {
+    "show version of rustup": "rustup --version",
+    "show version of cargo and rustc": "cd /workspaces/uncore/code ; cargo --version ; rustc --version ;",
+    "show version of mold": "mold --version",
+    "set up VS Code tasks": "mkdir -p /workspaces/uncore/.vscode && cp /workspaces/uncore/.devcontainer/vscode/* /workspaces/uncore/.vscode/"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "ZixuanWang.linkerscript",
+        "sunshaoce.RISC-V",
+        "tamasfe.even-better-toml",
+        "serayuzgur.crates",
+        "webfreak.debug",
+        "vadimcn.vscode-lldb",
+        "bierner.docs-view",
+        "EditorConfig.EditorConfig",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        // ? files
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+        "files.exclude": {
+          "**/.git": true
+        },
+        // ? extensions
+        // * extensions::docsView
+        "docsView.documentationView.updateMode": "sticky",
+        // * extensions::cSpell
+        "cSpell.diagnosticLevel": "Information",
+        "cSpell.language": "en,de",
+        "cSpell.enabledLanguageIds": [
+          "json",
+          "jsonc",
+          "rust",
+          "yaml",
+          "yml"
+        ],
+        "cSpell.words": [
+          "rustc",
+          "rustup",
+          "uncore",
+          "unCORE",
+          "devcontainer",
+          "riscv"
+        ],
+        // * extensions::rust-analyzer
+        "rust-analyzer.cargo.allTargets": false
+      }
+    }
+  }
+}

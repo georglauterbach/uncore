@@ -37,15 +37,15 @@ fn get_kernel_version() -> anyhow::Result<String> {
 
 /// Returns the kernels version as specified in `Cargo.toml`.
 fn get_toolchain() -> anyhow::Result<String> {
-  let cargo_toml = std::fs::read_to_string(CARGO_MANIFEST_DIR.to_string() + "/rust-toolchain.toml")?
+  let rust_toolchain_file = std::fs::read_to_string(CARGO_MANIFEST_DIR.to_string() + "/rust-toolchain.toml")?
     .parse::<toml::Table>()?;
 
   Ok(
-    cargo_toml
+    rust_toolchain_file
       .get("toolchain")
       .expect("Could not get table 'toolchain' from rust-toolchain.toml")
       .get("targets")
-      .expect("Could not get array 'targets' in table 'package' from rust-toolchain.toml")
+      .unwrap_or(&toml::Value::Array(vec!["riscv64gc-unknown-none-elf".into()]))
       .as_array()
       .expect("Could not convert array 'targets' in table 'package' to proper array")
       .first()
@@ -75,3 +75,6 @@ pub fn get_all_environment_variables_for_build(
 
   Ok(environment)
 }
+
+/// Returns `true` if we are building and running `unCORE` inside a Development Container.
+pub fn is_inside_container() -> bool { std::env::var("UNCORE_DEV_CONTAINER").is_ok_and(|val| val == "true") }
