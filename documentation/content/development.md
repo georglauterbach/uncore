@@ -53,11 +53,17 @@ There are different commands available: The `#!bash run` command will run _unCOR
 
 To further ease the process, aliases are defined in [`code/.cargo/config.toml`][code::github::code/.cargo/config.toml]. Hence, to run the kernel, you may use `#!bash cargo _run`. Have a look at the file to see which other aliases are defined.
 
-### Build-Time
+??? question "How Is the Kernel Actually Built?"
 
-As mentioned [earlier](#about-the-workspace), the kernel is actually built by the main workspace binary (residing in [`code/src/`][code::github::code/src]). The function that invokes _Cargo_ is [`code/src/command.rs:build`][code::github::code/src/command.rs:build]. _Cargo_ then builds the kernel whose code resides in [`code/uncore/src/`][code::github::code/uncore/src].
+    As mentioned [earlier](#about-the-workspace), the kernel is actually built by the main workspace binary (residing in [`code/src/`][code::github::code/src]). The function that invokes _Cargo_ is [`code/src/command.rs:build`][code::github::code/src/command.rs:build]. _Cargo_ then builds the kernel whose code resides in [`code/uncore/src/`][code::github::code/uncore/src].
 
-The "heavy lifting" is done by _Cargo_. The workspace main binary "only" takes care of checking dependencies and invoking _Cargo_ correctly, i.e., with the correct target (architecture), environment variables used when building, linker script (and linker), etc.
+    The "heavy lifting" is done by _Cargo_. The workspace main binary "only" takes care of checking dependencies and invoking _Cargo_ correctly, i.e., with the correct target (architecture), environment variables used when building, linker script (and linker), etc.
+
+### Development Container
+
+We strongly recommend you to use the [_Development Container_][www::development-container] that ships with the repository. This way, all dependencies come with the container image and you do not need to install anything manually on your host. You will need to have an [OCI][www::oci]-compatible container runtime (e.g., _Docker_ with _Containerd_, _Podman_ with _crun_, etc.) installed and an IDE that supports the Development Container standard (e.g., [Visual Studio Code][www::visual-studio-code] with the `ms-vscode-remote.remote-containers` ("Dev Containers") extension installed). Using _Development Containers_ has the additional upside that common tasks (like building or running _unCORE_) can then easily be handled by the IDE as well, because the appropriate configurations will be placed in the correct locations.
+
+The configuration for the _Development Container_ is located in the `.devcontainer/` directory.
 
 ## :compass: Conventions
 
@@ -74,7 +80,7 @@ DEBUG Checking run-time dependencies
 TRACE Checking run-time dependencies required for debugging
 ...
 INFO  Debugging unCORE
-DEBUG You may use 'gdb-multiarch -q -x ../misc/gdb/init.txt' to attach now
+DEBUG You may use 'gdb-multiarch -q -x code/misc/gdb/<FILE>' to attach now
 TRACE Remember: 'Ctrl-A x' will exit QEMU
 ...
 ```
@@ -105,6 +111,9 @@ You can then attach to QEMU with [GDB][www::homepage::gdb]. An example initializ
 [code::github::code/uncore/src/library/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/src/library/
 [code::github::code/uncore/tests/]: https://github.com/georglauterbach/uncore/tree/master/code/uncore/tests/
 [code::github::code/.cargo/config.toml]: https://github.com/georglauterbach/uncore/blob/master/code/.cargo/config.toml
+[www::development-container]: https://containers.dev/
+[www::oci]: https://opencontainers.org/
+[www::visual-studio-code]: https://code.visualstudio.com/
 [www::github::clippy]: https://github.com/rust-lang/rust-clippy
 [www::github::rustfmt]: https://github.com/rust-lang/rustfmt
 [code::github::code/.rustfmt.toml]: https://github.com/georglauterbach/uncore/blob/master/code/.rustfmt.toml

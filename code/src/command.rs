@@ -256,7 +256,7 @@ fn run(arch_specification: &arguments::ArchitectureSpecification, is_debug: bool
   let mut arguments = arch_specification.qemu_arguments_with_kernel();
   if is_debug {
     log::info!("Debugging unCORE");
-    log::debug!("You may use 'gdb-multiarch -q -x ../misc/gdb/init.txt' to attach now");
+    log::debug!("You may use 'gdb-multiarch -q -x code/misc/gdb/<FILE>' to attach now");
     log::trace!("Remember: 'Ctrl-A x' will exit QEMU");
     arguments.append(&mut vec!["-s", "-S"]);
   } else {

@@ -1,0 +1,114 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "cargo",
+      "label": "Build unCORE",
+      "command": "run",
+      "isBackground": false,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "build"
+      ],
+      "problemMatcher": [
+        "$rustc",
+        "$rust-panic",
+        "$rustc-watch",
+        "$rustc-json"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "cargo",
+      "label": "Build unCORE (verbose)",
+      "command": "run",
+      "isBackground": false,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "-vv",
+        "build"
+      ],
+      "problemMatcher": [
+        "$rustc",
+        "$rust-panic",
+        "$rustc-watch",
+        "$rustc-json"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "type": "cargo",
+      "label": "Run unCORE",
+      "command": "run",
+      "isBackground": false,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "run"
+      ]
+    },
+    {
+      "type": "cargo",
+      "label": "Run unCORE (verbose)",
+      "command": "run",
+      "isBackground": false,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "-vv",
+        "run"
+      ]
+    },
+    {
+      "type": "cargo",
+      "label": "Debug unCORE (verbose)",
+      "command": "run",
+      "isBackground": true,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "-vv",
+        "run",
+        "-d"
+      ],
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ""
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Running inside a container",
+          "endsPattern": "Remember: 'Ctrl-A x' will exit QEMU"
+        }
+      }
+    }
+  ]
+}

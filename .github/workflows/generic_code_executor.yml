@@ -77,6 +77,6 @@ jobs:
         run: ${{ inputs.command }}
 
       - name: Run command (without `sccache`)
-          # we need the `${{ }}` here because `!` is reserved in YAML
+        # we need the `${{ }}` here because `!` is reserved in YAML
         if: ${{ ! inputs.install-sccache }}
         run: ${{ inputs.command }}

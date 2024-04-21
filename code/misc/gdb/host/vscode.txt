@@ -4,4 +4,4 @@ set architecture riscv
 file code/target/riscv64gc-unknown-none-elf/debug/uncore
 symbol-file code/target/riscv64gc-unknown-none-elf/debug/uncore
 
-br uncore::main
+br uncore::__risc_v_rt__main

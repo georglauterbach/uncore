@@ -8,16 +8,19 @@
   "updateRemoteUserUID": true,
   "remoteUser": "ubuntu",
   "containerUser": "ubuntu",
+  "containerEnv": {
+    "UNCORE_DEV_CONTAINER": "true"
+  },
   // The repository root directory is mounted to `/workspaces/uncore`
   // implicitly (by the dev-container spec), and we want to navigate there and
   // then into the code sub-directory to immediately download the correct components
   // (that Cargo detects from the workspace setup in this directory).
-  "postStartCommand": [
-    "/usr/bin/env",
-    "bash",
-    "-c",
-    "cd /workspaces/uncore/code ; rustup --version ; rustc --version ; cargo --version ; mold --version ;"
-  ],
+  "postStartCommand": {
+    "show version of rustup": "rustup --version",
+    "show version of cargo and rustc": "cd /workspaces/uncore/code ; cargo --version ; rustc --version ;",
+    "show version of mold": "mold --version",
+    "set up VS Code tasks": "mkdir -p /workspaces/uncore/.vscode && cp /workspaces/uncore/.devcontainer/vscode/* /workspaces/uncore/.vscode/"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -56,8 +59,12 @@
           "rustc",
           "rustup",
           "uncore",
-          "unCORE"
-        ]
+          "unCORE",
+          "devcontainer",
+          "riscv"
+        ],
+        // * extensions::rust-analyzer
+        "rust-analyzer.cargo.allTargets": false
       }
     }
   }

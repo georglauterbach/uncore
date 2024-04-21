@@ -6,50 +6,31 @@
 # manually and work with this container image on a standalone basis.
 #
 # Moreover, if you do not want to work with a container image at all,
-# you may replicate the steps taken in this file on you host.
+# you may replicate the steps taken in this file on your host.
 
-# We use Ubuntu as the base image. Ubuntu has regular and stable releases,
-# which makes it a good fit for building unCORE.
-FROM ubuntu:23.10
+# We use a custom base image (that itself is based on Ubuntu). The
+# image contains additional helpers and programs that ease working
+# inside a Development Container. The image does *not* contain
+# programs or configuration files that are required to build unCORE!
+FROM ghcr.io/georglauterbach/dev-container-base:edge
 
-SHELL [ "/bin/bash", "-eE", "-o", "pipefail", "-c" ]
+SHELL [ "/bin/bash", "-eE", "-u", "-o", "pipefail", "-c" ]
+
+USER root
 
 # We start by preparing a "base" layer with common packages,
 # directories, etc.
 RUN <<EOM
   # First and foremost, we update the package index and install
   # required packages for building unCORE.
+  #
+  # We do not need a cleanup because we only build locally anyway,
+  # and there is no pushing to a registry involved. Image size
+  # is hence not a concern.
   export DEBIAN_FRONTEND=noninteractive
-  readonly PACKAGES=(
-    # 'bash-completion' 'build-essential'
-    'ca-certificates' 'curl'
-    # 'jq'
-    # 'qemu-system-riscv64'
-    'wget'
-  )
   apt-get --yes update
-  apt-get --yes install --no-install-recommends "${PACKAGES[@]}"
-
-  curl -sSfL -o setup.sh https://raw.githubusercontent.com/georglauterbach/uds/main/setup.sh
-  bash setup.sh --no-gui
-
-  # This cleanup step has to happen in the same RUN statement
-  # that also updates the package index and install packages;
-  # do not move it out of here.
-  apt-get --yes clean
-  rm -rf /var/lib/apt/lists/*
-
-  # We use `doas` instead of `sudo` (because it is smaller and
-  # easier to configure): the `ubuntu` user is the user that is
-  # used when working in this container (see `USER ubuntu` at
-  # the bottom), but we want the user to have root privileges
-  # inside the container. We also create a symbolic link so users
-  # can use `sudo` transparently.
-  cat >/etc/doas.conf << "EOF"
-permit nopass ubuntu
-EOF
-  doas -C /etc/doas.conf
-  ln -s "$(command -v doas)" /usr/local/bin/sudo
+  apt-get --yes install --no-install-recommends \
+    'build-essential' 'gdb-multiarch' 'jq' 'qemu-system-riscv64'
 EOM
 
 # In the next layer, we install Rust. This is step does not

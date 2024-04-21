@@ -13,7 +13,7 @@
 [toolchain]
 channel = 'nightly-2024-03-05'
 components = [ 'cargo', 'rustc', 'rust-std', 'clippy', 'rustfmt' ]
-# targets = [
-#   'riscv64gc-unknown-none-elf'
-#   'aarch64-unknown-none'
-# ]
+targets = [
+  'riscv64gc-unknown-none-elf',
+  # 'aarch64-unknown-none'
+]
