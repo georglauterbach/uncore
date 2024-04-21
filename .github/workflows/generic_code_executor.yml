@@ -43,7 +43,28 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust and mold
-        run: sudo ../misc/scripts/install_rust_and_mold.sh
+        run: |
+          # RUST ------------------------------------------------------------------------
+
+          (
+            RUSTUP_PARAMETERS=('--quiet' '-y' '--default-toolchain' 'none' '--profile' 'minimal' '--no-update-default-toolchain')
+            [[ ${#} -eq 0 ]] || readarray -t -d ' ' RUSTUP_PARAMETERS < <(printf "%s" "${*}")
+            curl -sSfL 'https://sh.rustup.rs' | sudo sh -s -- "${RUSTUP_PARAMETERS[@]}"
+          )
+
+          # MOLD ------------------------------------------------------------------------
+
+          (
+            MOLD_VERSION='2.4.0'
+            MOLD_DIR="mold-${MOLD_VERSION}-$(uname -m)-linux"
+
+            cd /tmp
+            curl -sSfL "https://github.com/rui314/mold/releases/download/v${MOLD_VERSION}/${MOLD_DIR}.tar.gz" | tar xz
+
+            sudo cp "${MOLD_DIR}/bin/mold" /usr/local/bin/
+            sudo cp "${MOLD_DIR}/lib/mold/mold-wrapper.so" /usr/local/bin/
+            sudo ln -s /usr/local/bin/mold /usr/local/bin/ld.mold
+          )
 
       - name: Install QEMU
         if: inputs.install-qemu

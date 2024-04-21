@@ -59,6 +59,8 @@ To further ease the process, aliases are defined in [`code/.cargo/config.toml`][
 
     The "heavy lifting" is done by _Cargo_. The workspace main binary "only" takes care of checking dependencies and invoking _Cargo_ correctly, i.e., with the correct target (architecture), environment variables used when building, linker script (and linker), etc.
 
+    [code::github::code/src/command.rs:build]: https://github.com/georglauterbach/uncore/blob/master/code/src/command.rs#L210
+
 ### Development Container
 
 We strongly recommend you to use the [_Development Container_][www::development-container] that ships with the repository. This way, all dependencies come with the container image and you do not need to install anything manually on your host. You will need to have an [OCI][www::oci]-compatible container runtime (e.g., _Docker_ with _Containerd_, _Podman_ with _crun_, etc.) installed and an IDE that supports the Development Container standard (e.g., [Visual Studio Code][www::visual-studio-code] with the `ms-vscode-remote.remote-containers` ("Dev Containers") extension installed). Using _Development Containers_ has the additional upside that common tasks (like building or running _unCORE_) can then easily be handled by the IDE as well, because the appropriate configurations will be placed in the correct locations.
@@ -121,4 +123,3 @@ You can then attach to QEMU with [GDB][www::homepage::gdb]. An example initializ
 [docs::ci]: ./testing.md#continuous-integration-ci
 [www::homepage::gdb]: https://www.sourceware.org/gdb/
 [code::github::misc/gdb/init.txt]: https://github.com/georglauterbach/uncore/blob/master/misc/gdb/init.txt
-[code::github::code/src/command.rs:build]: https://github.com/georglauterbach/uncore/blob/master/code/src/command.rs#L210
