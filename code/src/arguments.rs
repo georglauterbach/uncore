@@ -99,15 +99,15 @@ impl ArchitectureSpecification {
   fn riscv64() -> Self {
     let mut kernel_binary_path = Self::append_to_base_dir("/");
     if crate::environment::is_inside_container() {
-      kernel_binary_path.push_str("dev-container/")
+      kernel_binary_path.push_str("dev-container/");
     };
     kernel_binary_path.push_str("target/riscv64gc-unknown-none-elf/debug/uncore");
 
     Self {
-      target:             "riscv64gc-unknown-none-elf",
-      qemu_command:       "qemu-system-riscv64",
+      target: "riscv64gc-unknown-none-elf",
+      qemu_command: "qemu-system-riscv64",
       linker_script_path: Self::append_to_base_dir("/uncore/src/library/arch/risc_v/linking.ld"),
-      qemu_arguments:     vec![
+      qemu_arguments: vec![
         "-machine",
         "virt",
         "-cpu",

@@ -2,6 +2,9 @@
 
 // Preventing `unsafe` code in `main.rs` completely.
 #![forbid(unsafe_code)]
+// In the helper, it is fine to have multiple different
+// versions in transitive dependencies.
+#![allow(clippy::multiple_crate_versions)]
 
 //! ## `unCORE` Helper
 //!

@@ -109,6 +109,85 @@
           "endsPattern": "Remember: 'Ctrl-A x' will exit QEMU"
         }
       }
+    },
+    {
+      "type": "cargo",
+      "label": "Show help message",
+      "command": "run",
+      "isBackground": false,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "help",
+      ]
+    },
+    {
+      "type": "cargo",
+      "label": "Check unCORE",
+      "command": "run",
+      "isBackground": false,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "-vv",
+        "check"
+      ]
+    },
+    {
+      "type": "cargo",
+      "label": "Build the code documentation",
+      "command": "run",
+      "isBackground": false,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "-vv",
+        "doc"
+      ]
+    },
+    {
+      "type": "cargo",
+      "label": "Run unit tests",
+      "command": "run",
+      "isBackground": false,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "-vv",
+        "u-test"
+      ]
+    },
+    {
+      "type": "cargo",
+      "label": "Run integration tests",
+      "command": "run",
+      "isBackground": false,
+      "hide": false,
+      "options": {
+        "cwd": "${workspaceFolder}/code"
+      },
+      "args": [
+        "-q",
+        "--",
+        "-vv",
+        "i-test"
+      ]
     }
   ]
 }

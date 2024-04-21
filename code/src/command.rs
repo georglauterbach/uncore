@@ -9,11 +9,6 @@ use super::arguments;
 /// kernel, run the kernel, etc.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, clap::Subcommand)]
 pub enum Command {
-  /// Configure
-  Configure {
-    #[clap(short, long, default_value = "riscv64gc-unknown-none-elf")]
-    target: String,
-  },
   /// Build the kernel
   Build,
   /// Run the kernel
@@ -61,9 +56,6 @@ impl Command {
     let architecture_specification: &arguments::ArchitectureSpecification = &arguments.architecture.into();
 
     match &arguments.command {
-      Self::Configure { target } => {
-        configure(target)?;
-      },
       Self::Build => build(architecture_specification)?,
       Self::Run { debug } => {
         check_run_time_dependencies(architecture, *debug)?;
@@ -214,13 +206,6 @@ macro_rules! run_command_and_check_with_timeout {
     };
     __special
   }};
-}
-
-/// Build the build setup.
-fn configure(target: &String) -> anyhow::Result<()> {
-  run_command_and_check!("which", ["rustup"])?;
-  run_command_and_check!("rustup", ["target", "add", target])?;
-  Ok(())
 }
 
 /// Build the kernel.
