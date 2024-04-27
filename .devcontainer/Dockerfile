@@ -12,7 +12,7 @@
 # image contains additional helpers and programs that ease working
 # inside a Development Container. The image does *not* contain
 # programs or configuration files that are required to build unCORE!
-FROM ghcr.io/georglauterbach/dev-container-base:edge
+FROM ghcr.io/georglauterbach/dev-container-base:1.0.0
 
 SHELL [ "/bin/bash", "-eE", "-u", "-o", "pipefail", "-c" ]
 
