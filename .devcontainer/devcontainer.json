@@ -3,7 +3,18 @@
 {
   "name": "unCORE",
   "build": {
-    "dockerfile": "Dockerfile"
+    // We build from the `Dockerfile` inside the `.devcontainer/` directory
+    "dockerfile": "Dockerfile",
+    "args": {
+      // We use this build-argument during the build process to be able to work with
+      // arbitrary paths (for mounting this workspace into the container) inside
+      // the Development Container. Moreover, it provides us with the ability to
+      // fully automate creation of required directories, etc.
+      // Inside the Dockerfile, we also provide a fallback value that is equal to
+      // the default location that Development Containers use for mounting a
+      // workspace.
+      "WORKSPACE_DIR_ARG": "${containerWorkspaceFolder}"
+    },
   },
   "updateRemoteUserUID": true,
   "remoteUser": "ubuntu",
@@ -11,15 +22,15 @@
   "containerEnv": {
     "UNCORE_DEV_CONTAINER": "true"
   },
-  // The repository root directory is mounted to `/workspaces/uncore`
+  // The repository root directory is mounted to `${WORKSPACE_DIR}`
   // implicitly (by the dev-container spec), and we want to navigate there and
   // then into the code sub-directory to immediately download the correct components
   // (that Cargo detects from the workspace setup in this directory).
   "postStartCommand": {
     "show version of rustup": "rustup --version",
-    "show version of cargo and rustc": "cd /workspaces/uncore/code ; cargo --version ; rustc --version ;",
+    "show version of cargo and rustc": "cd \"${WORKSPACE_DIR}/code\" ; cargo --version ; rustc --version ;",
     "show version of mold": "mold --version",
-    "set up VS Code tasks": "mkdir -p /workspaces/uncore/.vscode && cp /workspaces/uncore/.devcontainer/vscode/* /workspaces/uncore/.vscode/"
+    "set up VS Code tasks": "mkdir -p \"${WORKSPACE_DIR}/.vscode\" && cp --no-clobber \"${WORKSPACE_DIR}/.devcontainer/vscode/\"* \"${WORKSPACE_DIR}/.vscode/\""
   },
   "customizations": {
     "vscode": {

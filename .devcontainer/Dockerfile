@@ -18,6 +18,17 @@ SHELL [ "/bin/bash", "-eE", "-u", "-o", "pipefail", "-c" ]
 
 USER root
 
+# Refer to `devcontainer.json` on why `WORKSPACE_DIR_ARG´ exists.
+ARG WORKSPACE_DIR_ARG=/workspaces/uncore
+# Because `ENV` is required to have a fixed value and it cannot
+# be overwritten like `ARG`, we use a preceding `ARG` to set the
+# ENV. This is done to have the environment variable available
+# inside the container later, during "run time" of the container.
+ENV WORKSPACE_DIR="${WORKSPACE_DIR_ARG}"
+# This environment variable is a shortcut to files we cache
+# inside the Development Container.
+ENV DEV_CONTAINER_FILES_DIR="${WORKSPACE_DIR}/code/.dev_container"
+
 # We start by preparing a "base" layer with common packages,
 # directories, etc.
 RUN <<EOM
@@ -45,7 +56,7 @@ RUN <<EOM
   # 2. contain the repository files (mounted from the host)
   #
   # respectively.
-  mkdir /rustup /workspaces
+  mkdir -p /rustup "${DEV_CONTAINER_FILES_DIR}"
   export RUSTUP_HOME='/rustup'
   export CARGO_HOME='/rustup'
 
@@ -78,18 +89,25 @@ ENV PATH="/rustup/bin:${PATH}"
 # image and the hst); hence, we use a different output directory.
 ENV CARGO_TARGET_DIR=dev-container/target
 
+# Moreover, we do not want to interfere with Cargo's output
+# directory of the host (in case someone want to use both this container
+# image and the hst); hence, we use a different output directory.
+ENV CARGO_TARGET_DIR="${DEV_CONTAINER_FILES_DIR}/target"
+
 # This environment variable ensure Cargo stores its index in
-# `/workspaces/uncore/code/.cargo/home`. This is crucial in
+# a directory we prepared exclusively for this task (which is also
+# persisted on disk but ignored by git).This is crucial in
 # ensuring we do not loose caches when the container is
 # restarted (because the files are stored on the host).
-ENV CARGO_HOME=/workspaces/uncore/code/dev-container/cargo-home
+ENV CARGO_HOME="${DEV_CONTAINER_FILES_DIR}/cargo_home"
 # We also specify where Rustup puts its components; this is
 # required to also not have Rustup always download components,
-# but instead store them on the host disk (see `CARGO_HOME`).
-ENV RUSTUP_HOME=/workspaces/uncore/code/dev-container/rustup-home
+# but instead store them on the host disk (see `CARGO_HOME`) (i.e.
+# this directory is also persisted on disk but ignored by git))
+ENV RUSTUP_HOME="${DEV_CONTAINER_FILES_DIR}/rustup_home"
 
-# `/workspaces/uncore` is the directory we mount the respository root
-# directory to, in order to compile and run unCORE.
-WORKDIR /workspaces/uncore
+# This is the location where we mount the repository into and also
+# where we will work.
+WORKDIR "${WORKSPACE_DIR}"
 
 USER ubuntu
