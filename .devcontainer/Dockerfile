@@ -11,7 +11,8 @@
 # We use a custom base image (that itself is based on Ubuntu). The
 # image contains additional helpers and programs that ease working
 # inside a Development Container. The image does *not* contain
-# programs or configuration files that are required to build unCORE!
+# programs or configuration files that you could not install manually
+# by yourself.
 FROM ghcr.io/georglauterbach/dev-container-base:1.0.0
 
 SHELL [ "/bin/bash", "-eE", "-u", "-o", "pipefail", "-c" ]
@@ -110,4 +111,7 @@ ENV RUSTUP_HOME="${DEV_CONTAINER_FILES_DIR}/rustup_home"
 # where we will work.
 WORKDIR "${WORKSPACE_DIR}"
 
+# We do not need not do we want to be `root`. The Development Containers
+# standard translates the UID of the host user so that no file conflicts
+# arise.
 USER ubuntu

@@ -1,5 +1,9 @@
-// ref: https://code.visualstudio.com/docs/devcontainers/create-dev-container
-// ref: https://containers.dev/implementors/json_schema/
+// general::ref: https://code.visualstudio.com/docs/devcontainers/containers
+// creation::ref: https://code.visualstudio.com/docs/devcontainers/create-dev-container
+// json_schema::ref: https://containers.dev/implementors/json_schema/
+// variables::ref:
+//   https://github.com/microsoft/vscode-remote-release/issues/2697#issuecomment-609854675
+//   https://containers.dev/implementors/json_reference/#variables-in-devcontainerjson
 {
   "name": "unCORE",
   "build": {
@@ -15,6 +19,11 @@
       // workspace.
       "WORKSPACE_DIR_ARG": "${containerWorkspaceFolder}"
     },
+    "options": [
+      // Having plain output while building, and not the collapsed BuildKit output,
+      // makes finding problems easier.
+      "--progress=plain"
+    ]
   },
   "updateRemoteUserUID": true,
   "remoteUser": "ubuntu",
@@ -52,6 +61,11 @@
         "files.trimTrailingWhitespace": true,
         "files.exclude": {
           "**/.git": true
+        },
+        "files.watcherExclude": {
+          "**/.git/objects/": true,
+          "code/target": true,
+          "code/.dev_container/": true
         },
         // ? extensions
         // * extensions::docsView
