@@ -88,11 +88,6 @@ ENV PATH="/rustup/bin:${PATH}"
 # Moreover, we do not want to interfere with Cargo's output
 # directory of the host (in case someone want to use both this container
 # image and the hst); hence, we use a different output directory.
-ENV CARGO_TARGET_DIR=dev-container/target
-
-# Moreover, we do not want to interfere with Cargo's output
-# directory of the host (in case someone want to use both this container
-# image and the hst); hence, we use a different output directory.
 ENV CARGO_TARGET_DIR="${DEV_CONTAINER_FILES_DIR}/target"
 
 # This environment variable ensure Cargo stores its index in
