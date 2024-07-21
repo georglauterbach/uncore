@@ -14,23 +14,15 @@ pub mod test;
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
   if let Some(location) = info.location() {
-    info.message().map_or_else(
-      || {
-        ::log::error!(
-          "thread 'X' panicked at {}:{}: no message provided",
-          location.file(),
-          location.line()
-        );
-      },
-      |message| {
-        ::log::error!(
-          "thread 'X' panicked at {}:{}: {:?}",
-          location.file(),
-          location.line(),
-          message
-        );
-      },
+    let message = info.message().as_str().unwrap_or("no message available");
+    ::log::error!(
+      "Panicked in file {}, line {}, column {}: {message}",
+      location.file(),
+      location.line(),
+      location.column()
     );
+  } else {
+    ::log::error!("Panic without location information - you are out of luck!");
   }
 
   arch::exit_kernel(crate::UncoreResult::Err);

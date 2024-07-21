@@ -64,16 +64,16 @@ lto = false
 # -----------------------------------------------
 
 [dependencies]
-anyhow = "1.0.79"
-chrono = "0.4.31"
-clap = { version = "4.4.16", features = ["derive"] }
-clap-verbosity-flag = "2.1.1"
+anyhow = "1.0.86"
+chrono = "0.4.38"
+clap = { version = "4.5.9", features = ["derive"] }
+clap-verbosity-flag = "2.2.0"
 colored = "2.1.0"
-log = "0.4.20"
-regex = "1.10.2"
-toml = "0.8.8"
+log = "0.4.22"
+regex = "1.10.5"
+toml = "0.8.15"
 wait-timeout = "0.2.0"
-which = "6.0.0"
+which = "6.0.1"
 
 # -----------------------------------------------
 # ----  Workspace  ------------------------------

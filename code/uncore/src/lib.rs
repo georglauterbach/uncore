@@ -27,8 +27,6 @@
 // Use custom test runners. Since we cannot use the standard
 // library, we have to use our own test framework.
 #![feature(custom_test_frameworks)]
-// Allows reading the message of a call to `panic!()`.
-#![feature(panic_info_message)]
 
 // ? MODULES and GLOBAL / CRATE-LEVEL FUNCTIONS
 // ? ---------------------------------------------------------------------
