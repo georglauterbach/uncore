@@ -6,51 +6,38 @@
 //   https://containers.dev/implementors/json_reference/#variables-in-devcontainerjson
 {
   "name": "unCORE",
-  "build": {
-    // We build from the `Dockerfile` inside the `.devcontainer/` directory
-    "dockerfile": "Dockerfile",
-    "args": {
-      // We use this build-argument during the build process to be able to work with
-      // arbitrary paths (for mounting this workspace into the container) inside
-      // the Development Container. Moreover, it provides us with the ability to
-      // fully automate creation of required directories, etc.
-      // Inside the Dockerfile, we also provide a fallback value that is equal to
-      // the default location that Development Containers use for mounting a
-      // workspace.
-      "WORKSPACE_DIR_ARG": "${containerWorkspaceFolder}"
-    },
-    "options": [
-      // Having plain output while building, and not the collapsed BuildKit output,
-      // makes finding problems easier.
-      "--progress=plain"
-    ]
+  "image": "ghcr.io/georglauterbach/dev-container-base:1.3.2",
+  "features": {
+    "ghcr.io/georglauterbach/dev-container-features/rust:0.4.0": {
+      "additional-packages": "gdb-multiarch,jq,qemu-system-riscv64",
+      "install-mold": "true"
+    }
   },
   "updateRemoteUserUID": true,
   "remoteUser": "ubuntu",
   "containerUser": "ubuntu",
   "containerEnv": {
+    "CARGO_TARGET_DIR": "${containerWorkspaceFolder}/code/.dev_container/target",
+    "CARGO_HOME": "${containerWorkspaceFolder}/code/.dev_container/cargo_home",
+    "RUSTUP_HOME": "${containerWorkspaceFolder}/code/.dev_container/rustup_home",
     "UNCORE_DEV_CONTAINER": "true"
   },
-  // The repository root directory is mounted to `${WORKSPACE_DIR}`
+  // The repository root directory is mounted to `${containerWorkspaceFolder}`
   // implicitly (by the dev-container spec), and we want to navigate there and
   // then into the code sub-directory to immediately download the correct components
   // (that Cargo detects from the workspace setup in this directory).
   "postStartCommand": {
     "show version of rustup": "rustup --version",
-    "show version of cargo and rustc": "cd \"${WORKSPACE_DIR}/code\" ; cargo --version ; rustc --version ;",
+    "show version of cargo and rustc": "cd \"${containerWorkspaceFolder}/code\" ; cargo --version ; rustc --version ;",
     "show version of mold": "mold --version",
-    "set up VS Code tasks": "mkdir -p \"${WORKSPACE_DIR}/.vscode\" && cp --no-clobber \"${WORKSPACE_DIR}/.devcontainer/vscode/\"* \"${WORKSPACE_DIR}/.vscode/\""
+    "set up VS Code tasks": "mkdir -p \"${containerWorkspaceFolder}/.vscode\" && cp --no-clobber \"${containerWorkspaceFolder}/.devcontainer/vscode/\"* \"${containerWorkspaceFolder}/.vscode/\""
   },
   "customizations": {
     "vscode": {
       "extensions": [
-        "rust-lang.rust-analyzer",
         "ZixuanWang.linkerscript",
         "sunshaoce.RISC-V",
-        "tamasfe.even-better-toml",
-        "serayuzgur.crates",
         "webfreak.debug",
-        "vadimcn.vscode-lldb",
         "bierner.docs-view",
         "EditorConfig.EditorConfig",
         "streetsidesoftware.code-spell-checker"
@@ -89,7 +76,10 @@
           "riscv"
         ],
         // * extensions::rust-analyzer
-        "rust-analyzer.cargo.allTargets": false
+        "rust-analyzer.cargo.allTargets": false,
+        "rust-analyzer.diagnostics.disabled": [
+          "inactive-code"
+        ]
       }
     }
   }
