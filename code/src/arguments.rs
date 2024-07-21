@@ -99,7 +99,7 @@ impl ArchitectureSpecification {
   fn riscv64() -> Self {
     let mut kernel_binary_path = Self::append_to_base_dir("/");
     if crate::environment::is_inside_container() {
-      kernel_binary_path.push_str("dev-container/");
+      kernel_binary_path.push_str(".dev_container/");
     };
     kernel_binary_path.push_str("target/riscv64gc-unknown-none-elf/debug/uncore");
 
