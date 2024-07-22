@@ -21,10 +21,6 @@ The [documentation][docs::main-landing-page] is hosted on [GitHub Pages][docs::g
 docker run --rm -it -v ./documentation:/docs -p 8080:8080 docker.io/squidfunk/mkdocs-material:9.5.4 serve --dev-addr 0.0.0.0:8080
 ```
 
-## Git Statistics
-
-![Axiom Statistics](https://repobeats.axiom.co/api/embed/d36f740ae8f9a80860107b30ddaf09e674962669.svg "Repobeats analytics image")
-
 [//]: # (Badges)
 
 [badge::ci::code-tests]: https://github.com/georglauterbach/uncore/actions/workflows/code_tests_and_checks.yml/badge.svg?branch=master
