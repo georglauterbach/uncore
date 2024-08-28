@@ -27,10 +27,10 @@
   // then into the code sub-directory to immediately download the correct components
   // (that Cargo detects from the workspace setup in this directory).
   "postStartCommand": {
-    "show version of rustup": "rustup --version",
-    "show version of cargo and rustc": "cd \"${containerWorkspaceFolder}/code\" ; cargo --version ; rustc --version ;",
-    "show version of mold": "mold --version",
-    "set up VS Code tasks": "mkdir -p \"${containerWorkspaceFolder}/.vscode\" && cp --no-clobber \"${containerWorkspaceFolder}/.devcontainer/vscode/\"* \"${containerWorkspaceFolder}/.vscode/\""
+    "rustup --version": "rustup --version",
+    "cargo --version && rustc --version": "cd \"${containerWorkspaceFolder}/code\" ; cargo --version ; rustc --version ;",
+    "mold --version": "mold --version",
+    "VS Code setup tasks": "mkdir -p \"${containerWorkspaceFolder}/.vscode\" && cp --update=none \"${containerWorkspaceFolder}/.devcontainer/vscode/\"* \"${containerWorkspaceFolder}/.vscode/\""
   },
   "customizations": {
     "vscode": {
