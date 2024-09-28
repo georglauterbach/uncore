@@ -77,4 +77,4 @@ pub fn get_all_environment_variables_for_build(
 }
 
 /// Returns `true` if we are building and running `unCORE` inside a Development Container.
-pub fn is_inside_container() -> bool { std::env::var("UNCORE_DEV_CONTAINER").is_ok_and(|val| val == "true") }
+pub fn is_inside_container() -> bool { std::env::var("DEV_CONTAINER_BASE").is_ok() }
