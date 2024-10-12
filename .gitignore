@@ -24,7 +24,5 @@ documentation/site
 # -----------------------------------------------
 
 code/target/
-code/.dev_container/
-
-code/.cargo/home/
-code/.cargo/rustup/
+code/.rustup
+code/.cargo_home

@@ -6,20 +6,20 @@
 //   https://containers.dev/implementors/json_reference/#variables-in-devcontainerjson
 {
   "name": "unCORE",
-  "image": "ghcr.io/georglauterbach/dev-container-base:2.0.0",
+  "image": "ghcr.io/georglauterbach/dev-container-base:2.1.0",
   "features": {
-    "ghcr.io/georglauterbach/dev-container-features/rust:0.5.0": {
-      "additional-packages": "gdb-multiarch,jq,qemu-system-riscv64",
-      "install-mold": "true"
+    "ghcr.io/georglauterbach/dev-container-features/rust:4.0.0": {
+      "system.packages.additional-packages": "gdb-multiarch,jq,qemu-system-riscv64",
+      "linker.mold.install": "true"
     }
   },
   "updateRemoteUserUID": true,
   "remoteUser": "ubuntu",
   "containerUser": "ubuntu",
   "containerEnv": {
-    "CARGO_TARGET_DIR": "${containerWorkspaceFolder}/code/.dev_container/target",
-    "CARGO_HOME": "${containerWorkspaceFolder}/code/.dev_container/cargo_home",
-    "RUSTUP_HOME": "${containerWorkspaceFolder}/code/.dev_container/rustup_home",
+    "CARGO_TARGET_DIR": "${containerWorkspaceFolder}/code/target",
+    "CARGO_HOME": "${containerWorkspaceFolder}/code/.cargo_home",
+    "RUSTUP_HOME": "${containerWorkspaceFolder}/code/.rustup",
     "HERMES_LOAD_WRAPPER": "true"
   },
   // The repository root directory is mounted to `${containerWorkspaceFolder}`
@@ -28,7 +28,7 @@
   // (that Cargo detects from the workspace setup in this directory).
   "postStartCommand": {
     "rustup --version": "rustup --version",
-    "cargo --version && rustc --version": "cd \"${containerWorkspaceFolder}/code\" ; cargo --version ; rustc --version ;",
+    "cargo --version && rustc --version": "cargo --version ; rustc --version ;",
     "mold --version": "mold --version",
     "VS Code setup tasks": "mkdir -p \"${containerWorkspaceFolder}/.vscode\" && cp --update=none \"${containerWorkspaceFolder}/.devcontainer/vscode/\"* \"${containerWorkspaceFolder}/.vscode/\""
   },
@@ -38,8 +38,6 @@
         "ZixuanWang.linkerscript",
         "sunshaoce.RISC-V",
         "webfreak.debug",
-        "bierner.docs-view",
-        "EditorConfig.EditorConfig",
         "streetsidesoftware.code-spell-checker"
       ],
       "settings": {
@@ -47,12 +45,13 @@
         "files.insertFinalNewline": true,
         "files.trimTrailingWhitespace": true,
         "files.exclude": {
-          "**/.git": true
+          "code/.rustup": true,
+          "code/.cargo_home": true
         },
         "files.watcherExclude": {
-          "**/.git/objects/": true,
           "code/target": true,
-          "code/.dev_container/": true
+          "code/.rustup": true,
+          "code/.cargo_home": true
         },
         // ? extensions
         // * extensions::docsView

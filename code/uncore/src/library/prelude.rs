@@ -46,11 +46,11 @@ macro_rules! panic_on_error {
 /// [this guide](https://mcyoung.xyz/2021/06/01/linker-script/#linker-symbols).
 macro_rules! transform_linker_symbol_to_value {
   ($identifier:ident) => {
-    unsafe { core::ptr::addr_of!($identifier) }
+    core::ptr::addr_of!($identifier)
   };
 
   (mut $identifier:ident) => {
-    unsafe { core::ptr::addr_of_mut!($identifier) }
+    core::ptr::addr_of_mut!($identifier)
   };
 
   ($identifier:ident, $final_type:ty) => {
