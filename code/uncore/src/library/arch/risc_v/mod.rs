@@ -18,9 +18,11 @@ mod interrupts_exceptions;
 /// No logging is available here yet.
 pub fn initialize(hart: usize) { drivers::initialize(hart); }
 
-/// Architecture-specific kernel exit. This function uses [`sbi`] to stop the machine. In
-/// case of an error, we need to use the SiFive-Test device because the [`sbi`] crate does
-/// not exit QEMU in a way that an error is produced.
+/// Architecture-specific kernel exit.
+///
+/// This function uses [`sbi`] to stop the machine. In case of an error, we need to use
+/// the SiFive-Test device because the [`sbi`] crate does not exit QEMU in a way that an
+/// error is produced.
 pub fn exit_kernel(condition: crate::UncoreResult) -> ! {
   use sbi::system_reset;
 

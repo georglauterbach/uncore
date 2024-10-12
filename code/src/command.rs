@@ -50,31 +50,31 @@ pub enum Command {
 impl Command {
   /// Dispatches the given subcommand, thereby executing the correct action (building,
   /// running, debugging, etc.).
-  pub fn execute(arguments: &arguments::Arguments) -> anyhow::Result<()> {
+  pub fn execute(arguments: arguments::Arguments) -> anyhow::Result<()> {
     let architecture = arguments.architecture;
     check_build_time_dependencies(architecture)?;
     let architecture_specification: &arguments::ArchitectureSpecification = &arguments.architecture.into();
 
-    match &arguments.command {
+    match arguments.command {
       Self::Build => build(architecture_specification)?,
       Self::Run { debug } => {
-        check_run_time_dependencies(architecture, *debug)?;
+        check_run_time_dependencies(architecture, debug)?;
         build(architecture_specification)?;
-        run(architecture_specification, *debug)?;
+        run(architecture_specification, debug)?;
       },
       Self::UTest { debug } => {
-        check_run_time_dependencies(architecture, *debug)?;
-        run_unit_tests(architecture_specification, *debug)?;
+        check_run_time_dependencies(architecture, debug)?;
+        run_unit_tests(architecture_specification, debug)?;
       },
       Self::ITest { debug, test } => {
-        check_run_time_dependencies(architecture, *debug)?;
-        run_integration_tests(architecture_specification, *debug, test)?;
+        check_run_time_dependencies(architecture, debug)?;
+        run_integration_tests(architecture_specification, debug, test.as_ref())?;
       },
       Self::Check => {
         check(architecture_specification)?;
       },
       Self::Doc { open, watch } => {
-        documentation(architecture_specification, *open, *watch)?;
+        documentation(architecture_specification, open, watch)?;
       },
     }
     Ok(())
@@ -413,7 +413,7 @@ fn run_unit_tests(
 fn run_integration_tests(
   arch_specification: &arguments::ArchitectureSpecification,
   is_debug: bool,
-  test: &Option<String>,
+  test: Option<&String>,
 ) -> anyhow::Result<()> {
   log::info!("Building integration test binaries");
   let mut qemu_arguments = arch_specification.qemu_arguments();

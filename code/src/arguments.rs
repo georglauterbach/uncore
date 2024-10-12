@@ -45,7 +45,7 @@ impl Arguments {
     } else {
       log::debug!("Running outside a container");
     }
-    match super::command::Command::execute(&self) {
+    match super::command::Command::execute(self) {
       Ok(()) => Ok(()),
       Err(error) => {
         log::error!(

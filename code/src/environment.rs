@@ -41,6 +41,7 @@ fn get_toolchain() -> anyhow::Result<String> {
     .parse::<toml::Table>()?;
 
   Ok(
+    #[allow(clippy::or_fun_call)]
     rust_toolchain_file
       .get("toolchain")
       .expect("Could not get table 'toolchain' from rust-toolchain.toml")
