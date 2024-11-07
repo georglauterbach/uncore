@@ -6,9 +6,9 @@
 //   https://containers.dev/implementors/json_reference/#variables-in-devcontainerjson
 {
   "name": "unCORE",
-  "image": "ghcr.io/georglauterbach/dev-container-base:2.1.0",
+  "image": "ghcr.io/georglauterbach/dev-container-base:3.0.0",
   "features": {
-    "ghcr.io/georglauterbach/dev-container-features/rust:4.0.0": {
+    "ghcr.io/georglauterbach/dev-container-features/rust:5.1.0": {
       "system.packages.additional-packages": "gdb-multiarch,jq,qemu-system-riscv64",
       "linker.mold.install": "true"
     }
