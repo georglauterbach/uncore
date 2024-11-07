@@ -11,7 +11,7 @@
 # General information about the keys below can be found under
 # https://rust-lang.github.io/rustup/concepts/index.html
 [toolchain]
-channel = 'nightly-2024-10-10'
+channel = 'nightly-2024-11-07'
 components = [ 'cargo', 'rustc', 'rust-std', 'clippy', 'rustfmt' ]
 targets = [
   'riscv64gc-unknown-none-elf',
